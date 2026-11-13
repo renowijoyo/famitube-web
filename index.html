@@ -499,10 +499,10 @@
       <button id="btnModeStudio" class="btn btn-secondary" onclick="openStudio()">
         <span class="material-symbols-rounded">admin_panel_settings</span> Curator Studio
       </button>
-      <a id="linkChannelsJson" href="http://localhost:4000/api/channels" target="_blank" class="btn btn-secondary">
+      <a id="linkChannelsJson" href="https://kidstube-api.gamantha.my.id/api/channels" target="_blank" class="btn btn-secondary">
         <span class="material-symbols-rounded">tv</span> Channels JSON
       </a>
-      <a id="linkVideosJson" href="http://localhost:4000/api/videos" target="_blank" class="btn btn-secondary">
+      <a id="linkVideosJson" href="https://kidstube-api.gamantha.my.id/api/videos" target="_blank" class="btn btn-secondary">
         <span class="material-symbols-rounded">api</span> Videos JSON
       </a>
       <div id="userBar" style="display:none; align-items:center; gap:0.75rem; margin-left:0.25rem;">
@@ -857,13 +857,19 @@
 
   <script>
     const API_BASE = (() => {
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const defaultApi = isLocal ? 'http://localhost:4000' : 'https://kidstube-api.gamantha.my.id';
       const param = new URLSearchParams(window.location.search).get('api');
       if (param) {
         const cleaned = param.replace(/\/+$/, '');
         localStorage.setItem('kidstube_api_url', cleaned);
         return cleaned;
       }
-      return (localStorage.getItem('kidstube_api_url') || 'http://localhost:4000').replace(/\/+$/, '');
+      const saved = localStorage.getItem('kidstube_api_url');
+      if (saved && (isLocal || !saved.includes('localhost'))) {
+        return saved.replace(/\/+$/, '');
+      }
+      return defaultApi;
     })();
     const apiUrl = (path) => `${API_BASE}${path}`;
     document.getElementById('linkChannelsJson').href = apiUrl('/api/channels');
