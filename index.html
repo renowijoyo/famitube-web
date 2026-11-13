@@ -492,14 +492,20 @@
         <span class="brand-badge">STUDIO CURATOR</span>
       </div>
     </a>
-    <div style="display:flex; gap:1rem; align-items:center;">
+    <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+      <button id="btnModeShowcase" class="btn btn-primary" onclick="openShowcase()">
+        <span class="material-symbols-rounded">explore</span> Showcase
+      </button>
+      <button id="btnModeStudio" class="btn btn-secondary" onclick="openStudio()">
+        <span class="material-symbols-rounded">admin_panel_settings</span> Curator Studio
+      </button>
       <a id="linkChannelsJson" href="http://localhost:4000/api/channels" target="_blank" class="btn btn-secondary">
         <span class="material-symbols-rounded">tv</span> Channels JSON
       </a>
       <a id="linkVideosJson" href="http://localhost:4000/api/videos" target="_blank" class="btn btn-secondary">
         <span class="material-symbols-rounded">api</span> Videos JSON
       </a>
-      <div id="userBar" style="display:none; align-items:center; gap:0.75rem; margin-left:0.5rem;">
+      <div id="userBar" style="display:none; align-items:center; gap:0.75rem; margin-left:0.25rem;">
         <span id="userEmailLabel" style="font-size:0.85rem; color:var(--text-muted);"></span>
         <button class="btn btn-secondary btn-sm" onclick="handleLogout()">
           <span class="material-symbols-rounded">logout</span> Logout
@@ -507,6 +513,26 @@
       </div>
     </div>
   </header>
+
+  <!-- Public Kids Showcase -->
+  <div class="container" id="showcaseApp" style="display:block;">
+    <div class="card" style="padding:1.75rem 2rem; margin-bottom:1.75rem; background:linear-gradient(135deg, rgba(255,51,102,0.16), rgba(67,97,238,0.18)); border-color:rgba(76,201,240,0.25);">
+      <h2 style="font-size:1.6rem; margin-bottom:0.35rem;">Safe, Curated Kids Channels &amp; Educational Videos</h2>
+      <p style="color:var(--text-muted); font-size:0.95rem;">Pick a themed channel below to explore hand-picked, kid-friendly YouTube and educational videos. To add or manage content, switch to <strong>Curator Studio</strong>.</p>
+    </div>
+
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; gap:1rem; flex-wrap:wrap;">
+      <h3 style="font-size:1.2rem;">Featured Channels</h3>
+      <button id="btnShowAllChannels" class="btn btn-secondary btn-sm" onclick="selectShowcaseChannel(null)">Show All Videos</button>
+    </div>
+    <div id="showcaseChannels" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:1rem; margin-bottom:2rem;"></div>
+
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; gap:1rem; flex-wrap:wrap;">
+      <h3 id="showcaseVideosHeading" style="font-size:1.2rem;">Curated Videos</h3>
+      <span id="showcaseVideosCount" style="color:var(--text-muted); font-size:0.9rem;"></span>
+    </div>
+    <div id="showcaseVideos" class="video-grid"></div>
+  </div>
 
   <!-- Auth Gate (Login / Register / Email Verification) -->
   <div id="authGate" style="display:none; min-height:calc(100vh - 80px); align-items:center; justify-content:center; padding:2rem;">
@@ -866,13 +892,56 @@
       document.getElementById('tabAuthRegister').className = isLogin ? 'btn btn-secondary' : 'btn btn-primary';
     }
 
+    function setModeButtons(mode) {
+      document.getElementById('btnModeShowcase').className = mode === 'showcase' ? 'btn btn-primary' : 'btn btn-secondary';
+      document.getElementById('btnModeStudio').className = mode === 'studio' ? 'btn btn-primary' : 'btn btn-secondary';
+    }
+
+    function openShowcase() {
+      setModeButtons('showcase');
+      document.getElementById('showcaseApp').style.display = 'block';
+      document.getElementById('authGate').style.display = 'none';
+      document.getElementById('studioApp').style.display = 'none';
+      loadShowcase();
+    }
+
+    async function openStudio() {
+      setModeButtons('studio');
+      document.getElementById('showcaseApp').style.display = 'none';
+      if (!authToken) {
+        showAuthGate();
+        return;
+      }
+      try {
+        const res = await fetch(apiUrl('/api/auth/me'), {
+          headers: { Authorization: `Bearer ${authToken}` }
+        });
+        const json = await res.json();
+        if (!res.ok || !json.success) {
+          handleLogout();
+          return;
+        }
+        showStudioApp(json.user);
+        loadStats();
+        loadVideos();
+        loadChannels();
+      } catch {
+        showAuthGate();
+        showAuthAlert('Unable to reach API server at ' + API_BASE, true);
+      }
+    }
+
     function showAuthGate() {
+      setModeButtons('studio');
+      document.getElementById('showcaseApp').style.display = 'none';
       document.getElementById('authGate').style.display = 'flex';
       document.getElementById('studioApp').style.display = 'none';
       document.getElementById('userBar').style.display = 'none';
     }
 
     function showStudioApp(user) {
+      setModeButtons('studio');
+      document.getElementById('showcaseApp').style.display = 'none';
       document.getElementById('authGate').style.display = 'none';
       document.getElementById('studioApp').style.display = 'block';
       document.getElementById('userBar').style.display = 'flex';
@@ -1410,29 +1479,114 @@
       document.getElementById('playerModal').style.display = 'none';
     }
 
-    // Init with auth check
-    async function initApp() {
-      if (!authToken) {
-        showAuthGate();
+    let showcaseChannels = [];
+    let activeShowcaseChannelId = null;
+
+    async function loadShowcase() {
+      try {
+        const res = await fetch(apiUrl('/api/channels'));
+        const json = await res.json();
+        if (json.success) {
+          showcaseChannels = json.data;
+          renderShowcaseChannels();
+          await selectShowcaseChannel(activeShowcaseChannelId);
+        }
+      } catch {
+        document.getElementById('showcaseChannels').innerHTML =
+          '<p style="color:var(--text-muted);">Unable to load showcase from API at ' + API_BASE + '</p>';
+      }
+    }
+
+    function renderShowcaseChannels() {
+      const grid = document.getElementById('showcaseChannels');
+      grid.innerHTML = showcaseChannels.map(c => {
+        const isActive = activeShowcaseChannelId === c.id;
+        const isLive = c.channelType === 'LIVE_TV';
+        return `
+          <div class="card" onclick="selectShowcaseChannel('${c.id}')" style="cursor:pointer; padding:1.15rem; transition:transform 0.15s, border-color 0.15s; border-color:${isActive ? 'var(--primary)' : 'var(--border)'}; background:${isActive ? 'rgba(255,51,102,0.08)' : 'var(--surface)'};">
+            <div style="display:flex; align-items:center; gap:0.85rem; margin-bottom:0.65rem;">
+              <img src="${c.avatarUrl}" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid ${isLive ? 'var(--primary)' : 'var(--accent)'};">
+              <div style="min-width:0;">
+                <div style="font-weight:700; font-size:0.98rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.name}</div>
+                <div style="font-size:0.78rem; color:var(--accent);">${c.category} &bull; ${c.videoCount || 0} videos</div>
+              </div>
+            </div>
+            <p style="color:var(--text-muted); font-size:0.82rem; line-height:1.4; margin:0;">${c.description}</p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function selectShowcaseChannel(channelId) {
+      activeShowcaseChannelId = channelId;
+      renderShowcaseChannels();
+      const heading = document.getElementById('showcaseVideosHeading');
+      const countEl = document.getElementById('showcaseVideosCount');
+      const grid = document.getElementById('showcaseVideos');
+
+      let videos = [];
+      if (channelId) {
+        const ch = showcaseChannels.find(c => c.id === channelId);
+        heading.textContent = ch ? `${ch.name} — Curated Videos` : 'Channel Videos';
+        const res = await fetch(apiUrl('/api/channels/' + channelId));
+        const json = await res.json();
+        videos = json.success ? json.data.videos : [];
+      } else {
+        heading.textContent = 'All Curated Kids Videos';
+        const res = await fetch(apiUrl('/api/videos'));
+        const json = await res.json();
+        videos = json.success ? json.data : [];
+      }
+
+      countEl.textContent = `${videos.length} video${videos.length === 1 ? '' : 's'}`;
+      if (videos.length === 0) {
+        grid.innerHTML = '<p style="color:var(--text-muted);">No curated videos in this channel yet.</p>';
         return;
       }
-      try {
-        const res = await fetch(apiUrl('/api/auth/me'), {
-          headers: { Authorization: `Bearer ${authToken}` }
-        });
-        const json = await res.json();
-        if (!res.ok || !json.success) {
-          handleLogout();
-          return;
+      grid.innerHTML = videos.map(v => `
+        <div class="video-card">
+          <div class="video-thumb-wrap" onclick='previewVideo(${JSON.stringify(v).replace(/'/g, "&#39;")})'>
+            <img src="${v.thumbnailUrl}" class="video-thumb" alt="${v.title}">
+            <div class="badge-type">${v.sourceType}</div>
+            <div class="badge-age">${v.ageRating}</div>
+            <div class="duration-badge">${formatTime(v.duration || 180)}</div>
+          </div>
+          <div class="video-body">
+            <div class="video-title" title="${v.title}">${v.title}</div>
+            <div class="video-meta">
+              <img src="${v.channelAvatar}" class="channel-pic">
+              <span>${v.channelTitle}</span>
+              <span>&bull;</span>
+              <span>${v.category}</span>
+            </div>
+            <div class="tag-row">
+              ${(v.tags || []).slice(0, 3).map(t => `<span class="tag-chip">#${t}</span>`).join('')}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Init: show public showcase by default; Curator Studio stays behind login wall
+    async function initApp() {
+      if (authToken) {
+        try {
+          const res = await fetch(apiUrl('/api/auth/me'), {
+            headers: { Authorization: `Bearer ${authToken}` }
+          });
+          const json = await res.json();
+          if (res.ok && json.success) {
+            document.getElementById('userBar').style.display = 'flex';
+            document.getElementById('userEmailLabel').textContent = json.user?.email || '';
+          } else {
+            authToken = '';
+            localStorage.removeItem(AUTH_TOKEN_KEY);
+          }
+        } catch {
+          // ignore silent check failure; showcase still loads
         }
-        showStudioApp(json.user);
-        loadStats();
-        loadVideos();
-        loadChannels();
-      } catch {
-        showAuthGate();
-        showAuthAlert('Unable to reach API server at ' + API_BASE, true);
       }
+      openShowcase();
     }
     initApp();
   </script>
