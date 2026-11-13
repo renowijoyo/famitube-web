@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KidsTube Studio - Video Curation Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <style>
+    :root {
+      --primary: #FF3366;
+      --primary-hover: #E02856;
+      --secondary: #4361EE;
+      --accent: #4CC9F0;
+      --success: #06D6A0;
+      --warning: #FFB703;
+      --bg: #0F172A;
+      --surface: #1E293B;
+      --surface-light: #334155;
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --border: #334155;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, #FF3366, #FF758C);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-family: 'Fredoka', cursive;
+      font-size: 1.5rem;
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(255, 51, 102, 0.4);
+    }
+
+    .brand-title {
+      font-family: 'Fredoka', cursive;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-badge {
+      background: rgba(67, 97, 238, 0.2);
+      color: var(--accent);
+      border: 1px solid rgba(76, 201, 240, 0.3);
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: 0.5rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.2rem;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 0.875rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+    .btn-secondary { background: var(--surface-light); color: var(--text); }
+    .btn-secondary:hover { background: #475569; }
+    .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
+
+    .container {
+      max-width: 1300px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      width: 100%;
+      flex: 1;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .stat-num { font-size: 1.75rem; font-weight: 700; font-family: 'Fredoka', cursive; }
+    .stat-label { color: var(--text-muted); font-size: 0.85rem; }
+
+    .curation-box {
+      background: linear-gradient(145deg, #1E293B, #1A2234);
+      border: 2px dashed rgba(255, 51, 102, 0.4);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .curation-box h2 {
+      font-family: 'Fredoka', cursive;
+      font-size: 1.35rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #FF758C;
+    }
+
+    .curation-box p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.25rem; }
+
+    .url-input-row { display: flex; gap: 0.75rem; margin-bottom: 1rem; }
+    .url-input-row input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 0.85rem 1.2rem;
+      border-radius: var(--radius-sm);
+      color: white;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    .url-input-row input:focus { border-color: var(--primary); }
+
+    #curationForm {
+      display: none;
+      grid-template-columns: 280px 1fr;
+      gap: 1.5rem;
+      background: var(--bg);
+      padding: 1.25rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      margin-top: 1rem;
+    }
+
+    .preview-thumb {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+
+    .form-fields { display: flex; flex-direction: column; gap: 0.75rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+      font-weight: 500;
+    }
+
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.55rem 0.75rem;
+      border-radius: var(--radius-sm);
+      color: white;
+      font-size: 0.9rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 1rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      position: relative;
+    }
+    .tab-btn.active { color: var(--primary); }
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--primary);
+      border-radius: 3px 3px 0 0;
+    }
+
+    .filter-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.4rem 0.8rem;
+      gap: 0.5rem;
+      min-width: 280px;
+    }
+
+    .search-box input {
+      background: none;
+      border: none;
+      color: white;
+      outline: none;
+      width: 100%;
+      font-size: 0.9rem;
+    }
+
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .video-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .video-card:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(0,0,0,0.3); }
+
+    .video-thumb-wrap { position: relative; height: 180px; background: black; cursor: pointer; }
+    .video-thumb { width: 100%; height: 100%; object-fit: cover; }
+
+    .play-overlay {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 50px; height: 50px;
+      background: rgba(255, 51, 102, 0.9);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .video-thumb-wrap:hover .play-overlay { opacity: 1; }
+
+    .badge-type {
+      position: absolute;
+      top: 10px; left: 10px;
+      background: rgba(15, 23, 42, 0.85);
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .badge-age {
+      position: absolute;
+      top: 10px; right: 10px;
+      background: rgba(67, 97, 238, 0.9);
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .duration-badge {
+      position: absolute;
+      bottom: 10px; right: 10px;
+      background: rgba(0,0,0,0.8);
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .video-info { padding: 1rem; display: flex; flex-direction: column; flex: 1; }
+    .video-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 0.4rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .video-channel {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-muted);
+      font-size: 0.825rem;
+      margin-bottom: 0.75rem;
+    }
+    .channel-pic { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
+
+    .video-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 1rem; }
+    .tag-chip {
+      background: var(--surface-light);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      color: var(--accent);
+    }
+
+    .video-actions {
+      margin-top: auto;
+      border-top: 1px solid var(--border);
+      padding-top: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .btn-icon {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: 0.3rem;
+      border-radius: 6px;
+      transition: color 0.2s, background 0.2s;
+    }
+    .btn-icon:hover { color: white; background: var(--surface-light); }
+    .btn-icon.delete:hover { color: #FF3366; }
+
+    .pill-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(255, 51, 102, 0.2);
+      color: #FF3366;
+      border: 1px solid rgba(255, 51, 102, 0.5);
+      padding: 0.25rem 0.65rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .pill-ondemand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(76, 201, 240, 0.15);
+      color: #4CC9F0;
+      border: 1px solid rgba(76, 201, 240, 0.4);
+      padding: 0.25rem 0.65rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .channel-creator-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .modal-content {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      width: 100%;
+      max-width: 820px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .player-wrap { width: 100%; height: 420px; background: black; }
+    .player-wrap iframe, .player-wrap video { width: 100%; height: 100%; border: none; }
+    .modal-body { padding: 1.25rem 1.5rem; }
+
+    .schedule-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="/" class="brand">
+      <div class="brand-logo">K</div>
+      <div>
+        <span class="brand-title">KidsTube</span>
+        <span class="brand-badge">STUDIO CURATOR</span>
+      </div>
+    </a>
+    <div style="display:flex; gap:1rem; align-items:center;">
+      <a id="linkChannelsJson" href="http://localhost:4000/api/channels" target="_blank" class="btn btn-secondary">
+        <span class="material-symbols-rounded">tv</span> Channels JSON
+      </a>
+      <a id="linkVideosJson" href="http://localhost:4000/api/videos" target="_blank" class="btn btn-secondary">
+        <span class="material-symbols-rounded">api</span> Videos JSON
+      </a>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Stats Row -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(255, 51, 102, 0.15); color: #FF3366;">
+          <span class="material-symbols-rounded">video_library</span>
+        </div>
+        <div>
+          <div class="stat-num" id="statVideos">-</div>
+          <div class="stat-label">Curated Videos</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(67, 97, 238, 0.15); color: #4361EE;">
+          <span class="material-symbols-rounded">tv</span>
+        </div>
+        <div>
+          <div class="stat-num" id="statChannels">-</div>
+          <div class="stat-label">Channels (Live TV & On-Demand)</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(76, 201, 240, 0.15); color: #4CC9F0;">
+          <span class="material-symbols-rounded">playlist_play</span>
+        </div>
+        <div>
+          <div class="stat-num" id="statPlaylists">-</div>
+          <div class="stat-label">Playlists</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(6, 214, 160, 0.15); color: #06D6A0;">
+          <span class="material-symbols-rounded">visibility</span>
+        </div>
+        <div>
+          <div class="stat-num" id="statViews">-</div>
+          <div class="stat-label">Total Watch Views</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Curation Tool -->
+    <div class="curation-box">
+      <h2><span class="material-symbols-rounded">add_circle</span> Curate a New Video for KidsTube</h2>
+      <p>Paste any YouTube video URL/ID or direct MP4/HLS stream, then assign it to a Live TV or YouTube-style channel.</p>
+      
+      <div class="url-input-row">
+        <input type="text" id="videoUrlInput" placeholder="https://www.youtube.com/watch?v=... or direct .mp4 URL">
+        <button class="btn btn-primary" id="btnInspect" onclick="inspectUrl()">
+          <span class="material-symbols-rounded">search_check</span> Fetch Metadata
+        </button>
+      </div>
+
+      <form id="curationForm" onsubmit="saveCuratedVideo(event)">
+        <div>
+          <img id="formThumbPreview" class="preview-thumb" src="" alt="Thumbnail Preview">
+        </div>
+        <div class="form-fields">
+          <div class="form-group">
+            <label>Video Title</label>
+            <input type="text" id="formTitle" required>
+          </div>
+          <div class="form-row-3">
+            <div class="form-group">
+              <label>Assign to Channel</label>
+              <select id="formChannelSelect"></select>
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <select id="formCategory">
+                <option value="Cartoons & Fun">Cartoons & Fun</option>
+                <option value="Science & Space">Science & Space</option>
+                <option value="Learning & ABCs">Learning & ABCs</option>
+                <option value="Music & Rhymes">Music & Rhymes</option>
+                <option value="Animals & Nature">Animals & Nature</option>
+                <option value="Art & Crafts">Art & Crafts</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Duration (Seconds)</label>
+              <input type="number" id="formDuration" value="180" min="10" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Age Rating</label>
+              <select id="formAge">
+                <option value="ALL">All Kids (Any Age)</option>
+                <option value="TODDLER">Toddlers (2 - 4 yrs)</option>
+                <option value="YOUNG_KIDS">Young Kids (5 - 8 yrs)</option>
+                <option value="OLDER_KIDS">Older Kids (9 - 12 yrs)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Tags (comma separated)</label>
+              <input type="text" id="formTags" placeholder="cartoon, safe, fun, science">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea id="formDesc" rows="2"></textarea>
+          </div>
+          <div style="display:flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.5rem;">
+            <button type="button" class="btn btn-secondary" onclick="cancelCuration()">Cancel</button>
+            <button type="submit" class="btn btn-primary">
+              <span class="material-symbols-rounded">verified</span> Approve & Publish
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('videos', this)">Curated Videos</button>
+      <button class="tab-btn" onclick="switchTab('channels', this)">Channels (TV & On-Demand)</button>
+      <button class="tab-btn" onclick="switchTab('playlists', this)">Playlists</button>
+      <button class="tab-btn" onclick="switchTab('settings', this)">Parental Defaults</button>
+    </div>
+
+    <!-- Tab 1: Videos -->
+    <div id="tabVideos">
+      <div class="filter-bar">
+        <div class="search-box">
+          <span class="material-symbols-rounded" style="color:var(--text-muted)">search</span>
+          <input type="text" id="searchFilter" placeholder="Filter videos by title or tags..." oninput="filterVideos()">
+        </div>
+        <div>
+          <select id="categoryFilter" onchange="filterVideos()" style="background:var(--surface); border:1px solid var(--border); color:white; padding:0.4rem 0.8rem; border-radius:var(--radius-sm);">
+            <option value="">All Categories</option>
+            <option value="Cartoons & Fun">Cartoons & Fun</option>
+            <option value="Science & Space">Science & Space</option>
+            <option value="Learning & ABCs">Learning & ABCs</option>
+            <option value="Music & Rhymes">Music & Rhymes</option>
+            <option value="Animals & Nature">Animals & Nature</option>
+          </select>
+        </div>
+      </div>
+      <div class="video-grid" id="videoGrid"></div>
+    </div>
+
+    <!-- Tab 2: Channels -->
+    <div id="tabChannels" style="display:none;">
+      <div class="channel-creator-box">
+        <h3 style="font-family:'Fredoka',cursive; font-size:1.2rem; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem;">
+          <span class="material-symbols-rounded" style="color:var(--accent);">add_to_queue</span>
+          Create a New Channel
+        </h3>
+        <form onsubmit="createChannel(event)">
+          <div class="form-row-3" style="margin-bottom:0.75rem;">
+            <div class="form-group">
+              <label>Channel Name</label>
+              <input type="text" id="newChanName" placeholder="e.g. Saturday Morning Cartoons TV" required>
+            </div>
+            <div class="form-group">
+              <label>Channel Mode</label>
+              <select id="newChanType">
+                <option value="LIVE_TV">ðŸ“º Live TV Channel (Time-Scheduled, Runtime Locked)</option>
+                <option value="ON_DEMAND">â–¶ï¸ YouTube-Style (On-Demand, Watch Anytime)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <select id="newChanCat">
+                <option value="Cartoons & Fun">Cartoons & Fun</option>
+                <option value="Science & Space">Science & Space</option>
+                <option value="Learning & ABCs">Learning & ABCs</option>
+                <option value="Music & Rhymes">Music & Rhymes</option>
+                <option value="Animals & Nature">Animals & Nature</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row" style="margin-bottom:0.75rem;">
+            <div class="form-group">
+              <label>Description</label>
+              <input type="text" id="newChanDesc" placeholder="What kids will watch on this channel...">
+            </div>
+            <div class="form-group">
+              <label>Avatar Image URL (Optional)</label>
+              <input type="text" id="newChanAvatar" placeholder="https://...">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">
+            <span class="material-symbols-rounded">tv</span> Create Channel
+          </button>
+        </form>
+      </div>
+
+      <div class="video-grid" id="channelsGrid"></div>
+    </div>
+
+    <!-- Tab 3: Playlists -->
+    <div id="tabPlaylists" style="display:none;">
+      <div class="video-grid" id="playlistsGrid"></div>
+    </div>
+
+    <!-- Tab 4: Parental Settings -->
+    <div id="tabSettings" style="display:none;">
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:2rem; max-width:600px;">
+        <h3 style="font-family:'Fredoka',cursive; font-size:1.3rem; margin-bottom:1rem;">Parental & App Defaults</h3>
+        <div class="form-group" style="margin-bottom:1.25rem;">
+          <label>App Name</label>
+          <input type="text" id="cfgAppName">
+        </div>
+        <div class="form-group" style="margin-bottom:1.25rem;">
+          <label>Default Daily Screen Time Limit (Minutes)</label>
+          <input type="number" id="cfgWatchLimit">
+        </div>
+        <div class="form-group" style="margin-bottom:1.5rem;">
+          <label>Welcome Banner Message</label>
+          <input type="text" id="cfgWelcome">
+        </div>
+        <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Player Preview Modal -->
+  <div class="modal" id="playerModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle" style="font-size: 1.1rem; font-weight:600;">Preview Video</h3>
+        <button class="btn-icon" onclick="closePlayerModal()">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+      <div class="player-wrap" id="playerContainer"></div>
+      <div class="modal-body">
+        <p id="modalDesc" style="color:var(--text-muted); font-size:0.9rem;"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Channel Videos & Schedule Manager Modal -->
+  <div class="modal" id="channelModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h3 id="chanModalTitle" style="font-size: 1.2rem; font-weight:700;">Manage Channel</h3>
+          <span id="chanModalBadge"></span>
+        </div>
+        <button class="btn-icon" onclick="closeChannelModal()">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg); padding:1rem; border-radius:var(--radius-sm); margin-bottom:1.25rem; border:1px solid var(--border);">
+          <div>
+            <div style="font-weight:600;">Channel Playback Mode</div>
+            <div style="font-size:0.8rem; color:var(--text-muted);" id="chanModeExplain"></div>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="btnToggleMode" onclick="toggleChannelMode()">Switch Mode</button>
+        </div>
+
+        <div id="liveBroadcastBox" style="display:none; background:rgba(255,51,102,0.1); border:1px solid rgba(255,51,102,0.3); padding:1rem; border-radius:var(--radius-sm); margin-bottom:1.25rem;">
+          <div style="font-weight:700; color:#FF3366; font-size:0.85rem; margin-bottom:0.25rem;">ðŸ”´ CURRENTLY AIRING LIVE</div>
+          <div id="liveNowTitle" style="font-weight:600;"></div>
+          <div id="liveNowOffset" style="font-size:0.8rem; color:var(--text-muted);"></div>
+        </div>
+
+        <h4 style="margin-bottom:0.75rem;">Add Curated Video to This Channel</h4>
+        <div style="display:flex; gap:0.75rem; margin-bottom:1.5rem;">
+          <select id="addVidToChanSelect" style="flex:1; background:var(--bg); border:1px solid var(--border); color:white; padding:0.5rem; border-radius:var(--radius-sm);"></select>
+          <button class="btn btn-primary btn-sm" onclick="addSelectedVideoToChannel()">+ Add Video</button>
+        </div>
+
+        <h4 style="margin-bottom:0.75rem;">Channel Lineup / Schedule</h4>
+        <div id="chanVideosList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = (() => {
+      const param = new URLSearchParams(window.location.search).get('api');
+      if (param) {
+        const cleaned = param.replace(/\/+$/, '');
+        localStorage.setItem('kidstube_api_url', cleaned);
+        return cleaned;
+      }
+      return (localStorage.getItem('kidstube_api_url') || 'http://localhost:4000').replace(/\/+$/, '');
+    })();
+    const apiUrl = (path) => `${API_BASE}${path}`;
+    document.getElementById('linkChannelsJson').href = apiUrl('/api/channels');
+    document.getElementById('linkVideosJson').href = apiUrl('/api/videos');
+
+    let allVideos = [];
+    let allChannels = [];
+    let curVideoData = null;
+    let activeManageChannel = null;
+
+    async function loadStats() {
+      const res = await fetch(apiUrl());
+      const json = await res.json();
+      if (json.success) {
+        document.getElementById('statVideos').textContent = json.data.approvedVideos;
+        document.getElementById('statChannels').textContent = json.data.totalChannels;
+        document.getElementById('statPlaylists').textContent = json.data.totalPlaylists;
+        document.getElementById('statViews').textContent = json.data.totalViews.toLocaleString();
+      }
+    }
+
+    async function loadVideos() {
+      const res = await fetch(apiUrl());
+      const json = await res.json();
+      if (json.success) {
+        allVideos = json.data;
+        renderVideos(allVideos);
+      }
+    }
+
+    async function loadChannels() {
+      const res = await fetch(apiUrl());
+      const json = await res.json();
+      if (json.success) {
+        allChannels = json.data;
+        populateChannelSelect();
+        renderChannelsGrid();
+      }
+    }
+
+    function populateChannelSelect() {
+      const sel = document.getElementById('formChannelSelect');
+      if (!sel) return;
+      sel.innerHTML = allChannels.map(c =>
+        `<option value="${c.id}">${c.channelType === 'LIVE_TV' ? 'ðŸ“º ' : 'â–¶ï¸ '}${c.name}</option>`
+      ).join('');
+    }
+
+    function renderChannelsGrid() {
+      const grid = document.getElementById('channelsGrid');
+      grid.innerHTML = allChannels.map(c => {
+        const isLive = c.channelType === 'LIVE_TV';
+        return `
+          <div class="video-card" style="padding:1.5rem; text-align:center;">
+            <div style="margin-bottom:0.75rem;">
+              <span class="${isLive ? 'pill-live' : 'pill-ondemand'}">
+                ${isLive ? 'ðŸ”´ LIVE TV (Scheduled)' : 'â–¶ï¸ ON-DEMAND (YouTube-Style)'}
+              </span>
+            </div>
+            <img src="${c.avatarUrl}" style="width:76px; height:76px; border-radius:50%; margin:0 auto 0.75rem; object-fit:cover; border:2px solid ${isLive ? 'var(--primary)' : 'var(--accent)'};">
+            <h4 style="font-size:1.1rem; margin-bottom:0.25rem;">${c.name}</h4>
+            <div style="color:var(--accent); font-size:0.8rem; margin-bottom:0.6rem;">${c.category} â€¢ ${c.videoCount || 0} videos</div>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.25rem; flex:1;">${c.description}</p>
+            <div style="display:flex; gap:0.5rem; justify-content:center;">
+              <button class="btn btn-primary btn-sm" onclick="openChannelModal('${c.id}')">
+                <span class="material-symbols-rounded" style="font-size:16px;">playlist_add</span> Manage Videos
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="deleteChannel('${c.id}')" title="Delete Channel">
+                <span class="material-symbols-rounded" style="font-size:16px;">delete</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function createChannel(e) {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById('newChanName').value,
+        channelType: document.getElementById('newChanType').value,
+        category: document.getElementById('newChanCat').value,
+        description: document.getElementById('newChanDesc').value,
+        avatarUrl: document.getElementById('newChanAvatar').value || undefined
+      };
+
+      const res = await fetch(apiUrl(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (json.success) {
+        e.target.reset();
+        await loadChannels();
+        loadStats();
+        alert('Channel created!');
+      }
+    }
+
+    async function deleteChannel(id) {
+      if (!confirm('Delete this channel? Videos will remain in your library.')) return;
+      await fetch(apiUrl(), { method: 'DELETE' });
+      await loadChannels();
+      loadStats();
+    }
+
+    async function openChannelModal(channelId) {
+      const res = await fetch(apiUrl());
+      const json = await res.json();
+      if (!json.success) return;
+
+      const { channel, videos, liveState } = json.data;
+      activeManageChannel = channel;
+
+      document.getElementById('chanModalTitle').textContent = channel.name;
+      const isLive = channel.channelType === 'LIVE_TV';
+      document.getElementById('chanModalBadge').innerHTML = isLive
+        ? '<span class="pill-live">ðŸ”´ LIVE TV CHANNEL</span>'
+        : '<span class="pill-ondemand">â–¶ï¸ ON-DEMAND CHANNEL</span>';
+
+      document.getElementById('chanModeExplain').textContent = isLive
+        ? 'Plays videos sequentially by wall-clock time. Viewers cannot seek or skip.'
+        : 'YouTube-style channel. Viewers can browse and play any video anytime.';
+
+      document.getElementById('btnToggleMode').textContent = isLive
+        ? 'Switch to On-Demand'
+        : 'Switch to Live TV';
+
+      const liveBox = document.getElementById('liveBroadcastBox');
+      if (isLive && liveState && liveState.currentVideo) {
+        liveBox.style.display = 'block';
+        document.getElementById('liveNowTitle').textContent = liveState.currentVideo.title;
+        document.getElementById('liveNowOffset').textContent =
+          `Airing at ${formatTime(liveState.offsetSeconds)} / ${formatTime(liveState.currentVideo.duration)} (${liveState.remainingSeconds}s left)`;
+      } else {
+        liveBox.style.display = 'none';
+      }
+
+      // Populate dropdown of videos not yet in channel
+      const inChannelIds = new Set(videos.map(v => v.id));
+      const available = allVideos.filter(v => !inChannelIds.has(v.id));
+      const addSel = document.getElementById('addVidToChanSelect');
+      addSel.innerHTML = available.length
+        ? available.map(v => `<option value="${v.id}">${v.title} (${formatTime(v.duration)})</option>`).join('')
+        : '<option value="">All curated videos are already in this channel</option>';
+
+      const listEl = document.getElementById('chanVideosList');
+      listEl.innerHTML = videos.length
+        ? videos.map((v, idx) => `
+            <div class="schedule-item">
+              <div style="display:flex; align-items:center; gap:0.75rem;">
+                <span style="color:var(--text-muted); font-weight:700;">#${idx + 1}</span>
+                <img src="${v.thumbnailUrl}" style="width:56px; height:34px; object-fit:cover; border-radius:4px;">
+                <div>
+                  <div style="font-weight:600; font-size:0.9rem;">${v.title}</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">${formatTime(v.duration)} â€¢ ${v.sourceType}</div>
+                </div>
+              </div>
+              <button class="btn-icon delete" onclick="removeVideoFromChannel('${channel.id}', '${v.id}')" title="Remove from channel">
+                <span class="material-symbols-rounded">remove_circle</span>
+              </button>
+            </div>
+          `).join('')
+        : '<div style="color:var(--text-muted); padding:1rem; text-align:center;">No videos in this channel yet. Add one above!</div>';
+
+      document.getElementById('channelModal').style.display = 'flex';
+    }
+
+    function closeChannelModal() {
+      document.getElementById('channelModal').style.display = 'none';
+      activeManageChannel = null;
+    }
+
+    async function toggleChannelMode() {
+      if (!activeManageChannel) return;
+      const newType = activeManageChannel.channelType === 'LIVE_TV' ? 'ON_DEMAND' : 'LIVE_TV';
+      await fetch(apiUrl(), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ channelType: newType })
+      });
+      await loadChannels();
+      openChannelModal(activeManageChannel.id);
+    }
+
+    async function addSelectedVideoToChannel() {
+      if (!activeManageChannel) return;
+      const videoId = document.getElementById('addVidToChanSelect').value;
+      if (!videoId) return;
+      await fetch(apiUrl(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ videoId })
+      });
+      await loadChannels();
+      openChannelModal(activeManageChannel.id);
+    }
+
+    async function removeVideoFromChannel(channelId, videoId) {
+      await fetch(apiUrl(), { method: 'DELETE' });
+      await loadChannels();
+      openChannelModal(channelId);
+    }
+
+    async function loadPlaylists() {
+      const res = await fetch(apiUrl());
+      const json = await res.json();
+      const grid = document.getElementById('playlistsGrid');
+      if (json.success) {
+        grid.innerHTML = json.data.map(p => `
+          <div class="video-card">
+            <div class="video-thumb-wrap">
+              <img src="${p.thumbnailUrl}" class="video-thumb">
+              <div class="badge-age">${p.videoIds.length} Videos</div>
+            </div>
+            <div class="video-info">
+              <div class="video-title">${p.title}</div>
+              <p style="color:var(--text-muted); font-size:0.85rem;">${p.description}</p>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    async function loadSettings() {
+      const res = await fetch(apiUrl());
+      const json = await res.json();
+      if (json.success) {
+        document.getElementById('cfgAppName').value = json.data.appName;
+        document.getElementById('cfgWatchLimit').value = json.data.parentalDefaults.defaultWatchLimitMinutes;
+        document.getElementById('cfgWelcome').value = json.data.welcomeMessage;
+      }
+    }
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return mins + ':' + (secs < 10 ? '0' : '') + secs;
+    }
+
+    function renderVideos(videos) {
+      const grid = document.getElementById('videoGrid');
+      if (!videos.length) {
+        grid.innerHTML = '<div style="color:var(--text-muted); grid-column:1/-1; padding:2rem; text-align:center;">No videos found.</div>';
+        return;
+      }
+
+      grid.innerHTML = videos.map(v => `
+        <div class="video-card">
+          <div class="video-thumb-wrap" onclick='previewVideo(${JSON.stringify(v).replace(/'/g, "&#39;")})'>
+            <img src="${v.thumbnailUrl}" class="video-thumb" alt="${v.title}">
+            <div class="play-overlay"><span class="material-symbols-rounded">play_arrow</span></div>
+            <div class="badge-type">${v.sourceType}</div>
+            <div class="badge-age">${v.ageRating}</div>
+            <div class="duration-badge">${formatTime(v.duration || 180)}</div>
+          </div>
+          <div class="video-info">
+            <div class="video-title" title="${v.title}">${v.title}</div>
+            <div class="video-channel">
+              <img src="${v.channelAvatar}" class="channel-pic">
+              <span>${v.channelTitle}</span>
+              <span>â€¢</span>
+              <span>${v.views || 0} views</span>
+            </div>
+            <div class="video-tags">
+              ${(v.tags || []).slice(0, 3).map(t => `<span class="tag-chip">#${t}</span>`).join('')}
+            </div>
+            <div class="video-actions">
+              <div style="font-size:0.8rem; color: ${v.isApproved ? 'var(--success)' : 'var(--warning)'}; display:flex; align-items:center; gap:0.25rem;">
+                <span class="material-symbols-rounded" style="font-size:16px;">${v.isApproved ? 'check_circle' : 'hourglass_top'}</span>
+                ${v.isApproved ? 'Approved' : 'Pending'}
+              </div>
+              <div style="display:flex; gap:0.5rem;">
+                <button class="btn-icon" title="Toggle Featured" onclick="toggleFeatured('${v.id}', ${!v.isFeatured})">
+                  <span class="material-symbols-rounded" style="color: ${v.isFeatured ? '#FFB703' : 'var(--text-muted)'};">star</span>
+                </button>
+                <button class="btn-icon delete" title="Delete" onclick="deleteVideo('${v.id}')">
+                  <span class="material-symbols-rounded">delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterVideos() {
+      const q = document.getElementById('searchFilter').value.toLowerCase();
+      const cat = document.getElementById('categoryFilter').value;
+      const filtered = allVideos.filter(v => {
+        const matchesQ = !q || v.title.toLowerCase().includes(q) || (v.tags || []).some(t => t.toLowerCase().includes(q));
+        const matchesCat = !cat || v.category === cat;
+        return matchesQ && matchesCat;
+      });
+      renderVideos(filtered);
+    }
+
+    async function inspectUrl() {
+      const url = document.getElementById('videoUrlInput').value.trim();
+      if (!url) return alert('Please enter a YouTube video URL or MP4/HLS stream link');
+
+      const btn = document.getElementById('btnInspect');
+      btn.innerHTML = '<span class="material-symbols-rounded">sync</span> Fetching...';
+      btn.disabled = true;
+
+      try {
+        await loadChannels();
+        const res = await fetch(apiUrl(), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+        const json = await res.json();
+        if (json.success) {
+          curVideoData = { ...json, sourceUrl: url };
+          document.getElementById('formTitle').value = json.title || '';
+          document.getElementById('formThumbPreview').src = json.thumbnailUrl;
+          document.getElementById('formTags').value = 'kids, safe, fun';
+          document.getElementById('curationForm').style.display = 'grid';
+        }
+      } catch (err) {
+        alert('Failed to inspect URL: ' + err.message);
+      } finally {
+        btn.innerHTML = '<span class="material-symbols-rounded">search_check</span> Fetch Metadata';
+        btn.disabled = false;
+      }
+    }
+
+    function cancelCuration() {
+      document.getElementById('curationForm').style.display = 'none';
+      document.getElementById('videoUrlInput').value = '';
+      curVideoData = null;
+    }
+
+    async function saveCuratedVideo(e) {
+      e.preventDefault();
+      if (!curVideoData) return;
+
+      const channelId = document.getElementById('formChannelSelect').value;
+      const payload = {
+        title: document.getElementById('formTitle').value,
+        description: document.getElementById('formDesc').value,
+        sourceUrl: curVideoData.sourceUrl,
+        sourceType: curVideoData.sourceType,
+        thumbnailUrl: curVideoData.thumbnailUrl,
+        channelId,
+        duration: Number(document.getElementById('formDuration').value) || 180,
+        category: document.getElementById('formCategory').value,
+        ageRating: document.getElementById('formAge').value,
+        tags: document.getElementById('formTags').value.split(',').map(t => t.trim()),
+        isApproved: true
+      };
+
+      const res = await fetch(apiUrl(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (json.success) {
+        cancelCuration();
+        loadStats();
+        loadVideos();
+        loadChannels();
+        alert('Video curated and added to channel!');
+      } else {
+        alert('Error saving video: ' + json.message);
+      }
+    }
+
+    async function deleteVideo(id) {
+      if (!confirm('Remove this video from KidsTube?')) return;
+      const res = await fetch(apiUrl(), { method: 'DELETE' });
+      const json = await res.json();
+      if (json.success) {
+        loadStats();
+        loadVideos();
+      }
+    }
+
+    async function toggleFeatured(id, val) {
+      await fetch(apiUrl(), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isFeatured: val })
+      });
+      loadVideos();
+    }
+
+    async function saveSettings() {
+      const payload = {
+        appName: document.getElementById('cfgAppName').value,
+        welcomeMessage: document.getElementById('cfgWelcome').value,
+        parentalDefaults: {
+          defaultWatchLimitMinutes: Number(document.getElementById('cfgWatchLimit').value),
+          enforcePin: true
+        }
+      };
+      await fetch(apiUrl(), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      alert('Settings updated successfully!');
+    }
+
+    function switchTab(name, btnEl) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btnEl.classList.add('active');
+
+      document.getElementById('tabVideos').style.display = name === 'videos' ? 'block' : 'none';
+      document.getElementById('tabChannels').style.display = name === 'channels' ? 'block' : 'none';
+      document.getElementById('tabPlaylists').style.display = name === 'playlists' ? 'block' : 'none';
+      document.getElementById('tabSettings').style.display = name === 'settings' ? 'block' : 'none';
+
+      if (name === 'channels') loadChannels();
+      if (name === 'playlists') loadPlaylists();
+      if (name === 'settings') loadSettings();
+    }
+
+    function previewVideo(video) {
+      document.getElementById('modalTitle').textContent = video.title;
+      document.getElementById('modalDesc').textContent = video.description || 'No description provided.';
+      const container = document.getElementById('playerContainer');
+
+      if (video.sourceType === 'YOUTUBE' && video.youtubeVideoId) {
+        container.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${video.youtubeVideoId}?autoplay=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+      } else {
+        container.innerHTML = `<video src="${video.sourceUrl}" controls autoplay style="width:100%; height:100%;"></video>`;
+      }
+
+      document.getElementById('playerModal').style.display = 'flex';
+    }
+
+    function closePlayerModal() {
+      document.getElementById('playerContainer').innerHTML = '';
+      document.getElementById('playerModal').style.display = 'none';
+    }
+
+    // Init
+    loadStats();
+    loadVideos();
+    loadChannels();
+  </script>
+</body>
+</html>
