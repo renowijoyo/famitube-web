@@ -499,10 +499,65 @@
       <a id="linkVideosJson" href="http://localhost:4000/api/videos" target="_blank" class="btn btn-secondary">
         <span class="material-symbols-rounded">api</span> Videos JSON
       </a>
+      <div id="userBar" style="display:none; align-items:center; gap:0.75rem; margin-left:0.5rem;">
+        <span id="userEmailLabel" style="font-size:0.85rem; color:var(--text-muted);"></span>
+        <button class="btn btn-secondary btn-sm" onclick="handleLogout()">
+          <span class="material-symbols-rounded">logout</span> Logout
+        </button>
+      </div>
     </div>
   </header>
 
-  <div class="container">
+  <!-- Auth Gate (Login / Register / Email Verification) -->
+  <div id="authGate" style="display:none; min-height:calc(100vh - 80px); align-items:center; justify-content:center; padding:2rem;">
+    <div class="card" style="width:100%; max-width:440px; padding:2rem;">
+      <div style="text-align:center; margin-bottom:1.5rem;">
+        <div class="brand-logo" style="margin:0 auto 0.75rem;">K</div>
+        <h2 style="margin-bottom:0.25rem;">KidsTube Studio</h2>
+        <p style="color:var(--text-muted); font-size:0.9rem;">Sign in with a verified curator account to manage videos and channels.</p>
+      </div>
+
+      <div style="display:flex; gap:0.5rem; margin-bottom:1.25rem;">
+        <button id="tabAuthLogin" class="btn btn-primary" style="flex:1;" onclick="switchAuthTab('login')">Sign In</button>
+        <button id="tabAuthRegister" class="btn btn-secondary" style="flex:1;" onclick="switchAuthTab('register')">Register</button>
+      </div>
+
+      <div id="authAlert" style="display:none; padding:0.75rem 1rem; border-radius:var(--radius-sm); margin-bottom:1rem; font-size:0.88rem;"></div>
+
+      <form id="loginForm" onsubmit="handleLogin(event)" style="display:flex; flex-direction:column; gap:1rem;">
+        <div>
+          <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:0.35rem;">Email</label>
+          <input type="email" id="loginEmail" required placeholder="curator@example.com" style="width:100%;" />
+        </div>
+        <div>
+          <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:0.35rem;">Password</label>
+          <input type="password" id="loginPassword" required placeholder="••••••••" style="width:100%;" />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Sign In</button>
+        <button type="button" id="resendVerifyBtn" class="btn btn-secondary" style="display:none; width:100%; justify-content:center;" onclick="handleResendVerification()">
+          Resend Verification Email
+        </button>
+      </form>
+
+      <form id="registerForm" onsubmit="handleRegister(event)" style="display:none; flex-direction:column; gap:1rem;">
+        <div>
+          <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:0.35rem;">Name</label>
+          <input type="text" id="regName" required placeholder="Your Name" style="width:100%;" />
+        </div>
+        <div>
+          <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:0.35rem;">Email</label>
+          <input type="email" id="regEmail" required placeholder="curator@example.com" style="width:100%;" />
+        </div>
+        <div>
+          <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:0.35rem;">Password (min 6 chars)</label>
+          <input type="password" id="regPassword" required minlength="6" placeholder="••••••••" style="width:100%;" />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Create Account</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="container" id="studioApp" style="display:none;">
     <!-- Stats Row -->
     <div class="stats-grid" id="statsGrid">
       <div class="stat-card">
@@ -788,13 +843,145 @@
     document.getElementById('linkChannelsJson').href = apiUrl('/api/channels');
     document.getElementById('linkVideosJson').href = apiUrl('/api/videos');
 
+    const AUTH_TOKEN_KEY = 'kidstube_auth_token';
+    let authToken = localStorage.getItem(AUTH_TOKEN_KEY) || '';
+    let pendingVerifyEmail = '';
+
+    function showAuthAlert(message, isError = true) {
+      const el = document.getElementById('authAlert');
+      el.textContent = message;
+      el.style.display = 'block';
+      el.style.background = isError ? 'rgba(255, 51, 102, 0.15)' : 'rgba(6, 214, 160, 0.15)';
+      el.style.color = isError ? '#FF6B8B' : '#06D6A0';
+      el.style.border = `1px solid ${isError ? 'rgba(255, 51, 102, 0.35)' : 'rgba(6, 214, 160, 0.35)'}`;
+    }
+
+    function switchAuthTab(tab) {
+      document.getElementById('authAlert').style.display = 'none';
+      document.getElementById('resendVerifyBtn').style.display = 'none';
+      const isLogin = tab === 'login';
+      document.getElementById('loginForm').style.display = isLogin ? 'flex' : 'none';
+      document.getElementById('registerForm').style.display = isLogin ? 'none' : 'flex';
+      document.getElementById('tabAuthLogin').className = isLogin ? 'btn btn-primary' : 'btn btn-secondary';
+      document.getElementById('tabAuthRegister').className = isLogin ? 'btn btn-secondary' : 'btn btn-primary';
+    }
+
+    function showAuthGate() {
+      document.getElementById('authGate').style.display = 'flex';
+      document.getElementById('studioApp').style.display = 'none';
+      document.getElementById('userBar').style.display = 'none';
+    }
+
+    function showStudioApp(user) {
+      document.getElementById('authGate').style.display = 'none';
+      document.getElementById('studioApp').style.display = 'block';
+      document.getElementById('userBar').style.display = 'flex';
+      document.getElementById('userEmailLabel').textContent = user?.email || '';
+    }
+
+    function handleLogout() {
+      authToken = '';
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+      showAuthGate();
+    }
+
+    async function authFetch(path, options = {}) {
+      const headers = new Headers(options.headers || {});
+      if (authToken) {
+        headers.set('Authorization', `Bearer ${authToken}`);
+      }
+      const res = await fetch(apiUrl(path), { ...options, headers });
+      if (res.status === 401 || res.status === 403) {
+        handleLogout();
+        showAuthAlert('Your session expired or requires verification. Please sign in again.', true);
+        throw new Error('Unauthorized');
+      }
+      return res;
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      document.getElementById('authAlert').style.display = 'none';
+      document.getElementById('resendVerifyBtn').style.display = 'none';
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      try {
+        const res = await fetch(apiUrl('/api/auth/login'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const json = await res.json();
+        if (!res.ok || !json.success) {
+          showAuthAlert(json.message || 'Login failed', true);
+          if (json.needsVerification) {
+            pendingVerifyEmail = email;
+            document.getElementById('resendVerifyBtn').style.display = 'inline-flex';
+          }
+          return;
+        }
+        authToken = json.token;
+        localStorage.setItem(AUTH_TOKEN_KEY, authToken);
+        showStudioApp(json.user);
+        loadStats();
+        loadVideos();
+        loadChannels();
+      } catch (err) {
+        showAuthAlert('Unable to reach API server at ' + API_BASE, true);
+      }
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      document.getElementById('authAlert').style.display = 'none';
+      const name = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value;
+
+      try {
+        const res = await fetch(apiUrl('/api/auth/register'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password })
+        });
+        const json = await res.json();
+        if (!res.ok || !json.success) {
+          showAuthAlert(json.message || 'Registration failed', true);
+          return;
+        }
+        pendingVerifyEmail = email;
+        switchAuthTab('login');
+        document.getElementById('loginEmail').value = email;
+        showAuthAlert(json.message || 'Check your email to verify your account before signing in.', false);
+      } catch (err) {
+        showAuthAlert('Unable to reach API server at ' + API_BASE, true);
+      }
+    }
+
+    async function handleResendVerification() {
+      const email = pendingVerifyEmail || document.getElementById('loginEmail').value.trim();
+      if (!email) return;
+      try {
+        const res = await fetch(apiUrl('/api/auth/resend-verification'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const json = await res.json();
+        showAuthAlert(json.message || 'Verification email sent.', res.ok && json.success ? false : true);
+      } catch {
+        showAuthAlert('Unable to reach API server at ' + API_BASE, true);
+      }
+    }
+
     let allVideos = [];
     let allChannels = [];
     let curVideoData = null;
     let activeManageChannel = null;
 
     async function loadStats() {
-      const res = await fetch(apiUrl());
+      const res = await authFetch('/api/admin/stats');
       const json = await res.json();
       if (json.success) {
         document.getElementById('statVideos').textContent = json.data.approvedVideos;
@@ -805,7 +992,7 @@
     }
 
     async function loadVideos() {
-      const res = await fetch(apiUrl());
+      const res = await authFetch('/api/admin/videos');
       const json = await res.json();
       if (json.success) {
         allVideos = json.data;
@@ -814,7 +1001,7 @@
     }
 
     async function loadChannels() {
-      const res = await fetch(apiUrl());
+      const res = await authFetch('/api/channels');
       const json = await res.json();
       if (json.success) {
         allChannels = json.data;
@@ -869,7 +1056,7 @@
         avatarUrl: document.getElementById('newChanAvatar').value || undefined
       };
 
-      const res = await fetch(apiUrl(), {
+      const res = await authFetch('/api/admin/channels', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -885,13 +1072,13 @@
 
     async function deleteChannel(id) {
       if (!confirm('Delete this channel? Videos will remain in your library.')) return;
-      await fetch(apiUrl(), { method: 'DELETE' });
+      await authFetch('/api/admin/channels/' + id, { method: 'DELETE' });
       await loadChannels();
       loadStats();
     }
 
     async function openChannelModal(channelId) {
-      const res = await fetch(apiUrl());
+      const res = await authFetch('/api/channels/' + channelId);
       const json = await res.json();
       if (!json.success) return;
 
@@ -960,7 +1147,7 @@
     async function toggleChannelMode() {
       if (!activeManageChannel) return;
       const newType = activeManageChannel.channelType === 'LIVE_TV' ? 'ON_DEMAND' : 'LIVE_TV';
-      await fetch(apiUrl(), {
+      await authFetch('/api/admin/channels/' + activeManageChannel.id, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ channelType: newType })
@@ -973,7 +1160,7 @@
       if (!activeManageChannel) return;
       const videoId = document.getElementById('addVidToChanSelect').value;
       if (!videoId) return;
-      await fetch(apiUrl(), {
+      await authFetch('/api/admin/channels/' + activeManageChannel.id + '/videos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ videoId })
@@ -983,13 +1170,13 @@
     }
 
     async function removeVideoFromChannel(channelId, videoId) {
-      await fetch(apiUrl(), { method: 'DELETE' });
+      await authFetch('/api/admin/channels/' + channelId + '/videos/' + videoId, { method: 'DELETE' });
       await loadChannels();
       openChannelModal(channelId);
     }
 
     async function loadPlaylists() {
-      const res = await fetch(apiUrl());
+      const res = await authFetch('/api/playlists');
       const json = await res.json();
       const grid = document.getElementById('playlistsGrid');
       if (json.success) {
@@ -1009,7 +1196,7 @@
     }
 
     async function loadSettings() {
-      const res = await fetch(apiUrl());
+      const res = await authFetch('/api/config');
       const json = await res.json();
       if (json.success) {
         document.getElementById('cfgAppName').value = json.data.appName;
@@ -1091,7 +1278,7 @@
 
       try {
         await loadChannels();
-        const res = await fetch(apiUrl(), {
+        const res = await authFetch('/api/admin/parse-url', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url })
@@ -1137,7 +1324,7 @@
         isApproved: true
       };
 
-      const res = await fetch(apiUrl(), {
+      const res = await authFetch('/api/admin/videos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -1156,7 +1343,7 @@
 
     async function deleteVideo(id) {
       if (!confirm('Remove this video from KidsTube?')) return;
-      const res = await fetch(apiUrl(), { method: 'DELETE' });
+      const res = await authFetch('/api/admin/videos/' + id, { method: 'DELETE' });
       const json = await res.json();
       if (json.success) {
         loadStats();
@@ -1165,7 +1352,7 @@
     }
 
     async function toggleFeatured(id, val) {
-      await fetch(apiUrl(), {
+      await authFetch('/api/admin/videos/' + id, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isFeatured: val })
@@ -1182,7 +1369,7 @@
           enforcePin: true
         }
       };
-      await fetch(apiUrl(), {
+      await authFetch('/api/admin/config', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -1223,10 +1410,31 @@
       document.getElementById('playerModal').style.display = 'none';
     }
 
-    // Init
-    loadStats();
-    loadVideos();
-    loadChannels();
+    // Init with auth check
+    async function initApp() {
+      if (!authToken) {
+        showAuthGate();
+        return;
+      }
+      try {
+        const res = await fetch(apiUrl('/api/auth/me'), {
+          headers: { Authorization: `Bearer ${authToken}` }
+        });
+        const json = await res.json();
+        if (!res.ok || !json.success) {
+          handleLogout();
+          return;
+        }
+        showStudioApp(json.user);
+        loadStats();
+        loadVideos();
+        loadChannels();
+      } catch {
+        showAuthGate();
+        showAuthAlert('Unable to reach API server at ' + API_BASE, true);
+      }
+    }
+    initApp();
   </script>
 </body>
 </html>
