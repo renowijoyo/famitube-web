@@ -503,23 +503,36 @@
       <a id="linkChannelsJson" href="https://kidstube-api.gamantha.my.id/api/channels" target="_blank" class="btn btn-secondary" style="display:none;">
         <span class="material-symbols-rounded">tv</span> Channels JSON
       </a>
-      <a id="linkVideosJson" href="https://kidstube-api.gamantha.my.id/api/videos" target="_blank" class="btn btn-secondary">
-        <span class="material-symbols-rounded">api</span> Videos JSON
-      </a>
-      <div id="userBar" style="display:none; position:relative; align-items:center; margin-left:0.25rem;">
-        <a href="#" id="profileMenuBtn" class="btn btn-secondary" onclick="toggleProfileMenu(event)" style="gap:0.5rem;">
-          <span class="material-symbols-rounded" style="color:var(--accent);">account_circle</span>
-          <span id="userEmailLabel" style="font-weight:600;"></span>
-          <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--text-muted);">expand_more</span>
-        </a>
-        <div id="profileDropdownMenu" style="display:none; position:absolute; top:calc(100% + 0.5rem); right:0; min-width:220px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); box-shadow:0 12px 30px rgba(0,0,0,0.45); z-index:200; overflow:hidden;">
-          <div style="padding:0.75rem 1rem; border-bottom:1px solid var(--border);">
-            <div id="profileMenuName" style="font-weight:700; font-size:0.9rem;"></div>
-            <div id="profileMenuMeta" style="font-size:0.78rem; color:var(--text-muted); margin-top:0.15rem;"></div>
-          </div>
-          <button onclick="handleLogout()" style="width:100%; display:flex; align-items:center; gap:0.55rem; padding:0.7rem 1rem; background:none; border:none; color:#FF809D; font-family:inherit; font-size:0.88rem; font-weight:600; cursor:pointer; text-align:left;" onmouseover="this.style.background='rgba(255,51,102,0.1)'" onmouseout="this.style.background='none'">
-            <span class="material-symbols-rounded" style="font-size:1.1rem;">logout</span> Logout
+      <div id="userBar" style="display:none; position:relative; align-items:center; gap:0.65rem; margin-left:0.25rem;">
+        <div style="position:relative;">
+          <button id="notifBellBtn" class="btn btn-secondary" onclick="toggleNotifMenu(event)" title="Notifications" style="padding:0.55rem; position:relative;">
+            <span class="material-symbols-rounded">notifications</span>
+            <span id="notifBadge" style="display:inline-flex; align-items:center; justify-content:center; position:absolute; top:-4px; right:-4px; min-width:18px; height:18px; padding:0 4px; border-radius:99px; background:var(--primary); color:white; font-size:0.68rem; font-weight:800;">1</span>
           </button>
+          <div id="notifDropdownMenu" style="display:none; position:absolute; top:calc(100% + 0.5rem); right:0; width:290px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); box-shadow:0 12px 30px rgba(0,0,0,0.45); z-index:200; overflow:hidden;">
+            <div style="padding:0.7rem 1rem; border-bottom:1px solid var(--border); font-weight:700; font-size:0.86rem; display:flex; align-items:center; justify-content:space-between;">
+              <span>Notifications</span>
+              <span style="font-size:0.72rem; color:var(--accent);">Live</span>
+            </div>
+            <div id="notifList" style="max-height:240px; overflow-y:auto;"></div>
+          </div>
+        </div>
+
+        <div style="position:relative;">
+          <a href="#" id="profileMenuBtn" onclick="toggleProfileMenu(event)" title="Profile Menu" style="display:inline-flex; align-items:center; gap:0.55rem; text-decoration:none; color:var(--text); background:var(--surface-light); border:1px solid var(--border); padding:0.35rem 0.7rem 0.35rem 0.38rem; border-radius:99px;">
+            <span id="profileAvatar" style="width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg, var(--primary), var(--secondary)); display:inline-flex; align-items:center; justify-content:center; font-weight:800; font-size:0.82rem; color:white;">K</span>
+            <span id="userEmailLabel" style="font-weight:600; font-size:0.86rem;"></span>
+            <span class="material-symbols-rounded" style="font-size:1.05rem; color:var(--text-muted);">expand_more</span>
+          </a>
+          <div id="profileDropdownMenu" style="display:none; position:absolute; top:calc(100% + 0.5rem); right:0; min-width:230px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); box-shadow:0 12px 30px rgba(0,0,0,0.45); z-index:200; overflow:hidden;">
+            <div style="padding:0.8rem 1rem; border-bottom:1px solid var(--border);">
+              <div id="profileMenuName" style="font-weight:700; font-size:0.9rem;"></div>
+              <div id="profileMenuMeta" style="font-size:0.78rem; color:var(--text-muted); margin-top:0.15rem;"></div>
+            </div>
+            <button onclick="handleLogout()" style="width:100%; display:flex; align-items:center; gap:0.55rem; padding:0.75rem 1rem; background:none; border:none; color:#FF809D; font-family:inherit; font-size:0.88rem; font-weight:600; cursor:pointer; text-align:left;" onmouseover="this.style.background='rgba(255,51,102,0.1)'" onmouseout="this.style.background='none'">
+              <span class="material-symbols-rounded" style="font-size:1.1rem;">logout</span> Logout
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -527,6 +540,13 @@
 
   <!-- Public Kids Showcase -->
   <div class="container" id="showcaseApp" style="display:block;">
+    <div id="loggedInWelcomeBanner" class="card" style="display:none; padding:0.9rem 1.25rem; margin-bottom:1rem; background:rgba(6,214,160,0.1); border-color:rgba(6,214,160,0.3); align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap;">
+      <div style="display:flex; align-items:center; gap:0.65rem;">
+        <span class="material-symbols-rounded" style="color:var(--success);">verified_user</span>
+        <span id="loggedInBannerText" style="font-size:0.92rem; font-weight:600;"></span>
+      </div>
+      <span id="loggedInBannerBadge" style="font-size:0.76rem; font-weight:700; padding:0.25rem 0.65rem; border-radius:99px; background:rgba(76,201,240,0.15); color:var(--accent);"></span>
+    </div>
     <div class="card" style="padding:1.75rem 2rem; margin-bottom:1.75rem; background:linear-gradient(135deg, rgba(255,51,102,0.16), rgba(67,97,238,0.18)); border-color:rgba(76,201,240,0.25);">
       <h2 style="font-size:1.6rem; margin-bottom:0.35rem;">Safe, Curated Kids Channels &amp; Educational Videos</h2>
       <p style="color:var(--text-muted); font-size:0.95rem;">Pick a themed channel below to explore hand-picked, kid-friendly YouTube and educational videos. To add or manage content, switch to <strong>Curator Studio</strong>.</p>
@@ -1094,7 +1114,6 @@
     })();
     const apiUrl = (path) => `${API_BASE}${path}`;
     document.getElementById('linkChannelsJson').href = apiUrl('/api/channels');
-    document.getElementById('linkVideosJson').href = apiUrl('/api/videos');
 
     const AUTH_TOKEN_KEY = 'kidstube_auth_token';
     let authToken = localStorage.getItem(AUTH_TOKEN_KEY) || '';
@@ -1165,26 +1184,103 @@
 
     function toggleProfileMenu(e) {
       if (e) e.preventDefault();
+      const notifMenu = document.getElementById('notifDropdownMenu');
+      if (notifMenu) notifMenu.style.display = 'none';
       const menu = document.getElementById('profileDropdownMenu');
       if (!menu) return;
       menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
     }
 
+    function toggleNotifMenu(e) {
+      if (e) e.preventDefault();
+      const profileMenu = document.getElementById('profileDropdownMenu');
+      if (profileMenu) profileMenu.style.display = 'none';
+      const menu = document.getElementById('notifDropdownMenu');
+      if (!menu) return;
+      const isOpening = menu.style.display !== 'block';
+      menu.style.display = isOpening ? 'block' : 'none';
+      if (isOpening) {
+        const badge = document.getElementById('notifBadge');
+        if (badge) badge.style.display = 'none';
+      }
+    }
+
     document.addEventListener('click', (e) => {
       const userBar = document.getElementById('userBar');
-      const menu = document.getElementById('profileDropdownMenu');
-      if (menu && userBar && !userBar.contains(e.target)) {
-        menu.style.display = 'none';
+      const profileMenu = document.getElementById('profileDropdownMenu');
+      const notifMenu = document.getElementById('notifDropdownMenu');
+      if (userBar && !userBar.contains(e.target)) {
+        if (profileMenu) profileMenu.style.display = 'none';
+        if (notifMenu) notifMenu.style.display = 'none';
       }
     });
+
+    function getUserInitials(nameOrEmail) {
+      const parts = String(nameOrEmail || 'U').trim().split(/\s+/);
+      if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+      return String(nameOrEmail || 'U').slice(0, 2).toUpperCase();
+    }
+
+    function renderNotifications(user) {
+      const listEl = document.getElementById('notifList');
+      const badgeEl = document.getElementById('notifBadge');
+      if (!listEl) return;
+      const items = [];
+      if (user?.role === 'CHILD') {
+        items.push({
+          icon: 'verified_user',
+          color: 'var(--success)',
+          title: `Welcome, ${user.name || user.email}!`,
+          sub: 'Your parent-approved KidsTube feed is active.'
+        });
+        items.push({
+          icon: 'quiz',
+          color: 'var(--accent)',
+          title: `Age Filter: ${user.ageRating || 'ALL'}`,
+          sub: 'Some channels may ask a quick quiz before opening.'
+        });
+      } else {
+        items.push({
+          icon: 'admin_panel_settings',
+          color: 'var(--accent)',
+          title: `Signed in as ${user?.name || user?.email}`,
+          sub: 'Parent & Curator Studio access enabled.'
+        });
+      }
+      listEl.innerHTML = items.map(n => `
+        <div style="display:flex; gap:0.65rem; padding:0.75rem 1rem; border-bottom:1px solid var(--border); align-items:flex-start;">
+          <span class="material-symbols-rounded" style="color:${n.color}; font-size:1.15rem; margin-top:2px;">${n.icon}</span>
+          <div>
+            <div style="font-size:0.84rem; font-weight:600;">${n.title}</div>
+            <div style="font-size:0.76rem; color:var(--text-muted); margin-top:0.15rem;">${n.sub}</div>
+          </div>
+        </div>
+      `).join('');
+      if (badgeEl) {
+        badgeEl.textContent = String(items.length);
+        badgeEl.style.display = 'inline-flex';
+      }
+    }
 
     function applyUserHeaderUI(user) {
       document.getElementById('btnKidsLogin').style.display = 'none';
       document.getElementById('userBar').style.display = 'flex';
       document.getElementById('profileDropdownMenu').style.display = 'none';
+      document.getElementById('notifDropdownMenu').style.display = 'none';
       const displayName = user?.name || user?.email || 'User';
+      document.getElementById('profileAvatar').textContent = getUserInitials(displayName);
       document.getElementById('userEmailLabel').textContent = displayName;
       document.getElementById('profileMenuName').textContent = displayName;
+      const banner = document.getElementById('loggedInWelcomeBanner');
+      const bannerText = document.getElementById('loggedInBannerText');
+      const bannerBadge = document.getElementById('loggedInBannerBadge');
+      if (banner && bannerText && bannerBadge) {
+        banner.style.display = 'flex';
+        bannerText.textContent = `Signed in as ${displayName}`;
+        bannerBadge.textContent = user?.role === 'CHILD'
+          ? `Kid Mode • Age Filter: ${user.ageRating || 'ALL'}`
+          : 'Parent Account';
+      }
       if (user?.role === 'CHILD') {
         document.getElementById('btnModeStudio').style.display = 'none';
         document.getElementById('profileMenuMeta').textContent = `${user.email} • Kid Mode`;
@@ -1192,6 +1288,7 @@
         document.getElementById('btnModeStudio').style.display = 'inline-flex';
         document.getElementById('profileMenuMeta').textContent = `${user?.email || ''} • Parent`;
       }
+      renderNotifications(user);
     }
 
     function handleAuthenticatedUser(user) {
@@ -1234,6 +1331,8 @@
       currentUser = null;
       localStorage.removeItem(AUTH_TOKEN_KEY);
       document.getElementById('profileDropdownMenu').style.display = 'none';
+      document.getElementById('notifDropdownMenu').style.display = 'none';
+      document.getElementById('loggedInWelcomeBanner').style.display = 'none';
       document.getElementById('userBar').style.display = 'none';
       document.getElementById('btnKidsLogin').style.display = 'inline-flex';
       document.getElementById('btnModeStudio').style.display = 'inline-flex';
