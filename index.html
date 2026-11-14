@@ -540,22 +540,13 @@
     <div class="card" style="width:100%; max-width:440px; padding:2rem;">
       <div style="text-align:center; margin-bottom:1.25rem;">
         <div class="brand-logo" style="margin:0 auto 0.75rem;">K</div>
-        <h2 style="margin-bottom:0.25rem;">KidsTube Sign In</h2>
-        <p id="authSubtitle" style="color:var(--text-muted); font-size:0.9rem;">Sign in as a Parent to manage channels, or as a Child to watch.</p>
-      </div>
-
-      <div style="display:flex; gap:0.5rem; margin-bottom:0.85rem; background:var(--surface-light); padding:4px; border-radius:var(--radius-sm);">
-        <button id="roleBtnParent" class="btn btn-primary btn-sm" style="flex:1; justify-content:center;" onclick="switchLoginRole('PARENT')">Parent Login</button>
-        <button id="roleBtnChild" class="btn btn-secondary btn-sm" style="flex:1; justify-content:center;" onclick="switchLoginRole('CHILD')">Kids / Child Login</button>
+        <h2 style="margin-bottom:0.25rem;">Curator Studio Sign In</h2>
+        <p id="authSubtitle" style="color:var(--text-muted); font-size:0.9rem;">Parent &amp; guardian accounts only. Kids cannot sign in here.</p>
       </div>
 
       <div id="authModeTabs" style="display:flex; gap:0.5rem; margin-bottom:1.25rem;">
-        <button id="tabAuthLogin" class="btn btn-primary" style="flex:1;" onclick="switchAuthTab('login')">Sign In</button>
+        <button id="tabAuthLogin" class="btn btn-primary" style="flex:1;" onclick="switchAuthTab('login')">Parent Sign In</button>
         <button id="tabAuthRegister" class="btn btn-secondary" style="flex:1;" onclick="switchAuthTab('register')">Register (Parents)</button>
-      </div>
-
-      <div id="childLoginNote" style="display:none; background:rgba(76,201,240,0.12); border:1px solid rgba(76,201,240,0.3); padding:0.7rem 0.9rem; border-radius:var(--radius-sm); font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem;">
-        Child accounts can only be registered by a parent inside <strong>KidsTube Studio</strong> using the child's email address.
       </div>
 
       <div id="authAlert" style="display:none; padding:0.75rem 1rem; border-radius:var(--radius-sm); margin-bottom:1rem; font-size:0.88rem;"></div>
@@ -590,6 +581,9 @@
         </div>
         <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Create Account</button>
       </form>
+      <div style="text-align:center; margin-top:1.15rem; padding-top:1rem; border-top:1px solid var(--border); font-size:0.84rem; color:var(--text-muted);">
+        Looking for Kids Login? <a href="kids-login.html" style="color:var(--accent); text-decoration:none; font-weight:600;">Go to Kids Portal &rarr;</a>
+      </div>
     </div>
   </div>
 
@@ -1101,22 +1095,14 @@
       loadShowcase(useKidsFeed || (currentUser && currentUser.role === 'CHILD'));
     }
 
-    let activeLoginRole = 'PARENT';
+    const activeLoginRole = 'PARENT';
     let currentUser = null;
 
-    function switchLoginRole(role) {
-      activeLoginRole = role === 'CHILD' ? 'CHILD' : 'PARENT';
-      document.getElementById('roleBtnParent').className = activeLoginRole === 'PARENT' ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm';
-      document.getElementById('roleBtnChild').className = activeLoginRole === 'CHILD' ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm';
-      document.getElementById('authModeTabs').style.display = activeLoginRole === 'PARENT' ? 'flex' : 'none';
-      document.getElementById('childLoginNote').style.display = activeLoginRole === 'CHILD' ? 'block' : 'none';
-      document.getElementById('loginEmail').placeholder = activeLoginRole === 'CHILD' ? 'child@example.com' : 'parent@example.com';
-      if (activeLoginRole === 'CHILD') {
-        switchAuthTab('login');
-      }
-    }
-
     async function openStudio() {
+      if (currentUser?.role === 'CHILD') {
+        openHome(true);
+        return;
+      }
       setModeButtons('studio');
       document.getElementById('showcaseApp').style.display = 'none';
       if (!authToken) {
@@ -1143,6 +1129,7 @@
       currentUser = user;
       document.getElementById('btnKidsLogin').style.display = 'none';
       if (user?.role === 'CHILD') {
+        document.getElementById('btnModeStudio').style.display = 'none';
         document.getElementById('authGate').style.display = 'none';
         document.getElementById('studioApp').style.display = 'none';
         document.getElementById('userBar').style.display = 'flex';
@@ -1150,6 +1137,7 @@
         openHome(true);
         return;
       }
+      document.getElementById('btnModeStudio').style.display = 'inline-flex';
       showStudioApp(user);
       loadStats();
       loadVideos();
@@ -1179,6 +1167,7 @@
       currentUser = null;
       localStorage.removeItem(AUTH_TOKEN_KEY);
       document.getElementById('btnKidsLogin').style.display = 'inline-flex';
+      document.getElementById('btnModeStudio').style.display = 'inline-flex';
       showAuthGate();
     }
 
@@ -2345,6 +2334,9 @@
           if (res.ok && json.success) {
             currentUser = json.user;
             document.getElementById('btnKidsLogin').style.display = 'none';
+            if (json.user?.role === 'CHILD') {
+              document.getElementById('btnModeStudio').style.display = 'none';
+            }
             document.getElementById('userBar').style.display = 'flex';
             document.getElementById('userEmailLabel').textContent = json.user?.role === 'CHILD'
               ? `${json.user.name || json.user.email} (Kid Mode)`
