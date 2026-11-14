@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Learn More — How KidsTube Protects Your Children</title>
+  <title>Learn More — How FamiTube Protects Your Children</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -165,8 +165,8 @@
 <body>
   <header>
     <a href="index.html" class="brand">
-      <div class="brand-logo">K</div>
-      <span class="brand-title">KidsTube</span>
+      <div class="brand-logo">F</div>
+      <span class="brand-title">FamiTube</span>
     </a>
     <div style="display:flex; gap:0.65rem; align-items:center; flex-wrap:wrap;">
       <a href="index.html" class="btn btn-secondary">
@@ -190,7 +190,7 @@
         The YouTube Every Parent Wishes For
       </h1>
       <p data-i18n="page_intro" style="color:var(--text-muted); font-size:1rem; max-width:720px;">
-        KidsTube gives children a joyful place to watch cartoons, science, music, and educational videos without algorithmic rabbit holes, surprise autoplay, or inappropriate content.
+        FamiTube gives children a joyful place to watch cartoons, science, music, and educational videos without algorithmic rabbit holes, surprise autoplay, or inappropriate content.
       </p>
     </section>
 
@@ -201,7 +201,7 @@
         </div>
         <h2 data-i18n="p1_title" style="font-size:1.1rem; margin-bottom:0.45rem;">100% Parent-Curated Channels</h2>
         <p data-i18n="p1_desc" style="color:var(--text-muted); font-size:0.9rem;">
-          Every channel and video in KidsTube is intentionally chosen by parents or trusted curators. Kids never get pulled into unvetted recommendations.
+          Every channel and video in FamiTube is intentionally chosen by parents or trusted curators. Kids never get pulled into unvetted recommendations.
         </p>
         <img src="assets/pillar-curated-channels.jpg" alt="100% Parent-Curated Channels screenshot" class="pillar-shot" loading="lazy">
       </div>
@@ -254,12 +254,12 @@
 
   <script>
     (function () {
-      const themePref = localStorage.getItem('kidstube_theme') || 'system';
+      const themePref = localStorage.getItem('FamiTube_theme') || 'system';
       const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       const resolvedTheme = themePref === 'system' ? (prefersDark ? 'dark' : 'light') : themePref;
       document.documentElement.setAttribute('data-theme', resolvedTheme);
 
-      const lang = localStorage.getItem('kidstube_lang') === 'id' ? 'id' : 'en';
+      const lang = localStorage.getItem('FamiTube_lang') === 'id' ? 'id' : 'en';
       document.documentElement.lang = lang;
       if (lang === 'id') {
         const dict = {
@@ -267,9 +267,9 @@
           open_studio: 'Studio Kurator',
           eyebrow: 'Dibuat untuk Orang Tua & Keluarga',
           page_title: 'YouTube Impian Setiap Orang Tua',
-          page_intro: 'KidsTube memberi anak-anak tempat yang menyenangkan untuk menonton kartun, sains, musik, dan video edukatif tanpa jebakan algoritma, autoplay acak, atau konten tidak pantas.',
+          page_intro: 'FamiTube memberi anak-anak tempat yang menyenangkan untuk menonton kartun, sains, musik, dan video edukatif tanpa jebakan algoritma, autoplay acak, atau konten tidak pantas.',
           p1_title: '100% Saluran Terkurasi Orang Tua',
-          p1_desc: 'Setiap saluran dan video di KidsTube dipilih secara sadar oleh orang tua atau kurator tepercaya. Anak-anak tidak akan terseret ke rekomendasi acak.',
+          p1_desc: 'Setiap saluran dan video di FamiTube dipilih secara sadar oleh orang tua atau kurator tepercaya. Anak-anak tidak akan terseret ke rekomendasi acak.',
           p2_title: 'Akun Anak Berdasarkan Usia',
           p2_desc: 'Orang tua mendaftarkan akun anak dengan filter usia khusus (ALL, 5+, 8+, 12+) agar anak hanya menonton konten sesuai usianya.',
           p3_title: 'Dinding Kuis Edukatif',

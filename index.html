@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KidsTube Studio - Video Curation Admin</title>
+  <title>FamiTube Studio - Video Curation Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -629,9 +629,9 @@
 
   <header>
     <a href="/" class="brand" onclick="event.preventDefault(); openHome();">
-      <div class="brand-logo">K</div>
+      <div class="brand-logo">F</div>
       <div>
-        <span class="brand-title">KidsTube</span>
+        <span class="brand-title">FamiTube</span>
         <span class="brand-badge">STUDIO CURATOR</span>
       </div>
     </a>
@@ -708,7 +708,7 @@
 
         <div style="position:relative;">
           <a href="#" id="profileMenuBtn" onclick="toggleProfileMenu(event)" title="Profile Menu" style="display:inline-flex; align-items:center; gap:0.55rem; text-decoration:none; color:var(--text); background:var(--surface-light); border:1px solid var(--border); padding:0.35rem 0.7rem 0.35rem 0.38rem; border-radius:99px;">
-            <span id="profileAvatar" style="width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg, var(--primary), var(--secondary)); display:inline-flex; align-items:center; justify-content:center; font-weight:800; font-size:0.82rem; color:white;">K</span>
+            <span id="profileAvatar" style="width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg, var(--primary), var(--secondary)); display:inline-flex; align-items:center; justify-content:center; font-weight:800; font-size:0.82rem; color:white;">F</span>
             <span id="userEmailLabel" style="font-weight:600; font-size:0.86rem;"></span>
             <span class="material-symbols-rounded" style="font-size:1.05rem; color:var(--text-muted);">expand_more</span>
           </a>
@@ -756,7 +756,7 @@
       <h2 data-i18n="hero_title" style="font-size:1.6rem; margin-bottom:0.35rem;">Safe, Curated Kids Channels &amp; Educational Videos</h2>
       <p data-i18n="hero_desc" style="color:var(--text-muted); font-size:0.95rem;">Pick a themed channel below to explore hand-picked, kid-friendly YouTube and educational videos. To add or manage content, switch to <strong>Curator Studio</strong>.</p>
       <p style="color:var(--text-muted); font-size:0.95rem; margin-top:0.6rem;">
-        <span data-i18n="hero_safety_narration">Discover how KidsTube protects your children from inappropriate content — it's the YouTube every parent wishes for.</span>
+        <span data-i18n="hero_safety_narration">Discover how FamiTube protects your children from inappropriate content — it's the YouTube every parent wishes for.</span>
         <a href="learn-more.html" id="heroSafetyLink" data-i18n="hero_learn_more" style="color:var(--primary); font-weight:700; text-decoration:none; margin-left:0.35rem; white-space:nowrap;">Learn More &gt;</a>
       </p>
     </div>
@@ -785,8 +785,8 @@
   <div id="authGate" style="display:none; min-height:calc(100vh - 80px); align-items:center; justify-content:center; padding:2rem;">
     <div class="card" style="width:100%; max-width:440px; padding:2rem;">
       <div style="text-align:center; margin-bottom:1.25rem;">
-        <div class="brand-logo" style="margin:0 auto 0.75rem;">K</div>
-        <h2 id="authTitle" style="margin-bottom:0.25rem;">Sign In to KidsTube</h2>
+        <div class="brand-logo" style="margin:0 auto 0.75rem;">F</div>
+        <h2 id="authTitle" style="margin-bottom:0.25rem;">Sign In to FamiTube</h2>
         <p id="authSubtitle" style="color:var(--text-muted); font-size:0.9rem;">Choose your account type below to sign in.</p>
       </div>
 
@@ -803,7 +803,7 @@
       </div>
 
       <div id="kidLoginNotice" style="display:none; padding:0.75rem 0.9rem; border-radius:var(--radius-sm); background:rgba(67,97,238,0.08); border:1px solid rgba(67,97,238,0.22); color:var(--text-muted); font-size:0.82rem; margin-bottom:1rem;">
-        Kids cannot self-register. Use the email registered by your parent or guardian in <strong>KidsTube Studio</strong>.
+        Kids cannot self-register. Use the email registered by your parent or guardian in <strong>FamiTube Studio</strong>.
       </div>
 
       <div id="authModeTabs" style="display:flex; gap:0.5rem; margin-bottom:1.25rem;">
@@ -880,7 +880,7 @@
 
     <!-- Quick Curation Tool -->
     <div class="curation-box">
-      <h2><span class="material-symbols-rounded">add_circle</span> Curate a New Video for KidsTube</h2>
+      <h2><span class="material-symbols-rounded">add_circle</span> Curate a New Video for FamiTube</h2>
       <p>Paste any YouTube video URL/ID or direct MP4/HLS stream, then assign it to a Live Channel or On Demand Channel.</p>
       
       <div class="url-input-row">
@@ -1013,7 +1013,7 @@
             <div class="form-group">
               <label>Visibility</label>
               <select id="newChanVisibility">
-                <option value="PUBLIC">Public (Visible in KidsTube App)</option>
+                <option value="PUBLIC">Public (Visible in FamiTube App)</option>
                 <option value="PRIVATE">Private (Owner & Invited Parents Only)</option>
               </select>
             </div>
@@ -1358,8 +1358,8 @@
     const apiUrl = (path) => `${API_BASE}${path}`;
     document.getElementById('linkChannelsJson').href = apiUrl('/api/channels');
 
-    const AUTH_TOKEN_KEY = 'kidstube_auth_token';
-    const AUTH_USER_KEY = 'kidstube_auth_user';
+    const AUTH_TOKEN_KEY = 'FamiTube_auth_token';
+    const AUTH_USER_KEY = 'FamiTube_auth_user';
     let authToken = localStorage.getItem(AUTH_TOKEN_KEY) || '';
     let pendingVerifyEmail = '';
 
@@ -1526,7 +1526,7 @@
           icon: 'verified_user',
           color: 'var(--success)',
           title: `Welcome, ${user.name || user.email}!`,
-          sub: 'Your parent-approved KidsTube feed is active.'
+          sub: 'Your parent-approved FamiTube feed is active.'
         });
         items.push({
           icon: 'quiz',
@@ -2697,7 +2697,7 @@
     }
 
     async function deleteVideo(id) {
-      if (!confirm('Remove this video from KidsTube?')) return;
+      if (!confirm('Remove this video from FamiTube?')) return;
       const res = await authFetch('/api/admin/videos/' + id, { method: 'DELETE' });
       const json = await res.json();
       if (json.success) {
@@ -3195,8 +3195,8 @@
       `).join('');
     }
 
-    const THEME_PREF_KEY = 'kidstube_theme';
-    const LANG_PREF_KEY = 'kidstube_lang';
+    const THEME_PREF_KEY = 'FamiTube_theme';
+    const LANG_PREF_KEY = 'FamiTube_lang';
 
     const I18N = {
       en: {
@@ -3217,7 +3217,7 @@
         logout: 'Logout',
         hero_title: 'Safe, Curated Kids Channels & Educational Videos',
         hero_desc: 'Pick a themed channel below to explore hand-picked, kid-friendly YouTube and educational videos. To add or manage content, switch to Curator Studio.',
-        hero_safety_narration: "Discover how KidsTube protects your children from inappropriate content — it's the YouTube every parent wishes for.",
+        hero_safety_narration: "Discover how FamiTube protects your children from inappropriate content — it's the YouTube every parent wishes for.",
         hero_learn_more: 'Learn More >',
         featured_channels: 'Featured Channels'
       },
@@ -3239,7 +3239,7 @@
         logout: 'Keluar',
         hero_title: 'Saluran Anak Terkurasi & Video Edukatif yang Aman',
         hero_desc: 'Pilih saluran di bawah untuk menonton video YouTube dan edukatif ramah anak pilihan. Untuk mengelola konten, buka Studio Kurator.',
-        hero_safety_narration: 'Pelajari bagaimana KidsTube melindungi anak Anda dari konten tidak pantas — YouTube impian setiap orang tua.',
+        hero_safety_narration: 'Pelajari bagaimana FamiTube melindungi anak Anda dari konten tidak pantas — YouTube impian setiap orang tua.',
         hero_learn_more: 'Pelajari Lebih Lanjut >',
         featured_channels: 'Saluran Unggulan'
       }
