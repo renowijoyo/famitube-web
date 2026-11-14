@@ -41,13 +41,73 @@
     header {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
-      padding: 1rem 2rem;
+      padding: 0.85rem 2rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 1.25rem;
       position: sticky;
       top: 0;
       z-index: 100;
+    }
+
+    .top-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: var(--surface-light);
+      border: 1px solid var(--border);
+      padding: 0.3rem;
+      border-radius: 99px;
+    }
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: 99px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.86rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .nav-link:hover {
+      color: var(--text);
+      background: rgba(15, 23, 42, 0.05);
+    }
+
+    .nav-link.active {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 2px 8px rgba(255, 51, 102, 0.28);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 860px) {
+      header {
+        padding: 0.75rem 1rem;
+        flex-wrap: wrap;
+      }
+      .top-nav {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+        overflow-x: auto;
+      }
     }
 
     .brand {
@@ -493,17 +553,49 @@
         <span class="brand-badge">STUDIO CURATOR</span>
       </div>
     </a>
-    <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
-      <a id="btnKidsLogin" href="kids-login.html" class="btn btn-secondary">
-        <span class="material-symbols-rounded">child_care</span> Kids Login
-      </a>
-      <button id="btnModeStudio" class="btn btn-secondary" onclick="openStudio()">
-        <span class="material-symbols-rounded">admin_panel_settings</span> Curator Studio
+
+    <nav class="top-nav" aria-label="Main Navigation">
+      <button id="btnNavHome" class="nav-link active" onclick="openHome()">
+        <span class="material-symbols-rounded" style="font-size:1.05rem;">home</span> Home
       </button>
-      <a id="linkChannelsJson" href="https://kidstube-api.gamantha.my.id/api/channels" target="_blank" class="btn btn-secondary" style="display:none;">
-        <span class="material-symbols-rounded">tv</span> Channels JSON
+      <button id="btnNavChannels" class="nav-link" onclick="openChannelsNav()">
+        <span class="material-symbols-rounded" style="font-size:1.05rem;">subscriptions</span> Channels
+      </button>
+      <button id="btnModeStudio" class="nav-link" onclick="openStudio()">
+        <span class="material-symbols-rounded" style="font-size:1.05rem;">admin_panel_settings</span> Curator Studio
+      </button>
+      <a id="linkChannelsJson" href="https://kidstube-api.gamantha.my.id/api/channels" target="_blank" class="nav-link" style="display:none;">
+        <span class="material-symbols-rounded" style="font-size:1.05rem;">tv</span> Channels JSON
       </a>
-      <div id="userBar" style="display:none; position:relative; align-items:center; gap:0.65rem; margin-left:0.25rem;">
+    </nav>
+
+    <div class="header-right">
+      <div id="guestProfileMenu" style="display:flex; align-items:center; gap:0.55rem; position:relative;">
+        <a id="btnKidsLogin" href="kids-login.html" class="btn btn-secondary btn-sm">
+          <span class="material-symbols-rounded" style="font-size:1.05rem;">child_care</span> Kids Login
+        </a>
+        <button id="guestProfileBtn" onclick="toggleGuestProfileMenu(event)" title="Profile &amp; Sign In" style="display:inline-flex; align-items:center; gap:0.5rem; color:var(--text); background:var(--surface-light); border:1px solid var(--border); padding:0.3rem 0.7rem 0.3rem 0.35rem; border-radius:99px; font-family:inherit; font-size:0.84rem; font-weight:600; cursor:pointer;">
+          <span style="width:30px; height:30px; border-radius:50%; background:var(--border); display:inline-flex; align-items:center; justify-content:center; color:var(--text-muted);">
+            <span class="material-symbols-rounded" style="font-size:1.15rem;">person</span>
+          </span>
+          <span>Sign In</span>
+          <span class="material-symbols-rounded" style="font-size:1rem; color:var(--text-muted);">expand_more</span>
+        </button>
+        <div id="guestProfileDropdown" style="display:none; position:absolute; top:calc(100% + 0.5rem); right:0; min-width:220px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); box-shadow:0 12px 30px rgba(15,23,42,0.16); z-index:200; overflow:hidden;">
+          <div style="padding:0.75rem 1rem; border-bottom:1px solid var(--border);">
+            <div style="font-weight:700; font-size:0.88rem;">Guest Visitor</div>
+            <div style="font-size:0.76rem; color:var(--text-muted); margin-top:0.1rem;">Sign in for Parent Studio or Kid Mode</div>
+          </div>
+          <button onclick="document.getElementById('guestProfileDropdown').style.display='none'; openStudio();" style="width:100%; display:flex; align-items:center; gap:0.55rem; padding:0.7rem 1rem; background:none; border:none; color:var(--text); font-family:inherit; font-size:0.86rem; font-weight:600; cursor:pointer; text-align:left;" onmouseover="this.style.background='var(--surface-light)'" onmouseout="this.style.background='none'">
+            <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--primary);">admin_panel_settings</span> Parent / Curator Login
+          </button>
+          <a href="kids-login.html" style="width:100%; display:flex; align-items:center; gap:0.55rem; padding:0.7rem 1rem; text-decoration:none; color:var(--text); font-size:0.86rem; font-weight:600; border-top:1px solid var(--border);" onmouseover="this.style.background='var(--surface-light)'" onmouseout="this.style.background='none'">
+            <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--secondary);">child_care</span> Kids Login
+          </a>
+        </div>
+      </div>
+
+      <div id="userBar" style="display:none; position:relative; align-items:center; gap:0.65rem;">
         <div style="position:relative;">
           <button id="notifBellBtn" class="btn btn-secondary" onclick="toggleNotifMenu(event)" title="Notifications" style="padding:0.55rem; position:relative;">
             <span class="material-symbols-rounded">notifications</span>
@@ -1140,8 +1232,12 @@
     }
 
     function setModeButtons(mode) {
-      // Showcase is the main homepage; only style Curator Studio button
-      document.getElementById('btnModeStudio').className = mode === 'studio' ? 'btn btn-primary' : 'btn btn-secondary';
+      const homeBtn = document.getElementById('btnNavHome');
+      const channelsBtn = document.getElementById('btnNavChannels');
+      const studioBtn = document.getElementById('btnModeStudio');
+      if (homeBtn) homeBtn.className = mode === 'showcase' ? 'nav-link active' : 'nav-link';
+      if (channelsBtn) channelsBtn.className = mode === 'channels' ? 'nav-link active' : 'nav-link';
+      if (studioBtn) studioBtn.className = mode === 'studio' ? 'nav-link active' : 'nav-link';
     }
 
     function openHome(useKidsFeed = false) {
@@ -1151,6 +1247,19 @@
       document.getElementById('authGate').style.display = 'none';
       document.getElementById('studioApp').style.display = 'none';
       loadShowcase(useKidsFeed || (currentUser && currentUser.role === 'CHILD'));
+    }
+
+    function openChannelsNav() {
+      const studioApp = document.getElementById('studioApp');
+      if (studioApp && studioApp.style.display === 'block' && currentUser?.role !== 'CHILD') {
+        setModeButtons('channels');
+        switchTab('channels');
+        return;
+      }
+      openHome();
+      setModeButtons('channels');
+      const el = document.getElementById('showcaseChannels');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     const activeLoginRole = 'PARENT';
@@ -1183,6 +1292,13 @@
       }
     }
 
+    function toggleGuestProfileMenu(e) {
+      if (e) e.preventDefault();
+      const menu = document.getElementById('guestProfileDropdown');
+      if (!menu) return;
+      menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    }
+
     function toggleProfileMenu(e) {
       if (e) e.preventDefault();
       const notifMenu = document.getElementById('notifDropdownMenu');
@@ -1213,6 +1329,11 @@
       if (userBar && !userBar.contains(e.target)) {
         if (profileMenu) profileMenu.style.display = 'none';
         if (notifMenu) notifMenu.style.display = 'none';
+      }
+      const guestMenuWrap = document.getElementById('guestProfileMenu');
+      const guestDropdown = document.getElementById('guestProfileDropdown');
+      if (guestMenuWrap && !guestMenuWrap.contains(e.target)) {
+        if (guestDropdown) guestDropdown.style.display = 'none';
       }
     });
 
@@ -1264,6 +1385,8 @@
     }
 
     function applyUserHeaderUI(user) {
+      document.getElementById('guestProfileMenu').style.display = 'none';
+      document.getElementById('guestProfileDropdown').style.display = 'none';
       document.getElementById('btnKidsLogin').style.display = 'none';
       document.getElementById('userBar').style.display = 'flex';
       document.getElementById('profileDropdownMenu').style.display = 'none';
@@ -1316,6 +1439,7 @@
       document.getElementById('authGate').style.display = 'flex';
       document.getElementById('studioApp').style.display = 'none';
       document.getElementById('userBar').style.display = 'none';
+      document.getElementById('guestProfileMenu').style.display = 'flex';
     }
 
     function showStudioApp(user) {
@@ -1337,6 +1461,7 @@
       document.getElementById('notifDropdownMenu').style.display = 'none';
       document.getElementById('loggedInWelcomeBanner').style.display = 'none';
       document.getElementById('userBar').style.display = 'none';
+      document.getElementById('guestProfileMenu').style.display = 'flex';
       document.getElementById('btnKidsLogin').style.display = 'inline-flex';
       document.getElementById('btnModeStudio').style.display = 'inline-flex';
       if (wasChild) {
@@ -2469,7 +2594,8 @@
       const res = await authFetch(`/api/parent/channel-controls/${channelId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)$eol}      });
+        body: JSON.stringify(payload)
+      });
       const json = await res.json();
       if (!json.success) return alert(json.message || 'Failed to save rule');
       alert('Channel quiz wall rule saved!');
@@ -2741,6 +2867,7 @@
             localStorage.removeItem(AUTH_USER_KEY);
             document.getElementById('userBar').style.display = 'none';
             document.getElementById('loggedInWelcomeBanner').style.display = 'none';
+            document.getElementById('guestProfileMenu').style.display = 'flex';
             document.getElementById('btnKidsLogin').style.display = 'inline-flex';
             document.getElementById('btnModeStudio').style.display = 'inline-flex';
           }
