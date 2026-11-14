@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -864,16 +864,7 @@
         </div>
         <div>
           <div class="stat-num" id="statChannels">-</div>
-          <div class="stat-label">Channels (Live TV & On-Demand)</div>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon" style="background: rgba(76, 201, 240, 0.15); color: #4CC9F0;">
-          <span class="material-symbols-rounded">playlist_play</span>
-        </div>
-        <div>
-          <div class="stat-num" id="statPlaylists">-</div>
-          <div class="stat-label">Playlists</div>
+          <div class="stat-label">Channels (Live &amp; On Demand)</div>
         </div>
       </div>
       <div class="stat-card">
@@ -890,7 +881,7 @@
     <!-- Quick Curation Tool -->
     <div class="curation-box">
       <h2><span class="material-symbols-rounded">add_circle</span> Curate a New Video for KidsTube</h2>
-      <p>Paste any YouTube video URL/ID or direct MP4/HLS stream, then assign it to a Live TV or YouTube-style channel.</p>
+      <p>Paste any YouTube video URL/ID or direct MP4/HLS stream, then assign it to a Live Channel or On Demand Channel.</p>
       
       <div class="url-input-row">
         <input type="text" id="videoUrlInput" placeholder="https://www.youtube.com/watch?v=... or direct .mp4 URL">
@@ -961,8 +952,7 @@
     <!-- Tabs -->
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('videos', this)">Curated Videos</button>
-      <button class="tab-btn" onclick="switchTab('channels', this)">Channels (TV & On-Demand)</button>
-      <button class="tab-btn" onclick="switchTab('playlists', this)">Playlists</button>
+      <button class="tab-btn" onclick="switchTab('channels', this)">Channels (Live &amp; On Demand)</button>
       <button class="tab-btn" onclick="switchTab('kids', this)">My Kids</button>
       <button class="tab-btn" onclick="switchTab('settings', this)">Parental Defaults</button>
     </div>
@@ -1004,8 +994,8 @@
             <div class="form-group">
               <label>Channel Mode</label>
               <select id="newChanType">
-                <option value="LIVE_TV">ðŸ“º Live TV Channel (Time-Scheduled, Runtime Locked)</option>
-                <option value="ON_DEMAND">â–¶ï¸ YouTube-Style (On-Demand, Watch Anytime)</option>
+                <option value="LIVE_TV">Live Channel (Time-Scheduled, Runtime Locked)</option>
+                <option value="ON_DEMAND">On Demand Channel (Watch Anytime)</option>
               </select>
             </div>
             <div class="form-group">
@@ -1043,11 +1033,6 @@
       </div>
 
       <div class="video-grid" id="channelsGrid"></div>
-    </div>
-
-    <!-- Tab 3: Playlists -->
-    <div id="tabPlaylists" style="display:none;">
-      <div class="video-grid" id="playlistsGrid"></div>
     </div>
 
     <!-- Tab: My Kids (Parent Child Registration) -->
@@ -1740,7 +1725,6 @@
       if (json.success) {
         document.getElementById('statVideos').textContent = json.data.approvedVideos;
         document.getElementById('statChannels').textContent = json.data.totalChannels;
-        document.getElementById('statPlaylists').textContent = json.data.totalPlaylists;
         document.getElementById('statViews').textContent = json.data.totalViews.toLocaleString();
       }
     }
@@ -1794,7 +1778,7 @@
           <div class="video-card" style="padding:1.5rem; text-align:center;">
             <div style="margin-bottom:0.75rem; display:flex; gap:0.4rem; justify-content:center; flex-wrap:wrap;">
               <span class="${isLive ? 'pill-live' : 'pill-ondemand'}">
-                ${isLive ? 'LIVE TV' : 'ON-DEMAND'}
+                ${isLive ? 'LIVE CHANNEL' : 'ON DEMAND CHANNEL'}
               </span>
               <span style="font-size:0.72rem; padding:3px 8px; border-radius:999px; background:${isPrivate ? 'rgba(255,183,3,0.15)' : 'rgba(6,214,160,0.15)'}; color:${isPrivate ? '#b45309' : '#047857'}; font-weight:700;">
                 ${isPrivate ? 'PRIVATE' : 'PUBLIC'}
@@ -1891,7 +1875,7 @@
       const isLive = channel.channelType === 'LIVE_TV';
       const isPrivate = channel.visibility === 'PRIVATE';
       document.getElementById('chanModalBadge').innerHTML =
-        `<span class="${isLive ? 'pill-live' : 'pill-ondemand'}">${isLive ? 'LIVE TV' : 'ON-DEMAND'}</span> ` +
+        `<span class="${isLive ? 'pill-live' : 'pill-ondemand'}">${isLive ? 'LIVE CHANNEL' : 'ON DEMAND CHANNEL'}</span> ` +
         `<span style="font-size:0.75rem; padding:2px 8px; border-radius:999px; background:var(--surface-light);">${isPrivate ? 'Private' : 'Public'}</span>`;
 
       document.getElementById('chanRoleBadge').textContent = activeChannelPerms.isOwner
@@ -1911,7 +1895,7 @@
         ? 'Plays videos sequentially by wall-clock time. Viewers cannot seek or skip.'
         : 'YouTube-style channel. Viewers can browse and play any video anytime.';
 
-      document.getElementById('btnToggleMode').textContent = isLive ? 'Switch to On-Demand' : 'Switch to Live TV';
+      document.getElementById('btnToggleMode').textContent = isLive ? 'Switch to On Demand Channel' : 'Switch to Live Channel';
       document.getElementById('btnToggleVisibility').textContent = isPrivate ? 'Make Public' : 'Make Private';
 
       const liveBox = document.getElementById('liveBroadcastBox');
@@ -2372,26 +2356,6 @@
       await openStudio();
     }
 
-    async function loadPlaylists() {
-      const res = await authFetch('/api/playlists');
-      const json = await res.json();
-      const grid = document.getElementById('playlistsGrid');
-      if (json.success) {
-        grid.innerHTML = json.data.map(p => `
-          <div class="video-card">
-            <div class="video-thumb-wrap">
-              <img src="${p.thumbnailUrl}" class="video-thumb">
-              <div class="badge-age">${p.videoIds.length} Videos</div>
-            </div>
-            <div class="video-info">
-              <div class="video-title">${p.title}</div>
-              <p style="color:var(--text-muted); font-size:0.85rem;">${p.description}</p>
-            </div>
-          </div>
-        `).join('');
-      }
-    }
-
     async function loadSettings() {
       const res = await authFetch('/api/config');
       const json = await res.json();
@@ -2580,12 +2544,10 @@
 
       document.getElementById('tabVideos').style.display = name === 'videos' ? 'block' : 'none';
       document.getElementById('tabChannels').style.display = name === 'channels' ? 'block' : 'none';
-      document.getElementById('tabPlaylists').style.display = name === 'playlists' ? 'block' : 'none';
       document.getElementById('tabKids').style.display = name === 'kids' ? 'block' : 'none';
       document.getElementById('tabSettings').style.display = name === 'settings' ? 'block' : 'none';
 
       if (name === 'channels') loadChannels();
-      if (name === 'playlists') loadPlaylists();
       if (name === 'kids') { loadParentChildren(); loadParentChannelControls(); }
       if (name === 'settings') loadSettings();
     }
@@ -2774,7 +2736,8 @@
             const hasActive = showcaseChannels.some(c => c.id === activeShowcaseChannelId);
             const initialId = hasActive ? activeShowcaseChannelId : (showcaseChannels[0]?.id || null);
             renderShowcaseChannels();
-            await selectShowcaseChannel(initialId);
+            await selectShowcaseChannel(initialId, true);
+            resetShowcaseAutoRotate();
             return;
           }
         }
@@ -2786,7 +2749,8 @@
           const hasActive = showcaseChannels.some(c => c.id === activeShowcaseChannelId);
           const initialId = hasActive ? activeShowcaseChannelId : (showcaseChannels[0]?.id || null);
           renderShowcaseChannels();
-          await selectShowcaseChannel(initialId);
+          await selectShowcaseChannel(initialId, true);
+          resetShowcaseAutoRotate();
         }
       } catch {
         document.getElementById('showcaseChannels').innerHTML =
@@ -2822,12 +2786,37 @@
       }
     }
 
-    async function stepChannelCarousel(delta) {
+    let showcaseAutoRotateTimer = null;
+    let isShowcaseHovered = false;
+
+    function resetShowcaseAutoRotate() {
+      if (showcaseAutoRotateTimer) clearInterval(showcaseAutoRotateTimer);
+      showcaseAutoRotateTimer = setInterval(async () => {
+        if (document.hidden || isShowcaseHovered || showcaseChannels.length <= 1) return;
+        const showcaseEl = document.getElementById('showcaseApp');
+        if (!showcaseEl || showcaseEl.style.display === 'none') return;
+        const quizModal = document.getElementById('quizWallModal');
+        const videoModal = document.getElementById('videoModal');
+        if ((quizModal && quizModal.style.display === 'flex') || (videoModal && videoModal.style.display === 'flex')) return;
+        await stepChannelCarousel(1, true);
+      }, 5000);
+    }
+
+    (() => {
+      const track = document.getElementById('showcaseChannels');
+      if (track) {
+        track.addEventListener('mouseenter', () => { isShowcaseHovered = true; });
+        track.addEventListener('mouseleave', () => { isShowcaseHovered = false; });
+      }
+    })();
+
+    async function stepChannelCarousel(delta, isAuto = false) {
       if (!showcaseChannels.length) return;
       const currentIdx = showcaseChannels.findIndex(c => c.id === activeShowcaseChannelId);
       const baseIdx = currentIdx >= 0 ? currentIdx : 0;
       const nextIdx = (baseIdx + delta + showcaseChannels.length) % showcaseChannels.length;
-      await selectShowcaseChannel(showcaseChannels[nextIdx].id);
+      await selectShowcaseChannel(showcaseChannels[nextIdx].id, isAuto);
+      if (!isAuto) resetShowcaseAutoRotate();
     }
 
     let quizTimerInterval = null;
@@ -2947,7 +2936,7 @@
       renderQuizWallState(channelId, chName, data);
     }
 
-    async function selectShowcaseChannel(channelId) {
+    async function selectShowcaseChannel(channelId, isAuto = false) {
       const ch = showcaseChannels.find(c => c.id === channelId);
       if (channelId && currentUser?.role === 'CHILD' && authToken) {
         const res = await fetch(apiUrl(`/api/kids/channels/${channelId}/access`), {
@@ -2955,11 +2944,12 @@
         });
         const json = await res.json();
         if (json.success && json.data && !json.data.unlocked) {
-          await openQuizWall(channelId, ch?.name);
+          if (!isAuto) await openQuizWall(channelId, ch?.name);
           return;
         }
       }
       await loadChannelVideosIntoShowcase(channelId);
+      if (!isAuto) resetShowcaseAutoRotate();
     }
 
     async function loadChannelVideosIntoShowcase(channelId) {
