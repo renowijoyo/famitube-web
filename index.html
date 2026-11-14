@@ -500,7 +500,7 @@
       <button id="btnModeStudio" class="btn btn-secondary" onclick="openStudio()">
         <span class="material-symbols-rounded">admin_panel_settings</span> Curator Studio
       </button>
-      <a id="linkChannelsJson" href="https://kidstube-api.gamantha.my.id/api/channels" target="_blank" class="btn btn-secondary">
+      <a id="linkChannelsJson" href="https://kidstube-api.gamantha.my.id/api/channels" target="_blank" class="btn btn-secondary" style="display:none;">
         <span class="material-symbols-rounded">tv</span> Channels JSON
       </a>
       <a id="linkVideosJson" href="https://kidstube-api.gamantha.my.id/api/videos" target="_blank" class="btn btn-secondary">
@@ -1126,6 +1126,7 @@
 
     function openHome(useKidsFeed = false) {
       setModeButtons('showcase');
+      document.getElementById('linkChannelsJson').style.display = 'none';
       document.getElementById('showcaseApp').style.display = 'block';
       document.getElementById('authGate').style.display = 'none';
       document.getElementById('studioApp').style.display = 'none';
@@ -1211,6 +1212,7 @@
 
     function showAuthGate() {
       setModeButtons('studio');
+      document.getElementById('linkChannelsJson').style.display = 'none';
       document.getElementById('showcaseApp').style.display = 'none';
       document.getElementById('authGate').style.display = 'flex';
       document.getElementById('studioApp').style.display = 'none';
@@ -1219,6 +1221,7 @@
 
     function showStudioApp(user) {
       setModeButtons('studio');
+      document.getElementById('linkChannelsJson').style.display = 'inline-flex';
       document.getElementById('showcaseApp').style.display = 'none';
       document.getElementById('authGate').style.display = 'none';
       document.getElementById('studioApp').style.display = 'block';
