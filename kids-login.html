@@ -367,6 +367,7 @@
     })();
     const apiUrl = (path) => `${API_BASE}${path}`;
     const AUTH_TOKEN_KEY = 'kidstube_auth_token';
+    const AUTH_USER_KEY = 'kidstube_auth_user';
 
     function showAlert(message, isError = true) {
       const el = document.getElementById('kidsAuthAlert');
@@ -384,6 +385,7 @@
 
     function signOutKid() {
       localStorage.removeItem(AUTH_TOKEN_KEY);
+      localStorage.removeItem(AUTH_USER_KEY);
       document.getElementById('alreadySignedInPanel').style.display = 'none';
       document.getElementById('kidsLoginForm').style.display = 'block';
       document.getElementById('kidsAuthAlert').style.display = 'none';
@@ -412,6 +414,7 @@
         }
 
         localStorage.setItem(AUTH_TOKEN_KEY, json.token);
+        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(json.user));
         showAlert(`Welcome back, ${json.user.name || json.user.email}! Redirecting to your KidsTube feed...`, false);
         setTimeout(() => {
           window.location.href = 'index.html';

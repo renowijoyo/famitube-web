@@ -1116,6 +1116,7 @@
     document.getElementById('linkChannelsJson').href = apiUrl('/api/channels');
 
     const AUTH_TOKEN_KEY = 'kidstube_auth_token';
+    const AUTH_USER_KEY = 'kidstube_auth_user';
     let authToken = localStorage.getItem(AUTH_TOKEN_KEY) || '';
     let pendingVerifyEmail = '';
 
@@ -1293,6 +1294,7 @@
 
     function handleAuthenticatedUser(user) {
       currentUser = user;
+      if (user) localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
       applyUserHeaderUI(user);
       if (user?.role === 'CHILD') {
         document.getElementById('authGate').style.display = 'none';
@@ -1330,6 +1332,7 @@
       authToken = '';
       currentUser = null;
       localStorage.removeItem(AUTH_TOKEN_KEY);
+      localStorage.removeItem(AUTH_USER_KEY);
       document.getElementById('profileDropdownMenu').style.display = 'none';
       document.getElementById('notifDropdownMenu').style.display = 'none';
       document.getElementById('loggedInWelcomeBanner').style.display = 'none';
@@ -2714,19 +2717,35 @@
     async function initApp() {
       if (authToken) {
         try {
+          const cachedUserRaw = localStorage.getItem(AUTH_USER_KEY);
+          if (cachedUserRaw) {
+            currentUser = JSON.parse(cachedUserRaw);
+            applyUserHeaderUI(currentUser);
+          }
+        } catch {
+          localStorage.removeItem(AUTH_USER_KEY);
+        }
+        try {
           const res = await fetch(apiUrl('/api/auth/me'), {
             headers: { Authorization: `Bearer ${authToken}` }
           });
           const json = await res.json();
           if (res.ok && json.success) {
             currentUser = json.user;
+            localStorage.setItem(AUTH_USER_KEY, JSON.stringify(json.user));
             applyUserHeaderUI(json.user);
-          } else {
+          } else if (res.status === 401 || res.status === 403) {
             authToken = '';
+            currentUser = null;
             localStorage.removeItem(AUTH_TOKEN_KEY);
+            localStorage.removeItem(AUTH_USER_KEY);
+            document.getElementById('userBar').style.display = 'none';
+            document.getElementById('loggedInWelcomeBanner').style.display = 'none';
+            document.getElementById('btnKidsLogin').style.display = 'inline-flex';
+            document.getElementById('btnModeStudio').style.display = 'inline-flex';
           }
         } catch {
-          // ignore silent check failure; showcase still loads
+          // keep cached session UI if API is temporarily unreachable
         }
       }
       const modeParam = new URLSearchParams(window.location.search).get('mode');
