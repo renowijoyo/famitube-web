@@ -623,6 +623,130 @@
       border-radius: var(--radius-sm);
       margin-bottom: 0.5rem;
     }
+
+    .channel-search-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+    .channel-search-top-row {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .channel-search-input-wrap {
+      flex: 1 1 280px;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .channel-search-input-wrap .search-icon {
+      position: absolute;
+      left: 0.85rem;
+      color: var(--text-muted);
+      pointer-events: none;
+      font-size: 1.2rem;
+    }
+    .channel-search-input-wrap input {
+      width: 100%;
+      padding: 0.72rem 2.4rem 0.72rem 2.6rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+    .channel-search-input-wrap input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(76, 201, 240, 0.16);
+    }
+    .channel-search-clear-btn {
+      position: absolute;
+      right: 0.55rem;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 0.25rem;
+      border-radius: 50%;
+    }
+    .channel-search-clear-btn:hover { color: var(--text); background: var(--surface-light); }
+    .channel-type-pills {
+      display: flex;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+    .channel-category-pills {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .filter-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .filter-pill:hover {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+    .filter-pill.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+    .channel-search-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 1rem;
+    }
+    .channel-search-card {
+      padding: 1.15rem;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+    .channel-search-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+    }
+    .channel-type-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.18rem 0.55rem;
+      border-radius: 99px;
+    }
+    .channel-type-badge.live {
+      background: rgba(255, 51, 102, 0.15);
+      color: var(--primary);
+    }
+    .channel-type-badge.ondemand {
+      background: rgba(76, 201, 240, 0.15);
+      color: var(--accent);
+    }
   </style>
 </head>
 <body>
@@ -779,6 +903,43 @@
       <span id="showcaseVideosCount" style="color:var(--text-muted); font-size:0.9rem;"></span>
     </div>
     <div id="showcaseVideos" class="video-grid"></div>
+  </div>
+
+  <!-- Channel Search Page -->
+  <div class="container" id="channelsSearchApp" style="display:none;">
+    <div class="card" style="padding:1.5rem 1.75rem; margin-bottom:1.5rem; background:linear-gradient(135deg, rgba(67,97,238,0.16), rgba(76,201,240,0.14)); border-color:rgba(76,201,240,0.25);">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+        <div>
+          <h2 data-i18n="channel_search_title" style="font-size:1.5rem; margin-bottom:0.3rem;">Browse &amp; Search Channels</h2>
+          <p data-i18n="channel_search_desc" style="color:var(--text-muted); font-size:0.93rem;">Filter safe, curated channels by category or search by channel name and topic.</p>
+        </div>
+        <span id="channelSearchCountBadge" style="font-size:0.84rem; font-weight:700; padding:0.35rem 0.85rem; border-radius:99px; background:var(--surface); border:1px solid var(--border); color:var(--accent);">0 channels</span>
+      </div>
+    </div>
+
+    <div class="channel-search-controls">
+      <div class="channel-search-top-row">
+        <div class="channel-search-input-wrap">
+          <span class="material-symbols-rounded search-icon">search</span>
+          <input type="text" id="channelSearchInput" placeholder="Search channels by name, topic, or description..." oninput="onChannelSearchInput()" aria-label="Search channels">
+          <button type="button" id="channelSearchClearBtn" class="channel-search-clear-btn" onclick="clearChannelSearchQuery()" title="Clear search" aria-label="Clear search">
+            <span class="material-symbols-rounded" style="font-size:1.1rem;">close</span>
+          </button>
+        </div>
+        <div class="channel-type-pills" role="group" aria-label="Filter by channel type">
+          <button type="button" class="filter-pill active" data-type="ALL" onclick="setChannelSearchType('ALL', this)" data-i18n="filter_all_types">All Types</button>
+          <button type="button" class="filter-pill" data-type="LIVE_TV" onclick="setChannelSearchType('LIVE_TV', this)">
+            <span class="material-symbols-rounded" style="font-size:0.95rem;">live_tv</span> <span data-i18n="filter_live_tv">Live TV (24H)</span>
+          </button>
+          <button type="button" class="filter-pill" data-type="ON_DEMAND" onclick="setChannelSearchType('ON_DEMAND', this)">
+            <span class="material-symbols-rounded" style="font-size:0.95rem;">video_library</span> <span data-i18n="filter_on_demand">On Demand</span>
+          </button>
+        </div>
+      </div>
+      <div id="channelCategoryFilters" class="channel-category-pills" role="group" aria-label="Filter by category"></div>
+    </div>
+
+    <div id="channelsSearchGrid" class="channel-search-grid"></div>
   </div>
 
   <!-- Auth Gate (Login / Register / Email Verification) -->
@@ -1434,24 +1595,29 @@
 
     function openHome(useKidsFeed = false) {
       setModeButtons('showcase');
+      if (window.location.hash === '#channels') {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
       document.getElementById('linkChannelsJson').style.display = 'none';
       document.getElementById('showcaseApp').style.display = 'block';
+      document.getElementById('channelsSearchApp').style.display = 'none';
       document.getElementById('authGate').style.display = 'none';
       document.getElementById('studioApp').style.display = 'none';
       loadShowcase(useKidsFeed || (currentUser && currentUser.role === 'CHILD'));
     }
 
     function openChannelsNav() {
-      const studioApp = document.getElementById('studioApp');
-      if (studioApp && studioApp.style.display === 'block' && currentUser?.role !== 'CHILD') {
-        setModeButtons('channels');
-        switchTab('channels');
-        return;
-      }
-      openHome();
       setModeButtons('channels');
-      const el = document.getElementById('showcaseChannels');
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (window.location.hash !== '#channels') {
+        history.replaceState(null, '', '#channels');
+      }
+      document.getElementById('linkChannelsJson').style.display = 'none';
+      document.getElementById('showcaseApp').style.display = 'none';
+      document.getElementById('channelsSearchApp').style.display = 'block';
+      document.getElementById('authGate').style.display = 'none';
+      document.getElementById('studioApp').style.display = 'none';
+      loadChannelSearchPage(currentUser && currentUser.role === 'CHILD');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     let activeLoginRole = 'PARENT';
@@ -1486,6 +1652,7 @@
       }
       setModeButtons('studio');
       document.getElementById('showcaseApp').style.display = 'none';
+      document.getElementById('channelsSearchApp').style.display = 'none';
       if (!authToken) {
         showAuthGate();
         return;
@@ -1650,6 +1817,7 @@
       setLoginRole(role);
       document.getElementById('linkChannelsJson').style.display = 'none';
       document.getElementById('showcaseApp').style.display = 'none';
+      document.getElementById('channelsSearchApp').style.display = 'none';
       document.getElementById('authGate').style.display = 'flex';
       document.getElementById('studioApp').style.display = 'none';
       document.getElementById('userBar').style.display = 'none';
@@ -1660,6 +1828,7 @@
       setModeButtons('studio');
       document.getElementById('linkChannelsJson').style.display = 'inline-flex';
       document.getElementById('showcaseApp').style.display = 'none';
+      document.getElementById('channelsSearchApp').style.display = 'none';
       document.getElementById('authGate').style.display = 'none';
       document.getElementById('studioApp').style.display = 'block';
       applyUserHeaderUI(user);
@@ -3404,6 +3573,181 @@
       `).join('');
     }
 
+    let searchableChannels = [];
+    let searchableCategories = [];
+    let activeChannelSearchCategory = 'ALL';
+    let activeChannelSearchType = 'ALL';
+    let channelSearchQuery = '';
+
+    async function loadChannelSearchPage(useKidsFeed = false) {
+      const grid = document.getElementById('channelsSearchGrid');
+      if (grid && !searchableChannels.length) {
+        grid.innerHTML = '<p style="color:var(--text-muted);">Loading channels...</p>';
+      }
+      try {
+        const [chanRes, catRes] = await Promise.all([
+          useKidsFeed && authToken
+            ? fetch(apiUrl('/api/kids/feed'), { headers: { Authorization: `Bearer ${authToken}` } })
+            : fetch(apiUrl('/api/channels')),
+          fetch(apiUrl('/api/categories'))
+        ]);
+        const chanJson = await chanRes.json();
+        if (chanJson.success) {
+          searchableChannels = (useKidsFeed && authToken)
+            ? (chanJson.data?.channels || [])
+            : (chanJson.data || []);
+        }
+        const catJson = await catRes.json().catch(() => ({}));
+        if (catJson.success && Array.isArray(catJson.data)) {
+          searchableCategories = catJson.data.filter(c => c.name && c.name !== 'All Videos');
+        }
+        renderChannelSearchCategories();
+        renderChannelSearchResults();
+      } catch {
+        if (grid) {
+          grid.innerHTML = '<p style="color:var(--text-muted);">Unable to load channels from API at ' + API_BASE + '</p>';
+        }
+      }
+    }
+
+    function renderChannelSearchCategories() {
+      const wrap = document.getElementById('channelCategoryFilters');
+      if (!wrap) return;
+      const presentCats = new Set(searchableChannels.map(c => c.category).filter(Boolean));
+      const ordered = [];
+      for (const cat of searchableCategories) {
+        if (presentCats.has(cat.name)) ordered.push(cat);
+      }
+      for (const name of presentCats) {
+        if (!ordered.some(c => c.name === name)) {
+          ordered.push({ name, icon: 'category' });
+        }
+      }
+      const lang = localStorage.getItem(LANG_PREF_KEY) || 'en';
+      const allLabel = (I18N[lang] && I18N[lang].filter_all_categories) || 'All Categories';
+      wrap.innerHTML = [
+        `<button type="button" class="filter-pill ${activeChannelSearchCategory === 'ALL' ? 'active' : ''}" onclick="filterChannelsByCategory('ALL')">${allLabel}</button>`,
+        ...ordered.map(c => {
+          const isActive = activeChannelSearchCategory === c.name;
+          const safeName = String(c.name).replace(/'/g, "\\'");
+          return `<button type="button" class="filter-pill ${isActive ? 'active' : ''}" onclick="filterChannelsByCategory('${safeName}')">
+            <span class="material-symbols-rounded" style="font-size:0.95rem;">${c.icon || 'tag'}</span> ${c.name}
+          </button>`;
+        })
+      ].join('');
+    }
+
+    function filterChannelsByCategory(categoryName) {
+      activeChannelSearchCategory = categoryName || 'ALL';
+      renderChannelSearchCategories();
+      renderChannelSearchResults();
+    }
+
+    function setChannelSearchType(type, btn) {
+      activeChannelSearchType = type || 'ALL';
+      document.querySelectorAll('.channel-type-pills .filter-pill').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      renderChannelSearchResults();
+    }
+
+    function onChannelSearchInput() {
+      const input = document.getElementById('channelSearchInput');
+      const clearBtn = document.getElementById('channelSearchClearBtn');
+      channelSearchQuery = (input?.value || '').trim();
+      if (clearBtn) clearBtn.style.display = channelSearchQuery ? 'inline-flex' : 'none';
+      renderChannelSearchResults();
+    }
+
+    function clearChannelSearchQuery() {
+      const input = document.getElementById('channelSearchInput');
+      if (input) input.value = '';
+      channelSearchQuery = '';
+      const clearBtn = document.getElementById('channelSearchClearBtn');
+      if (clearBtn) clearBtn.style.display = 'none';
+      renderChannelSearchResults();
+    }
+
+    function clearAllChannelFilters() {
+      activeChannelSearchCategory = 'ALL';
+      activeChannelSearchType = 'ALL';
+      document.querySelectorAll('.channel-type-pills .filter-pill').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-type') === 'ALL');
+      });
+      clearChannelSearchQuery();
+      renderChannelSearchCategories();
+      renderChannelSearchResults();
+    }
+
+    function renderChannelSearchResults() {
+      const grid = document.getElementById('channelsSearchGrid');
+      const badge = document.getElementById('channelSearchCountBadge');
+      if (!grid) return;
+
+      const q = channelSearchQuery.toLowerCase();
+      const filtered = searchableChannels.filter(c => {
+        if (activeChannelSearchCategory !== 'ALL' && c.category !== activeChannelSearchCategory) return false;
+        if (activeChannelSearchType !== 'ALL' && c.channelType !== activeChannelSearchType) return false;
+        if (q) {
+          const hay = `${c.name || ''} ${c.description || ''} ${c.category || ''}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+
+      if (badge) {
+        badge.textContent = filtered.length === searchableChannels.length
+          ? `${filtered.length} channels`
+          : `${filtered.length} of ${searchableChannels.length} channels`;
+      }
+
+      if (!filtered.length) {
+        grid.innerHTML = `
+          <div class="card" style="grid-column:1 / -1; padding:2.25rem; text-align:center;">
+            <span class="material-symbols-rounded" style="font-size:2.4rem; color:var(--text-muted); margin-bottom:0.5rem;">search_off</span>
+            <h3 style="margin-bottom:0.35rem;">No matching channels found</h3>
+            <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1rem;">Try a different search keyword or clear the active category filter.</p>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="clearAllChannelFilters()">Clear Filters</button>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(c => {
+        const isLive = c.channelType === 'LIVE_TV';
+        const videoCount = c.videoCount ?? (Array.isArray(c.videoIds) ? c.videoIds.length : 0);
+        return `
+          <div class="card channel-search-card" onclick="openChannelFromSearch('${c.id}')">
+            <div style="display:flex; align-items:center; gap:0.85rem;">
+              <img src="${c.avatarUrl}" alt="${c.name}" style="width:52px; height:52px; border-radius:50%; object-fit:cover; flex-shrink:0; border:2px solid ${isLive ? 'var(--primary)' : 'var(--accent)'};">
+              <div style="min-width:0; flex:1;">
+                <div style="display:flex; align-items:center; gap:0.35rem;">
+                  <span style="font-weight:700; font-size:1rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.name}</span>
+                  ${c.isVerified ? '<span class="material-symbols-rounded" style="font-size:1rem; color:var(--accent); flex-shrink:0;" title="Verified Safe Channel">verified</span>' : ''}
+                </div>
+                <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.15rem;">${c.category} &bull; ${videoCount} videos</div>
+              </div>
+            </div>
+            <p style="color:var(--text-muted); font-size:0.85rem; line-height:1.45; margin:0; flex:1;">${c.description || ''}</p>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; margin-top:0.2rem;">
+              <span class="channel-type-badge ${isLive ? 'live' : 'ondemand'}">
+                <span class="material-symbols-rounded" style="font-size:0.88rem;">${isLive ? 'live_tv' : 'video_library'}</span>
+                ${isLive ? 'LIVE TV' : 'ON DEMAND'}
+              </span>
+              <span style="font-size:0.8rem; font-weight:700; color:var(--primary); display:inline-flex; align-items:center; gap:0.15rem;">
+                Watch <span class="material-symbols-rounded" style="font-size:1rem;">arrow_forward</span>
+              </span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function openChannelFromSearch(channelId) {
+      activeShowcaseChannelId = channelId;
+      openHome(currentUser?.role === 'CHILD');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
     const THEME_PREF_KEY = 'FamiTube_theme';
     const LANG_PREF_KEY = 'FamiTube_lang';
 
@@ -3428,7 +3772,13 @@
         hero_desc: 'Pick a themed channel below to explore hand-picked, kid-friendly YouTube and educational videos. To add or manage content, switch to Curator Studio.',
         hero_safety_narration: "Discover how FamiTube protects your children from inappropriate content — it's the YouTube every parent wishes for.",
         hero_learn_more: 'Learn More >',
-        featured_channels: 'Featured Channels'
+        featured_channels: 'Featured Channels',
+        channel_search_title: 'Browse & Search Channels',
+        channel_search_desc: 'Filter safe, curated channels by category or search by channel name and topic.',
+        filter_all_types: 'All Types',
+        filter_live_tv: 'Live TV (24H)',
+        filter_on_demand: 'On Demand',
+        filter_all_categories: 'All Categories'
       },
       id: {
         nav_home: 'Beranda',
@@ -3450,7 +3800,13 @@
         hero_desc: 'Pilih saluran di bawah untuk menonton video YouTube dan edukatif ramah anak pilihan. Untuk mengelola konten, buka Studio Kurator.',
         hero_safety_narration: 'Pelajari bagaimana FamiTube melindungi anak Anda dari konten tidak pantas — YouTube impian setiap orang tua.',
         hero_learn_more: 'Pelajari Lebih Lanjut >',
-        featured_channels: 'Saluran Unggulan'
+        featured_channels: 'Saluran Unggulan',
+        channel_search_title: 'Jelajahi & Cari Saluran',
+        channel_search_desc: 'Filter saluran terkurasi berdasarkan kategori atau cari berdasarkan nama dan topik.',
+        filter_all_types: 'Semua Tipe',
+        filter_live_tv: 'TV Langsung (24J)',
+        filter_on_demand: 'Sesuai Permintaan',
+        filter_all_categories: 'Semua Kategori'
       }
     };
 
@@ -3537,6 +3893,8 @@
       const modeParam = new URLSearchParams(window.location.search).get('mode');
       if (modeParam === 'studio' && currentUser?.role !== 'CHILD') {
         await openStudio();
+      } else if (window.location.hash === '#channels' || modeParam === 'channels') {
+        openChannelsNav();
       } else {
         openHome(currentUser?.role === 'CHILD');
       }
