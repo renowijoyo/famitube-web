@@ -885,6 +885,65 @@
       </p>
     </div>
 
+    <div id="kidToolsBar" style="display:none; margin-bottom:1.25rem; gap:0.55rem; flex-wrap:wrap; align-items:center;">
+      <button type="button" class="filter-pill active" id="kidTabBtnCurated" onclick="switchKidShowcaseTab('curated')">
+        <span class="material-symbols-rounded" style="font-size:1rem;">subscriptions</span> Curated Channels
+      </button>
+      <button type="button" class="filter-pill" id="kidTabBtnSearch" onclick="switchKidShowcaseTab('search')" style="display:none;">
+        <span class="material-symbols-rounded" style="font-size:1rem;">youtube_searched_for</span> YouTube Search
+      </button>
+      <button type="button" class="filter-pill" id="kidTabBtnHistory" onclick="switchKidShowcaseTab('history')">
+        <span class="material-symbols-rounded" style="font-size:1rem;">history</span> My History
+      </button>
+      <button type="button" class="filter-pill" id="kidTabBtnPlaylists" onclick="switchKidShowcaseTab('playlists')">
+        <span class="material-symbols-rounded" style="font-size:1rem;">playlist_play</span> My Playlists
+      </button>
+    </div>
+
+    <div id="kidYouTubeSearchPanel" style="display:none; margin-bottom:2rem;">
+      <div class="card" style="padding:1.25rem 1.4rem; margin-bottom:1.25rem;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.85rem;">
+          <div>
+            <h3 style="font-size:1.15rem; margin-bottom:0.2rem;">Search YouTube Videos</h3>
+            <p style="color:var(--text-muted); font-size:0.86rem;">Find videos you like! Approved videos stay in your History forever.</p>
+          </div>
+          <span id="kidSearchQuotaBadge" style="font-size:0.8rem; font-weight:700; padding:0.3rem 0.75rem; border-radius:99px; background:rgba(76,201,240,0.14); color:var(--accent);"></span>
+        </div>
+        <form onsubmit="runKidYouTubeSearch(event)" style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+          <input type="text" id="kidYouTubeSearchInput" placeholder="Search for cartoons, science, drawing, music..." style="flex:1 1 260px; padding:0.7rem 1rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit; font-size:0.95rem;" required>
+          <button type="submit" class="btn btn-primary" id="kidYouTubeSearchBtn">
+            <span class="material-symbols-rounded" style="font-size:1.05rem;">search</span> Search
+          </button>
+        </form>
+        <div id="kidSearchStatusBanner" style="display:none; margin-top:0.85rem; padding:0.75rem 1rem; border-radius:var(--radius-sm); font-size:0.86rem;"></div>
+      </div>
+      <div id="kidYouTubeSearchResults" class="video-grid"></div>
+    </div>
+
+    <div id="kidHistoryPanel" style="display:none; margin-bottom:2rem;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap; margin-bottom:1rem;">
+        <div>
+          <h3 style="font-size:1.2rem;">My Watch History &amp; Approved Videos</h3>
+          <p style="color:var(--text-muted); font-size:0.86rem;">Videos approved by your parent can be watched anytime without asking again and added to your playlists.</p>
+        </div>
+      </div>
+      <div id="kidHistoryGrid" class="video-grid"></div>
+    </div>
+
+    <div id="kidPlaylistsPanel" style="display:none; margin-bottom:2rem;">
+      <div class="card" style="padding:1.25rem 1.4rem; margin-bottom:1.25rem;">
+        <h3 style="font-size:1.15rem; margin-bottom:0.6rem;">My Playlists</h3>
+        <form onsubmit="createKidPlaylistSubmit(event)" style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+          <input type="text" id="kidNewPlaylistTitle" placeholder="New playlist name (e.g. Science Favorites)..." style="flex:1 1 240px; padding:0.65rem 0.95rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit; font-size:0.92rem;" required>
+          <button type="submit" class="btn btn-primary btn-sm">
+            <span class="material-symbols-rounded" style="font-size:1rem;">playlist_add</span> Create Playlist
+          </button>
+        </form>
+      </div>
+      <div id="kidPlaylistsContainer" style="display:flex; flex-direction:column; gap:1rem;"></div>
+    </div>
+
+    <div id="showcaseCuratedPanel">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; gap:1rem; flex-wrap:wrap;">
       <h3 data-i18n="featured_channels" style="font-size:1.2rem;">Featured Channels</h3>
       <div style="display:flex; align-items:center; gap:0.45rem;">
@@ -903,6 +962,7 @@
       <span id="showcaseVideosCount" style="color:var(--text-muted); font-size:0.9rem;"></span>
     </div>
     <div id="showcaseVideos" class="video-grid"></div>
+    </div>
   </div>
 
   <!-- Channel Search Page -->
@@ -1115,6 +1175,7 @@
       <button class="tab-btn active" onclick="switchTab('videos', this)">Curated Videos</button>
       <button class="tab-btn" onclick="switchTab('channels', this)">Channels (Live &amp; On Demand)</button>
       <button class="tab-btn" onclick="switchTab('kids', this)">My Kids</button>
+      <button class="tab-btn" onclick="switchTab('advisories', this)">Recommended &amp; Caution</button>
       <button class="tab-btn" onclick="switchTab('settings', this)">Parental Defaults</button>
     </div>
 
@@ -1313,6 +1374,17 @@
       <h3 style="margin-bottom:0.75rem;">Registered Child Accounts</h3>
       <div id="childrenList" style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:2rem;"></div>
 
+      <div class="channel-creator-box" style="margin-bottom:2rem;">
+        <h3 style="font-size:1.15rem; margin-bottom:0.35rem; display:flex; align-items:center; gap:0.5rem;">
+          <span class="material-symbols-rounded" style="color:var(--accent);">notifications_active</span>
+          Kid Video Search Approval Requests
+        </h3>
+        <p style="color:var(--text-muted); font-size:0.86rem; margin-bottom:1rem;">
+          When your child searches YouTube for a video not on any curated list, their permission request appears here and in your Notification bell. Approved videos are added to their History so they can watch anytime and save to playlists.
+        </p>
+        <div id="parentVideoRequestsList" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
+      </div>
+
       <div class="channel-creator-box">
         <h3 style="font-size:1.15rem; margin-bottom:0.35rem; display:flex; align-items:center; gap:0.5rem;">
           <span class="material-symbols-rounded" style="color:var(--primary);">quiz</span>
@@ -1344,6 +1416,33 @@
         <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
       </div>
     </div>
+
+    <!-- Tab 5: Recommended & Caution Advisory Lists -->
+    <div id="tabAdvisories" style="display:none;">
+      <div class="channel-creator-box" style="margin-bottom:1.5rem;">
+        <h3 style="font-size:1.2rem; margin-bottom:0.35rem; display:flex; align-items:center; gap:0.5rem;">
+          <span class="material-symbols-rounded" style="color:var(--accent);">verified</span>
+          Parent Community Advisories: Recommended &amp; Caution Lists
+        </h3>
+        <p style="color:var(--text-muted); font-size:0.86rem;">
+          Parents can rate and comment on any video while previewing it. Use these community lists to discover kid-appropriate videos to add to your channels or spot videos flagged with caution.
+        </p>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.25rem;">
+        <div class="card" style="padding:1.25rem;">
+          <h4 style="font-size:1.08rem; color:var(--success); display:flex; align-items:center; gap:0.4rem; margin-bottom:0.85rem;">
+            <span class="material-symbols-rounded">thumb_up</span> Recommended Videos
+          </h4>
+          <div id="advisoryRecommendedList" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
+        </div>
+        <div class="card" style="padding:1.25rem;">
+          <h4 style="font-size:1.08rem; color:var(--primary); display:flex; align-items:center; gap:0.4rem; margin-bottom:0.85rem;">
+            <span class="material-symbols-rounded">warning</span> Caution / Flagged Videos
+          </h4>
+          <div id="advisoryCautionList" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Player Preview Modal -->
@@ -1358,6 +1457,41 @@
       <div class="player-wrap" id="playerContainer"></div>
       <div class="modal-body">
         <p id="modalDesc" style="color:var(--text-muted); font-size:0.9rem;"></p>
+        <div id="modalPlaylistBar" style="display:none; margin-top:0.85rem; padding-top:0.85rem; border-top:1px solid var(--border); align-items:center; gap:0.6rem; flex-wrap:wrap;">
+          <span style="font-size:0.84rem; font-weight:600; display:inline-flex; align-items:center; gap:0.3rem;">
+            <span class="material-symbols-rounded" style="font-size:1.05rem; color:var(--accent);">playlist_add</span> Add to Playlist:
+          </span>
+          <select id="modalPlaylistSelect" style="padding:0.4rem 0.65rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.84rem;"></select>
+          <button type="button" class="btn btn-primary btn-sm" onclick="addCurrentModalVideoToPlaylist()">Save</button>
+          <span id="modalPlaylistStatus" style="font-size:0.8rem; color:var(--success);"></span>
+        </div>
+        <div id="modalParentReviewBar" style="display:none; margin-top:0.95rem; padding-top:0.95rem; border-top:1px solid var(--border);">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.65rem;">
+            <span style="font-size:0.88rem; font-weight:700; display:inline-flex; align-items:center; gap:0.35rem;">
+              <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--accent);">rate_review</span>
+              Parent Appropriateness Rating &amp; Comments
+            </span>
+            <span id="modalReviewSummaryBadge" style="font-size:0.78rem; color:var(--text-muted); font-weight:600;"></span>
+          </div>
+          <div id="modalParentReviewFormWrap" style="display:none; margin-bottom:0.75rem;">
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.5rem;">
+              <label style="display:inline-flex; align-items:center; gap:0.35rem; font-size:0.82rem; font-weight:600; cursor:pointer;">
+                <input type="radio" name="modalReviewRating" value="RECOMMENDED" checked>
+                <span style="color:var(--success);">Appropriate (Recommended)</span>
+              </label>
+              <label style="display:inline-flex; align-items:center; gap:0.35rem; font-size:0.82rem; font-weight:600; cursor:pointer;">
+                <input type="radio" name="modalReviewRating" value="CAUTION">
+                <span style="color:var(--primary);">Not Appropriate (Caution)</span>
+              </label>
+            </div>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <input type="text" id="modalReviewCommentInput" placeholder="Write a note for other parents (e.g. Great educational pacing, or Too scary for toddlers)..." style="flex:1 1 240px; padding:0.5rem 0.75rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.84rem;">
+              <button type="button" class="btn btn-primary btn-sm" onclick="submitModalParentReview()">Submit Review</button>
+            </div>
+            <div id="modalReviewStatus" style="font-size:0.78rem; color:var(--success); margin-top:0.35rem;"></div>
+          </div>
+          <div id="modalParentReviewsList" style="display:flex; flex-direction:column; gap:0.45rem; max-height:160px; overflow-y:auto;"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -1724,7 +1858,7 @@
       return String(nameOrEmail || 'U').slice(0, 2).toUpperCase();
     }
 
-    function renderNotifications(user) {
+    async function renderNotifications(user) {
       const listEl = document.getElementById('notifList');
       const badgeEl = document.getElementById('notifBadge');
       if (!listEl) return;
@@ -1736,29 +1870,70 @@
           title: `Welcome, ${user.name || user.email}!`,
           sub: 'Your parent-approved FamiTube feed is active.'
         });
-        items.push({
-          icon: 'quiz',
-          color: 'var(--accent)',
-          title: `Age Filter: ${user.ageRating || 'ALL'}`,
-          sub: 'Some channels may ask a quick quiz before opening.'
-        });
+        if (user.youtubeSearchEnabled) {
+          items.push({
+            icon: 'youtube_searched_for',
+            color: 'var(--accent)',
+            title: 'YouTube Search Enabled',
+            sub: `Limit: ${user.searchViewLimit > 0 ? `${user.searchViewsUsed || 0}/${user.searchViewLimit} videos` : 'Unlimited'}.`
+          });
+        }
       } else {
-        items.push({
-          icon: 'admin_panel_settings',
-          color: 'var(--accent)',
-          title: `Signed in as ${user?.name || user?.email}`,
-          sub: 'Parent & Curator Studio access enabled.'
-        });
+        let pendingReqs = [];
+        if (authToken) {
+          try {
+            const res = await authFetch('/api/parent/video-requests');
+            const json = await res.json();
+            if (json.success && Array.isArray(json.data)) {
+              pendingReqs = json.data.filter(r => r.status === 'PENDING');
+            }
+          } catch {}
+        }
+        if (pendingReqs.length) {
+          pendingReqs.forEach(r => {
+            items.push({
+              isVideoReq: true,
+              req: r
+            });
+          });
+        } else {
+          items.push({
+            icon: 'admin_panel_settings',
+            color: 'var(--accent)',
+            title: `Signed in as ${user?.name || user?.email}`,
+            sub: 'No pending kid video approval requests.'
+          });
+        }
       }
-      listEl.innerHTML = items.map(n => `
-        <div style="display:flex; gap:0.65rem; padding:0.75rem 1rem; border-bottom:1px solid var(--border); align-items:flex-start;">
-          <span class="material-symbols-rounded" style="color:${n.color}; font-size:1.15rem; margin-top:2px;">${n.icon}</span>
-          <div>
-            <div style="font-size:0.84rem; font-weight:600;">${n.title}</div>
-            <div style="font-size:0.76rem; color:var(--text-muted); margin-top:0.15rem;">${n.sub}</div>
+      listEl.innerHTML = items.map(n => {
+        if (n.isVideoReq) {
+          const r = n.req;
+          return `
+            <div style="display:flex; flex-direction:column; gap:0.45rem; padding:0.75rem 1rem; border-bottom:1px solid var(--border);">
+              <div style="display:flex; gap:0.55rem; align-items:flex-start;">
+                <img src="${r.thumbnailUrl}" style="width:52px; height:36px; object-fit:cover; border-radius:4px; flex-shrink:0;">
+                <div style="min-width:0;">
+                  <div style="font-size:0.8rem; font-weight:700; line-height:1.25;">${r.kidName || 'Child'} wants to watch:</div>
+                  <div style="font-size:0.78rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${r.title}</div>
+                </div>
+              </div>
+              <div style="display:flex; gap:0.4rem;">
+                <button type="button" class="btn btn-primary btn-sm" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="decideParentVideoRequest('${r.id}', 'APPROVED')">Approve</button>
+                <button type="button" class="btn btn-secondary btn-sm" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="decideParentVideoRequest('${r.id}', 'REJECTED')">Decline</button>
+              </div>
+            </div>
+          `;
+        }
+        return `
+          <div style="display:flex; gap:0.65rem; padding:0.75rem 1rem; border-bottom:1px solid var(--border); align-items:flex-start;">
+            <span class="material-symbols-rounded" style="color:${n.color}; font-size:1.15rem; margin-top:2px;">${n.icon}</span>
+            <div>
+              <div style="font-size:0.84rem; font-weight:600;">${n.title}</div>
+              <div style="font-size:0.76rem; color:var(--text-muted); margin-top:0.15rem;">${n.sub}</div>
+            </div>
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
       if (badgeEl) {
         badgeEl.textContent = String(items.length);
         badgeEl.style.display = 'inline-flex';
@@ -1793,6 +1968,7 @@
         document.getElementById('profileMenuMeta').textContent = `${user?.email || ''} • Parent`;
       }
       renderNotifications(user);
+      updateKidToolsVisibility(user);
     }
 
     function handleAuthenticatedUser(user) {
@@ -1838,6 +2014,7 @@
       const wasChild = currentUser?.role === 'CHILD';
       authToken = '';
       currentUser = null;
+      updateKidToolsVisibility(null);
       localStorage.removeItem(AUTH_TOKEN_KEY);
       localStorage.removeItem(AUTH_USER_KEY);
       document.getElementById('profileDropdownMenu').style.display = 'none';
@@ -3117,14 +3294,19 @@
       document.getElementById('tabVideos').style.display = name === 'videos' ? 'block' : 'none';
       document.getElementById('tabChannels').style.display = name === 'channels' ? 'block' : 'none';
       document.getElementById('tabKids').style.display = name === 'kids' ? 'block' : 'none';
+      document.getElementById('tabAdvisories').style.display = name === 'advisories' ? 'block' : 'none';
       document.getElementById('tabSettings').style.display = name === 'settings' ? 'block' : 'none';
 
       if (name === 'channels') { loadChannels(); toggleLiveTimelineBuilder(); }
-      if (name === 'kids') { loadParentChildren(); loadParentChannelControls(); }
+      if (name === 'kids') { loadParentChildren(); loadParentVideoRequests(); loadParentChannelControls(); }
+      if (name === 'advisories') loadParentAdvisoryLists();
       if (name === 'settings') loadSettings();
     }
 
+    let activeModalVideo = null;
+
     function previewVideo(video) {
+      activeModalVideo = video;
       document.getElementById('modalTitle').textContent = video.title;
       document.getElementById('modalDesc').textContent = video.description || 'No description provided.';
       const container = document.getElementById('playerContainer');
@@ -3134,6 +3316,15 @@
       } else {
         container.innerHTML = `<video src="${video.sourceUrl}" controls autoplay style="width:100%; height:100%;"></video>`;
       }
+
+      if (authToken && currentUser) {
+        recordKidHistoryItem(video);
+        populateModalPlaylistBar();
+      } else {
+        const bar = document.getElementById('modalPlaylistBar');
+        if (bar) bar.style.display = 'none';
+      }
+      loadModalParentReviews(video);
 
       document.getElementById('playerModal').style.display = 'flex';
     }
@@ -3156,20 +3347,43 @@
         return;
       }
       el.innerHTML = json.data.map(c => `
-        <div class="schedule-item" style="flex-wrap:wrap; gap:0.75rem;">
-          <div>
-            <div style="font-weight:700; font-size:0.95rem;">${c.name} <span style="font-weight:400; color:var(--text-muted); font-size:0.82rem;">(${c.email})</span></div>
-            <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.2rem;">
-              Age Filter:
-              <select onchange="updateChildAgeRating('${c.id}', this.value)" style="margin-left:0.35rem; padding:2px 6px; border-radius:4px; border:1px solid var(--border);">
-                <option value="ALL" ${c.ageRating === 'ALL' ? 'selected' : ''}>All Ages</option>
-                <option value="TODDLER" ${c.ageRating === 'TODDLER' ? 'selected' : ''}>Toddler (2-4)</option>
-                <option value="YOUNG_KIDS" ${c.ageRating === 'YOUNG_KIDS' ? 'selected' : ''}>Young Kids (5-8)</option>
-                <option value="OLDER_KIDS" ${c.ageRating === 'OLDER_KIDS' ? 'selected' : ''}>Older Kids (9-12)</option>
-              </select>
+        <div class="schedule-item" style="flex-direction:column; align-items:stretch; gap:0.75rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+            <div>
+              <div style="font-weight:700; font-size:0.95rem;">${c.name} <span style="font-weight:400; color:var(--text-muted); font-size:0.82rem;">(${c.email})</span></div>
+              <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.2rem;">
+                Age Filter:
+                <select onchange="updateChildAgeRating('${c.id}', this.value)" style="margin-left:0.35rem; padding:2px 6px; border-radius:4px; border:1px solid var(--border);">
+                  <option value="ALL" ${c.ageRating === 'ALL' ? 'selected' : ''}>All Ages</option>
+                  <option value="TODDLER" ${c.ageRating === 'TODDLER' ? 'selected' : ''}>Toddler (2-4)</option>
+                  <option value="YOUNG_KIDS" ${c.ageRating === 'YOUNG_KIDS' ? 'selected' : ''}>Young Kids (5-8)</option>
+                  <option value="OLDER_KIDS" ${c.ageRating === 'OLDER_KIDS' ? 'selected' : ''}>Older Kids (9-12)</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="deleteChildAccount('${c.id}')">Remove Child</button>
+          </div>
+          <div style="padding:0.75rem 0.9rem; border-radius:var(--radius-sm); background:var(--surface); border:1px solid var(--border); display:flex; flex-wrap:wrap; gap:0.85rem; align-items:center; justify-content:space-between;">
+            <div style="display:flex; flex-wrap:wrap; gap:0.9rem; align-items:center; font-size:0.82rem;">
+              <label style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; cursor:pointer;">
+                <input type="checkbox" id="childSearchEnabled_${c.id}" ${c.youtubeSearchEnabled ? 'checked' : ''}>
+                Enable YouTube Search
+              </label>
+              <label style="display:inline-flex; align-items:center; gap:0.4rem;">
+                Max Searched Videos (0 = unlimited):
+                <input type="number" min="0" id="childSearchLimit_${c.id}" value="${c.searchViewLimit ?? 5}" style="width:68px; padding:0.25rem 0.45rem; border-radius:4px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
+              </label>
+              <span style="color:var(--accent); font-weight:600;">Used: ${c.searchViewsUsed ?? 0}</span>
+              <label style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; cursor:pointer;">
+                <input type="checkbox" id="childSearchApproval_${c.id}" ${c.searchRequireApproval !== false ? 'checked' : ''}>
+                Require Parent Approval
+              </label>
+            </div>
+            <div style="display:flex; gap:0.45rem;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="resetChildSearchViews('${c.id}')">Reset Count</button>
+              <button type="button" class="btn btn-primary btn-sm" onclick="saveChildSearchSettings('${c.id}')">Save Search Settings</button>
             </div>
           </div>
-          <button class="btn btn-secondary btn-sm" onclick="deleteChildAccount('${c.id}')">Remove Child</button>
         </div>
       `).join('');
     }
@@ -3209,6 +3423,78 @@
       const res = await authFetch(`/api/parent/children/${childId}`, { method: 'DELETE' });
       const json = await res.json();
       if (!json.success) return alert(json.message || 'Failed to remove child');
+      await loadParentChildren();
+    }
+
+    async function saveChildSearchSettings(childId) {
+      const youtubeSearchEnabled = Boolean(document.getElementById(`childSearchEnabled_${childId}`)?.checked);
+      const searchViewLimit = Math.max(0, Number(document.getElementById(`childSearchLimit_${childId}`)?.value || 0));
+      const searchRequireApproval = Boolean(document.getElementById(`childSearchApproval_${childId}`)?.checked);
+      const res = await authFetch(`/api/parent/children/${childId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ youtubeSearchEnabled, searchViewLimit, searchRequireApproval })
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to save search settings');
+      await loadParentChildren();
+      alert('YouTube search settings saved!');
+    }
+
+    async function resetChildSearchViews(childId) {
+      const res = await authFetch(`/api/parent/children/${childId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resetSearchViewsUsed: true })
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to reset count');
+      await loadParentChildren();
+    }
+
+    async function loadParentVideoRequests() {
+      const el = document.getElementById('parentVideoRequestsList');
+      if (!el || !authToken) return;
+      try {
+        const res = await authFetch('/api/parent/video-requests');
+        const json = await res.json();
+        if (!json.success || !json.data.length) {
+          el.innerHTML = '<div style="color:var(--text-muted); font-size:0.86rem;">No video search approval requests yet.</div>';
+          return;
+        }
+        el.innerHTML = json.data.map(r => `
+          <div class="schedule-item" style="flex-wrap:wrap; gap:0.75rem;">
+            <div style="display:flex; align-items:center; gap:0.75rem; min-width:0; flex:1;">
+              <img src="${r.thumbnailUrl}" style="width:88px; height:52px; object-fit:cover; border-radius:6px; flex-shrink:0;">
+              <div style="min-width:0;">
+                <div style="font-weight:700; font-size:0.9rem;">${r.title}</div>
+                <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.15rem;">
+                  Requested by <strong>${r.kidName || 'Child'}</strong> &bull; ${r.channelTitle} &bull;
+                  <span style="font-weight:700; color:${r.status === 'APPROVED' ? 'var(--success)' : r.status === 'REJECTED' ? 'var(--primary)' : 'var(--accent)'};">${r.status}</span>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex; gap:0.45rem;">
+              ${r.status !== 'APPROVED' ? `<button type="button" class="btn btn-primary btn-sm" onclick="decideParentVideoRequest('${r.id}', 'APPROVED')">Approve</button>` : ''}
+              ${r.status !== 'REJECTED' ? `<button type="button" class="btn btn-secondary btn-sm" onclick="decideParentVideoRequest('${r.id}', 'REJECTED')">Decline</button>` : ''}
+            </div>
+          </div>
+        `).join('');
+      } catch {
+        el.innerHTML = '<div style="color:var(--text-muted); font-size:0.86rem;">Unable to load approval requests.</div>';
+      }
+    }
+
+    async function decideParentVideoRequest(requestId, decision) {
+      const res = await authFetch(`/api/parent/video-requests/${requestId}/decide`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ decision })
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to update request');
+      if (currentUser) renderNotifications(currentUser);
+      await loadParentVideoRequests();
       await loadParentChildren();
     }
 
@@ -3746,6 +4032,605 @@
       activeShowcaseChannelId = channelId;
       openHome(currentUser?.role === 'CHILD');
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    let kidSearchResults = [];
+    let kidHistoryItems = [];
+    let kidPlaylists = [];
+    let activeKidTab = 'curated';
+
+    function updateKidToolsVisibility(user) {
+      const bar = document.getElementById('kidToolsBar');
+      const searchBtn = document.getElementById('kidTabBtnSearch');
+      if (!bar) return;
+      if (!user || !authToken) {
+        bar.style.display = 'none';
+        switchKidShowcaseTab('curated');
+        return;
+      }
+      bar.style.display = 'flex';
+      const canSearch = user.role === 'PARENT' || Boolean(user.youtubeSearchEnabled);
+      if (searchBtn) searchBtn.style.display = canSearch ? 'inline-flex' : 'none';
+      if (!canSearch && activeKidTab === 'search') {
+        switchKidShowcaseTab('curated');
+      }
+      updateKidSearchQuotaBadge(user);
+    }
+
+    function updateKidSearchQuotaBadge(settings) {
+      const badge = document.getElementById('kidSearchQuotaBadge');
+      if (!badge) return;
+      const limit = settings?.searchViewLimit ?? 5;
+      const used = settings?.searchViewsUsed ?? 0;
+      const reqApproval = settings?.searchRequireApproval !== false;
+      const limitText = limit > 0 ? `${used} / ${limit} searched videos used` : `${used} searched videos watched (Unlimited)`;
+      badge.textContent = `${limitText}${reqApproval ? ' • Parent approval required' : ''}`;
+    }
+
+    function switchKidShowcaseTab(tab) {
+      activeKidTab = tab || 'curated';
+      const curatedEl = document.getElementById('showcaseCuratedPanel');
+      const searchEl = document.getElementById('kidYouTubeSearchPanel');
+      const historyEl = document.getElementById('kidHistoryPanel');
+      const playlistsEl = document.getElementById('kidPlaylistsPanel');
+
+      if (curatedEl) curatedEl.style.display = activeKidTab === 'curated' ? 'block' : 'none';
+      if (searchEl) searchEl.style.display = activeKidTab === 'search' ? 'block' : 'none';
+      if (historyEl) historyEl.style.display = activeKidTab === 'history' ? 'block' : 'none';
+      if (playlistsEl) playlistsEl.style.display = activeKidTab === 'playlists' ? 'block' : 'none';
+
+      document.getElementById('kidTabBtnCurated')?.classList.toggle('active', activeKidTab === 'curated');
+      document.getElementById('kidTabBtnSearch')?.classList.toggle('active', activeKidTab === 'search');
+      document.getElementById('kidTabBtnHistory')?.classList.toggle('active', activeKidTab === 'history');
+      document.getElementById('kidTabBtnPlaylists')?.classList.toggle('active', activeKidTab === 'playlists');
+
+      if (activeKidTab === 'history') loadKidHistory();
+      if (activeKidTab === 'playlists') loadKidPlaylists();
+    }
+
+    async function runKidYouTubeSearch(e) {
+      if (e) e.preventDefault();
+      const input = document.getElementById('kidYouTubeSearchInput');
+      const q = (input?.value || '').trim();
+      if (!q) return;
+      const resultsEl = document.getElementById('kidYouTubeSearchResults');
+      const statusEl = document.getElementById('kidSearchStatusBanner');
+      if (statusEl) statusEl.style.display = 'none';
+      if (resultsEl) resultsEl.innerHTML = '<p style="color:var(--text-muted);">Searching YouTube...</p>';
+      try {
+        const res = await authFetch('/api/kids/youtube-search?q=' + encodeURIComponent(q));
+        const json = await res.json();
+        if (!json.success) {
+          if (resultsEl) resultsEl.innerHTML = `<p style="color:var(--primary);">${json.message || 'Search unavailable'}</p>`;
+          return;
+        }
+        kidSearchResults = json.data?.results || [];
+        if (json.data?.searchSettings) {
+          if (currentUser) Object.assign(currentUser, json.data.searchSettings);
+          updateKidSearchQuotaBadge(json.data.searchSettings);
+        }
+        renderKidYouTubeSearchResults();
+      } catch {
+        if (resultsEl) resultsEl.innerHTML = '<p style="color:var(--text-muted);">Failed to search YouTube.</p>';
+      }
+    }
+
+    function renderKidYouTubeSearchResults() {
+      const resultsEl = document.getElementById('kidYouTubeSearchResults');
+      if (!resultsEl) return;
+      if (!kidSearchResults.length) {
+        resultsEl.innerHTML = '<p style="color:var(--text-muted);">No videos found. Try another search!</p>';
+        return;
+      }
+      resultsEl.innerHTML = kidSearchResults.map((v, idx) => {
+        const badge = v.isCurated
+          ? '<span class="channel-type-badge ondemand">Curated</span>'
+          : v.approvalStatus === 'APPROVED' || v.inHistory
+            ? '<span class="channel-type-badge ondemand" style="background:rgba(6,214,160,0.16); color:var(--success);">Approved</span>'
+            : v.approvalStatus === 'PENDING'
+              ? '<span class="channel-type-badge live">Pending Approval</span>'
+              : v.approvalStatus === 'REJECTED'
+                ? '<span class="channel-type-badge live">Declined</span>'
+                : '<span class="channel-type-badge ondemand">YouTube</span>';
+        return `
+          <div class="card video-card" style="display:flex; flex-direction:column;">
+            <div class="video-thumb" onclick="watchSearchedYouTubeVideo(${idx})" style="cursor:pointer;">
+              <img src="${v.thumbnailUrl}" alt="${v.title}" loading="lazy">
+              <div class="play-overlay"><span class="material-symbols-rounded">play_arrow</span></div>
+            </div>
+            <div class="video-info" style="flex:1; display:flex; flex-direction:column; gap:0.4rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:0.4rem;">
+                <span style="font-size:0.76rem; color:var(--text-muted);">${v.channelTitle}</span>
+                ${badge}
+              </div>
+              <div class="video-title" onclick="watchSearchedYouTubeVideo(${idx})" style="cursor:pointer;">${v.title}</div>
+              <div style="margin-top:auto; padding-top:0.35rem; display:flex; gap:0.4rem; flex-wrap:wrap;">
+                <button type="button" class="btn btn-primary btn-sm" onclick="watchSearchedYouTubeVideo(${idx})">
+                  ${v.isCurated || v.approvalStatus === 'APPROVED' || v.inHistory ? 'Watch Now' : 'Watch / Request'}
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function watchSearchedYouTubeVideo(idx) {
+      const v = kidSearchResults[idx];
+      if (!v) return;
+      const statusEl = document.getElementById('kidSearchStatusBanner');
+      try {
+        const res = await authFetch('/api/kids/youtube-search/watch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            youtubeVideoId: v.youtubeVideoId,
+            title: v.title,
+            channelTitle: v.channelTitle,
+            thumbnailUrl: v.thumbnailUrl
+          })
+        });
+        const json = await res.json();
+        if (!json.success) {
+          alert(json.message || 'Unable to open video');
+          return;
+        }
+        const data = json.data || {};
+        if (data.searchSettings) {
+          if (currentUser) Object.assign(currentUser, data.searchSettings);
+          updateKidSearchQuotaBadge(data.searchSettings);
+        }
+        if (data.allowed) {
+          v.inHistory = true;
+          if (!v.isCurated) v.approvalStatus = 'APPROVED';
+          renderKidYouTubeSearchResults();
+          previewVideo({
+            id: v.curatedVideoId || v.youtubeVideoId,
+            youtubeVideoId: v.youtubeVideoId,
+            sourceType: 'YOUTUBE',
+            sourceUrl: v.sourceUrl,
+            title: v.title,
+            channelTitle: v.channelTitle,
+            thumbnailUrl: v.thumbnailUrl,
+            description: `From ${v.channelTitle}`
+          });
+          return;
+        }
+        if (data.reason === 'APPROVAL_REQUIRED') {
+          v.approvalStatus = 'PENDING';
+          renderKidYouTubeSearchResults();
+        }
+        if (statusEl) {
+          statusEl.style.display = 'block';
+          statusEl.style.background = 'rgba(76, 201, 240, 0.14)';
+          statusEl.style.border = '1px solid rgba(76, 201, 240, 0.3)';
+          statusEl.textContent = data.message || 'Permission request sent to your parent!';
+        } else {
+          alert(data.message || 'Permission request sent to your parent!');
+        }
+      } catch {
+        alert('Failed to check video permission.');
+      }
+    }
+
+    async function recordKidHistoryItem(video) {
+      if (!authToken || !video) return;
+      try {
+        await authFetch('/api/kids/history', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            itemKey: video.youtubeVideoId || video.id,
+            youtubeVideoId: video.youtubeVideoId,
+            videoId: video.id,
+            title: video.title,
+            channelTitle: video.channelTitle || 'FamiTube',
+            thumbnailUrl: video.thumbnailUrl || '',
+            sourceType: video.sourceType || 'YOUTUBE',
+            sourceUrl: video.sourceUrl || ''
+          })
+        });
+      } catch {}
+    }
+
+    async function loadKidHistory() {
+      const grid = document.getElementById('kidHistoryGrid');
+      if (!grid || !authToken) return;
+      grid.innerHTML = '<p style="color:var(--text-muted);">Loading history...</p>';
+      try {
+        const [histRes, plRes] = await Promise.all([
+          authFetch('/api/kids/history'),
+          authFetch('/api/kids/playlists')
+        ]);
+        const histJson = await histRes.json();
+        const plJson = await plRes.json();
+        kidHistoryItems = histJson.success ? (histJson.data || []) : [];
+        kidPlaylists = plJson.success ? (plJson.data || []) : [];
+        renderKidHistory();
+      } catch {
+        grid.innerHTML = '<p style="color:var(--text-muted);">Unable to load watch history.</p>';
+      }
+    }
+
+    function renderKidHistory() {
+      const grid = document.getElementById('kidHistoryGrid');
+      if (!grid) return;
+      if (!kidHistoryItems.length) {
+        grid.innerHTML = '<p style="color:var(--text-muted);">No videos in your history yet. Watch a curated video or request a YouTube search video!</p>';
+        return;
+      }
+      grid.innerHTML = kidHistoryItems.map((h, idx) => `
+        <div class="card video-card" style="display:flex; flex-direction:column;">
+          <div class="video-thumb" onclick="playKidHistoryItem(${idx})" style="cursor:pointer;">
+            <img src="${h.thumbnailUrl}" alt="${h.title}" loading="lazy">
+            <div class="play-overlay"><span class="material-symbols-rounded">play_arrow</span></div>
+          </div>
+          <div class="video-info" style="flex:1; display:flex; flex-direction:column; gap:0.4rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:0.4rem;">
+              <span style="font-size:0.76rem; color:var(--text-muted);">${h.channelTitle}</span>
+              ${h.isApprovedSearch ? '<span class="channel-type-badge ondemand" style="background:rgba(6,214,160,0.16); color:var(--success);">Approved</span>' : ''}
+            </div>
+            <div class="video-title" onclick="playKidHistoryItem(${idx})" style="cursor:pointer;">${h.title}</div>
+            <div style="margin-top:auto; padding-top:0.4rem; display:flex; gap:0.4rem; flex-wrap:wrap; align-items:center;">
+              <button type="button" class="btn btn-primary btn-sm" onclick="playKidHistoryItem(${idx})">Watch</button>
+              ${kidPlaylists.length ? `
+                <select id="histPlSelect_${idx}" style="padding:0.28rem 0.45rem; border-radius:4px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.76rem; max-width:130px;">
+                  ${kidPlaylists.map(pl => `<option value="${pl.id}">${pl.title}</option>`).join('')}
+                </select>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="addHistoryItemToPlaylist(${idx})">+ Playlist</button>
+              ` : `<button type="button" class="btn btn-secondary btn-sm" onclick="switchKidShowcaseTab('playlists')">Create Playlist</button>`}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function playKidHistoryItem(idx) {
+      const h = kidHistoryItems[idx];
+      if (!h) return;
+      previewVideo({
+        id: h.videoId || h.itemKey,
+        youtubeVideoId: h.youtubeVideoId,
+        sourceType: h.sourceType || 'YOUTUBE',
+        sourceUrl: h.sourceUrl,
+        title: h.title,
+        channelTitle: h.channelTitle,
+        thumbnailUrl: h.thumbnailUrl,
+        description: `Watched from ${h.channelTitle}`
+      });
+    }
+
+    async function addHistoryItemToPlaylist(idx) {
+      const h = kidHistoryItems[idx];
+      const sel = document.getElementById(`histPlSelect_${idx}`);
+      const playlistId = sel?.value;
+      if (!h || !playlistId) return;
+      const res = await authFetch(`/api/kids/playlists/${playlistId}/items`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          key: h.itemKey || h.youtubeVideoId || h.videoId,
+          youtubeVideoId: h.youtubeVideoId,
+          videoId: h.videoId,
+          title: h.title,
+          channelTitle: h.channelTitle,
+          thumbnailUrl: h.thumbnailUrl,
+          sourceType: h.sourceType,
+          sourceUrl: h.sourceUrl
+        })
+      });
+      const json = await res.json();
+      if (json.success) {
+        alert('Added to playlist!');
+      } else {
+        alert(json.message || 'Failed to add to playlist');
+      }
+    }
+
+    async function loadKidPlaylists() {
+      const container = document.getElementById('kidPlaylistsContainer');
+      if (!authToken) return;
+      try {
+        const res = await authFetch('/api/kids/playlists');
+        const json = await res.json();
+        kidPlaylists = json.success ? (json.data || []) : [];
+        if (container) renderKidPlaylists();
+      } catch {
+        if (container) container.innerHTML = '<p style="color:var(--text-muted);">Unable to load playlists.</p>';
+      }
+    }
+
+    async function createKidPlaylistSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById('kidNewPlaylistTitle');
+      const title = (input?.value || '').trim();
+      if (!title) return;
+      const res = await authFetch('/api/kids/playlists', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title })
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to create playlist');
+      if (input) input.value = '';
+      await loadKidPlaylists();
+    }
+
+    function renderKidPlaylists() {
+      const container = document.getElementById('kidPlaylistsContainer');
+      if (!container) return;
+      if (!kidPlaylists.length) {
+        container.innerHTML = '<div class="card" style="padding:1.25rem; color:var(--text-muted);">No playlists yet. Create one above to save your favorite & approved videos!</div>';
+        return;
+      }
+      container.innerHTML = kidPlaylists.map((pl, pIdx) => `
+        <div class="card" style="padding:1.15rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:0.75rem; margin-bottom:0.85rem;">
+            <div>
+              <h4 style="font-size:1.05rem;">${pl.title}</h4>
+              <span style="font-size:0.78rem; color:var(--text-muted);">${pl.items.length} videos</span>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="deleteKidPlaylist('${pl.id}')">Delete Playlist</button>
+          </div>
+          ${pl.items.length ? `
+            <div class="video-grid">
+              ${pl.items.map((item, iIdx) => `
+                <div class="card video-card" style="display:flex; flex-direction:column;">
+                  <div class="video-thumb" onclick="playKidPlaylistItem(${pIdx}, ${iIdx})" style="cursor:pointer;">
+                    <img src="${item.thumbnailUrl}" alt="${item.title}" loading="lazy">
+                    <div class="play-overlay"><span class="material-symbols-rounded">play_arrow</span></div>
+                  </div>
+                  <div class="video-info" style="display:flex; flex-direction:column; gap:0.35rem;">
+                    <div class="video-title" onclick="playKidPlaylistItem(${pIdx}, ${iIdx})" style="cursor:pointer;">${item.title}</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.25rem;">
+                      <span style="font-size:0.75rem; color:var(--text-muted);">${item.channelTitle}</span>
+                      <button type="button" class="btn btn-secondary btn-sm" style="padding:0.2rem 0.5rem; font-size:0.72rem;" onclick="removeKidPlaylistItem('${pl.id}', '${item.key}')">Remove</button>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          ` : '<p style="color:var(--text-muted); font-size:0.86rem;">This playlist is empty. Add videos from History or while watching!</p>'}
+        </div>
+      `).join('');
+    }
+
+    function playKidPlaylistItem(pIdx, iIdx) {
+      const item = kidPlaylists[pIdx]?.items?.[iIdx];
+      if (!item) return;
+      previewVideo({
+        id: item.videoId || item.key,
+        youtubeVideoId: item.youtubeVideoId,
+        sourceType: item.sourceType || 'YOUTUBE',
+        sourceUrl: item.sourceUrl,
+        title: item.title,
+        channelTitle: item.channelTitle,
+        thumbnailUrl: item.thumbnailUrl,
+        description: `From playlist: ${kidPlaylists[pIdx].title}`
+      });
+    }
+
+    async function removeKidPlaylistItem(playlistId, itemKey) {
+      const res = await authFetch(`/api/kids/playlists/${playlistId}/items/${encodeURIComponent(itemKey)}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (json.success) await loadKidPlaylists();
+    }
+
+    async function deleteKidPlaylist(playlistId) {
+      if (!confirm('Delete this playlist?')) return;
+      const res = await authFetch(`/api/kids/playlists/${playlistId}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (json.success) await loadKidPlaylists();
+    }
+
+    async function populateModalPlaylistBar() {
+      const bar = document.getElementById('modalPlaylistBar');
+      const sel = document.getElementById('modalPlaylistSelect');
+      const status = document.getElementById('modalPlaylistStatus');
+      if (!bar || !sel) return;
+      if (status) status.textContent = '';
+      await loadKidPlaylists();
+      if (!kidPlaylists.length) {
+        sel.innerHTML = '<option value="">(Create a playlist in My Playlists first)</option>';
+      } else {
+        sel.innerHTML = kidPlaylists.map(pl => `<option value="${pl.id}">${pl.title}</option>`).join('');
+      }
+      bar.style.display = 'flex';
+    }
+
+    async function addCurrentModalVideoToPlaylist() {
+      const sel = document.getElementById('modalPlaylistSelect');
+      const status = document.getElementById('modalPlaylistStatus');
+      const playlistId = sel?.value;
+      if (!playlistId || !activeModalVideo) return;
+      const key = activeModalVideo.youtubeVideoId || activeModalVideo.id;
+      const res = await authFetch(`/api/kids/playlists/${playlistId}/items`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          key,
+          youtubeVideoId: activeModalVideo.youtubeVideoId,
+          videoId: activeModalVideo.id,
+          title: activeModalVideo.title,
+          channelTitle: activeModalVideo.channelTitle || 'FamiTube',
+          thumbnailUrl: activeModalVideo.thumbnailUrl || '',
+          sourceType: activeModalVideo.sourceType || 'YOUTUBE',
+          sourceUrl: activeModalVideo.sourceUrl || ''
+        })
+      });
+      const json = await res.json();
+      if (json.success && status) {
+        status.textContent = 'Saved!';
+      }
+    }
+
+    async function loadModalParentReviews(video) {
+      const bar = document.getElementById('modalParentReviewBar');
+      const formWrap = document.getElementById('modalParentReviewFormWrap');
+      const summaryEl = document.getElementById('modalReviewSummaryBadge');
+      const listEl = document.getElementById('modalParentReviewsList');
+      const statusEl = document.getElementById('modalReviewStatus');
+      const commentInput = document.getElementById('modalReviewCommentInput');
+      if (!bar || !video) return;
+
+      const key = video.id || video.youtubeVideoId;
+      bar.style.display = 'block';
+      if (statusEl) statusEl.textContent = '';
+      if (commentInput) commentInput.value = '';
+      if (formWrap) {
+        formWrap.style.display = (authToken && currentUser?.role === 'PARENT') ? 'block' : 'none';
+      }
+
+      try {
+        const res = await fetch(apiUrl(`/api/videos/${encodeURIComponent(key)}/reviews`));
+        const json = await res.json();
+        const reviews = json.success ? (json.data?.reviews || []) : [];
+        const sum = json.data?.summary || { recommendedCount: 0, cautionCount: 0 };
+        if (summaryEl) {
+          summaryEl.textContent = `${sum.recommendedCount} Recommended • ${sum.cautionCount} Caution`;
+        }
+        if (listEl) {
+          if (!reviews.length) {
+            listEl.innerHTML = '<div style="font-size:0.8rem; color:var(--text-muted);">No parent reviews yet.</div>';
+          } else {
+            listEl.innerHTML = reviews.map(r => `
+              <div style="padding:0.5rem 0.65rem; border-radius:6px; background:var(--bg); border:1px solid var(--border); font-size:0.8rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem;">
+                  <strong>${r.parentName}</strong>
+                  <span style="font-weight:700; color:${r.rating === 'RECOMMENDED' ? 'var(--success)' : 'var(--primary)'};">
+                    ${r.rating === 'RECOMMENDED' ? 'Recommended' : 'Caution'}
+                  </span>
+                </div>
+                <div style="color:var(--text-muted); margin-top:0.2rem;">${r.comment}</div>
+              </div>
+            `).join('');
+          }
+        }
+      } catch {
+        if (listEl) listEl.innerHTML = '';
+      }
+    }
+
+    async function submitModalParentReview() {
+      if (!activeModalVideo || !authToken || currentUser?.role !== 'PARENT') return;
+      const key = activeModalVideo.id || activeModalVideo.youtubeVideoId;
+      const ratingEl = document.querySelector('input[name="modalReviewRating"]:checked');
+      const rating = ratingEl ? ratingEl.value : 'RECOMMENDED';
+      const comment = (document.getElementById('modalReviewCommentInput')?.value || '').trim();
+      const statusEl = document.getElementById('modalReviewStatus');
+      if (!comment) {
+        alert('Please write a comment explaining your rating.');
+        return;
+      }
+      const res = await authFetch(`/api/parent/videos/${encodeURIComponent(key)}/reviews`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          rating,
+          comment,
+          videoId: activeModalVideo.id,
+          youtubeVideoId: activeModalVideo.youtubeVideoId,
+          videoTitle: activeModalVideo.title,
+          channelTitle: activeModalVideo.channelTitle || 'FamiTube',
+          thumbnailUrl: activeModalVideo.thumbnailUrl || '',
+          sourceType: activeModalVideo.sourceType || 'YOUTUBE',
+          sourceUrl: activeModalVideo.sourceUrl || ''
+        })
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to save review');
+      if (statusEl) statusEl.textContent = 'Review saved to community advisory list!';
+      await loadModalParentReviews(activeModalVideo);
+    }
+
+    let advisoryListsCache = { recommended: [], caution: [] };
+
+    async function loadParentAdvisoryLists() {
+      const recEl = document.getElementById('advisoryRecommendedList');
+      const cauEl = document.getElementById('advisoryCautionList');
+      if (!recEl || !cauEl || !authToken) return;
+      recEl.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">Loading...</div>';
+      cauEl.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">Loading...</div>';
+      try {
+        const res = await authFetch('/api/parent/advisory-lists');
+        const json = await res.json();
+        advisoryListsCache = json.success && json.data ? json.data : { recommended: [], caution: [] };
+        renderAdvisoryList('recommended', recEl, advisoryListsCache.recommended || []);
+        renderAdvisoryList('caution', cauEl, advisoryListsCache.caution || []);
+      } catch {
+        recEl.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">Unable to load recommended list.</div>';
+        cauEl.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">Unable to load caution list.</div>';
+      }
+    }
+
+    function renderAdvisoryList(kind, container, items) {
+      if (!items.length) {
+        container.innerHTML = `<div style="color:var(--text-muted); font-size:0.85rem;">No ${kind === 'recommended' ? 'recommended' : 'caution'} videos yet. Preview any video to add your rating and comment!</div>`;
+        return;
+      }
+      const writableChannels = (allChannels || []).filter(c => c.role === 'OWNER' || c.permissions?.canAddVideo);
+      container.innerHTML = items.map((entry, idx) => `
+        <div class="schedule-item" style="flex-direction:column; align-items:stretch; gap:0.55rem;">
+          <div style="display:flex; gap:0.7rem; align-items:flex-start;">
+            <img src="${entry.thumbnailUrl}" style="width:88px; height:52px; object-fit:cover; border-radius:6px; flex-shrink:0; cursor:pointer;" onclick="previewAdvisoryVideo('${kind}', ${idx})">
+            <div style="min-width:0; flex:1;">
+              <div style="font-weight:700; font-size:0.88rem; cursor:pointer;" onclick="previewAdvisoryVideo('${kind}', ${idx})">${entry.videoTitle}</div>
+              <div style="font-size:0.76rem; color:var(--text-muted); margin-top:0.15rem;">
+                ${entry.channelTitle} &bull; 👍 ${entry.recommendedCount} &bull; ⚠️ ${entry.cautionCount}
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:0.3rem;">
+            ${entry.reviews.slice(0, 3).map(r => `
+              <div style="font-size:0.78rem; padding:0.35rem 0.55rem; border-radius:4px; background:var(--surface); border:1px solid var(--border);">
+                <strong>${r.parentName}</strong> (${r.rating === 'RECOMMENDED' ? 'Recommended' : 'Caution'}): ${r.comment}
+              </div>
+            `).join('')}
+          </div>
+          <div style="display:flex; gap:0.45rem; flex-wrap:wrap; align-items:center;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="previewAdvisoryVideo('${kind}', ${idx})">Preview</button>
+            ${kind === 'recommended' && writableChannels.length && entry.videoId ? `
+              <select id="advChanSelect_${idx}" style="padding:0.28rem 0.45rem; border-radius:4px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.76rem; max-width:160px;">
+                ${writableChannels.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+              </select>
+              <button type="button" class="btn btn-primary btn-sm" onclick="addRecommendedVideoToChannel(${idx})">+ Add to Channel</button>
+            ` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function previewAdvisoryVideo(kind, idx) {
+      const entry = (advisoryListsCache[kind] || [])[idx];
+      if (!entry) return;
+      previewVideo({
+        id: entry.videoId || entry.videoKey,
+        youtubeVideoId: entry.youtubeVideoId,
+        sourceType: entry.sourceType || 'YOUTUBE',
+        sourceUrl: entry.sourceUrl,
+        title: entry.videoTitle,
+        channelTitle: entry.channelTitle,
+        thumbnailUrl: entry.thumbnailUrl,
+        description: `Community ${kind} video from ${entry.channelTitle}`
+      });
+    }
+
+    async function addRecommendedVideoToChannel(idx) {
+      const entry = (advisoryListsCache.recommended || [])[idx];
+      const channelId = document.getElementById(`advChanSelect_${idx}`)?.value;
+      if (!entry?.videoId || !channelId) return;
+      const res = await authFetch(`/api/channels/${channelId}/videos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ videoId: entry.videoId })
+      });
+      const json = await res.json();
+      if (json.success) {
+        alert('Added recommended video to your channel!');
+        await loadChannels();
+      } else {
+        alert(json.message || 'Could not add video to channel');
+      }
     }
 
     const THEME_PREF_KEY = 'FamiTube_theme';
