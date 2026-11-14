@@ -755,10 +755,10 @@
     <div class="card" style="padding:1.75rem 2rem; margin-bottom:1.75rem; background:linear-gradient(135deg, rgba(255,51,102,0.16), rgba(67,97,238,0.18)); border-color:rgba(76,201,240,0.25);">
       <h2 data-i18n="hero_title" style="font-size:1.6rem; margin-bottom:0.35rem;">Safe, Curated Kids Channels &amp; Educational Videos</h2>
       <p data-i18n="hero_desc" style="color:var(--text-muted); font-size:0.95rem;">Pick a themed channel below to explore hand-picked, kid-friendly YouTube and educational videos. To add or manage content, switch to <strong>Curator Studio</strong>.</p>
-      <a href="#" id="heroSafetyLink" onclick="event.preventDefault(); openSafetyInfoModal();" style="display:inline-flex; align-items:center; gap:0.4rem; margin-top:0.85rem; color:var(--primary); font-weight:700; font-size:0.9rem; text-decoration:none;">
-        <span class="material-symbols-rounded" style="font-size:1.1rem;">shield_with_heart</span>
-        <span data-i18n="hero_learn_more">Learn more how KidsTube can protect your children from inappropriate content — it's the YouTube every parent wishes for &rarr;</span>
-      </a>
+      <p style="color:var(--text-muted); font-size:0.95rem; margin-top:0.6rem;">
+        <span data-i18n="hero_safety_narration">Discover how KidsTube protects your children from inappropriate content — it's the YouTube every parent wishes for.</span>
+        <a href="learn-more.html" id="heroSafetyLink" data-i18n="hero_learn_more" style="color:var(--primary); font-weight:700; text-decoration:none; margin-left:0.35rem; white-space:nowrap;">Learn More &gt;</a>
+      </p>
     </div>
 
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; gap:1rem; flex-wrap:wrap;">
@@ -1322,44 +1322,6 @@
         </button>
       </div>
       <div class="modal-body" id="quizWallBody"></div>
-    </div>
-  </div>
-
-  <!-- Parental Protection Info Modal -->
-  <div class="modal" id="safetyInfoModal" onclick="if(event.target===this) closeSafetyInfoModal()">
-    <div class="modal-content" style="max-width:560px;">
-      <div class="modal-header">
-        <div style="display:flex; align-items:center; gap:0.6rem;">
-          <span class="material-symbols-rounded" style="color:var(--primary);">shield_with_heart</span>
-          <h3 style="font-size:1.15rem; font-weight:700;">How KidsTube Protects Your Children</h3>
-        </div>
-        <button class="btn-icon" onclick="closeSafetyInfoModal()">
-          <span class="material-symbols-rounded">close</span>
-        </button>
-      </div>
-      <div class="modal-body" style="display:flex; flex-direction:column; gap:0.9rem;">
-        <p style="color:var(--text-muted); font-size:0.92rem; line-height:1.55;">
-          KidsTube is built to be the YouTube every parent wishes for — giving children fun, educational videos with zero algorithmic surprises.
-        </p>
-        <div style="display:flex; flex-direction:column; gap:0.65rem;">
-          <div style="padding:0.75rem 0.9rem; border-radius:var(--radius-sm); background:var(--surface-light); border:1px solid var(--border);">
-            <div style="font-weight:700; font-size:0.9rem; margin-bottom:0.2rem;">100% Parent-Curated Channels</div>
-            <div style="font-size:0.84rem; color:var(--text-muted);">Only channels and videos explicitly approved by parents or curators appear — no random recommendations or unsafe autoplay rabbit holes.</div>
-          </div>
-          <div style="padding:0.75rem 0.9rem; border-radius:var(--radius-sm); background:var(--surface-light); border:1px solid var(--border);">
-            <div style="font-weight:700; font-size:0.9rem; margin-bottom:0.2rem;">Age-Rated Child Accounts</div>
-            <div style="font-size:0.84rem; color:var(--text-muted);">Parents register child accounts with tailored age filters so kids only see content appropriate for their age group.</div>
-          </div>
-          <div style="padding:0.75rem 0.9rem; border-radius:var(--radius-sm); background:var(--surface-light); border:1px solid var(--border);">
-            <div style="font-weight:700; font-size:0.9rem; margin-bottom:0.2rem;">Educational Quiz Walls</div>
-            <div style="font-size:0.84rem; color:var(--text-muted);">Optional channel quiz gates encourage learning before unlocking viewing sessions, with parent-configured cooldowns.</div>
-          </div>
-        </div>
-        <div style="display:flex; justify-content:flex-end; gap:0.6rem; margin-top:0.25rem;">
-          <button class="btn btn-secondary" onclick="closeSafetyInfoModal()">Close</button>
-          <button class="btn btn-primary" onclick="closeSafetyInfoModal(); showAuthGate('PARENT');">Get Started as Parent</button>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -3071,7 +3033,8 @@
         logout: 'Logout',
         hero_title: 'Safe, Curated Kids Channels & Educational Videos',
         hero_desc: 'Pick a themed channel below to explore hand-picked, kid-friendly YouTube and educational videos. To add or manage content, switch to Curator Studio.',
-        hero_learn_more: "Learn more how KidsTube can protect your children from inappropriate content — it's the YouTube every parent wishes for →",
+        hero_safety_narration: "Discover how KidsTube protects your children from inappropriate content — it's the YouTube every parent wishes for.",
+        hero_learn_more: 'Learn More >',
         featured_channels: 'Featured Channels'
       },
       id: {
@@ -3092,7 +3055,8 @@
         logout: 'Keluar',
         hero_title: 'Saluran Anak Terkurasi & Video Edukatif yang Aman',
         hero_desc: 'Pilih saluran di bawah untuk menonton video YouTube dan edukatif ramah anak pilihan. Untuk mengelola konten, buka Studio Kurator.',
-        hero_learn_more: 'Pelajari bagaimana KidsTube melindungi anak Anda dari konten tidak pantas — YouTube impian setiap orang tua →',
+        hero_safety_narration: 'Pelajari bagaimana KidsTube melindungi anak Anda dari konten tidak pantas — YouTube impian setiap orang tua.',
+        hero_learn_more: 'Pelajari Lebih Lanjut >',
         featured_channels: 'Saluran Unggulan'
       }
     };
@@ -3138,16 +3102,6 @@
           applyTheme('system');
         }
       });
-    }
-
-    function openSafetyInfoModal() {
-      const modal = document.getElementById('safetyInfoModal');
-      if (modal) modal.style.display = 'flex';
-    }
-
-    function closeSafetyInfoModal() {
-      const modal = document.getElementById('safetyInfoModal');
-      if (modal) modal.style.display = 'none';
     }
 
     // Init: show public showcase by default; Curator Studio stays behind login wall
