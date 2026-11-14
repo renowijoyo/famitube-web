@@ -646,7 +646,7 @@
       <button id="btnModeStudio" class="nav-link" onclick="openStudio()">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">admin_panel_settings</span> <span data-i18n="nav_studio">Curator Studio</span>
       </button>
-      <a id="linkChannelsJson" href="https://kidstube-api.gamantha.my.id/api/channels" target="_blank" class="nav-link" style="display:none;">
+      <a id="linkChannelsJson" href="https://famitube-api.gamantha.my.id/api/channels" target="_blank" class="nav-link" style="display:none;">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">tv</span> Channels JSON
       </a>
     </nav>
@@ -1342,7 +1342,7 @@
   <script>
     const API_BASE = (() => {
       const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      const defaultApi = isLocal ? 'http://localhost:4000' : 'https://kidstube-api.gamantha.my.id';
+      const defaultApi = isLocal ? 'http://localhost:4000' : 'https://famitube-api.gamantha.my.id';
       const param = new URLSearchParams(window.location.search).get('api');
       if (param) {
         const cleaned = param.replace(/\/+$/, '');
@@ -1350,7 +1350,7 @@
         return cleaned;
       }
       const saved = localStorage.getItem('kidstube_api_url');
-      if (saved && (isLocal || !saved.includes('localhost'))) {
+      if (saved && (isLocal || (!saved.includes('localhost') && !saved.includes('kidstube-api.gamantha.my.id')))) {
         return saved.replace(/\/+$/, '');
       }
       return defaultApi;
