@@ -135,9 +135,20 @@
 
     .pillars-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1.25rem;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 1.5rem;
       margin-bottom: 2rem;
+    }
+
+    .pillar-shot {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      margin-top: 1rem;
+      display: block;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
     }
 
     .pillar-icon {
@@ -192,6 +203,7 @@
         <p data-i18n="p1_desc" style="color:var(--text-muted); font-size:0.9rem;">
           Every channel and video in KidsTube is intentionally chosen by parents or trusted curators. Kids never get pulled into unvetted recommendations.
         </p>
+        <img src="assets/pillar-curated-channels.jpg" alt="100% Parent-Curated Channels screenshot" class="pillar-shot" loading="lazy">
       </div>
 
       <div class="card">
@@ -202,6 +214,7 @@
         <p data-i18n="p2_desc" style="color:var(--text-muted); font-size:0.9rem;">
           Parents create child accounts with specific age filters (ALL, 5+, 8+, 12+) so younger kids only see videos suited to their stage.
         </p>
+        <img src="assets/pillar-age-rated.jpg" alt="Age-Rated Child Accounts screenshot" class="pillar-shot" loading="lazy">
       </div>
 
       <div class="card">
@@ -212,6 +225,7 @@
         <p data-i18n="p3_desc" style="color:var(--text-muted); font-size:0.9rem;">
           Gate channels behind quick, parent-configured quizzes and cooldown timers so screen time encourages learning and mindful breaks.
         </p>
+        <img src="assets/pillar-quiz-wall.jpg" alt="Educational Quiz Walls screenshot" class="pillar-shot" loading="lazy">
       </div>
 
       <div class="card">
@@ -222,6 +236,7 @@
         <p data-i18n="p4_desc" style="color:var(--text-muted); font-size:0.9rem;">
           Kids cannot sign up or change parental rules on their own. Only parent accounts can manage channels, videos, and family defaults in Curator Studio.
         </p>
+        <img src="assets/pillar-no-self-reg.jpg" alt="No Self-Registration for Kids screenshot" class="pillar-shot" loading="lazy">
       </div>
     </section>
 
