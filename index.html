@@ -19,12 +19,55 @@
       --bg: #F8FAFC;
       --surface: #FFFFFF;
       --surface-light: #F1F5F9;
+      --surface-hover: #E2E8F0;
       --text: #0F172A;
       --text-muted: #64748B;
       --border: #E2E8F0;
       --radius-sm: 8px;
       --radius-md: 14px;
       --radius-lg: 20px;
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #0B1120;
+      --surface: #111827;
+      --surface-light: #1E293B;
+      --surface-hover: #334155;
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --border: #1F2937;
+    }
+
+    .dropdown-prefs {
+      padding: 0.65rem 1rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      background: var(--surface);
+    }
+
+    .dropdown-pref-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .dropdown-pref-select {
+      background: var(--surface-light);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.28rem 0.5rem;
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -95,6 +138,45 @@
       align-items: center;
       gap: 0.65rem;
       flex-wrap: wrap;
+    }
+
+    .channel-carousel {
+      display: flex;
+      gap: 1rem;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      padding: 0.25rem 0.1rem 0.75rem;
+      margin-bottom: 1.5rem;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .channel-carousel::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .channel-carousel::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 99px;
+    }
+
+    .channel-slide {
+      flex: 0 0 260px;
+      scroll-snap-align: start;
+      cursor: pointer;
+      padding: 1.15rem;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+    .channel-slide:hover {
+      transform: translateY(-2px);
+    }
+
+    .channel-slide.active {
+      border-color: var(--primary);
+      background: rgba(255, 51, 102, 0.08);
+      box-shadow: 0 6px 20px rgba(255, 51, 102, 0.14);
     }
 
     @media (max-width: 860px) {
@@ -168,7 +250,7 @@
     .btn-primary { background: var(--primary); color: white; }
     .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
     .btn-secondary { background: var(--surface-light); color: var(--text); }
-    .btn-secondary:hover { background: #475569; }
+    .btn-secondary:hover { background: var(--surface-hover); }
     .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
 
     .container {
@@ -237,7 +319,7 @@
       border: 1px solid var(--border);
       padding: 0.85rem 1.2rem;
       border-radius: var(--radius-sm);
-      color: white;
+      color: var(--text);
       font-size: 0.95rem;
       outline: none;
     }
@@ -280,7 +362,7 @@
       border: 1px solid var(--border);
       padding: 0.55rem 0.75rem;
       border-radius: var(--radius-sm);
-      color: white;
+      color: var(--text);
       font-size: 0.9rem;
     }
 
@@ -336,7 +418,7 @@
     .search-box input {
       background: none;
       border: none;
-      color: white;
+      color: var(--text);
       outline: none;
       width: 100%;
       font-size: 0.9rem;
@@ -460,7 +542,7 @@
       border-radius: 6px;
       transition: color 0.2s, background 0.2s;
     }
-    .btn-icon:hover { color: white; background: var(--surface-light); }
+    .btn-icon:hover { color: var(--text); background: var(--surface-light); }
     .btn-icon.delete:hover { color: #FF3366; }
 
     .pill-live {
@@ -556,13 +638,13 @@
 
     <nav class="top-nav" aria-label="Main Navigation">
       <button id="btnNavHome" class="nav-link active" onclick="openHome()">
-        <span class="material-symbols-rounded" style="font-size:1.05rem;">home</span> Home
+        <span class="material-symbols-rounded" style="font-size:1.05rem;">home</span> <span data-i18n="nav_home">Home</span>
       </button>
       <button id="btnNavChannels" class="nav-link" onclick="openChannelsNav()">
-        <span class="material-symbols-rounded" style="font-size:1.05rem;">subscriptions</span> Channels
+        <span class="material-symbols-rounded" style="font-size:1.05rem;">subscriptions</span> <span data-i18n="nav_channels">Channels</span>
       </button>
       <button id="btnModeStudio" class="nav-link" onclick="openStudio()">
-        <span class="material-symbols-rounded" style="font-size:1.05rem;">admin_panel_settings</span> Curator Studio
+        <span class="material-symbols-rounded" style="font-size:1.05rem;">admin_panel_settings</span> <span data-i18n="nav_studio">Curator Studio</span>
       </button>
       <a id="linkChannelsJson" href="https://kidstube-api.gamantha.my.id/api/channels" target="_blank" class="nav-link" style="display:none;">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">tv</span> Channels JSON
@@ -571,27 +653,41 @@
 
     <div class="header-right">
       <div id="guestProfileMenu" style="display:flex; align-items:center; gap:0.55rem; position:relative;">
-        <a id="btnKidsLogin" href="kids-login.html" class="btn btn-secondary btn-sm">
-          <span class="material-symbols-rounded" style="font-size:1.05rem;">child_care</span> Kids Login
-        </a>
         <button id="guestProfileBtn" onclick="toggleGuestProfileMenu(event)" title="Profile &amp; Sign In" style="display:inline-flex; align-items:center; gap:0.5rem; color:var(--text); background:var(--surface-light); border:1px solid var(--border); padding:0.3rem 0.7rem 0.3rem 0.35rem; border-radius:99px; font-family:inherit; font-size:0.84rem; font-weight:600; cursor:pointer;">
           <span style="width:30px; height:30px; border-radius:50%; background:var(--border); display:inline-flex; align-items:center; justify-content:center; color:var(--text-muted);">
             <span class="material-symbols-rounded" style="font-size:1.15rem;">person</span>
           </span>
-          <span>Sign In</span>
+          <span data-i18n="sign_in">Sign In</span>
           <span class="material-symbols-rounded" style="font-size:1rem; color:var(--text-muted);">expand_more</span>
         </button>
-        <div id="guestProfileDropdown" style="display:none; position:absolute; top:calc(100% + 0.5rem); right:0; min-width:220px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); box-shadow:0 12px 30px rgba(15,23,42,0.16); z-index:200; overflow:hidden;">
+        <div id="guestProfileDropdown" style="display:none; position:absolute; top:calc(100% + 0.5rem); right:0; min-width:245px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); box-shadow:0 12px 30px rgba(15,23,42,0.16); z-index:200; overflow:hidden;">
           <div style="padding:0.75rem 1rem; border-bottom:1px solid var(--border);">
-            <div style="font-weight:700; font-size:0.88rem;">Guest Visitor</div>
-            <div style="font-size:0.76rem; color:var(--text-muted); margin-top:0.1rem;">Sign in for Parent Studio or Kid Mode</div>
+            <div style="font-weight:700; font-size:0.88rem;" data-i18n="guest_visitor">Guest Visitor</div>
+            <div style="font-size:0.76rem; color:var(--text-muted); margin-top:0.1rem;" data-i18n="guest_sub">Sign in as Parent or Kid</div>
           </div>
-          <button onclick="document.getElementById('guestProfileDropdown').style.display='none'; openStudio();" style="width:100%; display:flex; align-items:center; gap:0.55rem; padding:0.7rem 1rem; background:none; border:none; color:var(--text); font-family:inherit; font-size:0.86rem; font-weight:600; cursor:pointer; text-align:left;" onmouseover="this.style.background='var(--surface-light)'" onmouseout="this.style.background='none'">
-            <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--primary);">admin_panel_settings</span> Parent / Curator Login
+          <button onclick="document.getElementById('guestProfileDropdown').style.display='none'; showAuthGate('PARENT');" style="width:100%; display:flex; align-items:center; gap:0.55rem; padding:0.7rem 1rem; background:none; border:none; color:var(--text); font-family:inherit; font-size:0.86rem; font-weight:600; cursor:pointer; text-align:left;" onmouseover="this.style.background='var(--surface-light)'" onmouseout="this.style.background='none'">
+            <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--primary);">admin_panel_settings</span> <span data-i18n="parent_sign_in">Parent / Curator Sign In</span>
           </button>
-          <a href="kids-login.html" style="width:100%; display:flex; align-items:center; gap:0.55rem; padding:0.7rem 1rem; text-decoration:none; color:var(--text); font-size:0.86rem; font-weight:600; border-top:1px solid var(--border);" onmouseover="this.style.background='var(--surface-light)'" onmouseout="this.style.background='none'">
-            <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--secondary);">child_care</span> Kids Login
-          </a>
+          <button onclick="document.getElementById('guestProfileDropdown').style.display='none'; showAuthGate('CHILD');" style="width:100%; display:flex; align-items:center; gap:0.55rem; padding:0.7rem 1rem; background:none; border:none; border-top:1px solid var(--border); color:var(--text); font-family:inherit; font-size:0.86rem; font-weight:600; cursor:pointer; text-align:left;" onmouseover="this.style.background='var(--surface-light)'" onmouseout="this.style.background='none'">
+            <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--secondary);">child_care</span> <span data-i18n="kids_sign_in">Kids Sign In</span>
+          </button>
+          <div class="dropdown-prefs" onclick="event.stopPropagation()">
+            <label class="dropdown-pref-row">
+              <span data-i18n="language_label">Language</span>
+              <select id="guestLangSelect" class="dropdown-pref-select" onchange="setLanguagePreference(this.value)">
+                <option value="en">English</option>
+                <option value="id">Indonesia</option>
+              </select>
+            </label>
+            <label class="dropdown-pref-row">
+              <span data-i18n="theme_label">Theme</span>
+              <select id="guestThemeSelect" class="dropdown-pref-select" onchange="setThemePreference(this.value)">
+                <option value="system" data-i18n="theme_system">System</option>
+                <option value="light" data-i18n="theme_light">Light</option>
+                <option value="dark" data-i18n="theme_dark">Dark</option>
+              </select>
+            </label>
+          </div>
         </div>
       </div>
 
@@ -603,7 +699,7 @@
           </button>
           <div id="notifDropdownMenu" style="display:none; position:absolute; top:calc(100% + 0.5rem); right:0; width:290px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); box-shadow:0 12px 30px rgba(0,0,0,0.45); z-index:200; overflow:hidden;">
             <div style="padding:0.7rem 1rem; border-bottom:1px solid var(--border); font-weight:700; font-size:0.86rem; display:flex; align-items:center; justify-content:space-between;">
-              <span>Notifications</span>
+              <span data-i18n="notifications_title">Notifications</span>
               <span style="font-size:0.72rem; color:var(--accent);">Live</span>
             </div>
             <div id="notifList" style="max-height:240px; overflow-y:auto;"></div>
@@ -616,13 +712,30 @@
             <span id="userEmailLabel" style="font-weight:600; font-size:0.86rem;"></span>
             <span class="material-symbols-rounded" style="font-size:1.05rem; color:var(--text-muted);">expand_more</span>
           </a>
-          <div id="profileDropdownMenu" style="display:none; position:absolute; top:calc(100% + 0.5rem); right:0; min-width:230px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); box-shadow:0 12px 30px rgba(0,0,0,0.45); z-index:200; overflow:hidden;">
+          <div id="profileDropdownMenu" style="display:none; position:absolute; top:calc(100% + 0.5rem); right:0; min-width:250px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); box-shadow:0 12px 30px rgba(0,0,0,0.45); z-index:200; overflow:hidden;">
             <div style="padding:0.8rem 1rem; border-bottom:1px solid var(--border);">
               <div id="profileMenuName" style="font-weight:700; font-size:0.9rem;"></div>
               <div id="profileMenuMeta" style="font-size:0.78rem; color:var(--text-muted); margin-top:0.15rem;"></div>
             </div>
-            <button onclick="handleLogout()" style="width:100%; display:flex; align-items:center; gap:0.55rem; padding:0.75rem 1rem; background:none; border:none; color:#FF809D; font-family:inherit; font-size:0.88rem; font-weight:600; cursor:pointer; text-align:left;" onmouseover="this.style.background='rgba(255,51,102,0.1)'" onmouseout="this.style.background='none'">
-              <span class="material-symbols-rounded" style="font-size:1.1rem;">logout</span> Logout
+            <div class="dropdown-prefs" style="border-top:none;" onclick="event.stopPropagation()">
+              <label class="dropdown-pref-row">
+                <span data-i18n="language_label">Language</span>
+                <select id="userLangSelect" class="dropdown-pref-select" onchange="setLanguagePreference(this.value)">
+                  <option value="en">English</option>
+                  <option value="id">Indonesia</option>
+                </select>
+              </label>
+              <label class="dropdown-pref-row">
+                <span data-i18n="theme_label">Theme</span>
+                <select id="userThemeSelect" class="dropdown-pref-select" onchange="setThemePreference(this.value)">
+                  <option value="system" data-i18n="theme_system">System</option>
+                  <option value="light" data-i18n="theme_light">Light</option>
+                  <option value="dark" data-i18n="theme_dark">Dark</option>
+                </select>
+              </label>
+            </div>
+            <button onclick="handleLogout()" style="width:100%; display:flex; align-items:center; gap:0.55rem; padding:0.75rem 1rem; background:none; border:none; border-top:1px solid var(--border); color:#FF809D; font-family:inherit; font-size:0.88rem; font-weight:600; cursor:pointer; text-align:left;" onmouseover="this.style.background='rgba(255,51,102,0.1)'" onmouseout="this.style.background='none'">
+              <span class="material-symbols-rounded" style="font-size:1.1rem;">logout</span> <span data-i18n="logout">Logout</span>
             </button>
           </div>
         </div>
@@ -640,15 +753,26 @@
       <span id="loggedInBannerBadge" style="font-size:0.76rem; font-weight:700; padding:0.25rem 0.65rem; border-radius:99px; background:rgba(76,201,240,0.15); color:var(--accent);"></span>
     </div>
     <div class="card" style="padding:1.75rem 2rem; margin-bottom:1.75rem; background:linear-gradient(135deg, rgba(255,51,102,0.16), rgba(67,97,238,0.18)); border-color:rgba(76,201,240,0.25);">
-      <h2 style="font-size:1.6rem; margin-bottom:0.35rem;">Safe, Curated Kids Channels &amp; Educational Videos</h2>
-      <p style="color:var(--text-muted); font-size:0.95rem;">Pick a themed channel below to explore hand-picked, kid-friendly YouTube and educational videos. To add or manage content, switch to <strong>Curator Studio</strong>.</p>
+      <h2 data-i18n="hero_title" style="font-size:1.6rem; margin-bottom:0.35rem;">Safe, Curated Kids Channels &amp; Educational Videos</h2>
+      <p data-i18n="hero_desc" style="color:var(--text-muted); font-size:0.95rem;">Pick a themed channel below to explore hand-picked, kid-friendly YouTube and educational videos. To add or manage content, switch to <strong>Curator Studio</strong>.</p>
+      <a href="#" id="heroSafetyLink" onclick="event.preventDefault(); openSafetyInfoModal();" style="display:inline-flex; align-items:center; gap:0.4rem; margin-top:0.85rem; color:var(--primary); font-weight:700; font-size:0.9rem; text-decoration:none;">
+        <span class="material-symbols-rounded" style="font-size:1.1rem;">shield_with_heart</span>
+        <span data-i18n="hero_learn_more">Learn more how KidsTube can protect your children from inappropriate content — it's the YouTube every parent wishes for &rarr;</span>
+      </a>
     </div>
 
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; gap:1rem; flex-wrap:wrap;">
-      <h3 style="font-size:1.2rem;">Featured Channels</h3>
-      <button id="btnShowAllChannels" class="btn btn-secondary btn-sm" onclick="selectShowcaseChannel(null)">Show All Videos</button>
+      <h3 data-i18n="featured_channels" style="font-size:1.2rem;">Featured Channels</h3>
+      <div style="display:flex; align-items:center; gap:0.45rem;">
+        <button id="btnCarouselPrev" class="btn btn-secondary btn-sm" onclick="stepChannelCarousel(-1)" title="Previous Channel" aria-label="Previous Channel">
+          <span class="material-symbols-rounded" style="font-size:1.1rem;">chevron_left</span>
+        </button>
+        <button id="btnCarouselNext" class="btn btn-secondary btn-sm" onclick="stepChannelCarousel(1)" title="Next Channel" aria-label="Next Channel">
+          <span class="material-symbols-rounded" style="font-size:1.1rem;">chevron_right</span>
+        </button>
+      </div>
     </div>
-    <div id="showcaseChannels" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:1rem; margin-bottom:2rem;"></div>
+    <div id="showcaseChannels" class="channel-carousel"></div>
 
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; gap:1rem; flex-wrap:wrap;">
       <h3 id="showcaseVideosHeading" style="font-size:1.2rem;">Curated Videos</h3>
@@ -662,12 +786,28 @@
     <div class="card" style="width:100%; max-width:440px; padding:2rem;">
       <div style="text-align:center; margin-bottom:1.25rem;">
         <div class="brand-logo" style="margin:0 auto 0.75rem;">K</div>
-        <h2 style="margin-bottom:0.25rem;">Curator Studio Sign In</h2>
-        <p id="authSubtitle" style="color:var(--text-muted); font-size:0.9rem;">Parent &amp; guardian accounts only. Kids cannot sign in here.</p>
+        <h2 id="authTitle" style="margin-bottom:0.25rem;">Sign In to KidsTube</h2>
+        <p id="authSubtitle" style="color:var(--text-muted); font-size:0.9rem;">Choose your account type below to sign in.</p>
+      </div>
+
+      <div style="margin-bottom:1rem;">
+        <label style="display:block; font-size:0.82rem; font-weight:600; color:var(--text-muted); margin-bottom:0.4rem;">I am signing in as</label>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+          <button type="button" id="roleBtnParent" class="btn btn-primary" style="justify-content:center;" onclick="setLoginRole('PARENT')">
+            <span class="material-symbols-rounded" style="font-size:1.05rem;">admin_panel_settings</span> Parent / Curator
+          </button>
+          <button type="button" id="roleBtnChild" class="btn btn-secondary" style="justify-content:center;" onclick="setLoginRole('CHILD')">
+            <span class="material-symbols-rounded" style="font-size:1.05rem;">child_care</span> Kid
+          </button>
+        </div>
+      </div>
+
+      <div id="kidLoginNotice" style="display:none; padding:0.75rem 0.9rem; border-radius:var(--radius-sm); background:rgba(67,97,238,0.08); border:1px solid rgba(67,97,238,0.22); color:var(--text-muted); font-size:0.82rem; margin-bottom:1rem;">
+        Kids cannot self-register. Use the email registered by your parent or guardian in <strong>KidsTube Studio</strong>.
       </div>
 
       <div id="authModeTabs" style="display:flex; gap:0.5rem; margin-bottom:1.25rem;">
-        <button id="tabAuthLogin" class="btn btn-primary" style="flex:1;" onclick="switchAuthTab('login')">Parent Sign In</button>
+        <button id="tabAuthLogin" class="btn btn-primary" style="flex:1;" onclick="switchAuthTab('login')">Sign In</button>
         <button id="tabAuthRegister" class="btn btn-secondary" style="flex:1;" onclick="switchAuthTab('register')">Register (Parents)</button>
       </div>
 
@@ -703,9 +843,6 @@
         </div>
         <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Create Account</button>
       </form>
-      <div style="text-align:center; margin-top:1.15rem; padding-top:1rem; border-top:1px solid var(--border); font-size:0.84rem; color:var(--text-muted);">
-        Looking for Kids Login? <a href="kids-login.html" style="color:var(--accent); text-decoration:none; font-weight:600;">Go to Kids Portal &rarr;</a>
-      </div>
     </div>
   </div>
 
@@ -838,7 +975,7 @@
           <input type="text" id="searchFilter" placeholder="Filter videos by title or tags..." oninput="filterVideos()">
         </div>
         <div>
-          <select id="categoryFilter" onchange="filterVideos()" style="background:var(--surface); border:1px solid var(--border); color:white; padding:0.4rem 0.8rem; border-radius:var(--radius-sm);">
+          <select id="categoryFilter" onchange="filterVideos()" style="background:var(--surface); border:1px solid var(--border); color:var(--text); padding:0.4rem 0.8rem; border-radius:var(--radius-sm);">
             <option value="">All Categories</option>
             <option value="Cartoons & Fun">Cartoons & Fun</option>
             <option value="Science & Space">Science & Space</option>
@@ -1188,6 +1325,44 @@
     </div>
   </div>
 
+  <!-- Parental Protection Info Modal -->
+  <div class="modal" id="safetyInfoModal" onclick="if(event.target===this) closeSafetyInfoModal()">
+    <div class="modal-content" style="max-width:560px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:0.6rem;">
+          <span class="material-symbols-rounded" style="color:var(--primary);">shield_with_heart</span>
+          <h3 style="font-size:1.15rem; font-weight:700;">How KidsTube Protects Your Children</h3>
+        </div>
+        <button class="btn-icon" onclick="closeSafetyInfoModal()">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+      <div class="modal-body" style="display:flex; flex-direction:column; gap:0.9rem;">
+        <p style="color:var(--text-muted); font-size:0.92rem; line-height:1.55;">
+          KidsTube is built to be the YouTube every parent wishes for — giving children fun, educational videos with zero algorithmic surprises.
+        </p>
+        <div style="display:flex; flex-direction:column; gap:0.65rem;">
+          <div style="padding:0.75rem 0.9rem; border-radius:var(--radius-sm); background:var(--surface-light); border:1px solid var(--border);">
+            <div style="font-weight:700; font-size:0.9rem; margin-bottom:0.2rem;">100% Parent-Curated Channels</div>
+            <div style="font-size:0.84rem; color:var(--text-muted);">Only channels and videos explicitly approved by parents or curators appear — no random recommendations or unsafe autoplay rabbit holes.</div>
+          </div>
+          <div style="padding:0.75rem 0.9rem; border-radius:var(--radius-sm); background:var(--surface-light); border:1px solid var(--border);">
+            <div style="font-weight:700; font-size:0.9rem; margin-bottom:0.2rem;">Age-Rated Child Accounts</div>
+            <div style="font-size:0.84rem; color:var(--text-muted);">Parents register child accounts with tailored age filters so kids only see content appropriate for their age group.</div>
+          </div>
+          <div style="padding:0.75rem 0.9rem; border-radius:var(--radius-sm); background:var(--surface-light); border:1px solid var(--border);">
+            <div style="font-weight:700; font-size:0.9rem; margin-bottom:0.2rem;">Educational Quiz Walls</div>
+            <div style="font-size:0.84rem; color:var(--text-muted);">Optional channel quiz gates encourage learning before unlocking viewing sessions, with parent-configured cooldowns.</div>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:0.6rem; margin-top:0.25rem;">
+          <button class="btn btn-secondary" onclick="closeSafetyInfoModal()">Close</button>
+          <button class="btn btn-primary" onclick="closeSafetyInfoModal(); showAuthGate('PARENT');">Get Started as Parent</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     const API_BASE = (() => {
       const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -1262,8 +1437,30 @@
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    const activeLoginRole = 'PARENT';
+    let activeLoginRole = 'PARENT';
     let currentUser = null;
+
+    function setLoginRole(role) {
+      activeLoginRole = role === 'CHILD' ? 'CHILD' : 'PARENT';
+      const isChild = activeLoginRole === 'CHILD';
+      const roleBtnParent = document.getElementById('roleBtnParent');
+      const roleBtnChild = document.getElementById('roleBtnChild');
+      if (roleBtnParent) roleBtnParent.className = isChild ? 'btn btn-secondary' : 'btn btn-primary';
+      if (roleBtnChild) roleBtnChild.className = isChild ? 'btn btn-primary' : 'btn btn-secondary';
+      const authModeTabs = document.getElementById('authModeTabs');
+      if (authModeTabs) authModeTabs.style.display = isChild ? 'none' : 'flex';
+      const kidNotice = document.getElementById('kidLoginNotice');
+      if (kidNotice) kidNotice.style.display = isChild ? 'block' : 'none';
+      const loginEmail = document.getElementById('loginEmail');
+      if (loginEmail) loginEmail.placeholder = isChild ? 'kid@example.com' : 'curator@example.com';
+      const authSubtitle = document.getElementById('authSubtitle');
+      if (authSubtitle) {
+        authSubtitle.textContent = isChild
+          ? 'Sign in to watch your parent-approved channels and age-safe videos.'
+          : 'Sign in to manage channels, videos, and family controls.';
+      }
+      if (isChild) switchAuthTab('login');
+    }
 
     async function openStudio() {
       if (currentUser?.role === 'CHILD') {
@@ -1387,7 +1584,6 @@
     function applyUserHeaderUI(user) {
       document.getElementById('guestProfileMenu').style.display = 'none';
       document.getElementById('guestProfileDropdown').style.display = 'none';
-      document.getElementById('btnKidsLogin').style.display = 'none';
       document.getElementById('userBar').style.display = 'flex';
       document.getElementById('profileDropdownMenu').style.display = 'none';
       document.getElementById('notifDropdownMenu').style.display = 'none';
@@ -1432,8 +1628,9 @@
       if (pendingInviteToken) checkInviteQueryParam();
     }
 
-    function showAuthGate() {
+    function showAuthGate(role = 'PARENT') {
       setModeButtons('studio');
+      setLoginRole(role);
       document.getElementById('linkChannelsJson').style.display = 'none';
       document.getElementById('showcaseApp').style.display = 'none';
       document.getElementById('authGate').style.display = 'flex';
@@ -1462,7 +1659,6 @@
       document.getElementById('loggedInWelcomeBanner').style.display = 'none';
       document.getElementById('userBar').style.display = 'none';
       document.getElementById('guestProfileMenu').style.display = 'flex';
-      document.getElementById('btnKidsLogin').style.display = 'inline-flex';
       document.getElementById('btnModeStudio').style.display = 'inline-flex';
       if (wasChild) {
         openHome(false);
@@ -2613,8 +2809,10 @@
           if (json.success && json.data) {
             showcaseChannels = json.data.channels || [];
             kidsFeedVideos = json.data.videos || [];
+            const hasActive = showcaseChannels.some(c => c.id === activeShowcaseChannelId);
+            const initialId = hasActive ? activeShowcaseChannelId : (showcaseChannels[0]?.id || null);
             renderShowcaseChannels();
-            await selectShowcaseChannel(activeShowcaseChannelId);
+            await selectShowcaseChannel(initialId);
             return;
           }
         }
@@ -2622,9 +2820,11 @@
         const res = await fetch(apiUrl('/api/channels'));
         const json = await res.json();
         if (json.success) {
-          showcaseChannels = json.data;
+          showcaseChannels = json.data || [];
+          const hasActive = showcaseChannels.some(c => c.id === activeShowcaseChannelId);
+          const initialId = hasActive ? activeShowcaseChannelId : (showcaseChannels[0]?.id || null);
           renderShowcaseChannels();
-          await selectShowcaseChannel(activeShowcaseChannelId);
+          await selectShowcaseChannel(initialId);
         }
       } catch {
         document.getElementById('showcaseChannels').innerHTML =
@@ -2633,12 +2833,16 @@
     }
 
     function renderShowcaseChannels() {
-      const grid = document.getElementById('showcaseChannels');
-      grid.innerHTML = showcaseChannels.map(c => {
+      const track = document.getElementById('showcaseChannels');
+      if (!showcaseChannels.length) {
+        track.innerHTML = '<p style="color:var(--text-muted);">No channels available yet.</p>';
+        return;
+      }
+      track.innerHTML = showcaseChannels.map(c => {
         const isActive = activeShowcaseChannelId === c.id;
         const isLive = c.channelType === 'LIVE_TV';
         return `
-          <div class="card" onclick="selectShowcaseChannel('${c.id}')" style="cursor:pointer; padding:1.15rem; transition:transform 0.15s, border-color 0.15s; border-color:${isActive ? 'var(--primary)' : 'var(--border)'}; background:${isActive ? 'rgba(255,51,102,0.08)' : 'var(--surface)'};">
+          <div class="card channel-slide ${isActive ? 'active' : ''}" data-channel-id="${c.id}" onclick="selectShowcaseChannel('${c.id}')">
             <div style="display:flex; align-items:center; gap:0.85rem; margin-bottom:0.65rem;">
               <img src="${c.avatarUrl}" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid ${isLive ? 'var(--primary)' : 'var(--accent)'};">
               <div style="min-width:0;">
@@ -2650,6 +2854,18 @@
           </div>
         `;
       }).join('');
+      const activeSlide = track.querySelector('.channel-slide.active');
+      if (activeSlide) {
+        activeSlide.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+      }
+    }
+
+    async function stepChannelCarousel(delta) {
+      if (!showcaseChannels.length) return;
+      const currentIdx = showcaseChannels.findIndex(c => c.id === activeShowcaseChannelId);
+      const baseIdx = currentIdx >= 0 ? currentIdx : 0;
+      const nextIdx = (baseIdx + delta + showcaseChannels.length) % showcaseChannels.length;
+      await selectShowcaseChannel(showcaseChannels[nextIdx].id);
     }
 
     let quizTimerInterval = null;
@@ -2785,29 +3001,23 @@
     }
 
     async function loadChannelVideosIntoShowcase(channelId) {
-      activeShowcaseChannelId = channelId;
+      const targetId = channelId || showcaseChannels[0]?.id || null;
+      activeShowcaseChannelId = targetId;
       renderShowcaseChannels();
       const heading = document.getElementById('showcaseVideosHeading');
       const countEl = document.getElementById('showcaseVideosCount');
       const grid = document.getElementById('showcaseVideos');
 
       let videos = [];
-      if (channelId) {
-        const ch = showcaseChannels.find(c => c.id === channelId);
+      if (targetId) {
+        const ch = showcaseChannels.find(c => c.id === targetId);
         heading.textContent = ch ? `${ch.name} — Curated Videos` : 'Channel Videos';
         const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
-        const res = await fetch(apiUrl('/api/channels/' + channelId), { headers });
+        const res = await fetch(apiUrl('/api/channels/' + targetId), { headers });
         const json = await res.json();
         videos = json.success ? json.data.videos : [];
       } else {
-        heading.textContent = kidsFeedVideos ? 'My Age-Safe Kids Videos' : 'All Curated Kids Videos';
-        if (kidsFeedVideos) {
-          videos = kidsFeedVideos;
-        } else {
-          const res = await fetch(apiUrl('/api/videos'));
-          const json = await res.json();
-          videos = json.success ? json.data : [];
-        }
+        heading.textContent = 'Curated Videos';
       }
 
       countEl.textContent = `${videos.length} video${videos.length === 1 ? '' : 's'}`;
@@ -2839,8 +3049,111 @@
       `).join('');
     }
 
+    const THEME_PREF_KEY = 'kidstube_theme';
+    const LANG_PREF_KEY = 'kidstube_lang';
+
+    const I18N = {
+      en: {
+        nav_home: 'Home',
+        nav_channels: 'Channels',
+        nav_studio: 'Curator Studio',
+        sign_in: 'Sign In',
+        guest_visitor: 'Guest Visitor',
+        guest_sub: 'Sign in as Parent or Kid',
+        parent_sign_in: 'Parent / Curator Sign In',
+        kids_sign_in: 'Kids Sign In',
+        language_label: 'Language',
+        theme_label: 'Theme',
+        theme_system: 'System',
+        theme_light: 'Light',
+        theme_dark: 'Dark',
+        notifications_title: 'Notifications',
+        logout: 'Logout',
+        hero_title: 'Safe, Curated Kids Channels & Educational Videos',
+        hero_desc: 'Pick a themed channel below to explore hand-picked, kid-friendly YouTube and educational videos. To add or manage content, switch to Curator Studio.',
+        hero_learn_more: "Learn more how KidsTube can protect your children from inappropriate content — it's the YouTube every parent wishes for →",
+        featured_channels: 'Featured Channels'
+      },
+      id: {
+        nav_home: 'Beranda',
+        nav_channels: 'Saluran',
+        nav_studio: 'Studio Kurator',
+        sign_in: 'Masuk',
+        guest_visitor: 'Tamu',
+        guest_sub: 'Masuk sebagai Orang Tua atau Anak',
+        parent_sign_in: 'Masuk Orang Tua / Kurator',
+        kids_sign_in: 'Masuk Anak',
+        language_label: 'Bahasa',
+        theme_label: 'Tema',
+        theme_system: 'Sistem',
+        theme_light: 'Terang',
+        theme_dark: 'Gelap',
+        notifications_title: 'Notifikasi',
+        logout: 'Keluar',
+        hero_title: 'Saluran Anak Terkurasi & Video Edukatif yang Aman',
+        hero_desc: 'Pilih saluran di bawah untuk menonton video YouTube dan edukatif ramah anak pilihan. Untuk mengelola konten, buka Studio Kurator.',
+        hero_learn_more: 'Pelajari bagaimana KidsTube melindungi anak Anda dari konten tidak pantas — YouTube impian setiap orang tua →',
+        featured_channels: 'Saluran Unggulan'
+      }
+    };
+
+    function applyTheme(pref) {
+      const choice = ['light', 'dark', 'system'].includes(pref) ? pref : 'system';
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const resolved = choice === 'system' ? (prefersDark ? 'dark' : 'light') : choice;
+      document.documentElement.setAttribute('data-theme', resolved);
+      ['guestThemeSelect', 'userThemeSelect'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = choice;
+      });
+    }
+
+    function setThemePreference(pref) {
+      localStorage.setItem(THEME_PREF_KEY, pref);
+      applyTheme(pref);
+    }
+
+    function applyLanguage(lang) {
+      const choice = lang === 'id' ? 'id' : 'en';
+      const dict = I18N[choice];
+      document.documentElement.lang = choice;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) el.textContent = dict[key];
+      });
+      ['guestLangSelect', 'userLangSelect'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = choice;
+      });
+    }
+
+    function setLanguagePreference(lang) {
+      localStorage.setItem(LANG_PREF_KEY, lang);
+      applyLanguage(lang);
+    }
+
+    if (window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        if ((localStorage.getItem(THEME_PREF_KEY) || 'system') === 'system') {
+          applyTheme('system');
+        }
+      });
+    }
+
+    function openSafetyInfoModal() {
+      const modal = document.getElementById('safetyInfoModal');
+      if (modal) modal.style.display = 'flex';
+    }
+
+    function closeSafetyInfoModal() {
+      const modal = document.getElementById('safetyInfoModal');
+      if (modal) modal.style.display = 'none';
+    }
+
     // Init: show public showcase by default; Curator Studio stays behind login wall
     async function initApp() {
+      applyTheme(localStorage.getItem(THEME_PREF_KEY) || 'system');
+      applyLanguage(localStorage.getItem(LANG_PREF_KEY) || 'en');
       if (authToken) {
         try {
           const cachedUserRaw = localStorage.getItem(AUTH_USER_KEY);
@@ -2868,7 +3181,6 @@
             document.getElementById('userBar').style.display = 'none';
             document.getElementById('loggedInWelcomeBanner').style.display = 'none';
             document.getElementById('guestProfileMenu').style.display = 'flex';
-            document.getElementById('btnKidsLogin').style.display = 'inline-flex';
             document.getElementById('btnModeStudio').style.display = 'inline-flex';
           }
         } catch {
