@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KidsTube — Kids &amp; User Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,1,0" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0F101A;
+      --surface: #1A1C2E;
+      --surface-light: #252842;
+      --primary: #FF3366;
+      --primary-hover: #FF4D79;
+      --secondary: #4361EE;
+      --accent: #4CC9F0;
+      --success: #06D6A0;
+      --warning: #FFD166;
+      --text: #FFFFFF;
+      --text-muted: #9BA1B8;
+      --border: rgba(255, 255, 255, 0.08);
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(circle at 15% 20%, rgba(76, 201, 240, 0.12), transparent 35%),
+        radial-gradient(circle at 85% 80%, rgba(255, 51, 102, 0.12), transparent 35%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: rgba(26, 28, 46, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #FF3366, #FF758F);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 15px rgba(255, 51, 102, 0.35);
+    }
+
+    .brand-title { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em; }
+    .brand-badge {
+      background: rgba(76, 201, 240, 0.15);
+      color: var(--accent);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 99px;
+      margin-left: 0.35rem;
+      border: 1px solid rgba(76, 201, 240, 0.3);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      padding: 0.65rem 1.15rem;
+      border-radius: var(--radius-sm);
+      border: none;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #FF5E84);
+      color: white;
+      box-shadow: 0 4px 14px rgba(255, 51, 102, 0.3);
+    }
+
+    .btn-primary:hover { transform: translateY(-1px); background: linear-gradient(135deg, var(--primary-hover), #FF7092); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .btn-secondary {
+      background: var(--surface-light);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover { background: #2F3354; }
+
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.25rem;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 460px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    }
+
+    .kid-hero {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .kid-icon-wrap {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 0.9rem;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(76, 201, 240, 0.2), rgba(67, 97, 238, 0.25));
+      border: 1px solid rgba(76, 201, 240, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+    }
+
+    .kid-hero h1 {
+      font-size: 1.55rem;
+      font-weight: 800;
+      margin-bottom: 0.35rem;
+    }
+
+    .kid-hero p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .notice-box {
+      display: flex;
+      gap: 0.7rem;
+      align-items: flex-start;
+      background: rgba(76, 201, 240, 0.1);
+      border: 1px solid rgba(76, 201, 240, 0.28);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem 1rem;
+      margin-bottom: 1.25rem;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .notice-box .material-symbols-rounded {
+      color: var(--accent);
+      font-size: 1.25rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .notice-box strong { color: var(--text); }
+
+    .alert {
+      display: none;
+      padding: 0.8rem 1rem;
+      border-radius: var(--radius-sm);
+      margin-bottom: 1rem;
+      font-size: 0.87rem;
+      line-height: 1.45;
+    }
+
+    .alert-error {
+      background: rgba(255, 51, 102, 0.15);
+      color: #FF809D;
+      border: 1px solid rgba(255, 51, 102, 0.35);
+    }
+
+    .alert-success {
+      background: rgba(6, 214, 160, 0.15);
+      color: #06D6A0;
+      border: 1px solid rgba(6, 214, 160, 0.35);
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.78rem 0.95rem;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus { border-color: var(--accent); }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1.5rem 0 1.15rem;
+    }
+
+    .parent-link-row {
+      text-align: center;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .parent-link-row a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .parent-link-row a:hover { text-decoration: underline; }
+
+    .signed-in-panel {
+      display: none;
+      text-align: center;
+    }
+
+    .age-pill {
+      display: inline-block;
+      background: rgba(6, 214, 160, 0.15);
+      color: var(--success);
+      border: 1px solid rgba(6, 214, 160, 0.3);
+      padding: 0.25rem 0.7rem;
+      border-radius: 99px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin: 0.5rem 0 1.25rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="brand">
+      <div class="brand-logo">K</div>
+      <div>
+        <span class="brand-title">KidsTube</span>
+        <span class="brand-badge">KIDS PORTAL</span>
+      </div>
+    </a>
+    <div style="display:flex; gap:0.65rem; align-items:center; flex-wrap:wrap;">
+      <a href="index.html" class="btn btn-secondary">
+        <span class="material-symbols-rounded">play_circle</span> Browse Showcase
+      </a>
+      <a href="index.html?mode=studio" class="btn btn-secondary">
+        <span class="material-symbols-rounded">admin_panel_settings</span> Parent Studio
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <div class="login-card">
+      <div class="kid-hero">
+        <div class="kid-icon-wrap">
+          <span class="material-symbols-rounded" style="font-size:2rem;">child_care</span>
+        </div>
+        <h1>Kids &amp; User Login</h1>
+        <p>Sign in to watch your parent-approved channels and age-safe videos.</p>
+      </div>
+
+      <div class="notice-box">
+        <span class="material-symbols-rounded">verified_user</span>
+        <div>
+          <strong>Parent-Registered Access Only:</strong> Kids cannot self-register. You can only log in if your email has been registered by your parent or guardian in <strong>KidsTube Studio</strong>.
+        </div>
+      </div>
+
+      <div id="kidsAuthAlert" class="alert"></div>
+
+      <form id="kidsLoginForm" onsubmit="handleKidsLogin(event)">
+        <div class="form-group">
+          <label for="kidEmail">Your Registered Email</label>
+          <input type="email" id="kidEmail" required autocomplete="email" placeholder="kid@example.com" />
+        </div>
+        <div class="form-group">
+          <label for="kidPassword">Password</label>
+          <input type="password" id="kidPassword" required autocomplete="current-password" placeholder="••••••••" />
+        </div>
+        <button type="submit" id="kidLoginSubmitBtn" class="btn btn-primary" style="width:100%; margin-top:0.25rem;">
+          <span class="material-symbols-rounded">login</span> Sign In to KidsTube
+        </button>
+      </form>
+
+      <div id="alreadySignedInPanel" class="signed-in-panel">
+        <p style="color:var(--text-muted); font-size:0.9rem;">Signed in as</p>
+        <h2 id="signedInName" style="font-size:1.25rem; margin-top:0.25rem;"></h2>
+        <div id="signedInAgePill" class="age-pill"></div>
+        <div style="display:flex; flex-direction:column; gap:0.65rem;">
+          <a href="index.html" class="btn btn-primary" style="width:100%;">
+            <span class="material-symbols-rounded">smart_display</span> Go to My Kids Feed
+          </a>
+          <button type="button" class="btn btn-secondary" style="width:100%;" onclick="signOutKid()">
+            <span class="material-symbols-rounded">logout</span> Sign Out
+          </button>
+        </div>
+      </div>
+
+      <hr class="divider" />
+      <div class="parent-link-row">
+        Are you a parent or guardian? <a href="index.html?mode=studio">Sign in to Parent Studio</a> to register your child's email.
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const API_BASE = (() => {
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const defaultApi = isLocal ? 'http://localhost:4000' : 'https://kidstube-api.gamantha.my.id';
+      const param = new URLSearchParams(window.location.search).get('api');
+      if (param) {
+        const cleaned = param.replace(/\/+$/, '');
+        localStorage.setItem('kidstube_api_url', cleaned);
+        return cleaned;
+      }
+      const saved = localStorage.getItem('kidstube_api_url');
+      if (saved && (isLocal || !saved.includes('localhost'))) {
+        return saved.replace(/\/+$/, '');
+      }
+      return defaultApi;
+    })();
+    const apiUrl = (path) => `${API_BASE}${path}`;
+    const AUTH_TOKEN_KEY = 'kidstube_auth_token';
+
+    function showAlert(message, isError = true) {
+      const el = document.getElementById('kidsAuthAlert');
+      el.textContent = message;
+      el.className = isError ? 'alert alert-error' : 'alert alert-success';
+      el.style.display = 'block';
+    }
+
+    function showSignedInState(user) {
+      document.getElementById('kidsLoginForm').style.display = 'none';
+      document.getElementById('alreadySignedInPanel').style.display = 'block';
+      document.getElementById('signedInName').textContent = `${user.name || user.email} (${user.email})`;
+      document.getElementById('signedInAgePill').textContent = `Age Filter: ${user.ageRating || 'ALL'}`;
+    }
+
+    function signOutKid() {
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+      document.getElementById('alreadySignedInPanel').style.display = 'none';
+      document.getElementById('kidsLoginForm').style.display = 'block';
+      document.getElementById('kidsAuthAlert').style.display = 'none';
+    }
+
+    async function handleKidsLogin(e) {
+      e.preventDefault();
+      document.getElementById('kidsAuthAlert').style.display = 'none';
+      const btn = document.getElementById('kidLoginSubmitBtn');
+      const email = document.getElementById('kidEmail').value.trim();
+      const password = document.getElementById('kidPassword').value;
+
+      btn.disabled = true;
+      try {
+        const res = await fetch(apiUrl('/api/auth/login'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, loginType: 'CHILD' })
+        });
+        const json = await res.json();
+
+        if (!res.ok || !json.success) {
+          showAlert(json.message || 'Unable to sign in. Please check your email and password.', true);
+          btn.disabled = false;
+          return;
+        }
+
+        localStorage.setItem(AUTH_TOKEN_KEY, json.token);
+        showAlert(`Welcome back, ${json.user.name || json.user.email}! Redirecting to your KidsTube feed...`, false);
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 700);
+      } catch {
+        showAlert('Unable to reach KidsTube server at ' + API_BASE, true);
+        btn.disabled = false;
+      }
+    }
+
+    async function checkExistingSession() {
+      const token = localStorage.getItem(AUTH_TOKEN_KEY);
+      if (!token) return;
+      try {
+        const res = await fetch(apiUrl('/api/auth/me'), {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const json = await res.json();
+        if (res.ok && json.success && json.user?.role === 'CHILD') {
+          showSignedInState(json.user);
+        }
+      } catch {
+        // Ignore silent check failure
+      }
+    }
+
+    checkExistingSession();
+  </script>
+</body>
+</html>

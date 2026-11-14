@@ -486,7 +486,7 @@
 <body>
 
   <header>
-    <a href="/" class="brand">
+    <a href="/" class="brand" onclick="event.preventDefault(); openHome();">
       <div class="brand-logo">K</div>
       <div>
         <span class="brand-title">KidsTube</span>
@@ -494,9 +494,9 @@
       </div>
     </a>
     <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
-      <button id="btnModeShowcase" class="btn btn-primary" onclick="openShowcase()">
-        <span class="material-symbols-rounded">explore</span> Showcase
-      </button>
+      <a id="btnKidsLogin" href="kids-login.html" class="btn btn-secondary">
+        <span class="material-symbols-rounded">child_care</span> Kids Login
+      </a>
       <button id="btnModeStudio" class="btn btn-secondary" onclick="openStudio()">
         <span class="material-symbols-rounded">admin_panel_settings</span> Curator Studio
       </button>
@@ -538,15 +538,24 @@
   <!-- Auth Gate (Login / Register / Email Verification) -->
   <div id="authGate" style="display:none; min-height:calc(100vh - 80px); align-items:center; justify-content:center; padding:2rem;">
     <div class="card" style="width:100%; max-width:440px; padding:2rem;">
-      <div style="text-align:center; margin-bottom:1.5rem;">
+      <div style="text-align:center; margin-bottom:1.25rem;">
         <div class="brand-logo" style="margin:0 auto 0.75rem;">K</div>
-        <h2 style="margin-bottom:0.25rem;">KidsTube Studio</h2>
-        <p style="color:var(--text-muted); font-size:0.9rem;">Sign in with a verified curator account to manage videos and channels.</p>
+        <h2 style="margin-bottom:0.25rem;">KidsTube Sign In</h2>
+        <p id="authSubtitle" style="color:var(--text-muted); font-size:0.9rem;">Sign in as a Parent to manage channels, or as a Child to watch.</p>
       </div>
 
-      <div style="display:flex; gap:0.5rem; margin-bottom:1.25rem;">
+      <div style="display:flex; gap:0.5rem; margin-bottom:0.85rem; background:var(--surface-light); padding:4px; border-radius:var(--radius-sm);">
+        <button id="roleBtnParent" class="btn btn-primary btn-sm" style="flex:1; justify-content:center;" onclick="switchLoginRole('PARENT')">Parent Login</button>
+        <button id="roleBtnChild" class="btn btn-secondary btn-sm" style="flex:1; justify-content:center;" onclick="switchLoginRole('CHILD')">Kids / Child Login</button>
+      </div>
+
+      <div id="authModeTabs" style="display:flex; gap:0.5rem; margin-bottom:1.25rem;">
         <button id="tabAuthLogin" class="btn btn-primary" style="flex:1;" onclick="switchAuthTab('login')">Sign In</button>
-        <button id="tabAuthRegister" class="btn btn-secondary" style="flex:1;" onclick="switchAuthTab('register')">Register</button>
+        <button id="tabAuthRegister" class="btn btn-secondary" style="flex:1;" onclick="switchAuthTab('register')">Register (Parents)</button>
+      </div>
+
+      <div id="childLoginNote" style="display:none; background:rgba(76,201,240,0.12); border:1px solid rgba(76,201,240,0.3); padding:0.7rem 0.9rem; border-radius:var(--radius-sm); font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem;">
+        Child accounts can only be registered by a parent inside <strong>KidsTube Studio</strong> using the child's email address.
       </div>
 
       <div id="authAlert" style="display:none; padding:0.75rem 1rem; border-radius:var(--radius-sm); margin-bottom:1rem; font-size:0.88rem;"></div>
@@ -701,6 +710,7 @@
       <button class="tab-btn active" onclick="switchTab('videos', this)">Curated Videos</button>
       <button class="tab-btn" onclick="switchTab('channels', this)">Channels (TV & On-Demand)</button>
       <button class="tab-btn" onclick="switchTab('playlists', this)">Playlists</button>
+      <button class="tab-btn" onclick="switchTab('kids', this)">My Kids</button>
       <button class="tab-btn" onclick="switchTab('settings', this)">Parental Defaults</button>
     </div>
 
@@ -756,7 +766,14 @@
               </select>
             </div>
           </div>
-          <div class="form-row" style="margin-bottom:0.75rem;">
+          <div class="form-row-3" style="margin-bottom:0.75rem;">
+            <div class="form-group">
+              <label>Visibility</label>
+              <select id="newChanVisibility">
+                <option value="PUBLIC">Public (Visible in KidsTube App)</option>
+                <option value="PRIVATE">Private (Owner & Invited Parents Only)</option>
+              </select>
+            </div>
             <div class="form-group">
               <label>Description</label>
               <input type="text" id="newChanDesc" placeholder="What kids will watch on this channel...">
@@ -778,6 +795,54 @@
     <!-- Tab 3: Playlists -->
     <div id="tabPlaylists" style="display:none;">
       <div class="video-grid" id="playlistsGrid"></div>
+    </div>
+
+    <!-- Tab: My Kids (Parent Child Registration) -->
+    <div id="tabKids" style="display:none;">
+      <div class="channel-creator-box" style="margin-bottom:1.5rem;">
+        <h3 style="font-family:'Fredoka',cursive; font-size:1.2rem; margin-bottom:0.5rem; display:flex; align-items:center; gap:0.5rem;">
+          <span class="material-symbols-rounded" style="color:var(--accent);">child_care</span>
+          Register a Child Account
+        </h3>
+        <p style="color:var(--text-muted); font-size:0.86rem; margin-bottom:1rem;">
+          Children cannot self-register. Register your child here using their email address so they can sign in via <strong>Kids / Child Login</strong>.
+        </p>
+        <form onsubmit="registerChildAccount(event)">
+          <div class="form-row-3" style="margin-bottom:0.75rem;">
+            <div class="form-group">
+              <label>Child Name</label>
+              <input type="text" id="childNameInput" placeholder="e.g. Leo" required>
+            </div>
+            <div class="form-group">
+              <label>Child Email Account</label>
+              <input type="email" id="childEmailInput" placeholder="leo@example.com" required>
+            </div>
+            <div class="form-group">
+              <label>Password (min 6 chars)</label>
+              <input type="password" id="childPasswordInput" minlength="6" placeholder="••••••••" required>
+            </div>
+          </div>
+          <div class="form-row" style="margin-bottom:0.85rem; align-items:end;">
+            <div class="form-group">
+              <label>Age Rating Filter</label>
+              <select id="childAgeRatingInput">
+                <option value="ALL">All Ages</option>
+                <option value="TODDLER">Toddler (2-4)</option>
+                <option value="YOUNG_KIDS">Young Kids (5-8)</option>
+                <option value="OLDER_KIDS">Older Kids (9-12)</option>
+              </select>
+            </div>
+            <div>
+              <button type="submit" class="btn btn-primary">
+                <span class="material-symbols-rounded">person_add</span> Register Child
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <h3 style="margin-bottom:0.75rem;">Registered Child Accounts</h3>
+      <div id="childrenList" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
     </div>
 
     <!-- Tab 4: Parental Settings -->
@@ -817,42 +882,166 @@
     </div>
   </div>
 
-  <!-- Channel Videos & Schedule Manager Modal -->
+  <!-- Channel Videos, Suggestions & Comments Manager Modal -->
   <div class="modal" id="channelModal">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width:860px;">
       <div class="modal-header">
         <div>
           <h3 id="chanModalTitle" style="font-size: 1.2rem; font-weight:700;">Manage Channel</h3>
-          <span id="chanModalBadge"></span>
+          <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; margin-top:0.25rem;">
+            <span id="chanModalBadge"></span>
+            <span id="chanRoleBadge" style="font-size:0.75rem; padding:2px 8px; border-radius:999px; background:rgba(67,97,238,0.12); color:var(--secondary); font-weight:600;"></span>
+          </div>
         </div>
         <button class="btn-icon" onclick="closeChannelModal()">
           <span class="material-symbols-rounded">close</span>
         </button>
       </div>
       <div class="modal-body">
-        <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg); padding:1rem; border-radius:var(--radius-sm); margin-bottom:1.25rem; border:1px solid var(--border);">
-          <div>
-            <div style="font-weight:600;">Channel Playback Mode</div>
-            <div style="font-size:0.8rem; color:var(--text-muted);" id="chanModeExplain"></div>
+        <div style="display:flex; gap:0.5rem; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem; flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" id="chanTabBtnVideos" onclick="switchChannelModalTab('videos')">Videos &amp; Comments</button>
+          <button class="btn btn-secondary btn-sm" id="chanTabBtnSuggest" onclick="switchChannelModalTab('suggest')">Suggest Video</button>
+          <button class="btn btn-secondary btn-sm" id="chanTabBtnQueue" onclick="switchChannelModalTab('queue')">Suggestions Queue <span id="chanQueueCountBadge"></span></button>
+        </div>
+
+        <!-- Channel Modal Tab 1: Videos & Comments -->
+        <div id="chanTabVideos">
+          <div id="chanOwnerControls" style="display:flex; justify-content:space-between; align-items:center; background:var(--bg); padding:1rem; border-radius:var(--radius-sm); margin-bottom:1.25rem; border:1px solid var(--border); gap:0.75rem; flex-wrap:wrap;">
+            <div>
+              <div style="font-weight:600;">Channel Playback &amp; Visibility</div>
+              <div style="font-size:0.8rem; color:var(--text-muted);" id="chanModeExplain"></div>
+            </div>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button class="btn btn-secondary btn-sm" id="btnToggleMode" onclick="toggleChannelMode()">Switch Mode</button>
+              <button class="btn btn-secondary btn-sm" id="btnToggleVisibility" onclick="toggleChannelVisibility()">Toggle Visibility</button>
+              <button class="btn btn-primary btn-sm" id="btnOpenShareFromChan" onclick="openShareModalFromChannel()">Share &amp; Permissions</button>
+            </div>
           </div>
-          <button class="btn btn-secondary btn-sm" id="btnToggleMode" onclick="toggleChannelMode()">Switch Mode</button>
+
+          <div id="liveBroadcastBox" style="display:none; background:rgba(255,51,102,0.1); border:1px solid rgba(255,51,102,0.3); padding:1rem; border-radius:var(--radius-sm); margin-bottom:1.25rem;">
+            <div style="font-weight:700; color:#FF3366; font-size:0.85rem; margin-bottom:0.25rem;">CURRENTLY AIRING LIVE</div>
+            <div id="liveNowTitle" style="font-weight:600;"></div>
+            <div id="liveNowOffset" style="font-size:0.8rem; color:var(--text-muted);"></div>
+          </div>
+
+          <div id="chanDirectAddBox" style="display:none; margin-bottom:1.5rem; background:var(--surface-light); padding:1rem; border-radius:var(--radius-sm); border:1px solid var(--border);">
+            <h4 style="margin-bottom:0.75rem;">Add Video to This Channel</h4>
+            <div style="display:flex; gap:0.75rem; margin-bottom:0.75rem; flex-wrap:wrap;">
+              <select id="addVidToChanSelect" style="flex:1; min-width:220px; background:var(--surface); border:1px solid var(--border); color:var(--text); padding:0.5rem; border-radius:var(--radius-sm);"></select>
+              <button class="btn btn-primary btn-sm" onclick="addSelectedVideoToChannel()">+ Link Existing Video</button>
+            </div>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+              <input type="text" id="chanDirectUrl" placeholder="Or paste YouTube / MP4 URL..." style="flex:2; min-width:200px; padding:0.5rem; border:1px solid var(--border); border-radius:var(--radius-sm);">
+              <input type="text" id="chanDirectTitle" placeholder="Video title..." style="flex:1; min-width:150px; padding:0.5rem; border:1px solid var(--border); border-radius:var(--radius-sm);">
+              <button class="btn btn-secondary btn-sm" onclick="addNewVideoDirectlyToChannel()">+ Publish URL</button>
+            </div>
+          </div>
+
+          <h4 style="margin-bottom:0.75rem;">Channel Lineup / Schedule</h4>
+          <div id="chanVideosList"></div>
+
+          <!-- Comments Panel for Selected Video -->
+          <div id="chanCommentsPanel" style="display:none; margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid var(--border);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+              <h4 id="chanCommentsTitle" style="margin:0;">Video Comments</h4>
+              <button class="btn btn-secondary btn-sm" onclick="closeCommentsPanel()">Hide Comments</button>
+            </div>
+            <div id="chanCommentsList" style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1rem; max-height:240px; overflow-y:auto;"></div>
+            <form id="chanCommentForm" onsubmit="submitChannelComment(event)" style="display:flex; gap:0.5rem;">
+              <input type="text" id="chanCommentInput" placeholder="Write a parent/contributor comment..." style="flex:1; padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius-sm);" required>
+              <button type="submit" class="btn btn-primary btn-sm">Post</button>
+            </form>
+            <div id="chanCommentNoPerm" style="display:none; font-size:0.82rem; color:var(--text-muted);">You do not have comment permission on this channel.</div>
+          </div>
         </div>
 
-        <div id="liveBroadcastBox" style="display:none; background:rgba(255,51,102,0.1); border:1px solid rgba(255,51,102,0.3); padding:1rem; border-radius:var(--radius-sm); margin-bottom:1.25rem;">
-          <div style="font-weight:700; color:#FF3366; font-size:0.85rem; margin-bottom:0.25rem;">ðŸ”´ CURRENTLY AIRING LIVE</div>
-          <div id="liveNowTitle" style="font-weight:600;"></div>
-          <div id="liveNowOffset" style="font-size:0.8rem; color:var(--text-muted);"></div>
+        <!-- Channel Modal Tab 2: Suggest Video -->
+        <div id="chanTabSuggest" style="display:none;">
+          <form onsubmit="submitVideoSuggestion(event)" style="display:flex; flex-direction:column; gap:0.75rem;">
+            <div class="form-group">
+              <label>YouTube or Video URL</label>
+              <input type="text" id="sugUrl" placeholder="https://www.youtube.com/watch?v=..." required>
+            </div>
+            <div class="form-group">
+              <label>Video Title</label>
+              <input type="text" id="sugTitle" placeholder="e.g. Fun Solar System Song for Kids" required>
+            </div>
+            <div class="form-group">
+              <label>Note to Channel Owner (Optional)</label>
+              <input type="text" id="sugNote" placeholder="Why this is great for the kids...">
+            </div>
+            <button type="submit" class="btn btn-primary">Send Suggestion for Owner Approval</button>
+          </form>
         </div>
 
-        <h4 style="margin-bottom:0.75rem;">Add Curated Video to This Channel</h4>
-        <div style="display:flex; gap:0.75rem; margin-bottom:1.5rem;">
-          <select id="addVidToChanSelect" style="flex:1; background:var(--bg); border:1px solid var(--border); color:white; padding:0.5rem; border-radius:var(--radius-sm);"></select>
-          <button class="btn btn-primary btn-sm" onclick="addSelectedVideoToChannel()">+ Add Video</button>
+        <!-- Channel Modal Tab 3: Suggestions Queue -->
+        <div id="chanTabQueue" style="display:none;">
+          <div id="chanSuggestionsList" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
         </div>
-
-        <h4 style="margin-bottom:0.75rem;">Channel Lineup / Schedule</h4>
-        <div id="chanVideosList"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- Share & Permissions Modal (Owner Only) -->
+  <div class="modal" id="shareModal">
+    <div class="modal-content" style="max-width:780px;">
+      <div class="modal-header">
+        <div>
+          <h3 id="shareModalTitle" style="font-size:1.2rem; font-weight:700;">Share &amp; Permissions</h3>
+          <div style="font-size:0.82rem; color:var(--text-muted);">Create invite links with presets or customize each member individually.</div>
+        </div>
+        <button class="btn-icon" onclick="closeShareModal()">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="background:var(--surface-light); padding:1rem; border-radius:var(--radius-sm); border:1px solid var(--border); margin-bottom:1.25rem;">
+          <h4 style="margin-bottom:0.75rem;">Create Shareable Invite Link</h4>
+          <form onsubmit="createInviteLink(event)">
+            <div class="form-row" style="margin-bottom:0.75rem;">
+              <div class="form-group">
+                <label>Link Label (Optional)</label>
+                <input type="text" id="invLabel" placeholder="e.g. Grandparents, Aunt Sarah">
+              </div>
+              <div class="form-group">
+                <label>Permission Preset</label>
+                <select id="invPreset" onchange="applyInvitePreset()">
+                  <option value="VIEWER">Viewer (View channel only)</option>
+                  <option value="COMMENTER">Commenter (View + Comment)</option>
+                  <option value="SUGGESTER" selected>Suggester (View + Suggest Videos + Comment)</option>
+                  <option value="CONTRIBUTOR">Contributor (View + Add Videos + Suggest + Comment)</option>
+                  <option value="CUSTOM">Custom Permissions</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:flex; gap:1.25rem; flex-wrap:wrap; margin-bottom:0.85rem; font-size:0.88rem;">
+              <label style="display:flex; align-items:center; gap:0.4rem;"><input type="checkbox" id="invCanAdd" onchange="onInvitePermToggle()"> Add Videos Directly</label>
+              <label style="display:flex; align-items:center; gap:0.4rem;"><input type="checkbox" id="invCanSuggest" checked onchange="onInvitePermToggle()"> Suggest Videos</label>
+              <label style="display:flex; align-items:center; gap:0.4rem;"><input type="checkbox" id="invCanComment" checked onchange="onInvitePermToggle()"> Comment on Videos</label>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">Generate Share Link</button>
+          </form>
+        </div>
+
+        <h4 style="margin-bottom:0.5rem;">Active Invite Links</h4>
+        <div id="shareInvitesList" style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1.5rem;"></div>
+
+        <h4 style="margin-bottom:0.5rem;">Channel Members (Individual Permissions)</h4>
+        <div id="shareMembersList" style="display:flex; flex-direction:column; gap:0.6rem;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Invite Accept Modal -->
+  <div class="modal" id="inviteModal">
+    <div class="modal-content" style="max-width:500px;">
+      <div class="modal-header">
+        <h3 style="font-size:1.2rem; font-weight:700;">Channel Invitation</h3>
+        <button class="btn-icon" onclick="closeInviteModal()">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+      <div class="modal-body" id="inviteModalBody"></div>
     </div>
   </div>
 
@@ -900,16 +1089,31 @@
     }
 
     function setModeButtons(mode) {
-      document.getElementById('btnModeShowcase').className = mode === 'showcase' ? 'btn btn-primary' : 'btn btn-secondary';
+      // Showcase is the main homepage; only style Curator Studio button
       document.getElementById('btnModeStudio').className = mode === 'studio' ? 'btn btn-primary' : 'btn btn-secondary';
     }
 
-    function openShowcase() {
+    function openHome(useKidsFeed = false) {
       setModeButtons('showcase');
       document.getElementById('showcaseApp').style.display = 'block';
       document.getElementById('authGate').style.display = 'none';
       document.getElementById('studioApp').style.display = 'none';
-      loadShowcase();
+      loadShowcase(useKidsFeed || (currentUser && currentUser.role === 'CHILD'));
+    }
+
+    let activeLoginRole = 'PARENT';
+    let currentUser = null;
+
+    function switchLoginRole(role) {
+      activeLoginRole = role === 'CHILD' ? 'CHILD' : 'PARENT';
+      document.getElementById('roleBtnParent').className = activeLoginRole === 'PARENT' ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm';
+      document.getElementById('roleBtnChild').className = activeLoginRole === 'CHILD' ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm';
+      document.getElementById('authModeTabs').style.display = activeLoginRole === 'PARENT' ? 'flex' : 'none';
+      document.getElementById('childLoginNote').style.display = activeLoginRole === 'CHILD' ? 'block' : 'none';
+      document.getElementById('loginEmail').placeholder = activeLoginRole === 'CHILD' ? 'child@example.com' : 'parent@example.com';
+      if (activeLoginRole === 'CHILD') {
+        switchAuthTab('login');
+      }
     }
 
     async function openStudio() {
@@ -928,14 +1132,29 @@
           handleLogout();
           return;
         }
-        showStudioApp(json.user);
-        loadStats();
-        loadVideos();
-        loadChannels();
+        handleAuthenticatedUser(json.user);
       } catch {
         showAuthGate();
         showAuthAlert('Unable to reach API server at ' + API_BASE, true);
       }
+    }
+
+    function handleAuthenticatedUser(user) {
+      currentUser = user;
+      document.getElementById('btnKidsLogin').style.display = 'none';
+      if (user?.role === 'CHILD') {
+        document.getElementById('authGate').style.display = 'none';
+        document.getElementById('studioApp').style.display = 'none';
+        document.getElementById('userBar').style.display = 'flex';
+        document.getElementById('userEmailLabel').textContent = `${user.name || user.email} (Kid Mode)`;
+        openHome(true);
+        return;
+      }
+      showStudioApp(user);
+      loadStats();
+      loadVideos();
+      loadChannels();
+      if (pendingInviteToken) checkInviteQueryParam();
     }
 
     function showAuthGate() {
@@ -957,7 +1176,9 @@
 
     function handleLogout() {
       authToken = '';
+      currentUser = null;
       localStorage.removeItem(AUTH_TOKEN_KEY);
+      document.getElementById('btnKidsLogin').style.display = 'inline-flex';
       showAuthGate();
     }
 
@@ -967,10 +1188,23 @@
         headers.set('Authorization', `Bearer ${authToken}`);
       }
       const res = await fetch(apiUrl(path), { ...options, headers });
-      if (res.status === 401 || res.status === 403) {
+      if (res.status === 401) {
         handleLogout();
-        showAuthAlert('Your session expired or requires verification. Please sign in again.', true);
+        showAuthAlert('Your session expired. Please sign in again.', true);
         throw new Error('Unauthorized');
+      }
+      if (res.status === 403) {
+        const cloned = res.clone();
+        try {
+          const data = await cloned.json();
+          if (data && data.needsVerification) {
+            handleLogout();
+            showAuthAlert('Email verification required. Please verify your account.', true);
+            throw new Error('Needs verification');
+          }
+        } catch (err) {
+          if (err && err.message === 'Needs verification') throw err;
+        }
       }
       return res;
     }
@@ -986,7 +1220,7 @@
         const res = await fetch(apiUrl('/api/auth/login'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
+          body: JSON.stringify({ email, password, loginType: activeLoginRole })
         });
         const json = await res.json();
         if (!res.ok || !json.success) {
@@ -999,10 +1233,7 @@
         }
         authToken = json.token;
         localStorage.setItem(AUTH_TOKEN_KEY, authToken);
-        showStudioApp(json.user);
-        loadStats();
-        loadVideos();
-        loadChannels();
+        handleAuthenticatedUser(json.user);
       } catch (err) {
         showAuthAlert('Unable to reach API server at ' + API_BASE, true);
       }
@@ -1076,8 +1307,13 @@
       }
     }
 
+    let activeChannelPerms = { isOwner: false, canAddVideo: false, canSuggestVideo: false, canComment: false };
+    let activeCommentsVideoId = null;
+    let activeShareChannelId = null;
+    let pendingInviteToken = new URLSearchParams(window.location.search).get('invite') || '';
+
     async function loadChannels() {
-      const res = await authFetch('/api/channels');
+      const res = await authFetch('/api/my/channels');
       const json = await res.json();
       if (json.success) {
         allChannels = json.data;
@@ -1089,8 +1325,9 @@
     function populateChannelSelect() {
       const sel = document.getElementById('formChannelSelect');
       if (!sel) return;
-      sel.innerHTML = allChannels.map(c =>
-        `<option value="${c.id}">${c.channelType === 'LIVE_TV' ? 'ðŸ“º ' : 'â–¶ï¸ '}${c.name}</option>`
+      const writable = allChannels.filter(c => c.role === 'OWNER' || c.permissions?.canAddVideo);
+      sel.innerHTML = writable.map(c =>
+        `<option value="${c.id}">${c.channelType === 'LIVE_TV' ? '[LIVE] ' : ''}${c.name}</option>`
       ).join('');
     }
 
@@ -1098,24 +1335,44 @@
       const grid = document.getElementById('channelsGrid');
       grid.innerHTML = allChannels.map(c => {
         const isLive = c.channelType === 'LIVE_TV';
+        const isOwner = c.role === 'OWNER';
+        const isPrivate = c.visibility === 'PRIVATE';
+        const roleLabel = isOwner
+          ? 'Owner'
+          : (c.role === 'MEMBER' ? `Member (${c.preset || 'CUSTOM'})` : 'Public Channel');
+        const pendingBadge = (isOwner && c.pendingSuggestionsCount > 0)
+          ? `<span style="background:var(--warning); color:#000; font-size:0.72rem; font-weight:700; padding:2px 8px; border-radius:999px;">${c.pendingSuggestionsCount} pending</span>`
+          : '';
         return `
           <div class="video-card" style="padding:1.5rem; text-align:center;">
-            <div style="margin-bottom:0.75rem;">
+            <div style="margin-bottom:0.75rem; display:flex; gap:0.4rem; justify-content:center; flex-wrap:wrap;">
               <span class="${isLive ? 'pill-live' : 'pill-ondemand'}">
-                ${isLive ? 'ðŸ”´ LIVE TV (Scheduled)' : 'â–¶ï¸ ON-DEMAND (YouTube-Style)'}
+                ${isLive ? 'LIVE TV' : 'ON-DEMAND'}
               </span>
+              <span style="font-size:0.72rem; padding:3px 8px; border-radius:999px; background:${isPrivate ? 'rgba(255,183,3,0.15)' : 'rgba(6,214,160,0.15)'}; color:${isPrivate ? '#b45309' : '#047857'}; font-weight:700;">
+                ${isPrivate ? 'PRIVATE' : 'PUBLIC'}
+              </span>
+              <span style="font-size:0.72rem; padding:3px 8px; border-radius:999px; background:rgba(67,97,238,0.12); color:var(--secondary); font-weight:700;">
+                ${roleLabel}
+              </span>
+              ${pendingBadge}
             </div>
             <img src="${c.avatarUrl}" style="width:76px; height:76px; border-radius:50%; margin:0 auto 0.75rem; object-fit:cover; border:2px solid ${isLive ? 'var(--primary)' : 'var(--accent)'};">
             <h4 style="font-size:1.1rem; margin-bottom:0.25rem;">${c.name}</h4>
-            <div style="color:var(--accent); font-size:0.8rem; margin-bottom:0.6rem;">${c.category} â€¢ ${c.videoCount || 0} videos</div>
+            <div style="color:var(--accent); font-size:0.8rem; margin-bottom:0.6rem;">${c.category} • ${c.videoCount || 0} videos</div>
             <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.25rem; flex:1;">${c.description}</p>
-            <div style="display:flex; gap:0.5rem; justify-content:center;">
+            <div style="display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap;">
               <button class="btn btn-primary btn-sm" onclick="openChannelModal('${c.id}')">
-                <span class="material-symbols-rounded" style="font-size:16px;">playlist_add</span> Manage Videos
+                <span class="material-symbols-rounded" style="font-size:16px;">playlist_add</span> Open Workspace
               </button>
-              <button class="btn btn-secondary btn-sm" onclick="deleteChannel('${c.id}')" title="Delete Channel">
-                <span class="material-symbols-rounded" style="font-size:16px;">delete</span>
-              </button>
+              ${isOwner ? `
+                <button class="btn btn-secondary btn-sm" onclick="openShareModal('${c.id}')" title="Share & Permissions">
+                  <span class="material-symbols-rounded" style="font-size:16px;">group_add</span> Share
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="deleteChannel('${c.id}')" title="Delete Channel">
+                  <span class="material-symbols-rounded" style="font-size:16px;">delete</span>
+                </button>
+              ` : ''}
             </div>
           </div>
         `;
@@ -1128,11 +1385,12 @@
         name: document.getElementById('newChanName').value,
         channelType: document.getElementById('newChanType').value,
         category: document.getElementById('newChanCat').value,
+        visibility: document.getElementById('newChanVisibility').value,
         description: document.getElementById('newChanDesc').value,
         avatarUrl: document.getElementById('newChanAvatar').value || undefined
       };
 
-      const res = await authFetch('/api/admin/channels', {
+      const res = await authFetch('/api/channels', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -1143,37 +1401,71 @@
         await loadChannels();
         loadStats();
         alert('Channel created!');
+      } else {
+        alert(json.message || 'Failed to create channel');
       }
     }
 
     async function deleteChannel(id) {
       if (!confirm('Delete this channel? Videos will remain in your library.')) return;
-      await authFetch('/api/admin/channels/' + id, { method: 'DELETE' });
+      const res = await authFetch('/api/channels/' + id, { method: 'DELETE' });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Cannot delete channel');
       await loadChannels();
       loadStats();
+    }
+
+    function switchChannelModalTab(tab) {
+      document.getElementById('chanTabVideos').style.display = tab === 'videos' ? 'block' : 'none';
+      document.getElementById('chanTabSuggest').style.display = tab === 'suggest' ? 'block' : 'none';
+      document.getElementById('chanTabQueue').style.display = tab === 'queue' ? 'block' : 'none';
+
+      document.getElementById('chanTabBtnVideos').className = tab === 'videos' ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm';
+      document.getElementById('chanTabBtnSuggest').className = tab === 'suggest' ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm';
+      document.getElementById('chanTabBtnQueue').className = tab === 'queue' ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm';
+
+      if (tab === 'queue' && activeManageChannel) {
+        loadChannelSuggestions(activeManageChannel.id);
+      }
     }
 
     async function openChannelModal(channelId) {
       const res = await authFetch('/api/channels/' + channelId);
       const json = await res.json();
-      if (!json.success) return;
+      if (!json.success) return alert(json.message || 'Cannot open channel');
 
-      const { channel, videos, liveState } = json.data;
+      const { channel, videos, liveState, permissions } = json.data;
       activeManageChannel = channel;
+      activeChannelPerms = permissions || { isOwner: false, canAddVideo: false, canSuggestVideo: false, canComment: false };
+      closeCommentsPanel();
+      switchChannelModalTab('videos');
 
       document.getElementById('chanModalTitle').textContent = channel.name;
       const isLive = channel.channelType === 'LIVE_TV';
-      document.getElementById('chanModalBadge').innerHTML = isLive
-        ? '<span class="pill-live">ðŸ”´ LIVE TV CHANNEL</span>'
-        : '<span class="pill-ondemand">â–¶ï¸ ON-DEMAND CHANNEL</span>';
+      const isPrivate = channel.visibility === 'PRIVATE';
+      document.getElementById('chanModalBadge').innerHTML =
+        `<span class="${isLive ? 'pill-live' : 'pill-ondemand'}">${isLive ? 'LIVE TV' : 'ON-DEMAND'}</span> ` +
+        `<span style="font-size:0.75rem; padding:2px 8px; border-radius:999px; background:var(--surface-light);">${isPrivate ? 'Private' : 'Public'}</span>`;
+
+      document.getElementById('chanRoleBadge').textContent = activeChannelPerms.isOwner
+        ? 'Owner (Full Control)'
+        : `Permissions: ${[
+            activeChannelPerms.canAddVideo ? 'Add Videos' : null,
+            activeChannelPerms.canSuggestVideo ? 'Suggest Videos' : null,
+            activeChannelPerms.canComment ? 'Comment' : null
+          ].filter(Boolean).join(', ') || 'View Only'}`;
+
+      document.getElementById('chanOwnerControls').style.display = activeChannelPerms.isOwner ? 'flex' : 'none';
+      document.getElementById('chanDirectAddBox').style.display = (activeChannelPerms.isOwner || activeChannelPerms.canAddVideo) ? 'block' : 'none';
+      document.getElementById('chanTabBtnSuggest').style.display = (activeChannelPerms.isOwner || activeChannelPerms.canSuggestVideo) ? 'inline-flex' : 'none';
+      document.getElementById('chanTabBtnQueue').style.display = (activeChannelPerms.isOwner || activeChannelPerms.canSuggestVideo) ? 'inline-flex' : 'none';
 
       document.getElementById('chanModeExplain').textContent = isLive
         ? 'Plays videos sequentially by wall-clock time. Viewers cannot seek or skip.'
         : 'YouTube-style channel. Viewers can browse and play any video anytime.';
 
-      document.getElementById('btnToggleMode').textContent = isLive
-        ? 'Switch to On-Demand'
-        : 'Switch to Live TV';
+      document.getElementById('btnToggleMode').textContent = isLive ? 'Switch to On-Demand' : 'Switch to Live TV';
+      document.getElementById('btnToggleVisibility').textContent = isPrivate ? 'Make Public' : 'Make Private';
 
       const liveBox = document.getElementById('liveBroadcastBox');
       if (isLive && liveState && liveState.currentVideo) {
@@ -1185,7 +1477,6 @@
         liveBox.style.display = 'none';
       }
 
-      // Populate dropdown of videos not yet in channel
       const inChannelIds = new Set(videos.map(v => v.id));
       const available = allVideos.filter(v => !inChannelIds.has(v.id));
       const addSel = document.getElementById('addVidToChanSelect');
@@ -1202,15 +1493,26 @@
                 <img src="${v.thumbnailUrl}" style="width:56px; height:34px; object-fit:cover; border-radius:4px;">
                 <div>
                   <div style="font-weight:600; font-size:0.9rem;">${v.title}</div>
-                  <div style="font-size:0.75rem; color:var(--text-muted);">${formatTime(v.duration)} â€¢ ${v.sourceType}</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">${formatTime(v.duration)} • ${v.sourceType}</div>
                 </div>
               </div>
-              <button class="btn-icon delete" onclick="removeVideoFromChannel('${channel.id}', '${v.id}')" title="Remove from channel">
-                <span class="material-symbols-rounded">remove_circle</span>
-              </button>
+              <div style="display:flex; gap:0.4rem; align-items:center;">
+                <button class="btn btn-secondary btn-sm" onclick="openCommentsPanel('${v.id}', '${v.title.replace(/'/g, "\\'")}')">
+                  <span class="material-symbols-rounded" style="font-size:16px;">chat</span> Comments
+                </button>
+                ${activeChannelPerms.isOwner ? `
+                  <button class="btn-icon delete" onclick="removeVideoFromChannel('${channel.id}', '${v.id}')" title="Remove from channel">
+                    <span class="material-symbols-rounded">remove_circle</span>
+                  </button>
+                ` : ''}
+              </div>
             </div>
           `).join('')
-        : '<div style="color:var(--text-muted); padding:1rem; text-align:center;">No videos in this channel yet. Add one above!</div>';
+        : '<div style="color:var(--text-muted); padding:1rem; text-align:center;">No videos in this channel yet.</div>';
+
+      if (activeChannelPerms.isOwner || activeChannelPerms.canSuggestVideo) {
+        loadChannelSuggestions(channel.id);
+      }
 
       document.getElementById('channelModal').style.display = 'flex';
     }
@@ -1218,15 +1520,28 @@
     function closeChannelModal() {
       document.getElementById('channelModal').style.display = 'none';
       activeManageChannel = null;
+      closeCommentsPanel();
     }
 
     async function toggleChannelMode() {
       if (!activeManageChannel) return;
       const newType = activeManageChannel.channelType === 'LIVE_TV' ? 'ON_DEMAND' : 'LIVE_TV';
-      await authFetch('/api/admin/channels/' + activeManageChannel.id, {
+      await authFetch('/api/channels/' + activeManageChannel.id, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ channelType: newType })
+      });
+      await loadChannels();
+      openChannelModal(activeManageChannel.id);
+    }
+
+    async function toggleChannelVisibility() {
+      if (!activeManageChannel) return;
+      const newVis = activeManageChannel.visibility === 'PRIVATE' ? 'PUBLIC' : 'PRIVATE';
+      await authFetch('/api/channels/' + activeManageChannel.id, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ visibility: newVis })
       });
       await loadChannels();
       openChannelModal(activeManageChannel.id);
@@ -1236,19 +1551,378 @@
       if (!activeManageChannel) return;
       const videoId = document.getElementById('addVidToChanSelect').value;
       if (!videoId) return;
-      await authFetch('/api/admin/channels/' + activeManageChannel.id + '/videos', {
+      const res = await authFetch('/api/channels/' + activeManageChannel.id + '/videos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ videoId })
       });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to add video');
+      await loadChannels();
+      openChannelModal(activeManageChannel.id);
+    }
+
+    async function addNewVideoDirectlyToChannel() {
+      if (!activeManageChannel) return;
+      const sourceUrl = document.getElementById('chanDirectUrl').value.trim();
+      const title = document.getElementById('chanDirectTitle').value.trim();
+      if (!sourceUrl || !title) return alert('Please provide both URL and title.');
+      const res = await authFetch('/api/channels/' + activeManageChannel.id + '/videos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sourceUrl, title })
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to publish video');
+      document.getElementById('chanDirectUrl').value = '';
+      document.getElementById('chanDirectTitle').value = '';
+      await loadVideos();
       await loadChannels();
       openChannelModal(activeManageChannel.id);
     }
 
     async function removeVideoFromChannel(channelId, videoId) {
-      await authFetch('/api/admin/channels/' + channelId + '/videos/' + videoId, { method: 'DELETE' });
+      const res = await authFetch('/api/channels/' + channelId + '/videos/' + videoId, { method: 'DELETE' });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to remove video');
       await loadChannels();
       openChannelModal(channelId);
+    }
+
+    async function openCommentsPanel(videoId, videoTitle) {
+      if (!activeManageChannel) return;
+      activeCommentsVideoId = videoId;
+      document.getElementById('chanCommentsTitle').textContent = 'Comments: ' + videoTitle;
+      document.getElementById('chanCommentsPanel').style.display = 'block';
+      const canComment = activeChannelPerms.isOwner || activeChannelPerms.canComment;
+      document.getElementById('chanCommentForm').style.display = canComment ? 'flex' : 'none';
+      document.getElementById('chanCommentNoPerm').style.display = canComment ? 'none' : 'block';
+      await loadChannelComments();
+    }
+
+    function closeCommentsPanel() {
+      activeCommentsVideoId = null;
+      const panel = document.getElementById('chanCommentsPanel');
+      if (panel) panel.style.display = 'none';
+    }
+
+    async function loadChannelComments() {
+      if (!activeManageChannel || !activeCommentsVideoId) return;
+      const res = await authFetch(`/api/channels/${activeManageChannel.id}/videos/${activeCommentsVideoId}/comments`);
+      const json = await res.json();
+      const list = document.getElementById('chanCommentsList');
+      if (!json.success || !json.data.length) {
+        list.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">No comments yet.</div>';
+        return;
+      }
+      list.innerHTML = json.data.map(c => `
+        <div style="background:var(--surface-light); padding:0.65rem 0.85rem; border-radius:var(--radius-sm); display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">
+          <div>
+            <div style="font-size:0.78rem; font-weight:700; color:var(--secondary);">${c.authorName || 'Parent'} <span style="font-weight:400; color:var(--text-muted);">• ${new Date(c.createdAt).toLocaleString()}</span></div>
+            <div style="font-size:0.88rem; margin-top:0.2rem;">${c.content}</div>
+          </div>
+          <button class="btn-icon delete" onclick="deleteChannelComment('${c.id}')" title="Delete comment" style="padding:2px;">
+            <span class="material-symbols-rounded" style="font-size:16px;">delete</span>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    async function submitChannelComment(e) {
+      e.preventDefault();
+      if (!activeManageChannel || !activeCommentsVideoId) return;
+      const input = document.getElementById('chanCommentInput');
+      const content = input.value.trim();
+      if (!content) return;
+      const res = await authFetch(`/api/channels/${activeManageChannel.id}/videos/${activeCommentsVideoId}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content })
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Cannot post comment');
+      input.value = '';
+      await loadChannelComments();
+    }
+
+    async function deleteChannelComment(commentId) {
+      if (!activeManageChannel || !activeCommentsVideoId) return;
+      const res = await authFetch(`/api/channels/${activeManageChannel.id}/videos/${activeCommentsVideoId}/comments/${commentId}`, {
+        method: 'DELETE'
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Cannot delete comment');
+      await loadChannelComments();
+    }
+
+    async function submitVideoSuggestion(e) {
+      e.preventDefault();
+      if (!activeManageChannel) return;
+      const payload = {
+        sourceUrl: document.getElementById('sugUrl').value.trim(),
+        title: document.getElementById('sugTitle').value.trim(),
+        note: document.getElementById('sugNote').value.trim()
+      };
+      const res = await authFetch(`/api/channels/${activeManageChannel.id}/suggestions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to submit suggestion');
+      e.target.reset();
+      alert('Suggestion sent to channel owner!');
+      switchChannelModalTab('queue');
+    }
+
+    async function loadChannelSuggestions(channelId) {
+      const res = await authFetch(`/api/channels/${channelId}/suggestions`);
+      const json = await res.json();
+      if (!json.success) return;
+      const pendingCount = json.data.filter(s => s.status === 'PENDING').length;
+      document.getElementById('chanQueueCountBadge').textContent = pendingCount ? `(${pendingCount})` : '';
+
+      const list = document.getElementById('chanSuggestionsList');
+      if (!json.data.length) {
+        list.innerHTML = '<div style="color:var(--text-muted); text-align:center; padding:1rem;">No video suggestions yet.</div>';
+        return;
+      }
+      list.innerHTML = json.data.map(s => `
+        <div class="schedule-item" style="align-items:flex-start;">
+          <div style="display:flex; gap:0.75rem; align-items:center;">
+            <img src="${s.thumbnailUrl}" style="width:68px; height:40px; object-fit:cover; border-radius:4px;">
+            <div>
+              <div style="font-weight:700; font-size:0.92rem;">${s.title}</div>
+              <div style="font-size:0.78rem; color:var(--text-muted);">Suggested by ${s.suggesterName || 'Member'} • Status: <strong>${s.status}</strong></div>
+              ${s.note ? `<div style="font-size:0.8rem; color:var(--text); margin-top:0.2rem;">"${s.note}"</div>` : ''}
+            </div>
+          </div>
+          ${(activeChannelPerms.isOwner && s.status === 'PENDING') ? `
+            <div style="display:flex; gap:0.4rem;">
+              <button class="btn btn-primary btn-sm" onclick="approveSuggestion('${channelId}', '${s.id}')">Approve</button>
+              <button class="btn btn-secondary btn-sm" onclick="rejectSuggestion('${channelId}', '${s.id}')">Reject</button>
+            </div>
+          ` : ''}
+        </div>
+      `).join('');
+    }
+
+    async function approveSuggestion(channelId, suggestionId) {
+      const res = await authFetch(`/api/channels/${channelId}/suggestions/${suggestionId}/approve`, { method: 'POST' });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to approve');
+      await loadVideos();
+      await loadChannels();
+      openChannelModal(channelId);
+    }
+
+    async function rejectSuggestion(channelId, suggestionId) {
+      const res = await authFetch(`/api/channels/${channelId}/suggestions/${suggestionId}/reject`, { method: 'POST' });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to reject');
+      await loadChannelSuggestions(channelId);
+      await loadChannels();
+    }
+
+    const PRESET_MAP = {
+      VIEWER: { canAddVideo: false, canSuggestVideo: false, canComment: false },
+      COMMENTER: { canAddVideo: false, canSuggestVideo: false, canComment: true },
+      SUGGESTER: { canAddVideo: false, canSuggestVideo: true, canComment: true },
+      CONTRIBUTOR: { canAddVideo: true, canSuggestVideo: true, canComment: true }
+    };
+
+    function applyInvitePreset() {
+      const preset = document.getElementById('invPreset').value;
+      if (PRESET_MAP[preset]) {
+        document.getElementById('invCanAdd').checked = PRESET_MAP[preset].canAddVideo;
+        document.getElementById('invCanSuggest').checked = PRESET_MAP[preset].canSuggestVideo;
+        document.getElementById('invCanComment').checked = PRESET_MAP[preset].canComment;
+      }
+    }
+
+    function onInvitePermToggle() {
+      document.getElementById('invPreset').value = 'CUSTOM';
+    }
+
+    function openShareModalFromChannel() {
+      if (!activeManageChannel) return;
+      const cid = activeManageChannel.id;
+      closeChannelModal();
+      openShareModal(cid);
+    }
+
+    async function openShareModal(channelId) {
+      activeShareChannelId = channelId;
+      document.getElementById('shareModal').style.display = 'flex';
+      await Promise.all([loadShareInvites(channelId), loadShareMembers(channelId)]);
+    }
+
+    function closeShareModal() {
+      document.getElementById('shareModal').style.display = 'none';
+      activeShareChannelId = null;
+    }
+
+    async function createInviteLink(e) {
+      e.preventDefault();
+      if (!activeShareChannelId) return;
+      const payload = {
+        label: document.getElementById('invLabel').value.trim(),
+        preset: document.getElementById('invPreset').value,
+        permissions: {
+          canAddVideo: document.getElementById('invCanAdd').checked,
+          canSuggestVideo: document.getElementById('invCanSuggest').checked,
+          canComment: document.getElementById('invCanComment').checked
+        }
+      };
+      const res = await authFetch(`/api/channels/${activeShareChannelId}/invites`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to create invite');
+      document.getElementById('invLabel').value = '';
+      await loadShareInvites(activeShareChannelId);
+    }
+
+    async function loadShareInvites(channelId) {
+      const res = await authFetch(`/api/channels/${channelId}/invites`);
+      const json = await res.json();
+      const el = document.getElementById('shareInvitesList');
+      if (!json.success || !json.data.length) {
+        el.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">No invite links created yet.</div>';
+        return;
+      }
+      el.innerHTML = json.data.map(inv => {
+        const shareUrl = `${window.location.origin}${window.location.pathname}?invite=${encodeURIComponent(inv.token)}`;
+        return `
+          <div class="schedule-item" style="opacity:${inv.isRevoked ? 0.5 : 1};">
+            <div style="flex:1; min-width:0;">
+              <div style="font-weight:700; font-size:0.88rem;">${inv.label || 'Share Link'} • <span style="color:var(--secondary);">${inv.preset}</span> ${inv.isRevoked ? '(Revoked)' : ''}</div>
+              <div style="font-size:0.75rem; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${shareUrl}</div>
+              <div style="font-size:0.74rem; color:var(--text-muted);">Uses: ${inv.useCount} • Add: ${inv.permissions.canAddVideo ? 'Yes' : 'No'} | Suggest: ${inv.permissions.canSuggestVideo ? 'Yes' : 'No'} | Comment: ${inv.permissions.canComment ? 'Yes' : 'No'}</div>
+            </div>
+            ${!inv.isRevoked ? `
+              <div style="display:flex; gap:0.4rem;">
+                <button class="btn btn-secondary btn-sm" onclick="copyInviteLink('${shareUrl}')">Copy</button>
+                <button class="btn btn-secondary btn-sm" onclick="revokeInviteLink('${channelId}', '${inv.id}')">Revoke</button>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function copyInviteLink(url) {
+      navigator.clipboard?.writeText(url);
+      alert('Invite link copied to clipboard!');
+    }
+
+    async function revokeInviteLink(channelId, inviteId) {
+      await authFetch(`/api/channels/${channelId}/invites/${inviteId}`, { method: 'DELETE' });
+      await loadShareInvites(channelId);
+    }
+
+    async function loadShareMembers(channelId) {
+      const res = await authFetch(`/api/channels/${channelId}/members`);
+      const json = await res.json();
+      const el = document.getElementById('shareMembersList');
+      if (!json.success || !json.data.length) {
+        el.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">No members have joined via invite link yet.</div>';
+        return;
+      }
+      el.innerHTML = json.data.map(m => `
+        <div class="schedule-item" style="flex-wrap:wrap; gap:0.5rem;">
+          <div>
+            <div style="font-weight:700; font-size:0.9rem;">${m.userName || m.userId} <span style="font-weight:400; color:var(--text-muted); font-size:0.78rem;">(${m.userEmail || ''})</span></div>
+            <div style="display:flex; gap:0.85rem; margin-top:0.35rem; font-size:0.8rem; flex-wrap:wrap;">
+              <label><input type="checkbox" ${m.permissions.canAddVideo ? 'checked' : ''} onchange="updateMemberPermissionFlag('${channelId}', '${m.userId}', 'canAddVideo', this.checked, ${m.permissions.canSuggestVideo}, ${m.permissions.canComment})"> Add Video</label>
+              <label><input type="checkbox" ${m.permissions.canSuggestVideo ? 'checked' : ''} onchange="updateMemberPermissionFlag('${channelId}', '${m.userId}', 'canSuggestVideo', ${m.permissions.canAddVideo}, this.checked, ${m.permissions.canComment})"> Suggest Video</label>
+              <label><input type="checkbox" ${m.permissions.canComment ? 'checked' : ''} onchange="updateMemberPermissionFlag('${channelId}', '${m.userId}', 'canComment', ${m.permissions.canAddVideo}, ${m.permissions.canSuggestVideo}, this.checked)"> Comment</label>
+            </div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="removeChannelMember('${channelId}', '${m.userId}')">Remove</button>
+        </div>
+      `).join('');
+    }
+
+    async function updateMemberPermissionFlag(channelId, userId, changedKey, addVal, suggestVal, commentVal) {
+      const permissions = {
+        canAddVideo: changedKey === 'canAddVideo' ? addVal : Boolean(addVal),
+        canSuggestVideo: changedKey === 'canSuggestVideo' ? suggestVal : Boolean(suggestVal),
+        canComment: changedKey === 'canComment' ? commentVal : Boolean(commentVal)
+      };
+      await authFetch(`/api/channels/${channelId}/members/${userId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ preset: 'CUSTOM', permissions })
+      });
+      await loadShareMembers(channelId);
+    }
+
+    async function removeChannelMember(channelId, userId) {
+      if (!confirm('Remove this member from the channel?')) return;
+      await authFetch(`/api/channels/${channelId}/members/${userId}`, { method: 'DELETE' });
+      await loadShareMembers(channelId);
+    }
+
+    async function checkInviteQueryParam() {
+      if (!pendingInviteToken) return;
+      const res = await fetch(apiUrl(`/api/invites/${encodeURIComponent(pendingInviteToken)}`), {
+        headers: authToken ? { Authorization: `Bearer ${authToken}` } : {}
+      });
+      const json = await res.json();
+      const body = document.getElementById('inviteModalBody');
+      if (!json.success) {
+        body.innerHTML = `<p style="color:var(--primary);">${json.message || 'Invalid invite link.'}</p>`;
+        document.getElementById('inviteModal').style.display = 'flex';
+        return;
+      }
+      const d = json.data;
+      if (!d.isValid) {
+        body.innerHTML = `<p style="color:var(--primary);">This invite link is no longer valid (${d.isRevoked ? 'revoked' : d.isExpired ? 'expired' : 'usage limit reached'}).</p>`;
+        document.getElementById('inviteModal').style.display = 'flex';
+        return;
+      }
+      const permsList = [
+        d.permissions.canAddVideo ? 'Add Videos Directly' : null,
+        d.permissions.canSuggestVideo ? 'Suggest Videos' : null,
+        d.permissions.canComment ? 'Comment on Videos' : null
+      ].filter(Boolean).join(', ') || 'View Channel Only';
+
+      body.innerHTML = `
+        <div style="text-align:center; padding:0.5rem 0;">
+          <img src="${d.channel.avatarUrl}" style="width:72px; height:72px; border-radius:50%; object-fit:cover; margin-bottom:0.75rem;">
+          <h4 style="font-size:1.15rem; margin-bottom:0.25rem;">${d.channel.name}</h4>
+          <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0.75rem;">Invited by ${d.channel.ownerName} • ${d.channel.visibility}</div>
+          <p style="font-size:0.88rem; margin-bottom:1rem;">${d.channel.description || ''}</p>
+          <div style="background:var(--surface-light); padding:0.75rem; border-radius:var(--radius-sm); font-size:0.85rem; margin-bottom:1.25rem;">
+            <strong>Role:</strong> ${d.preset}<br>
+            <strong>Permissions:</strong> ${permsList}
+          </div>
+          ${authToken
+            ? `<button class="btn btn-primary" onclick="acceptChannelInvite('${pendingInviteToken}')">${d.alreadyMember ? 'Open Channel' : 'Join Channel'}</button>`
+            : `<button class="btn btn-primary" onclick="closeInviteModal(); openStudio();">Sign In / Register to Join</button>`
+          }
+        </div>
+      `;
+      document.getElementById('inviteModal').style.display = 'flex';
+    }
+
+    function closeInviteModal() {
+      document.getElementById('inviteModal').style.display = 'none';
+    }
+
+    async function acceptChannelInvite(token) {
+      const res = await authFetch(`/api/invites/${encodeURIComponent(token)}/accept`, { method: 'POST' });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Could not join channel');
+      pendingInviteToken = '';
+      const url = new URL(window.location.href);
+      url.searchParams.delete('invite');
+      window.history.replaceState({}, '', url.toString());
+      closeInviteModal();
+      await openStudio();
     }
 
     async function loadPlaylists() {
@@ -1489,8 +2163,90 @@
     let showcaseChannels = [];
     let activeShowcaseChannelId = null;
 
-    async function loadShowcase() {
+    
+    async function loadParentChildren() {
+      const res = await authFetch('/api/parent/children');
+      const json = await res.json();
+      const el = document.getElementById('childrenList');
+      if (!json.success || !json.data.length) {
+        el.innerHTML = '<div style="color:var(--text-muted); padding:1rem; background:var(--surface); border-radius:var(--radius-sm); border:1px solid var(--border);">No child accounts registered yet.</div>';
+        return;
+      }
+      el.innerHTML = json.data.map(c => `
+        <div class="schedule-item" style="flex-wrap:wrap; gap:0.75rem;">
+          <div>
+            <div style="font-weight:700; font-size:0.95rem;">${c.name} <span style="font-weight:400; color:var(--text-muted); font-size:0.82rem;">(${c.email})</span></div>
+            <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.2rem;">
+              Age Filter:
+              <select onchange="updateChildAgeRating('${c.id}', this.value)" style="margin-left:0.35rem; padding:2px 6px; border-radius:4px; border:1px solid var(--border);">
+                <option value="ALL" ${c.ageRating === 'ALL' ? 'selected' : ''}>All Ages</option>
+                <option value="TODDLER" ${c.ageRating === 'TODDLER' ? 'selected' : ''}>Toddler (2-4)</option>
+                <option value="YOUNG_KIDS" ${c.ageRating === 'YOUNG_KIDS' ? 'selected' : ''}>Young Kids (5-8)</option>
+                <option value="OLDER_KIDS" ${c.ageRating === 'OLDER_KIDS' ? 'selected' : ''}>Older Kids (9-12)</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="deleteChildAccount('${c.id}')">Remove Child</button>
+        </div>
+      `).join('');
+    }
+
+    async function registerChildAccount(e) {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById('childNameInput').value.trim(),
+        email: document.getElementById('childEmailInput').value.trim(),
+        password: document.getElementById('childPasswordInput').value,
+        ageRating: document.getElementById('childAgeRatingInput').value
+      };
+      const res = await authFetch('/api/parent/children', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to register child');
+      e.target.reset();
+      await loadParentChildren();
+      alert('Child account registered! They can now log in via Kids / Child Login.');
+    }
+
+    async function updateChildAgeRating(childId, ageRating) {
+      const res = await authFetch(`/api/parent/children/${childId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ageRating })
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to update age rating');
+    }
+
+    async function deleteChildAccount(childId) {
+      if (!confirm('Remove this child account?')) return;
+      const res = await authFetch(`/api/parent/children/${childId}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to remove child');
+      await loadParentChildren();
+    }
+
+    let kidsFeedVideos = null;
+
+    async function loadShowcase(useKidsFeed = false) {
       try {
+        if (useKidsFeed && authToken) {
+          const res = await fetch(apiUrl('/api/kids/feed'), {
+            headers: { Authorization: `Bearer ${authToken}` }
+          });
+          const json = await res.json();
+          if (json.success && json.data) {
+            showcaseChannels = json.data.channels || [];
+            kidsFeedVideos = json.data.videos || [];
+            renderShowcaseChannels();
+            await selectShowcaseChannel(activeShowcaseChannelId);
+            return;
+          }
+        }
+        kidsFeedVideos = null;
         const res = await fetch(apiUrl('/api/channels'));
         const json = await res.json();
         if (json.success) {
@@ -1500,7 +2256,7 @@
         }
       } catch {
         document.getElementById('showcaseChannels').innerHTML =
-          '<p style="color:var(--text-muted);">Unable to load showcase from API at ' + API_BASE + '</p>';
+          '<p style="color:var(--text-muted);">Unable to load channels from API at ' + API_BASE + '</p>';
       }
     }
 
@@ -1539,10 +2295,14 @@
         const json = await res.json();
         videos = json.success ? json.data.videos : [];
       } else {
-        heading.textContent = 'All Curated Kids Videos';
-        const res = await fetch(apiUrl('/api/videos'));
-        const json = await res.json();
-        videos = json.success ? json.data : [];
+        heading.textContent = kidsFeedVideos ? 'My Age-Safe Kids Videos' : 'All Curated Kids Videos';
+        if (kidsFeedVideos) {
+          videos = kidsFeedVideos;
+        } else {
+          const res = await fetch(apiUrl('/api/videos'));
+          const json = await res.json();
+          videos = json.success ? json.data : [];
+        }
       }
 
       countEl.textContent = `${videos.length} video${videos.length === 1 ? '' : 's'}`;
@@ -1583,8 +2343,12 @@
           });
           const json = await res.json();
           if (res.ok && json.success) {
+            currentUser = json.user;
+            document.getElementById('btnKidsLogin').style.display = 'none';
             document.getElementById('userBar').style.display = 'flex';
-            document.getElementById('userEmailLabel').textContent = json.user?.email || '';
+            document.getElementById('userEmailLabel').textContent = json.user?.role === 'CHILD'
+              ? `${json.user.name || json.user.email} (Kid Mode)`
+              : (json.user?.email || '');
           } else {
             authToken = '';
             localStorage.removeItem(AUTH_TOKEN_KEY);
@@ -1593,7 +2357,13 @@
           // ignore silent check failure; showcase still loads
         }
       }
-      openShowcase();
+      const modeParam = new URLSearchParams(window.location.search).get('mode');
+      if (modeParam === 'studio' && currentUser?.role !== 'CHILD') {
+        await openStudio();
+      } else {
+        openHome(currentUser?.role === 'CHILD');
+      }
+      checkInviteQueryParam();
     }
     initApp();
   </script>
