@@ -836,7 +836,18 @@
       </div>
 
       <h3 style="margin-bottom:0.75rem;">Registered Child Accounts</h3>
-      <div id="childrenList" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
+      <div id="childrenList" style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:2rem;"></div>
+
+      <div class="channel-creator-box">
+        <h3 style="font-size:1.15rem; margin-bottom:0.35rem; display:flex; align-items:center; gap:0.5rem;">
+          <span class="material-symbols-rounded" style="color:var(--primary);">quiz</span>
+          Channel Access &amp; Quiz Wall Controls
+        </h3>
+        <p style="color:var(--text-muted); font-size:0.86rem; margin-bottom:1rem;">
+          Require your kids to pass a quiz before viewing a channel. Configure the quiz type, wait time between wrong answers, and what happens after 3 wrong attempts.
+        </p>
+        <div id="channelControlsList" style="display:flex; flex-direction:column; gap:0.85rem;"></div>
+      </div>
     </div>
 
     <!-- Tab 4: Parental Settings -->
@@ -1036,6 +1047,22 @@
         </button>
       </div>
       <div class="modal-body" id="inviteModalBody"></div>
+    </div>
+  </div>
+
+  <!-- Kid Channel Quiz Wall Modal -->
+  <div class="modal" id="quizWallModal">
+    <div class="modal-content" style="max-width:500px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:0.6rem;">
+          <span class="material-symbols-rounded" style="color:var(--accent);">quiz</span>
+          <h3 id="quizWallTitle" style="font-size:1.15rem; font-weight:700;">Channel Quiz Wall</h3>
+        </div>
+        <button class="btn-icon" onclick="closeQuizWallModal()">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+      <div class="modal-body" id="quizWallBody"></div>
     </div>
   </div>
 
@@ -2123,10 +2150,12 @@
       document.getElementById('tabVideos').style.display = name === 'videos' ? 'block' : 'none';
       document.getElementById('tabChannels').style.display = name === 'channels' ? 'block' : 'none';
       document.getElementById('tabPlaylists').style.display = name === 'playlists' ? 'block' : 'none';
+      document.getElementById('tabKids').style.display = name === 'kids' ? 'block' : 'none';
       document.getElementById('tabSettings').style.display = name === 'settings' ? 'block' : 'none';
 
       if (name === 'channels') loadChannels();
       if (name === 'playlists') loadPlaylists();
+      if (name === 'kids') { loadParentChildren(); loadParentChannelControls(); }
       if (name === 'settings') loadSettings();
     }
 
@@ -2218,6 +2247,86 @@
       await loadParentChildren();
     }
 
+    async function loadParentChannelControls() {
+      const el = document.getElementById('channelControlsList');
+      if (!el) return;
+      el.innerHTML = '<div style="color:var(--text-muted); font-size:0.86rem;">Loading channel controls...</div>';
+      try {
+        const res = await authFetch('/api/parent/channel-controls');
+        const json = await res.json();
+        if (!json.success || !json.data.length) {
+          el.innerHTML = '<div style="color:var(--text-muted); font-size:0.86rem;">No channels available.</div>';
+          return;
+        }
+        el.innerHTML = json.data.map(ch => `
+          <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:1rem;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.75rem;">
+              <div style="display:flex; align-items:center; gap:0.65rem;">
+                <img src="${ch.channelAvatar}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
+                <div>
+                  <div style="font-weight:700; font-size:0.95rem;">${ch.channelName}</div>
+                  <div style="font-size:0.75rem; color:var(--accent);">${ch.category}</div>
+                </div>
+              </div>
+              <label style="display:flex; align-items:center; gap:0.45rem; font-size:0.86rem; font-weight:600; cursor:pointer;">
+                <input type="checkbox" id="qzEn_${ch.channelId}" ${ch.quizEnabled ? 'checked' : ''} style="width:auto;">
+                Enable Quiz Wall
+              </label>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(165px, 1fr)); gap:0.65rem; align-items:end;">
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:0.75rem;">Quiz Type</label>
+                <select id="qzType_${ch.channelId}">
+                  <option value="MATH" ${ch.quizType === 'MATH' ? 'selected' : ''}>Math</option>
+                  <option value="SCIENCE" ${ch.quizType === 'SCIENCE' ? 'selected' : ''}>Science</option>
+                  <option value="ENGLISH" ${ch.quizType === 'ENGLISH' ? 'selected' : ''}>English</option>
+                  <option value="LOGIC" ${ch.quizType === 'LOGIC' ? 'selected' : ''}>Logic &amp; Patterns</option>
+                  <option value="MIXED" ${ch.quizType === 'MIXED' ? 'selected' : ''}>Mixed</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:0.75rem;">Wrong Answer Wait (sec)</label>
+                <input type="number" min="1" max="3600" id="qzWait_${ch.channelId}" value="${ch.retryWaitSeconds || 10}">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:0.75rem;">After 3 Wrong Answers</label>
+                <select id="qzAct_${ch.channelId}">
+                  <option value="LOCKOUT" ${ch.lockoutAction === 'LOCKOUT' ? 'selected' : ''}>Lock out for duration</option>
+                  <option value="ALLOW_AFTER_WAIT" ${ch.lockoutAction === 'ALLOW_AFTER_WAIT' ? 'selected' : ''}>Wait duration, then let through</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:0.75rem;">3-Strike Duration (sec)</label>
+                <input type="number" min="1" max="86400" id="qzDur_${ch.channelId}" value="${ch.lockoutDurationSeconds || 60}">
+              </div>
+              <div>
+                <button class="btn btn-primary btn-sm" style="width:100%; justify-content:center;" onclick="saveChannelControl('${ch.channelId}')">Save Rule</button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } catch {
+        el.innerHTML = '<div style="color:#FF6B8B; font-size:0.86rem;">Failed to load channel controls.</div>';
+      }
+    }
+
+    async function saveChannelControl(channelId) {
+      const payload = {
+        quizEnabled: document.getElementById(`qzEn_${channelId}`).checked,
+        quizType: document.getElementById(`qzType_${channelId}`).value,
+        retryWaitSeconds: Number(document.getElementById(`qzWait_${channelId}`).value) || 10,
+        lockoutAction: document.getElementById(`qzAct_${channelId}`).value,
+        lockoutDurationSeconds: Number(document.getElementById(`qzDur_${channelId}`).value) || 60
+      };
+      const res = await authFetch(`/api/parent/channel-controls/${channelId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)$eol}      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to save rule');
+      alert('Channel quiz wall rule saved!');
+    }
+
     let kidsFeedVideos = null;
 
     async function loadShowcase(useKidsFeed = false) {
@@ -2269,7 +2378,139 @@
       }).join('');
     }
 
+    let quizTimerInterval = null;
+
+    function clearQuizTimer() {
+      if (quizTimerInterval) {
+        clearInterval(quizTimerInterval);
+        quizTimerInterval = null;
+      }
+    }
+
+    function closeQuizWallModal() {
+      clearQuizTimer();
+      document.getElementById('quizWallModal').style.display = 'none';
+    }
+
+    async function openQuizWall(channelId, chName) {
+      clearQuizTimer();
+      const modal = document.getElementById('quizWallModal');
+      const body = document.getElementById('quizWallBody');
+      document.getElementById('quizWallTitle').textContent = `${chName || 'Channel'} — Quiz Wall`;
+      body.innerHTML = '<p style="color:var(--text-muted);">Checking channel access...</p>';
+      modal.style.display = 'flex';
+
+      const res = await fetch(apiUrl(`/api/kids/channels/${channelId}/access`), {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      const json = await res.json();
+      if (!json.success) {
+        body.innerHTML = `<p style="color:#FF6B8B;">${json.message || 'Unable to check channel access.'}</p>`;
+        return;
+      }
+      const data = json.data;
+      if (data.unlocked) {
+        closeQuizWallModal();
+        await loadChannelVideosIntoShowcase(channelId);
+        return;
+      }
+      renderQuizWallState(channelId, chName, data);
+    }
+
+    function renderQuizWallState(channelId, chName, data) {
+      clearQuizTimer();
+      const body = document.getElementById('quizWallBody');
+
+      if (data.status === 'COOLDOWN' || data.status === 'LOCKED') {
+        let remaining = data.remainingSeconds || 5;
+        const isLocked = data.status === 'LOCKED';
+        const isAllowAfterWait = isLocked && data.lockoutAction === 'ALLOW_AFTER_WAIT';
+        const headingText = isLocked
+          ? (isAllowAfterWait ? '3 Wrong Answers — Please Wait' : 'Channel Locked (3 Wrong Answers)')
+          : 'Not Quite Right!';
+        const subText = isLocked
+          ? (isAllowAfterWait ? 'You will be let through automatically when the timer finishes:' : 'You can try the quiz again when the lockout ends:')
+          : 'Wait for the next quiz question:';
+
+        body.innerHTML = `
+          <div style="text-align:center; padding:1rem 0;">
+            <span class="material-symbols-rounded" style="font-size:2.75rem; color:${isLocked ? '#FF6B8B' : 'var(--warning)'};">${isLocked ? 'lock_clock' : 'hourglass_top'}</span>
+            <h4 style="font-size:1.15rem; margin:0.5rem 0 0.35rem;">${headingText}</h4>
+            <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:1rem;">${subText}</p>
+            <div id="quizCountdownText" style="font-size:2rem; font-weight:800; color:var(--accent); margin-bottom:0.5rem;">${remaining}s</div>
+            <div style="font-size:0.8rem; color:var(--text-muted);">Wrong attempts: ${data.wrongAttempts || 0} / ${data.maxAttempts || 3}</div>
+          </div>
+        `;
+        quizTimerInterval = setInterval(() => {
+          remaining -= 1;
+          const el = document.getElementById('quizCountdownText');
+          if (el) el.textContent = `${Math.max(0, remaining)}s`;
+          if (remaining <= 0) {
+            clearQuizTimer();
+            openQuizWall(channelId, chName);
+          }
+        }, 1000);
+        return;
+      }
+
+      const q = data.question;
+      body.innerHTML = `
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.85rem;">
+            <span style="background:rgba(76,201,240,0.15); color:var(--accent); padding:0.25rem 0.65rem; border-radius:99px; font-size:0.75rem; font-weight:700;">${q.type} QUIZ</span>
+            <span style="font-size:0.8rem; color:var(--text-muted);">Wrong attempts: ${data.wrongAttempts || 0} / ${data.maxAttempts || 3}</span>
+          </div>
+          <p style="font-size:1.08rem; font-weight:700; margin-bottom:1rem; line-height:1.45;">${q.prompt}</p>
+          <div id="quizOptionsWrap" style="display:flex; flex-direction:column; gap:0.6rem;">
+            ${q.options.map((opt, idx) => `
+              <button class="btn btn-secondary" style="width:100%; justify-content:flex-start; text-align:left; padding:0.8rem 1rem;" onclick="submitQuizAnswer('${channelId}', '${(chName || '').replace(/'/g, '')}', '${q.id}', ${idx})">
+                ${opt}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    async function submitQuizAnswer(channelId, chName, questionId, selectedIndex) {
+      const res = await fetch(apiUrl(`/api/kids/channels/${channelId}/quiz-answer`), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`
+        },
+        body: JSON.stringify({ questionId, selectedIndex })
+      });
+      const json = await res.json();
+      if (!json.success && !json.data) {
+        alert(json.message || 'Error submitting answer');
+        return;
+      }
+      const data = json.data;
+      if (data.unlocked) {
+        closeQuizWallModal();
+        await loadChannelVideosIntoShowcase(channelId);
+        return;
+      }
+      renderQuizWallState(channelId, chName, data);
+    }
+
     async function selectShowcaseChannel(channelId) {
+      const ch = showcaseChannels.find(c => c.id === channelId);
+      if (channelId && currentUser?.role === 'CHILD' && authToken) {
+        const res = await fetch(apiUrl(`/api/kids/channels/${channelId}/access`), {
+          headers: { Authorization: `Bearer ${authToken}` }
+        });
+        const json = await res.json();
+        if (json.success && json.data && !json.data.unlocked) {
+          await openQuizWall(channelId, ch?.name);
+          return;
+        }
+      }
+      await loadChannelVideosIntoShowcase(channelId);
+    }
+
+    async function loadChannelVideosIntoShowcase(channelId) {
       activeShowcaseChannelId = channelId;
       renderShowcaseChannels();
       const heading = document.getElementById('showcaseVideosHeading');
@@ -2280,7 +2521,8 @@
       if (channelId) {
         const ch = showcaseChannels.find(c => c.id === channelId);
         heading.textContent = ch ? `${ch.name} — Curated Videos` : 'Channel Videos';
-        const res = await fetch(apiUrl('/api/channels/' + channelId));
+        const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
+        const res = await fetch(apiUrl('/api/channels/' + channelId), { headers });
         const json = await res.json();
         videos = json.success ? json.data.videos : [];
       } else {
