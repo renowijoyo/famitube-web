@@ -1028,31 +1028,72 @@
           </div>
 
           <div id="liveTimelineBuilder" style="background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:1rem; margin-bottom:1rem;">
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.75rem;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.85rem;">
               <div>
                 <div style="font-weight:700; font-size:0.95rem; display:flex; align-items:center; gap:0.45rem;">
-                  <span class="material-symbols-rounded" style="font-size:1.15rem; color:var(--primary);">view_timeline</span>
-                  Live Channel Timeline Editor
+                  <span class="material-symbols-rounded" style="font-size:1.15rem; color:var(--primary);">calendar_month</span>
+                  24H Live Channel Schedule &amp; Timeline Editor
                 </div>
-                <div style="font-size:0.78rem; color:var(--text-muted);">Arrange videos in broadcast sequence and choose whether each plays in whole or from a specific timestamp.</div>
+                <div style="font-size:0.78rem; color:var(--text-muted);">Pick a date on the calendar, a weekday, or Default. Schedules run 00:00–24:00; videos crossing midnight stop at 24:00 for the next day.</div>
               </div>
-              <span id="timelineTotalBadge" style="font-size:0.78rem; font-weight:700; padding:0.25rem 0.65rem; border-radius:99px; background:rgba(255,51,102,0.12); color:var(--primary);">Total Sequence: 0:00</span>
+              <span id="timelineTotalBadge" style="font-size:0.78rem; font-weight:700; padding:0.25rem 0.65rem; border-radius:99px; background:rgba(255,51,102,0.12); color:var(--primary);">0 slots</span>
             </div>
 
-            <div style="display:flex; gap:0.5rem; margin-bottom:0.85rem; flex-wrap:wrap;">
-              <select id="timelineVideoSelect" style="flex:1; min-width:220px; background:var(--surface); border:1px solid var(--border); color:var(--text); padding:0.5rem 0.75rem; border-radius:var(--radius-sm);"></select>
-              <button type="button" class="btn btn-secondary btn-sm" onclick="addVideoToTimelineDraft()">
-                <span class="material-symbols-rounded" style="font-size:1rem;">add</span> Add to Timeline
-              </button>
-            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1rem; margin-bottom:1rem; align-items:start;">
+              <!-- Step 1: Calendar View -->
+              <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:0.8rem;">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.6rem;">
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="shiftTimelineCalendarMonth(-1)" title="Previous Month">&lsaquo;</button>
+                  <span id="timelineCalMonthLabel" style="font-weight:700; font-size:0.88rem;"></span>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="shiftTimelineCalendarMonth(1)" title="Next Month">&rsaquo;</button>
+                </div>
+                <div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:2px; text-align:center; font-size:0.7rem; font-weight:700; color:var(--text-muted); margin-bottom:4px;">
+                  <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                </div>
+                <div id="timelineCalendarGrid" style="display:grid; grid-template-columns:repeat(7, 1fr); gap:3px;"></div>
+                <div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:0.6rem; font-size:0.7rem; color:var(--text-muted);">
+                  <span style="display:inline-flex; align-items:center; gap:4px;"><span style="width:7px; height:7px; border-radius:50%; background:var(--primary);"></span> Custom Date</span>
+                  <span style="display:inline-flex; align-items:center; gap:4px;"><span style="width:7px; height:7px; border-radius:50%; background:var(--secondary);"></span> Weekday</span>
+                  <span style="display:inline-flex; align-items:center; gap:4px;"><span style="width:7px; height:7px; border-radius:50%; background:var(--success);"></span> Default</span>
+                </div>
+              </div>
 
-            <div id="timelineVisualBar" style="display:none; gap:3px; height:28px; border-radius:6px; overflow:hidden; background:var(--surface-light); border:1px solid var(--border); padding:3px; margin-bottom:0.85rem;"></div>
+              <!-- Step 2: Schedule Scope (Date / Weekday / Default) -->
+              <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:0.85rem; display:flex; flex-direction:column; gap:0.7rem;">
+                <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">Schedule Target</div>
+                <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+                  <button type="button" id="scopeBtnDate" class="btn btn-primary btn-sm" onclick="setTimelineScope('DATE')">Specific Date</button>
+                  <button type="button" id="scopeBtnWeekday" class="btn btn-secondary btn-sm" onclick="setTimelineScope('WEEKDAY')">Day of Week</button>
+                  <button type="button" id="scopeBtnDefault" class="btn btn-secondary btn-sm" onclick="setTimelineScope('DEFAULT')">Default (Fallback)</button>
+                </div>
+                <div id="scopeWeekdayPicker" style="display:none; gap:0.3rem; flex-wrap:wrap;"></div>
+                <div id="scopeActiveSummary" style="font-size:0.82rem; color:var(--text); background:var(--surface-light); padding:0.55rem 0.7rem; border-radius:6px; border:1px solid var(--border);"></div>
 
-            <div id="timelineSlotsList" style="display:flex; flex-direction:column; gap:0.55rem;">
-              <div style="font-size:0.84rem; color:var(--text-muted); padding:0.65rem; text-align:center; border:1px dashed var(--border); border-radius:var(--radius-sm);">
-                No videos added to the timeline yet. Select a video above to build the broadcast sequence.
+                <div style="display:flex; gap:0.45rem; flex-wrap:wrap; align-items:end; padding-top:0.35rem; border-top:1px solid var(--border);">
+                  <div style="flex:1; min-width:160px;">
+                    <label style="display:block; font-size:0.74rem; color:var(--text-muted); margin-bottom:0.2rem;">Video</label>
+                    <select id="timelineVideoSelect" style="width:100%; background:var(--surface-light); border:1px solid var(--border); color:var(--text); padding:0.45rem 0.65rem; border-radius:6px; font-size:0.82rem;"></select>
+                  </div>
+                  <div>
+                    <label style="display:block; font-size:0.74rem; color:var(--text-muted); margin-bottom:0.2rem;">Start (24H)</label>
+                    <input type="time" id="timelineStartTime" value="08:00" style="background:var(--surface-light); border:1px solid var(--border); color:var(--text); padding:0.42rem 0.55rem; border-radius:6px; font-size:0.82rem;">
+                  </div>
+                  <button type="button" class="btn btn-primary btn-sm" onclick="addVideoToTimelineDraft()">
+                    <span class="material-symbols-rounded" style="font-size:1rem;">add</span> Add
+                  </button>
+                </div>
               </div>
             </div>
+
+            <!-- 24H Visual Ruler -->
+            <div style="margin-bottom:0.85rem;">
+              <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-muted); font-weight:600; margin-bottom:3px;">
+                <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span>
+              </div>
+              <div id="timelineVisualBar" style="position:relative; height:30px; border-radius:6px; overflow:hidden; background:var(--surface-light); border:1px solid var(--border);"></div>
+            </div>
+
+            <div id="timelineSlotsList" style="display:flex; flex-direction:column; gap:0.55rem;"></div>
           </div>
 
           <button type="submit" class="btn btn-primary">
@@ -1840,12 +1881,84 @@
       }).join('');
     }
 
-    let liveTimelineDraft = [];
+    const WEEKDAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const WEEKDAY_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    function formatTodayYmd(d = new Date()) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function formatClock24(totalSec) {
+      const clamped = Math.max(0, Math.min(86400, Math.floor(totalSec)));
+      const h = String(Math.floor(clamped / 3600)).padStart(2, '0');
+      const m = String(Math.floor((clamped % 3600) / 60)).padStart(2, '0');
+      const s = String(clamped % 60).padStart(2, '0');
+      return `${h}:${m}:${s}`;
+    }
+
+    function parseTimeInputToSeconds(val) {
+      const parts = String(val || '08:00').split(':').map(n => parseInt(n, 10) || 0);
+      const h = Math.max(0, Math.min(23, parts[0] || 0));
+      const m = Math.max(0, Math.min(59, parts[1] || 0));
+      return h * 3600 + m * 60;
+    }
+
+    let liveSchedulesDraft = {}; // key -> { id, ruleType, date?, weekday?, slots: [] }
+    let timelineCalMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    let activeTimelineScope = 'DATE'; // 'DATE' | 'WEEKDAY' | 'DEFAULT'
+    let activeTimelineDate = formatTodayYmd();
+    let activeTimelineWeekday = new Date().getDay();
+
+    function getActiveScheduleKey() {
+      if (activeTimelineScope === 'DATE') return `DATE:${activeTimelineDate}`;
+      if (activeTimelineScope === 'WEEKDAY') return `WEEKDAY:${activeTimelineWeekday}`;
+      return 'DEFAULT';
+    }
+
+    function getOrCreateActiveSchedule() {
+      const key = getActiveScheduleKey();
+      if (!liveSchedulesDraft[key]) {
+        liveSchedulesDraft[key] = {
+          id: key,
+          ruleType: activeTimelineScope,
+          date: activeTimelineScope === 'DATE' ? activeTimelineDate : undefined,
+          weekday: activeTimelineScope === 'WEEKDAY' ? activeTimelineWeekday : undefined,
+          slots: []
+        };
+      }
+      return liveSchedulesDraft[key];
+    }
 
     function toggleLiveTimelineBuilder() {
       const el = document.getElementById('liveTimelineBuilder');
       const mode = document.getElementById('newChanType')?.value;
       if (el) el.style.display = mode === 'LIVE_TV' ? 'block' : 'none';
+      if (mode === 'LIVE_TV') renderLiveTimelineBuilder();
+    }
+
+    function setTimelineScope(scope) {
+      activeTimelineScope = scope;
+      renderLiveTimelineBuilder();
+    }
+
+    function selectTimelineCalendarDate(ymd) {
+      activeTimelineDate = ymd;
+      activeTimelineScope = 'DATE';
+      renderLiveTimelineBuilder();
+    }
+
+    function selectTimelineWeekday(dayIdx) {
+      activeTimelineWeekday = dayIdx;
+      activeTimelineScope = 'WEEKDAY';
+      renderLiveTimelineBuilder();
+    }
+
+    function shiftTimelineCalendarMonth(delta) {
+      timelineCalMonth = new Date(timelineCalMonth.getFullYear(), timelineCalMonth.getMonth() + delta, 1);
+      renderLiveTimelineBuilder();
     }
 
     function populateTimelineVideoSelect() {
@@ -1862,133 +1975,218 @@
       if (!videoId) return;
       const vid = allVideos.find(v => v.id === videoId);
       if (!vid) return;
-      liveTimelineDraft.push({
+      const sched = getOrCreateActiveSchedule();
+      const startInput = document.getElementById('timelineStartTime');
+      const startSec = parseTimeInputToSeconds(startInput?.value);
+      const fullDur = Math.max(10, vid.duration || 180);
+      sched.slots.push({
         videoId: vid.id,
+        startOfDaySeconds: startSec,
         playMode: 'WHOLE',
-        startSeconds: 0,
-        endSeconds: vid.duration || 180
+        clipStartSeconds: 0,
+        clipEndSeconds: fullDur
       });
-      renderLiveTimelineBuilder();
-    }
-
-    function moveTimelineSlot(idx, delta) {
-      const target = idx + delta;
-      if (target < 0 || target >= liveTimelineDraft.length) return;
-      const [item] = liveTimelineDraft.splice(idx, 1);
-      liveTimelineDraft.splice(target, 0, item);
+      sched.slots.sort((a, b) => a.startOfDaySeconds - b.startOfDaySeconds);
+      // Auto-advance time input to end of added video (capped at 23:59)
+      const nextSec = Math.min(86340, startSec + fullDur);
+      if (startInput) {
+        const nh = String(Math.floor(nextSec / 3600)).padStart(2, '0');
+        const nm = String(Math.floor((nextSec % 3600) / 60)).padStart(2, '0');
+        startInput.value = `${nh}:${nm}`;
+      }
       renderLiveTimelineBuilder();
     }
 
     function removeTimelineSlot(idx) {
-      liveTimelineDraft.splice(idx, 1);
+      const sched = getOrCreateActiveSchedule();
+      sched.slots.splice(idx, 1);
+      renderLiveTimelineBuilder();
+    }
+
+    function updateTimelineSlotStartOfDay(idx, timeStr) {
+      const sched = getOrCreateActiveSchedule();
+      const slot = sched.slots[idx];
+      if (!slot) return;
+      slot.startOfDaySeconds = parseTimeInputToSeconds(timeStr);
+      sched.slots.sort((a, b) => a.startOfDaySeconds - b.startOfDaySeconds);
       renderLiveTimelineBuilder();
     }
 
     function updateTimelineSlotMode(idx, mode) {
-      const slot = liveTimelineDraft[idx];
+      const sched = getOrCreateActiveSchedule();
+      const slot = sched.slots[idx];
       if (!slot) return;
       const vid = allVideos.find(v => v.id === slot.videoId);
       const fullDur = Math.max(10, vid?.duration || 180);
       slot.playMode = mode === 'CLIP' ? 'CLIP' : 'WHOLE';
       if (slot.playMode === 'WHOLE') {
-        slot.startSeconds = 0;
-        slot.endSeconds = fullDur;
-      } else if (!slot.endSeconds || slot.endSeconds <= slot.startSeconds) {
-        slot.endSeconds = fullDur;
+        slot.clipStartSeconds = 0;
+        slot.clipEndSeconds = fullDur;
+      } else if (!slot.clipEndSeconds || slot.clipEndSeconds <= slot.clipStartSeconds) {
+        slot.clipEndSeconds = fullDur;
       }
       renderLiveTimelineBuilder();
     }
 
     function updateTimelineSlotTime(idx, field, val) {
-      const slot = liveTimelineDraft[idx];
+      const sched = getOrCreateActiveSchedule();
+      const slot = sched.slots[idx];
       if (!slot) return;
       const vid = allVideos.find(v => v.id === slot.videoId);
       const fullDur = Math.max(10, vid?.duration || 180);
       const num = Math.max(0, Math.min(fullDur, parseInt(val, 10) || 0));
       if (field === 'start') {
-        slot.startSeconds = Math.min(num, fullDur - 1);
-        if (slot.endSeconds != null && slot.endSeconds <= slot.startSeconds) {
-          slot.endSeconds = fullDur;
+        slot.clipStartSeconds = Math.min(num, fullDur - 1);
+        if (slot.clipEndSeconds != null && slot.clipEndSeconds <= slot.clipStartSeconds) {
+          slot.clipEndSeconds = fullDur;
         }
       } else {
-        slot.endSeconds = num > slot.startSeconds ? num : fullDur;
+        slot.clipEndSeconds = num > slot.clipStartSeconds ? num : fullDur;
       }
       renderLiveTimelineBuilder();
     }
 
+    function renderTimelineCalendar() {
+      const monthLabel = document.getElementById('timelineCalMonthLabel');
+      const grid = document.getElementById('timelineCalendarGrid');
+      if (!monthLabel || !grid) return;
+
+      const year = timelineCalMonth.getFullYear();
+      const month = timelineCalMonth.getMonth();
+      monthLabel.textContent = timelineCalMonth.toLocaleString(undefined, { month: 'long', year: 'numeric' });
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const hasDefault = Boolean(liveSchedulesDraft['DEFAULT']?.slots?.length);
+
+      let html = '';
+      for (let i = 0; i < firstDay; i++) {
+        html += '<div></div>';
+      }
+      for (let day = 1; day <= daysInMonth; day++) {
+        const ymd = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const wd = new Date(year, month, day).getDay();
+        const isSelected = activeTimelineScope === 'DATE' && activeTimelineDate === ymd;
+        const hasDateRule = Boolean(liveSchedulesDraft[`DATE:${ymd}`]?.slots?.length);
+        const hasWeekdayRule = Boolean(liveSchedulesDraft[`WEEKDAY:${wd}`]?.slots?.length);
+        const dotColor = hasDateRule ? 'var(--primary)' : (hasWeekdayRule ? 'var(--secondary)' : (hasDefault ? 'var(--success)' : 'transparent'));
+        html += `
+          <button type="button" onclick="selectTimelineCalendarDate('${ymd}')" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0.32rem 0.1rem; border-radius:6px; border:1px solid ${isSelected ? 'var(--primary)' : 'var(--border)'}; background:${isSelected ? 'rgba(255,51,102,0.14)' : 'var(--surface-light)'}; color:var(--text); font-size:0.76rem; font-weight:${isSelected ? '800' : '600'}; cursor:pointer;">
+            <span>${day}</span>
+            <span style="width:6px; height:6px; border-radius:50%; margin-top:2px; background:${dotColor};"></span>
+          </button>
+        `;
+      }
+      grid.innerHTML = html;
+    }
+
     function renderLiveTimelineBuilder() {
+      renderTimelineCalendar();
+
+      const scopeDateBtn = document.getElementById('scopeBtnDate');
+      const scopeWdBtn = document.getElementById('scopeBtnWeekday');
+      const scopeDefBtn = document.getElementById('scopeBtnDefault');
+      if (scopeDateBtn) scopeDateBtn.className = activeTimelineScope === 'DATE' ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm';
+      if (scopeWdBtn) scopeWdBtn.className = activeTimelineScope === 'WEEKDAY' ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm';
+      if (scopeDefBtn) scopeDefBtn.className = activeTimelineScope === 'DEFAULT' ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm';
+
+      const wdPicker = document.getElementById('scopeWeekdayPicker');
+      if (wdPicker) {
+        wdPicker.style.display = activeTimelineScope === 'WEEKDAY' ? 'flex' : 'none';
+        wdPicker.innerHTML = WEEKDAY_SHORT.map((lbl, idx) => `
+          <button type="button" class="btn btn-sm ${activeTimelineWeekday === idx ? 'btn-primary' : 'btn-secondary'}" onclick="selectTimelineWeekday(${idx})">${lbl}</button>
+        `).join('');
+      }
+
+      const summaryEl = document.getElementById('scopeActiveSummary');
+      if (summaryEl) {
+        if (activeTimelineScope === 'DATE') {
+          summaryEl.innerHTML = `Editing <strong>Specific Date:</strong> ${activeTimelineDate} (overrides weekday &amp; default)`;
+        } else if (activeTimelineScope === 'WEEKDAY') {
+          summaryEl.innerHTML = `Editing <strong>Every ${WEEKDAY_NAMES[activeTimelineWeekday]}</strong> (overrides default)`;
+        } else {
+          summaryEl.innerHTML = `Editing <strong>Default Schedule</strong> (used when no custom date or weekday is set)`;
+        }
+      }
+
       const listEl = document.getElementById('timelineSlotsList');
       const barEl = document.getElementById('timelineVisualBar');
       const badgeEl = document.getElementById('timelineTotalBadge');
       if (!listEl || !barEl || !badgeEl) return;
 
-      if (!liveTimelineDraft.length) {
-        badgeEl.textContent = 'Total Sequence: 0:00';
-        barEl.style.display = 'none';
+      const sched = liveSchedulesDraft[getActiveScheduleKey()];
+      const slots = sched?.slots || [];
+
+      if (!slots.length) {
+        badgeEl.textContent = '0 slots';
         barEl.innerHTML = '';
-        listEl.innerHTML = '<div style="font-size:0.84rem; color:var(--text-muted); padding:0.65rem; text-align:center; border:1px dashed var(--border); border-radius:var(--radius-sm);">No videos added to the timeline yet. Select a video above to build the broadcast sequence.</div>';
+        listEl.innerHTML = '<div style="font-size:0.84rem; color:var(--text-muted); padding:0.65rem; text-align:center; border:1px dashed var(--border); border-radius:var(--radius-sm);">No videos scheduled for this rule yet. Pick a start time and click Add.</div>';
         return;
       }
 
-      let cursorSec = 0;
-      const computed = liveTimelineDraft.map((slot, idx) => {
+      const computed = slots.map((slot, idx) => {
         const vid = allVideos.find(v => v.id === slot.videoId) || { title: 'Video', duration: 180, thumbnailUrl: '' };
         const fullDur = Math.max(10, vid.duration || 180);
-        const start = slot.playMode === 'CLIP' ? Math.max(0, Math.min(slot.startSeconds || 0, fullDur - 1)) : 0;
-        const end = slot.playMode === 'CLIP' && slot.endSeconds > start ? Math.min(slot.endSeconds, fullDur) : fullDur;
-        const dur = Math.max(10, end - start);
-        const slotStart = cursorSec;
-        cursorSec += dur;
-        return { slot, vid, fullDur, start, end, dur, slotStart, slotEnd: cursorSec, idx };
+        const cStart = slot.playMode === 'CLIP' ? Math.max(0, Math.min(slot.clipStartSeconds || 0, fullDur - 1)) : 0;
+        const cEnd = slot.playMode === 'CLIP' && slot.clipEndSeconds > cStart ? Math.min(slot.clipEndSeconds, fullDur) : fullDur;
+        const rawDur = Math.max(1, cEnd - cStart);
+        const nextStart = idx + 1 < slots.length ? slots[idx + 1].startOfDaySeconds : 86400;
+        const effectiveEnd = Math.min(86400, nextStart, slot.startOfDaySeconds + rawDur);
+        const crossesMidnight = slot.startOfDaySeconds + rawDur > 86400;
+        const clippedByNext = !crossesMidnight && slot.startOfDaySeconds + rawDur > nextStart;
+        const effectiveDur = Math.max(0, effectiveEnd - slot.startOfDaySeconds);
+        return { slot, vid, fullDur, cStart, cEnd, rawDur, effectiveEnd, effectiveDur, crossesMidnight, clippedByNext, idx };
       });
 
-      badgeEl.textContent = `Total Sequence: ${formatTime(cursorSec)}`;
+      badgeEl.textContent = `${computed.length} slot${computed.length === 1 ? '' : 's'}`;
       const colors = ['#FF3366', '#4361EE', '#06D6A0', '#FFB703', '#4CC9F0'];
-      barEl.style.display = 'flex';
       barEl.innerHTML = computed.map(item => {
-        const pct = Math.max(6, (item.dur / cursorSec) * 100);
+        const leftPct = (item.slot.startOfDaySeconds / 86400) * 100;
+        const widthPct = Math.max(1.2, (item.effectiveDur / 86400) * 100);
         const bg = colors[item.idx % colors.length];
-        return `<div title="#${item.idx + 1} ${item.vid.title} (${formatTime(item.slotStart)} - ${formatTime(item.slotEnd)})" style="width:${pct}%; background:${bg}; color:white; font-size:0.7rem; font-weight:700; display:flex; align-items:center; justify-content:center; white-space:nowrap; overflow:hidden; padding:0 4px; border-radius:4px;">#${item.idx + 1} ${formatTime(item.dur)}</div>`;
+        return `<div title="#${item.idx + 1} ${item.vid.title} (${formatClock24(item.slot.startOfDaySeconds)} - ${formatClock24(item.effectiveEnd)})" style="position:absolute; top:2px; bottom:2px; left:${leftPct}%; width:${widthPct}%; background:${bg}; color:white; font-size:0.65rem; font-weight:700; display:flex; align-items:center; justify-content:center; white-space:nowrap; overflow:hidden; border-radius:4px;">#${item.idx + 1}</div>`;
       }).join('');
 
-      listEl.innerHTML = computed.map(item => `
-        <div class="schedule-item" style="flex-direction:column; align-items:stretch; gap:0.6rem; background:var(--surface);">
-          <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap;">
-            <div style="display:flex; align-items:center; gap:0.65rem; min-width:0;">
-              <span style="font-weight:800; color:var(--primary); font-size:0.85rem;">#${item.idx + 1}</span>
-              <img src="${item.vid.thumbnailUrl}" style="width:52px; height:32px; object-fit:cover; border-radius:4px;">
-              <div style="min-width:0;">
-                <div style="font-weight:600; font-size:0.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.vid.title}</div>
-                <div style="font-size:0.74rem; color:var(--text-muted);">Broadcast: ${formatTime(item.slotStart)} &rarr; ${formatTime(item.slotEnd)} (${formatTime(item.dur)})</div>
+      listEl.innerHTML = computed.map(item => {
+        const hh = String(Math.floor(item.slot.startOfDaySeconds / 3600)).padStart(2, '0');
+        const mm = String(Math.floor((item.slot.startOfDaySeconds % 3600) / 60)).padStart(2, '0');
+        return `
+          <div class="schedule-item" style="flex-direction:column; align-items:stretch; gap:0.6rem; background:var(--surface);">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap;">
+              <div style="display:flex; align-items:center; gap:0.65rem; min-width:0;">
+                <span style="font-weight:800; color:var(--primary); font-size:0.85rem;">#${item.idx + 1}</span>
+                <img src="${item.vid.thumbnailUrl}" style="width:52px; height:32px; object-fit:cover; border-radius:4px;">
+                <div style="min-width:0;">
+                  <div style="font-weight:600; font-size:0.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.vid.title}</div>
+                  <div style="font-size:0.74rem; color:var(--text-muted);">
+                    ${formatClock24(item.slot.startOfDaySeconds)} &rarr; ${formatClock24(item.effectiveEnd)} (${formatTime(item.effectiveDur)})
+                    ${item.crossesMidnight ? '<span style="margin-left:0.4rem; color:#FFB703; font-weight:700;">• Cut off at 24:00 (next day takes over)</span>' : ''}
+                    ${item.clippedByNext ? '<span style="margin-left:0.4rem; color:#FFB703; font-weight:700;">• Cut off by next slot</span>' : ''}
+                  </div>
+                </div>
               </div>
-            </div>
-            <div style="display:flex; align-items:center; gap:0.35rem;">
-              <button type="button" class="btn-icon" onclick="moveTimelineSlot(${item.idx}, -1)" title="Move Up" ${item.idx === 0 ? 'disabled' : ''}>
-                <span class="material-symbols-rounded" style="font-size:1.1rem;">arrow_upward</span>
-              </button>
-              <button type="button" class="btn-icon" onclick="moveTimelineSlot(${item.idx}, 1)" title="Move Down" ${item.idx === computed.length - 1 ? 'disabled' : ''}>
-                <span class="material-symbols-rounded" style="font-size:1.1rem;">arrow_downward</span>
-              </button>
               <button type="button" class="btn-icon delete" onclick="removeTimelineSlot(${item.idx})" title="Remove">
                 <span class="material-symbols-rounded" style="font-size:1.1rem;">delete</span>
               </button>
             </div>
+            <div style="display:flex; align-items:center; gap:0.65rem; flex-wrap:wrap; padding-top:0.45rem; border-top:1px solid var(--border); font-size:0.8rem;">
+              <label style="font-weight:600; color:var(--text-muted);">Air Time:</label>
+              <input type="time" value="${hh}:${mm}" onchange="updateTimelineSlotStartOfDay(${item.idx}, this.value)" style="background:var(--surface-light); border:1px solid var(--border); color:var(--text); padding:0.28rem 0.45rem; border-radius:6px; font-size:0.8rem;">
+              <label style="font-weight:600; color:var(--text-muted);">Playback:</label>
+              <select onchange="updateTimelineSlotMode(${item.idx}, this.value)" style="background:var(--surface-light); border:1px solid var(--border); color:var(--text); padding:0.3rem 0.55rem; border-radius:6px; font-size:0.8rem;">
+                <option value="WHOLE" ${item.slot.playMode === 'WHOLE' ? 'selected' : ''}>Play Whole Video (${formatTime(item.fullDur)})</option>
+                <option value="CLIP" ${item.slot.playMode === 'CLIP' ? 'selected' : ''}>Play from Timestamp</option>
+              </select>
+              ${item.slot.playMode === 'CLIP' ? `
+                <label style="color:var(--text-muted);">Start (sec):</label>
+                <input type="number" min="0" max="${item.fullDur - 1}" value="${item.cStart}" onchange="updateTimelineSlotTime(${item.idx}, 'start', this.value)" style="width:76px; background:var(--surface-light); border:1px solid var(--border); color:var(--text); padding:0.28rem 0.45rem; border-radius:6px;">
+                <label style="color:var(--text-muted);">End (sec):</label>
+                <input type="number" min="${item.cStart + 1}" max="${item.fullDur}" value="${item.cEnd}" onchange="updateTimelineSlotTime(${item.idx}, 'end', this.value)" style="width:76px; background:var(--surface-light); border:1px solid var(--border); color:var(--text); padding:0.28rem 0.45rem; border-radius:6px;">
+              ` : ''}
+            </div>
           </div>
-          <div style="display:flex; align-items:center; gap:0.65rem; flex-wrap:wrap; padding-top:0.45rem; border-top:1px solid var(--border); font-size:0.8rem;">
-            <label style="font-weight:600; color:var(--text-muted);">Playback:</label>
-            <select onchange="updateTimelineSlotMode(${item.idx}, this.value)" style="background:var(--surface-light); border:1px solid var(--border); color:var(--text); padding:0.3rem 0.55rem; border-radius:6px; font-size:0.8rem;">
-              <option value="WHOLE" ${item.slot.playMode === 'WHOLE' ? 'selected' : ''}>Play Whole Video (${formatTime(item.fullDur)})</option>
-              <option value="CLIP" ${item.slot.playMode === 'CLIP' ? 'selected' : ''}>Play from Timestamp</option>
-            </select>
-            ${item.slot.playMode === 'CLIP' ? `
-              <label style="color:var(--text-muted);">Start (sec):</label>
-              <input type="number" min="0" max="${item.fullDur - 1}" value="${item.start}" onchange="updateTimelineSlotTime(${item.idx}, 'start', this.value)" style="width:76px; background:var(--surface-light); border:1px solid var(--border); color:var(--text); padding:0.28rem 0.45rem; border-radius:6px;">
-              <label style="color:var(--text-muted);">End (sec):</label>
-              <input type="number" min="${item.start + 1}" max="${item.fullDur}" value="${item.end}" onchange="updateTimelineSlotTime(${item.idx}, 'end', this.value)" style="width:76px; background:var(--surface-light); border:1px solid var(--border); color:var(--text); padding:0.28rem 0.45rem; border-radius:6px;">
-            ` : ''}
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     async function createChannel(e) {
@@ -2000,16 +2198,25 @@
         category: document.getElementById('newChanCat').value,
         visibility: document.getElementById('newChanVisibility').value,
         description: document.getElementById('newChanDesc').value,
-        avatarUrl: document.getElementById('newChanAvatar').value || undefined
+        avatarUrl: document.getElementById('newChanAvatar').value || undefined,
+        scheduleTimezoneOffsetMinutes: -new Date().getTimezoneOffset()
       };
-      if (channelType === 'LIVE_TV' && liveTimelineDraft.length > 0) {
-        payload.liveTimeline = liveTimelineDraft.map(s => ({
-          videoId: s.videoId,
-          playMode: s.playMode,
-          startSeconds: s.playMode === 'CLIP' ? s.startSeconds : 0,
-          endSeconds: s.playMode === 'CLIP' ? s.endSeconds : null
+      const nonEmptySchedules = Object.values(liveSchedulesDraft).filter(s => s.slots && s.slots.length > 0);
+      if (channelType === 'LIVE_TV' && nonEmptySchedules.length > 0) {
+        payload.liveSchedules = nonEmptySchedules.map(s => ({
+          id: s.id,
+          ruleType: s.ruleType,
+          date: s.date,
+          weekday: s.weekday,
+          slots: s.slots.map(slot => ({
+            videoId: slot.videoId,
+            startOfDaySeconds: slot.startOfDaySeconds,
+            playMode: slot.playMode,
+            clipStartSeconds: slot.playMode === 'CLIP' ? slot.clipStartSeconds : 0,
+            clipEndSeconds: slot.playMode === 'CLIP' ? slot.clipEndSeconds : null
+          }))
         }));
-        payload.videoIds = Array.from(new Set(liveTimelineDraft.map(s => s.videoId)));
+        payload.videoIds = Array.from(new Set(nonEmptySchedules.flatMap(s => s.slots.map(sl => sl.videoId))));
       }
 
       const res = await authFetch('/api/channels', {
@@ -2020,7 +2227,9 @@
       const json = await res.json();
       if (json.success) {
         e.target.reset();
-        liveTimelineDraft = [];
+        liveSchedulesDraft = {};
+        activeTimelineScope = 'DATE';
+        activeTimelineDate = formatTodayYmd();
         toggleLiveTimelineBuilder();
         renderLiveTimelineBuilder();
         await loadChannels();
@@ -2741,7 +2950,7 @@
       document.getElementById('tabKids').style.display = name === 'kids' ? 'block' : 'none';
       document.getElementById('tabSettings').style.display = name === 'settings' ? 'block' : 'none';
 
-      if (name === 'channels') loadChannels();
+      if (name === 'channels') { loadChannels(); toggleLiveTimelineBuilder(); }
       if (name === 'kids') { loadParentChildren(); loadParentChannelControls(); }
       if (name === 'settings') loadSettings();
     }
