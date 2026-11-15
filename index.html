@@ -889,8 +889,8 @@
       <button type="button" class="filter-pill active" id="kidTabBtnCurated" onclick="switchKidShowcaseTab('curated')">
         <span class="material-symbols-rounded" style="font-size:1rem;">subscriptions</span> Curated Channels
       </button>
-      <button type="button" class="filter-pill" id="kidTabBtnSearch" onclick="switchKidShowcaseTab('search')" style="display:none;">
-        <span class="material-symbols-rounded" style="font-size:1rem;">youtube_searched_for</span> YouTube Search
+      <button type="button" class="filter-pill" id="kidTabBtnSearch" onclick="switchKidShowcaseTab('search')">
+        <span class="material-symbols-rounded" style="font-size:1rem;">youtube_searched_for</span> Search &amp; YouTube
       </button>
       <button type="button" class="filter-pill" id="kidTabBtnHistory" onclick="switchKidShowcaseTab('history')">
         <span class="material-symbols-rounded" style="font-size:1rem;">history</span> My History
@@ -898,19 +898,29 @@
       <button type="button" class="filter-pill" id="kidTabBtnPlaylists" onclick="switchKidShowcaseTab('playlists')">
         <span class="material-symbols-rounded" style="font-size:1rem;">playlist_play</span> My Playlists
       </button>
+      <button type="button" class="filter-pill" id="kidTabBtnAchievements" onclick="switchKidShowcaseTab('achievements')">
+        <span class="material-symbols-rounded" style="font-size:1rem;">emoji_events</span> Badges &amp; Stars
+      </button>
+      <button type="button" id="kidLevelPill" onclick="switchKidShowcaseTab('achievements')" style="margin-left:auto; display:inline-flex; align-items:center; gap:0.4rem; padding:0.35rem 0.85rem; border-radius:99px; border:1px solid rgba(255,209,102,0.38); background:rgba(255,209,102,0.12); color:#ffd166; font-weight:700; font-size:0.82rem; cursor:pointer;">
+        ⭐ 0 • Lv.1
+      </button>
     </div>
 
     <div id="kidYouTubeSearchPanel" style="display:none; margin-bottom:2rem;">
       <div class="card" style="padding:1.25rem 1.4rem; margin-bottom:1.25rem;">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.85rem;">
           <div>
-            <h3 style="font-size:1.15rem; margin-bottom:0.2rem;">Search YouTube Videos</h3>
-            <p style="color:var(--text-muted); font-size:0.86rem;">Find videos you like! Approved videos stay in your History forever.</p>
+            <h3 style="font-size:1.15rem; margin-bottom:0.2rem;">Search Safe Videos &amp; YouTube</h3>
+            <p style="color:var(--text-muted); font-size:0.86rem;">Search curated safe videos anytime, or use parent-supervised YouTube Search!</p>
           </div>
           <span id="kidSearchQuotaBadge" style="font-size:0.8rem; font-weight:700; padding:0.3rem 0.75rem; border-radius:99px; background:rgba(76,201,240,0.14); color:var(--accent);"></span>
         </div>
+        <div style="display:flex; gap:0.5rem; margin-bottom:0.85rem; flex-wrap:wrap;">
+          <button type="button" class="filter-pill active" id="kidSearchModeCurated" onclick="setKidSearchMode('curated')">Curated Safe</button>
+          <button type="button" class="filter-pill" id="kidSearchModeYouTube" onclick="setKidSearchMode('youtube')">YouTube Search</button>
+        </div>
         <form onsubmit="runKidYouTubeSearch(event)" style="display:flex; gap:0.6rem; flex-wrap:wrap;">
-          <input type="text" id="kidYouTubeSearchInput" placeholder="Search for cartoons, science, drawing, music..." style="flex:1 1 260px; padding:0.7rem 1rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit; font-size:0.95rem;" required>
+          <input type="text" id="kidYouTubeSearchInput" placeholder="Search safe cartoons, science, drawing, music..." style="flex:1 1 260px; padding:0.7rem 1rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit; font-size:0.95rem;" required>
           <button type="submit" class="btn btn-primary" id="kidYouTubeSearchBtn">
             <span class="material-symbols-rounded" style="font-size:1.05rem;">search</span> Search
           </button>
@@ -941,6 +951,15 @@
         </form>
       </div>
       <div id="kidPlaylistsContainer" style="display:flex; flex-direction:column; gap:1rem;"></div>
+    </div>
+
+    <div id="kidAchievementsPanel" style="display:none; margin-bottom:2rem;">
+      <div id="kidAchievementsHero" class="card" style="padding:1.4rem 1.6rem; margin-bottom:1.25rem; background:linear-gradient(135deg, rgba(255,46,147,0.12), rgba(76,201,240,0.12));">
+        <p style="color:var(--text-muted);">Loading your stars and badges...</p>
+      </div>
+      <div id="kidAchievementsStats" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:0.85rem; margin-bottom:1.25rem;"></div>
+      <h3 style="font-size:1.15rem; margin-bottom:0.85rem;">Achievements &amp; Badges</h3>
+      <div id="kidAchievementsGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:1rem;"></div>
     </div>
 
     <div id="showcaseCuratedPanel">
@@ -4035,8 +4054,11 @@
     }
 
     let kidSearchResults = [];
+    let kidCuratedSearchResults = [];
+    let kidSearchMode = 'youtube';
     let kidHistoryItems = [];
     let kidPlaylists = [];
+    let kidAchievementsData = null;
     let activeKidTab = 'curated';
 
     function updateKidToolsVisibility(user) {
@@ -4049,12 +4071,29 @@
         return;
       }
       bar.style.display = 'flex';
-      const canSearch = user.role === 'PARENT' || Boolean(user.youtubeSearchEnabled);
-      if (searchBtn) searchBtn.style.display = canSearch ? 'inline-flex' : 'none';
-      if (!canSearch && activeKidTab === 'search') {
-        switchKidShowcaseTab('curated');
-      }
+      if (searchBtn) searchBtn.style.display = 'inline-flex';
+      const canYouTube = user.role === 'PARENT' || Boolean(user.youtubeSearchEnabled);
+      setKidSearchMode(canYouTube ? 'youtube' : 'curated');
       updateKidSearchQuotaBadge(user);
+      loadKidAchievements();
+    }
+
+    function setKidSearchMode(mode) {
+      kidSearchMode = mode === 'curated' ? 'curated' : 'youtube';
+      document.getElementById('kidSearchModeCurated')?.classList.toggle('active', kidSearchMode === 'curated');
+      document.getElementById('kidSearchModeYouTube')?.classList.toggle('active', kidSearchMode === 'youtube');
+      const input = document.getElementById('kidYouTubeSearchInput');
+      if (input) {
+        input.placeholder = kidSearchMode === 'curated'
+          ? 'Search curated safe cartoons, science, songs...'
+          : 'Search YouTube (parent supervised)...';
+      }
+      if (input && input.value.trim()) {
+        runKidYouTubeSearch();
+      } else {
+        const resultsEl = document.getElementById('kidYouTubeSearchResults');
+        if (resultsEl) resultsEl.innerHTML = '';
+      }
     }
 
     function updateKidSearchQuotaBadge(settings) {
@@ -4073,19 +4112,109 @@
       const searchEl = document.getElementById('kidYouTubeSearchPanel');
       const historyEl = document.getElementById('kidHistoryPanel');
       const playlistsEl = document.getElementById('kidPlaylistsPanel');
+      const achievementsEl = document.getElementById('kidAchievementsPanel');
 
       if (curatedEl) curatedEl.style.display = activeKidTab === 'curated' ? 'block' : 'none';
       if (searchEl) searchEl.style.display = activeKidTab === 'search' ? 'block' : 'none';
       if (historyEl) historyEl.style.display = activeKidTab === 'history' ? 'block' : 'none';
       if (playlistsEl) playlistsEl.style.display = activeKidTab === 'playlists' ? 'block' : 'none';
+      if (achievementsEl) achievementsEl.style.display = activeKidTab === 'achievements' ? 'block' : 'none';
 
       document.getElementById('kidTabBtnCurated')?.classList.toggle('active', activeKidTab === 'curated');
       document.getElementById('kidTabBtnSearch')?.classList.toggle('active', activeKidTab === 'search');
       document.getElementById('kidTabBtnHistory')?.classList.toggle('active', activeKidTab === 'history');
       document.getElementById('kidTabBtnPlaylists')?.classList.toggle('active', activeKidTab === 'playlists');
+      document.getElementById('kidTabBtnAchievements')?.classList.toggle('active', activeKidTab === 'achievements');
 
       if (activeKidTab === 'history') loadKidHistory();
       if (activeKidTab === 'playlists') loadKidPlaylists();
+      if (activeKidTab === 'achievements') loadKidAchievements();
+    }
+
+    async function loadKidAchievements() {
+      if (!authToken) return;
+      try {
+        const res = await authFetch('/api/kids/achievements');
+        const json = await res.json();
+        if (!json.success || !json.data) return;
+        kidAchievementsData = json.data;
+        const pill = document.getElementById('kidLevelPill');
+        if (pill) {
+          pill.textContent = `⭐ ${json.data.stars} • Lv.${json.data.level} ${json.data.levelTitle}`;
+        }
+        renderKidAchievements();
+      } catch {
+        // Ignore transient network failures
+      }
+    }
+
+    function renderKidAchievements() {
+      const heroEl = document.getElementById('kidAchievementsHero');
+      const statsEl = document.getElementById('kidAchievementsStats');
+      const gridEl = document.getElementById('kidAchievementsGrid');
+      const d = kidAchievementsData;
+      if (!d || !heroEl || !statsEl || !gridEl) return;
+
+      heroEl.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:0.9rem;">
+          <div>
+            <div style="font-size:0.82rem; font-weight:700; color:#ffd166; text-transform:uppercase; letter-spacing:0.06em;">Level ${d.level} Explorer</div>
+            <h3 style="font-size:1.5rem; margin:0.15rem 0;">${d.levelTitle}</h3>
+            <p style="color:var(--text-muted); font-size:0.88rem;">${d.unlockedCount} of ${d.totalCount} badges unlocked</p>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:1.9rem; font-weight:800; color:#ffd166;">⭐ ${d.stars}</div>
+            <div style="font-size:0.8rem; color:var(--text-muted);">
+              ${d.level === 5 ? 'Max Level Reached!' : `Next level at ${d.nextLevelStars} ⭐`}
+            </div>
+          </div>
+        </div>
+        <div style="height:10px; background:rgba(255,255,255,0.08); border-radius:99px; overflow:hidden;">
+          <div style="height:100%; width:${d.progressPercent}%; background:linear-gradient(90deg, #ff2e93, #ffd166); border-radius:99px; transition:width 0.3s ease;"></div>
+        </div>
+      `;
+
+      const s = d.stats || {};
+      const statCards = [
+        { label: 'Videos Watched', value: s.videosWatched ?? 0, icon: '🎬' },
+        { label: 'Quizzes Passed', value: s.quizzesPassed ?? 0, icon: '🧠' },
+        { label: 'My Playlists', value: s.playlistsCreated ?? 0, icon: '🎵' },
+        { label: 'Approved Searches', value: s.approvedSearches ?? 0, icon: '🔍' }
+      ];
+      statsEl.innerHTML = statCards.map((c) => `
+        <div class="card" style="padding:1rem; text-align:center;">
+          <div style="font-size:1.5rem; margin-bottom:0.25rem;">${c.icon}</div>
+          <div style="font-size:1.35rem; font-weight:800;">${c.value}</div>
+          <div style="font-size:0.8rem; color:var(--text-muted);">${c.label}</div>
+        </div>
+      `).join('');
+
+      gridEl.innerHTML = (d.achievements || []).map((a) => {
+        const pct = Math.min(100, Math.round(((a.progress || 0) / (a.target || 1)) * 100));
+        return `
+          <div class="card" style="padding:1.1rem; border:${a.unlocked ? '1px solid rgba(255,209,102,0.55)' : '1px solid var(--border)'}; opacity:${a.unlocked ? '1' : '0.78'};">
+            <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.6rem;">
+              <div style="width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.6rem; background:${a.unlocked ? 'rgba(255,209,102,0.18)' : 'rgba(255,255,255,0.06)'};">
+                ${a.icon}
+              </div>
+              <div style="flex:1;">
+                <div style="font-weight:700; font-size:0.98rem;">${a.title}</div>
+                <div style="font-size:0.78rem; color:${a.unlocked ? '#06d6a0' : '#ffd166'}; font-weight:700;">
+                  ${a.unlocked ? 'Unlocked!' : `+${a.rewardStars} ⭐`}
+                </div>
+              </div>
+            </div>
+            <p style="font-size:0.84rem; color:var(--text-muted); margin-bottom:0.7rem;">${a.description}</p>
+            <div style="display:flex; justify-content:space-between; font-size:0.76rem; color:var(--text-muted); margin-bottom:0.3rem;">
+              <span>Progress</span>
+              <span>${a.progress} / ${a.target}</span>
+            </div>
+            <div style="height:6px; background:rgba(255,255,255,0.08); border-radius:99px; overflow:hidden;">
+              <div style="height:100%; width:${pct}%; background:${a.unlocked ? '#06d6a0' : 'var(--accent)'}; border-radius:99px;"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     async function runKidYouTubeSearch(e) {
@@ -4096,8 +4225,34 @@
       const resultsEl = document.getElementById('kidYouTubeSearchResults');
       const statusEl = document.getElementById('kidSearchStatusBanner');
       if (statusEl) statusEl.style.display = 'none';
-      if (resultsEl) resultsEl.innerHTML = '<p style="color:var(--text-muted);">Searching YouTube...</p>';
+      if (resultsEl) resultsEl.innerHTML = `<p style="color:var(--text-muted);">${kidSearchMode === 'curated' ? 'Searching curated safe videos...' : 'Searching YouTube...'}</p>`;
       try {
+        if (kidSearchMode === 'curated') {
+          const res = await fetch('/api/videos?search=' + encodeURIComponent(q));
+          const json = await res.json();
+          kidCuratedSearchResults = json.success ? (json.data || []) : [];
+          if (!kidCuratedSearchResults.length) {
+            if (resultsEl) resultsEl.innerHTML = '<p style="color:var(--text-muted);">No curated videos found. Try another search or switch to YouTube Search!</p>';
+            return;
+          }
+          if (resultsEl) {
+            resultsEl.innerHTML = kidCuratedSearchResults.map((v) => `
+              <div class="card video-card" onclick="openPlayer('${v.id}')" style="cursor:pointer;">
+                <div class="video-thumb">
+                  <img src="${v.thumbnailUrl}" alt="${v.title}" loading="lazy">
+                  <div class="badge-type">${v.sourceType}</div>
+                  <div class="badge-age">${v.ageRating}</div>
+                  <div class="play-overlay"><span class="material-symbols-rounded">play_arrow</span></div>
+                </div>
+                <div class="video-info">
+                  <div style="font-size:0.76rem; color:var(--text-muted); margin-bottom:0.25rem;">${v.channelTitle}</div>
+                  <div class="video-title">${v.title}</div>
+                </div>
+              </div>
+            `).join('');
+          }
+          return;
+        }
         const res = await authFetch('/api/kids/youtube-search?q=' + encodeURIComponent(q));
         const json = await res.json();
         if (!json.success) {
@@ -4111,7 +4266,7 @@
         }
         renderKidYouTubeSearchResults();
       } catch {
-        if (resultsEl) resultsEl.innerHTML = '<p style="color:var(--text-muted);">Failed to search YouTube.</p>';
+        if (resultsEl) resultsEl.innerHTML = '<p style="color:var(--text-muted);">Failed to search videos.</p>';
       }
     }
 

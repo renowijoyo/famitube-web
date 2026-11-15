@@ -1,11 +1,11 @@
 {
-  "name": "kidstube-web",
+  "name": "famitube-web",
   "version": "1.0.0",
-  "description": "Web Curation Studio for KidsTube",
+  "description": "Web Curation Studio for FamiTube",
   "scripts": {
     "dev": "npx serve . -p 3000",
     "start": "npx serve . -p 3000"
   },
-  "keywords": ["kidstube", "web", "curation-studio"],
+  "keywords": ["famitube", "web", "curation-studio"],
   "license": "MIT"
 }
