@@ -819,6 +819,11 @@
       </div>
 
       <div id="userBar" style="display:none; position:relative; align-items:center; gap:0.65rem;">
+        <button type="button" id="headerStarsPill" onclick="if(typeof switchView==='function') switchView('showcase'); if(typeof switchKidShowcaseTab==='function') switchKidShowcaseTab('achievements');" title="My Stars &amp; Badges" style="display:inline-flex; align-items:center; gap:0.35rem; padding:0.42rem 0.78rem; border-radius:99px; border:1px solid rgba(255,209,102,0.45); background:rgba(255,209,102,0.14); color:#ffd166; font-weight:800; font-size:0.84rem; cursor:pointer; white-space:nowrap;">
+          <span>⭐</span>
+          <span id="headerStarsCount">0</span>
+        </button>
+
         <div style="position:relative;">
           <button id="notifBellBtn" class="btn btn-secondary" onclick="toggleNotifMenu(event)" title="Notifications" style="padding:0.55rem; position:relative;">
             <span class="material-symbols-rounded">notifications</span>
@@ -1924,7 +1929,17 @@
           handleLogout();
           return;
         }
-        handleAuthenticatedUser(json.user);
+        if (json.user?.role === 'CHILD') {
+          handleAuthenticatedUser(json.user);
+          return;
+        }
+        currentUser = json.user;
+        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(json.user));
+        showStudioApp(json.user);
+        loadStats();
+        loadVideos();
+        loadChannels();
+        if (pendingInviteToken) checkInviteQueryParam();
       } catch {
         showAuthGate();
         showAuthAlert('Unable to reach API server at ' + API_BASE, true);
@@ -3772,6 +3787,44 @@
               <button type="button" class="btn btn-primary btn-sm" onclick="savePmChildSearchSettings('${c.id}')">Save Search Settings</button>
             </div>
           </div>
+
+          <div style="margin-top:0.9rem; padding:1rem; border-radius:var(--radius-sm); background:var(--bg); border:1px solid var(--border);">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.75rem;">
+              <div>
+                <div style="font-weight:700; font-size:0.95rem;">Parental Controls (Synced to Android App)</div>
+                <div style="font-size:0.8rem; color:var(--text-muted);">Configure screen time, PIN lock, and camera attention checks for ${c.name}.</div>
+              </div>
+              <button type="button" class="btn btn-primary btn-sm" onclick="savePmChildParentalControls('${c.id}')">Save Parental Controls</button>
+            </div>
+            <div class="form-row" style="align-items:end;">
+              <div class="form-group">
+                <label>Daily Watch Limit</label>
+                <select id="pmDailyLimit_${c.id}">
+                  ${[15, 30, 45, 60, 90, 120].map(m => `<option value="${m}" ${(c.dailyLimitMinutes ?? 45) === m ? 'selected' : ''}>${m} minutes</option>`).join('')}
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Parent PIN (4 digits)</label>
+                <input type="text" maxlength="4" pattern="\\d{4}" id="pmParentPin_${c.id}" value="${c.parentPin || '1234'}" placeholder="1234">
+              </div>
+              <div class="form-group">
+                <label>Attention Pause After</label>
+                <select id="pmAttPause_${c.id}">
+                  ${[5, 10, 15, 30, 45, 60].map(s => `<option value="${s}" ${(c.attentionPauseSeconds ?? 30) === s ? 'selected' : ''}>${s} seconds away</option>`).join('')}
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Min Watch for Stars</label>
+                <select id="pmAttMinPct_${c.id}">
+                  ${[50, 70, 85, 100].map(p => `<option value="${p}" ${(c.attentionMinWatchPercent ?? 70) === p ? 'selected' : ''}>${p}% active</option>`).join('')}
+                </select>
+              </div>
+            </div>
+            <label style="display:inline-flex; align-items:center; gap:0.45rem; font-size:0.86rem; font-weight:600; cursor:pointer; margin-top:0.5rem;">
+              <input type="checkbox" id="pmAttEnabled_${c.id}" ${c.attentionTrackingEnabled !== false ? 'checked' : ''}>
+              Enable Camera Attention Check (pauses video when child looks away)
+            </label>
+          </div>
         </div>
       `;
     }
@@ -3809,6 +3862,32 @@
       if (!json.success) return alert(json.message || 'Failed to update search settings');
       await loadParentModeChildren();
       alert('Search settings saved!');
+    }
+
+    async function savePmChildParentalControls(childId) {
+      const dailyLimitMinutes = Number(document.getElementById(`pmDailyLimit_${childId}`)?.value || 45);
+      const parentPin = String(document.getElementById(`pmParentPin_${childId}`)?.value || '').trim();
+      const attentionTrackingEnabled = Boolean(document.getElementById(`pmAttEnabled_${childId}`)?.checked);
+      const attentionPauseSeconds = Number(document.getElementById(`pmAttPause_${childId}`)?.value || 30);
+      const attentionMinWatchPercent = Number(document.getElementById(`pmAttMinPct_${childId}`)?.value || 70);
+      if (!/^\d{4}$/.test(parentPin)) {
+        return alert('Parent PIN must be exactly 4 digits.');
+      }
+      const res = await authFetch(`/api/parent/children/${childId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dailyLimitMinutes,
+          parentPin,
+          attentionTrackingEnabled,
+          attentionPauseSeconds,
+          attentionMinWatchPercent
+        })
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to save parental controls');
+      await loadParentModeChildren();
+      alert('Parental controls saved and synced!');
     }
 
     async function resetPmChildSearchViews(childId) {
@@ -4623,6 +4702,10 @@
         const json = await res.json();
         if (!json.success || !json.data) return;
         kidAchievementsData = json.data;
+        const headerStars = document.getElementById('headerStarsCount');
+        if (headerStars) {
+          headerStars.textContent = String(json.data.stars ?? 0);
+        }
         const pill = document.getElementById('kidLevelPill');
         if (pill) {
           pill.textContent = `⭐ ${json.data.stars} • Lv.${json.data.level} ${json.data.levelTitle}`;
