@@ -756,7 +756,6 @@
       <div class="brand-logo">F</div>
       <div>
         <span class="brand-title">FamiTube</span>
-        <span class="brand-badge">STUDIO CURATOR</span>
       </div>
     </a>
 
@@ -766,6 +765,9 @@
       </button>
       <button id="btnNavChannels" class="nav-link" onclick="openChannelsNav()">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">subscriptions</span> <span data-i18n="nav_channels">Channels</span>
+      </button>
+      <button id="btnModeParent" class="nav-link" style="display:none;" onclick="openParentMode()">
+        <span class="material-symbols-rounded" style="font-size:1.05rem;">supervisor_account</span> <span>Parent Mode</span>
       </button>
       <button id="btnModeStudio" class="nav-link" onclick="openStudio()">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">admin_panel_settings</span> <span data-i18n="nav_studio">Curator Studio</span>
@@ -876,7 +878,7 @@
       </div>
       <span id="loggedInBannerBadge" style="font-size:0.76rem; font-weight:700; padding:0.25rem 0.65rem; border-radius:99px; background:rgba(76,201,240,0.15); color:var(--accent);"></span>
     </div>
-    <div class="card" style="padding:1.75rem 2rem; margin-bottom:1.75rem; background:linear-gradient(135deg, rgba(255,51,102,0.16), rgba(67,97,238,0.18)); border-color:rgba(76,201,240,0.25);">
+    <div id="showcaseHeroCard" class="card" style="padding:1.75rem 2rem; margin-bottom:1.75rem; background:linear-gradient(135deg, rgba(255,51,102,0.16), rgba(67,97,238,0.18)); border-color:rgba(76,201,240,0.25);">
       <h2 data-i18n="hero_title" style="font-size:1.6rem; margin-bottom:0.35rem;">Safe, Curated Kids Channels &amp; Educational Videos</h2>
       <p data-i18n="hero_desc" style="color:var(--text-muted); font-size:0.95rem;">Pick a themed channel below to explore hand-picked, kid-friendly YouTube and educational videos. To add or manage content, switch to <strong>Curator Studio</strong>.</p>
       <p style="color:var(--text-muted); font-size:0.95rem; margin-top:0.6rem;">
@@ -911,23 +913,19 @@
         <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.85rem;">
           <div>
             <h3 style="font-size:1.15rem; margin-bottom:0.2rem;">Search Safe Videos &amp; YouTube</h3>
-            <p style="color:var(--text-muted); font-size:0.86rem;">Search curated safe videos anytime, or use parent-supervised YouTube Search!</p>
+            <p style="color:var(--text-muted); font-size:0.86rem;">One search finds both curated safe videos and parent-supervised YouTube results.</p>
           </div>
           <span id="kidSearchQuotaBadge" style="font-size:0.8rem; font-weight:700; padding:0.3rem 0.75rem; border-radius:99px; background:rgba(76,201,240,0.14); color:var(--accent);"></span>
         </div>
-        <div style="display:flex; gap:0.5rem; margin-bottom:0.85rem; flex-wrap:wrap;">
-          <button type="button" class="filter-pill active" id="kidSearchModeCurated" onclick="setKidSearchMode('curated')">Curated Safe</button>
-          <button type="button" class="filter-pill" id="kidSearchModeYouTube" onclick="setKidSearchMode('youtube')">YouTube Search</button>
-        </div>
         <form onsubmit="runKidYouTubeSearch(event)" style="display:flex; gap:0.6rem; flex-wrap:wrap;">
-          <input type="text" id="kidYouTubeSearchInput" placeholder="Search safe cartoons, science, drawing, music..." style="flex:1 1 260px; padding:0.7rem 1rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit; font-size:0.95rem;" required>
+          <input type="text" id="kidYouTubeSearchInput" placeholder="Search curated or YouTube videos..." style="flex:1 1 260px; padding:0.7rem 1rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit; font-size:0.95rem;" required>
           <button type="submit" class="btn btn-primary" id="kidYouTubeSearchBtn">
             <span class="material-symbols-rounded" style="font-size:1.05rem;">search</span> Search
           </button>
         </form>
         <div id="kidSearchStatusBanner" style="display:none; margin-top:0.85rem; padding:0.75rem 1rem; border-radius:var(--radius-sm); font-size:0.86rem;"></div>
       </div>
-      <div id="kidYouTubeSearchResults" class="video-grid"></div>
+      <div id="kidYouTubeSearchResults"></div>
     </div>
 
     <div id="kidHistoryPanel" style="display:none; margin-bottom:2rem;">
@@ -961,6 +959,8 @@
       <h3 style="font-size:1.15rem; margin-bottom:0.85rem;">Achievements &amp; Badges</h3>
       <div id="kidAchievementsGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:1rem;"></div>
     </div>
+
+    <div id="kidHomeHub" style="display:none; margin-bottom:2rem;"></div>
 
     <div id="showcaseCuratedPanel">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; gap:1rem; flex-wrap:wrap;">
@@ -1083,6 +1083,72 @@
         </div>
         <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Create Account</button>
       </form>
+    </div>
+  </div>
+
+  <!-- Parent Mode (Child Management & Profiles) -->
+  <div class="container" id="parentModeApp" style="display:none; padding-top:1.75rem; padding-bottom:2.5rem;">
+    <div id="parentChildrenListView">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
+        <div>
+          <h1 style="font-family:'Fredoka',cursive; font-size:1.75rem; margin:0;">Parent Mode</h1>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin:0.25rem 0 0 0;">Select a child to open their profile, or add a new child.</p>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="toggleParentAddChildForm()">
+          <span class="material-symbols-rounded">person_add</span> Add Child
+        </button>
+      </div>
+
+      <div id="parentAddChildBox" class="channel-creator-box" style="display:none; margin-bottom:1.5rem;">
+        <h3 style="font-family:'Fredoka',cursive; font-size:1.15rem; margin-bottom:0.5rem; display:flex; align-items:center; gap:0.5rem;">
+          <span class="material-symbols-rounded" style="color:var(--accent);">child_care</span>
+          Add a Child Account
+        </h3>
+        <form onsubmit="registerParentModeChild(event)">
+          <div class="form-row-3" style="margin-bottom:0.75rem;">
+            <div class="form-group">
+              <label>Child Name</label>
+              <input type="text" id="pmChildNameInput" placeholder="e.g. Leo" required>
+            </div>
+            <div class="form-group">
+              <label>Child Email Account</label>
+              <input type="email" id="pmChildEmailInput" placeholder="leo@example.com" required>
+            </div>
+            <div class="form-group">
+              <label>Password (min 6 chars)</label>
+              <input type="password" id="pmChildPasswordInput" minlength="6" placeholder="••••••••" required>
+            </div>
+          </div>
+          <div class="form-row-3" style="margin-bottom:0.5rem; align-items:end;">
+            <div class="form-group">
+              <label>Child Birthday</label>
+              <input type="date" id="pmChildBirthdayInput" onchange="onPmChildBirthdayChange(this.value)" required>
+            </div>
+            <div class="form-group">
+              <label>Age Group (Auto from Birthday — Editable)</label>
+              <select id="pmChildAgeRatingInput">
+                <option value="TODDLER">Toddler (0-4 yrs)</option>
+                <option value="YOUNG_KIDS">Young Kids (5-7 yrs)</option>
+                <option value="OLDER_KIDS">Explorers / Tweens (8-11 yrs)</option>
+                <option value="ALL">Pre-Teens &amp; Up (12+ yrs)</option>
+              </select>
+            </div>
+            <div style="display:flex; gap:0.5rem;">
+              <button type="submit" class="btn btn-primary">Save Child</button>
+              <button type="button" class="btn btn-secondary" onclick="toggleParentAddChildForm(false)">Cancel</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div id="parentModeChildrenGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:1rem;"></div>
+    </div>
+
+    <div id="childProfileView" style="display:none;">
+      <button type="button" class="btn btn-secondary" onclick="closeChildProfile()" style="margin-bottom:1.25rem;">
+        <span class="material-symbols-rounded">arrow_back</span> Back to Children
+      </button>
+      <div id="childProfileContent"></div>
     </div>
   </div>
 
@@ -1371,14 +1437,18 @@
               <input type="password" id="childPasswordInput" minlength="6" placeholder="••••••••" required>
             </div>
           </div>
-          <div class="form-row" style="margin-bottom:0.85rem; align-items:end;">
+          <div class="form-row-3" style="margin-bottom:0.85rem; align-items:end;">
             <div class="form-group">
-              <label>Age Rating Filter</label>
+              <label>Child Birthday</label>
+              <input type="date" id="childBirthdayInput" onchange="onChildBirthdayChange(this.value)" required>
+            </div>
+            <div class="form-group">
+              <label>Age Group (Auto from Birthday — Editable)</label>
               <select id="childAgeRatingInput">
-                <option value="ALL">All Ages</option>
-                <option value="TODDLER">Toddler (2-4)</option>
-                <option value="YOUNG_KIDS">Young Kids (5-8)</option>
-                <option value="OLDER_KIDS">Older Kids (9-12)</option>
+                <option value="TODDLER">Toddler (0-4 yrs)</option>
+                <option value="YOUNG_KIDS">Young Kids (5-7 yrs)</option>
+                <option value="OLDER_KIDS">Explorers / Tweens (8-11 yrs)</option>
+                <option value="ALL">Pre-Teens & Up (12+ yrs)</option>
               </select>
             </div>
             <div>
@@ -1740,13 +1810,19 @@
     function setModeButtons(mode) {
       const homeBtn = document.getElementById('btnNavHome');
       const channelsBtn = document.getElementById('btnNavChannels');
+      const parentBtn = document.getElementById('btnModeParent');
       const studioBtn = document.getElementById('btnModeStudio');
       if (homeBtn) homeBtn.className = mode === 'showcase' ? 'nav-link active' : 'nav-link';
       if (channelsBtn) channelsBtn.className = mode === 'channels' ? 'nav-link active' : 'nav-link';
+      if (parentBtn) parentBtn.className = mode === 'parent' ? 'nav-link active' : 'nav-link';
       if (studioBtn) studioBtn.className = mode === 'studio' ? 'nav-link active' : 'nav-link';
     }
 
     function openHome(useKidsFeed = false) {
+      if (currentUser?.role === 'PARENT') {
+        openParentMode();
+        return;
+      }
       setModeButtons('showcase');
       if (window.location.hash === '#channels') {
         history.replaceState(null, '', window.location.pathname + window.location.search);
@@ -1755,11 +1831,16 @@
       document.getElementById('showcaseApp').style.display = 'block';
       document.getElementById('channelsSearchApp').style.display = 'none';
       document.getElementById('authGate').style.display = 'none';
+      document.getElementById('parentModeApp').style.display = 'none';
       document.getElementById('studioApp').style.display = 'none';
       loadShowcase(useKidsFeed || (currentUser && currentUser.role === 'CHILD'));
     }
 
     function openChannelsNav() {
+      if (currentUser?.role === 'PARENT') {
+        openParentMode();
+        return;
+      }
       setModeButtons('channels');
       if (window.location.hash !== '#channels') {
         history.replaceState(null, '', '#channels');
@@ -1768,6 +1849,7 @@
       document.getElementById('showcaseApp').style.display = 'none';
       document.getElementById('channelsSearchApp').style.display = 'block';
       document.getElementById('authGate').style.display = 'none';
+      document.getElementById('parentModeApp').style.display = 'none';
       document.getElementById('studioApp').style.display = 'none';
       loadChannelSearchPage(currentUser && currentUser.role === 'CHILD');
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1973,16 +2055,32 @@
       const bannerText = document.getElementById('loggedInBannerText');
       const bannerBadge = document.getElementById('loggedInBannerBadge');
       if (banner && bannerText && bannerBadge) {
-        banner.style.display = 'flex';
-        bannerText.textContent = `Signed in as ${displayName}`;
-        bannerBadge.textContent = user?.role === 'CHILD'
-          ? `Kid Mode • Age Filter: ${user.ageRating || 'ALL'}`
-          : 'Parent Account';
+        const userKey = String(user?.id || user?.email || '');
+        const alreadySeen = userKey && localStorage.getItem('famitube_welcome_seen') === userKey;
+        if (alreadySeen) {
+          banner.style.display = 'none';
+        } else {
+          if (userKey) localStorage.setItem('famitube_welcome_seen', userKey);
+          banner.style.display = 'flex';
+          bannerText.textContent = `Signed in as ${displayName}`;
+          bannerBadge.textContent = user?.role === 'CHILD'
+            ? `Kid Mode • Age Filter: ${user.ageRating || 'ALL'}`
+            : 'Parent Account';
+          setTimeout(() => {
+            if (banner) banner.style.display = 'none';
+          }, 5000);
+        }
       }
       if (user?.role === 'CHILD') {
+        document.getElementById('btnNavHome').style.display = 'inline-flex';
+        document.getElementById('btnNavChannels').style.display = 'inline-flex';
+        document.getElementById('btnModeParent').style.display = 'none';
         document.getElementById('btnModeStudio').style.display = 'none';
         document.getElementById('profileMenuMeta').textContent = `${user.email} • Kid Mode`;
       } else {
+        document.getElementById('btnNavHome').style.display = 'none';
+        document.getElementById('btnNavChannels').style.display = 'none';
+        document.getElementById('btnModeParent').style.display = 'inline-flex';
         document.getElementById('btnModeStudio').style.display = 'inline-flex';
         document.getElementById('profileMenuMeta').textContent = `${user?.email || ''} • Parent`;
       }
@@ -1996,11 +2094,12 @@
       applyUserHeaderUI(user);
       if (user?.role === 'CHILD') {
         document.getElementById('authGate').style.display = 'none';
+        document.getElementById('parentModeApp').style.display = 'none';
         document.getElementById('studioApp').style.display = 'none';
         openHome(true);
         return;
       }
-      showStudioApp(user);
+      openParentMode();
       loadStats();
       loadVideos();
       loadChannels();
@@ -2014,6 +2113,7 @@
       document.getElementById('showcaseApp').style.display = 'none';
       document.getElementById('channelsSearchApp').style.display = 'none';
       document.getElementById('authGate').style.display = 'flex';
+      document.getElementById('parentModeApp').style.display = 'none';
       document.getElementById('studioApp').style.display = 'none';
       document.getElementById('userBar').style.display = 'none';
       document.getElementById('guestProfileMenu').style.display = 'flex';
@@ -2021,10 +2121,11 @@
 
     function showStudioApp(user) {
       setModeButtons('studio');
-      document.getElementById('linkChannelsJson').style.display = 'inline-flex';
+      document.getElementById('linkChannelsJson').style.display = 'none';
       document.getElementById('showcaseApp').style.display = 'none';
       document.getElementById('channelsSearchApp').style.display = 'none';
       document.getElementById('authGate').style.display = 'none';
+      document.getElementById('parentModeApp').style.display = 'none';
       document.getElementById('studioApp').style.display = 'block';
       applyUserHeaderUI(user);
     }
@@ -2036,12 +2137,17 @@
       updateKidToolsVisibility(null);
       localStorage.removeItem(AUTH_TOKEN_KEY);
       localStorage.removeItem(AUTH_USER_KEY);
+      localStorage.removeItem('famitube_welcome_seen');
       document.getElementById('profileDropdownMenu').style.display = 'none';
       document.getElementById('notifDropdownMenu').style.display = 'none';
       document.getElementById('loggedInWelcomeBanner').style.display = 'none';
       document.getElementById('userBar').style.display = 'none';
       document.getElementById('guestProfileMenu').style.display = 'flex';
+      document.getElementById('btnNavHome').style.display = 'inline-flex';
+      document.getElementById('btnNavChannels').style.display = 'inline-flex';
+      document.getElementById('btnModeParent').style.display = 'none';
       document.getElementById('btnModeStudio').style.display = 'inline-flex';
+      document.getElementById('parentModeApp').style.display = 'none';
       if (wasChild) {
         openHome(false);
       } else {
@@ -3371,12 +3477,12 @@
             <div>
               <div style="font-weight:700; font-size:0.95rem;">${c.name} <span style="font-weight:400; color:var(--text-muted); font-size:0.82rem;">(${c.email})</span></div>
               <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.2rem;">
-                Age Filter:
+                ${c.birthday ? `Birthday: <strong>${c.birthday}</strong> • ` : ''}Age Group:
                 <select onchange="updateChildAgeRating('${c.id}', this.value)" style="margin-left:0.35rem; padding:2px 6px; border-radius:4px; border:1px solid var(--border);">
-                  <option value="ALL" ${c.ageRating === 'ALL' ? 'selected' : ''}>All Ages</option>
-                  <option value="TODDLER" ${c.ageRating === 'TODDLER' ? 'selected' : ''}>Toddler (2-4)</option>
-                  <option value="YOUNG_KIDS" ${c.ageRating === 'YOUNG_KIDS' ? 'selected' : ''}>Young Kids (5-8)</option>
-                  <option value="OLDER_KIDS" ${c.ageRating === 'OLDER_KIDS' ? 'selected' : ''}>Older Kids (9-12)</option>
+                  <option value="ALL" ${c.ageRating === 'ALL' ? 'selected' : ''}>Pre-Teens & Up (12+)</option>
+                  <option value="TODDLER" ${c.ageRating === 'TODDLER' ? 'selected' : ''}>Toddler (0-4)</option>
+                  <option value="YOUNG_KIDS" ${c.ageRating === 'YOUNG_KIDS' ? 'selected' : ''}>Young Kids (5-7)</option>
+                  <option value="OLDER_KIDS" ${c.ageRating === 'OLDER_KIDS' ? 'selected' : ''}>Explorers (8-11)</option>
                 </select>
               </div>
             </div>
@@ -3407,12 +3513,270 @@
       `).join('');
     }
 
+    let parentModeChildrenCache = [];
+    let activeChildProfileId = null;
+
+    function openParentMode() {
+      if (!authToken || currentUser?.role !== 'PARENT') {
+        showAuthGate('PARENT');
+        return;
+      }
+      setModeButtons('parent');
+      document.getElementById('linkChannelsJson').style.display = 'none';
+      document.getElementById('showcaseApp').style.display = 'none';
+      document.getElementById('channelsSearchApp').style.display = 'none';
+      document.getElementById('authGate').style.display = 'none';
+      document.getElementById('studioApp').style.display = 'none';
+      document.getElementById('parentModeApp').style.display = 'block';
+      closeChildProfile();
+      loadParentModeChildren();
+    }
+
+    function toggleParentAddChildForm(forceState) {
+      const box = document.getElementById('parentAddChildBox');
+      if (!box) return;
+      const shouldShow = typeof forceState === 'boolean' ? forceState : box.style.display === 'none';
+      box.style.display = shouldShow ? 'block' : 'none';
+    }
+
+    function deriveAgeRatingFromBirthdayInput(birthdayStr) {
+      if (!birthdayStr) return null;
+      const parts = birthdayStr.split('-').map(Number);
+      if (parts.length !== 3) return null;
+      const [y, m, d] = parts;
+      const now = new Date();
+      let age = now.getFullYear() - y;
+      const monthDiff = (now.getMonth() + 1) - m;
+      if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < d)) age--;
+      if (age <= 4) return 'TODDLER';
+      if (age <= 7) return 'YOUNG_KIDS';
+      if (age <= 11) return 'OLDER_KIDS';
+      return 'ALL';
+    }
+
+    function onChildBirthdayChange(birthdayStr) {
+      const derived = deriveAgeRatingFromBirthdayInput(birthdayStr);
+      const sel = document.getElementById('childAgeRatingInput');
+      if (derived && sel) sel.value = derived;
+    }
+
+    function onPmChildBirthdayChange(birthdayStr) {
+      const derived = deriveAgeRatingFromBirthdayInput(birthdayStr);
+      const sel = document.getElementById('pmChildAgeRatingInput');
+      if (derived && sel) sel.value = derived;
+    }
+
+    function formatAgeGroupLabel(ageRating) {
+      switch (ageRating) {
+        case 'TODDLER': return 'Toddler (0-4 yrs)';
+        case 'YOUNG_KIDS': return 'Young Kids (5-7 yrs)';
+        case 'OLDER_KIDS': return 'Explorers (8-11 yrs)';
+        default: return 'Pre-Teens & Up (12+ yrs)';
+      }
+    }
+
+    async function loadParentModeChildren() {
+      const res = await authFetch('/api/parent/children');
+      const json = await res.json();
+      const grid = document.getElementById('parentModeChildrenGrid');
+      if (!grid) return;
+      if (!json.success || !json.data.length) {
+        parentModeChildrenCache = [];
+        grid.innerHTML = '<div style="grid-column:1/-1; color:var(--text-muted); padding:1.5rem; background:var(--surface); border-radius:var(--radius-sm); border:1px solid var(--border);">No children registered yet. Click <strong>Add Child</strong> above to get started.</div>';
+        return;
+      }
+      parentModeChildrenCache = json.data;
+      grid.innerHTML = json.data.map(c => `
+        <div onclick="openChildProfile('${c.id}')" style="cursor:pointer; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1.15rem; display:flex; flex-direction:column; gap:0.75rem; transition:transform 0.15s ease, border-color 0.15s ease;" onmouseover="this.style.borderColor='var(--primary)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='none'">
+          <div style="display:flex; align-items:center; gap:0.85rem;">
+            <div style="width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg, var(--primary), var(--secondary)); color:white; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.15rem; flex-shrink:0;">
+              ${getUserInitials(c.name || c.email)}
+            </div>
+            <div style="min-width:0;">
+              <div style="font-weight:800; font-size:1.05rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.name}</div>
+              <div style="font-size:0.8rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.email}</div>
+            </div>
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:0.4rem; align-items:center;">
+            <span style="font-size:0.76rem; font-weight:700; padding:0.25rem 0.6rem; border-radius:99px; background:rgba(67,97,238,0.12); color:var(--secondary);">${formatAgeGroupLabel(c.ageRating)}</span>
+            ${c.birthday ? `<span style="font-size:0.76rem; color:var(--text-muted);">🎂 ${c.birthday}</span>` : ''}
+          </div>
+          <div style="font-size:0.8rem; font-weight:700; color:var(--primary); display:flex; align-items:center; gap:0.25rem;">
+            Open Profile <span class="material-symbols-rounded" style="font-size:1rem;">chevron_right</span>
+          </div>
+        </div>
+      `).join('');
+
+      if (activeChildProfileId) {
+        const stillExists = parentModeChildrenCache.find(x => x.id === activeChildProfileId);
+        if (stillExists) renderChildProfile(stillExists);
+        else closeChildProfile();
+      }
+    }
+
+    function openChildProfile(childId) {
+      const child = parentModeChildrenCache.find(c => c.id === childId);
+      if (!child) return;
+      activeChildProfileId = childId;
+      document.getElementById('parentChildrenListView').style.display = 'none';
+      document.getElementById('childProfileView').style.display = 'block';
+      renderChildProfile(child);
+    }
+
+    function closeChildProfile() {
+      activeChildProfileId = null;
+      const listEl = document.getElementById('parentChildrenListView');
+      const profileEl = document.getElementById('childProfileView');
+      if (listEl) listEl.style.display = 'block';
+      if (profileEl) profileEl.style.display = 'none';
+    }
+
+    function renderChildProfile(c) {
+      const container = document.getElementById('childProfileContent');
+      if (!container) return;
+      container.innerHTML = `
+        <div class="channel-creator-box" style="margin-bottom:1.25rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.25rem;">
+            <div style="display:flex; align-items:center; gap:1rem;">
+              <div style="width:60px; height:60px; border-radius:50%; background:linear-gradient(135deg, var(--primary), var(--secondary)); color:white; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.45rem;">
+                ${getUserInitials(c.name || c.email)}
+              </div>
+              <div>
+                <h2 style="font-family:'Fredoka',cursive; font-size:1.45rem; margin:0;">${c.name}</h2>
+                <div style="font-size:0.86rem; color:var(--text-muted);">${c.email}${c.birthday ? ` • 🎂 ${c.birthday}` : ''}</div>
+              </div>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="removeChildFromProfile('${c.id}')">Remove Child</button>
+          </div>
+
+          <div class="form-row" style="margin-bottom:1rem; align-items:end;">
+            <div class="form-group">
+              <label>Birthday</label>
+              <input type="date" id="profileBirthday_${c.id}" value="${c.birthday || ''}" onchange="onProfileBirthdayChange('${c.id}', this.value)">
+            </div>
+            <div class="form-group">
+              <label>Age Group</label>
+              <select id="profileAgeRating_${c.id}">
+                <option value="TODDLER" ${c.ageRating === 'TODDLER' ? 'selected' : ''}>Toddler (0-4 yrs)</option>
+                <option value="YOUNG_KIDS" ${c.ageRating === 'YOUNG_KIDS' ? 'selected' : ''}>Young Kids (5-7 yrs)</option>
+                <option value="OLDER_KIDS" ${c.ageRating === 'OLDER_KIDS' ? 'selected' : ''}>Explorers (8-11 yrs)</option>
+                <option value="ALL" ${c.ageRating === 'ALL' ? 'selected' : ''}>Pre-Teens &amp; Up (12+ yrs)</option>
+              </select>
+            </div>
+            <div>
+              <button type="button" class="btn btn-primary" onclick="saveChildProfileBasics('${c.id}')">Save Profile</button>
+            </div>
+          </div>
+
+          <div style="padding:0.9rem 1rem; border-radius:var(--radius-sm); background:var(--bg); border:1px solid var(--border); display:flex; flex-wrap:wrap; gap:1rem; align-items:center; justify-content:space-between;">
+            <div style="display:flex; flex-wrap:wrap; gap:1rem; align-items:center; font-size:0.86rem;">
+              <label style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; cursor:pointer;">
+                <input type="checkbox" id="pmSearchEnabled_${c.id}" ${c.youtubeSearchEnabled ? 'checked' : ''}>
+                Enable YouTube Search
+              </label>
+              <label style="display:inline-flex; align-items:center; gap:0.4rem;">
+                Max Searched Videos (0 = unlimited):
+                <input type="number" min="0" id="pmSearchLimit_${c.id}" value="${c.searchViewLimit ?? 5}" style="width:72px; padding:0.25rem 0.45rem; border-radius:4px; border:1px solid var(--border); background:var(--surface); color:var(--text);">
+              </label>
+              <span style="color:var(--accent); font-weight:600;">Used: ${c.searchViewsUsed ?? 0}</span>
+              <label style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; cursor:pointer;">
+                <input type="checkbox" id="pmSearchApproval_${c.id}" ${c.searchRequireApproval !== false ? 'checked' : ''}>
+                Require Parent Approval
+              </label>
+            </div>
+            <div style="display:flex; gap:0.5rem;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="resetPmChildSearchViews('${c.id}')">Reset Count</button>
+              <button type="button" class="btn btn-primary btn-sm" onclick="savePmChildSearchSettings('${c.id}')">Save Search Settings</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function onProfileBirthdayChange(childId, birthdayStr) {
+      const derived = deriveAgeRatingFromBirthdayInput(birthdayStr);
+      const sel = document.getElementById(`profileAgeRating_${childId}`);
+      if (derived && sel) sel.value = derived;
+    }
+
+    async function saveChildProfileBasics(childId) {
+      const birthday = document.getElementById(`profileBirthday_${childId}`)?.value || undefined;
+      const ageRating = document.getElementById(`profileAgeRating_${childId}`)?.value;
+      const res = await authFetch(`/api/parent/children/${childId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ birthday, ageRating })
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to save child profile');
+      await loadParentModeChildren();
+      alert('Child profile updated!');
+    }
+
+    async function savePmChildSearchSettings(childId) {
+      const youtubeSearchEnabled = Boolean(document.getElementById(`pmSearchEnabled_${childId}`)?.checked);
+      const searchViewLimit = Math.max(0, Number(document.getElementById(`pmSearchLimit_${childId}`)?.value || 0));
+      const searchRequireApproval = Boolean(document.getElementById(`pmSearchApproval_${childId}`)?.checked);
+      const res = await authFetch(`/api/parent/children/${childId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ youtubeSearchEnabled, searchViewLimit, searchRequireApproval })
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to update search settings');
+      await loadParentModeChildren();
+      alert('Search settings saved!');
+    }
+
+    async function resetPmChildSearchViews(childId) {
+      const res = await authFetch(`/api/parent/children/${childId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resetSearchViewsUsed: true })
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to reset view count');
+      await loadParentModeChildren();
+    }
+
+    async function removeChildFromProfile(childId) {
+      if (!confirm('Remove this child account?')) return;
+      const res = await authFetch(`/api/parent/children/${childId}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to remove child');
+      closeChildProfile();
+      await loadParentModeChildren();
+    }
+
+    async function registerParentModeChild(e) {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById('pmChildNameInput').value.trim(),
+        email: document.getElementById('pmChildEmailInput').value.trim(),
+        password: document.getElementById('pmChildPasswordInput').value,
+        birthday: document.getElementById('pmChildBirthdayInput').value,
+        ageRating: document.getElementById('pmChildAgeRatingInput').value
+      };
+      const res = await authFetch('/api/parent/children', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to register child');
+      e.target.reset();
+      toggleParentAddChildForm(false);
+      await loadParentModeChildren();
+      alert('Child account added!');
+    }
+
     async function registerChildAccount(e) {
       e.preventDefault();
       const payload = {
         name: document.getElementById('childNameInput').value.trim(),
         email: document.getElementById('childEmailInput').value.trim(),
         password: document.getElementById('childPasswordInput').value,
+        birthday: document.getElementById('childBirthdayInput').value,
         ageRating: document.getElementById('childAgeRatingInput').value
       };
       const res = await authFetch('/api/parent/children', {
@@ -4061,21 +4425,50 @@
     let kidAchievementsData = null;
     let activeKidTab = 'curated';
 
+    function isSimpleKidUser(user) {
+      return user?.role === 'CHILD' && (user.ageRating === 'TODDLER' || user.ageRating === 'YOUNG_KIDS');
+    }
+
     function updateKidToolsVisibility(user) {
       const bar = document.getElementById('kidToolsBar');
       const searchBtn = document.getElementById('kidTabBtnSearch');
+      const playlistsBtn = document.getElementById('kidTabBtnPlaylists');
+      const curatedTabBtn = document.getElementById('kidTabBtnCurated');
+      const navChannelsBtn = document.getElementById('btnNavChannels');
+      const heroCard = document.getElementById('showcaseHeroCard');
+      const kidHub = document.getElementById('kidHomeHub');
+      const curatedPanel = document.getElementById('showcaseCuratedPanel');
+
+      if (heroCard) {
+        heroCard.style.display = user?.role === 'CHILD' ? 'none' : 'block';
+      }
       if (!bar) return;
       if (!user || !authToken) {
         bar.style.display = 'none';
+        if (kidHub) kidHub.style.display = 'none';
+        if (curatedPanel) curatedPanel.style.display = 'block';
         switchKidShowcaseTab('curated');
         return;
       }
+
+      const simpleMode = isSimpleKidUser(user);
       bar.style.display = 'flex';
-      if (searchBtn) searchBtn.style.display = 'inline-flex';
-      const canYouTube = user.role === 'PARENT' || Boolean(user.youtubeSearchEnabled);
-      setKidSearchMode(canYouTube ? 'youtube' : 'curated');
+      if (curatedTabBtn) {
+        curatedTabBtn.innerHTML = `<span class="material-symbols-rounded" style="font-size:1rem;">${simpleMode ? 'grid_view' : 'home'}</span> ${simpleMode ? 'Topics' : 'Explore'}`;
+      }
+      if (searchBtn) searchBtn.style.display = simpleMode ? 'none' : 'inline-flex';
+      if (playlistsBtn) playlistsBtn.style.display = simpleMode ? 'none' : 'inline-flex';
+      if (navChannelsBtn && user.role === 'CHILD') {
+        navChannelsBtn.style.display = simpleMode ? 'none' : 'inline-flex';
+      }
+
       updateKidSearchQuotaBadge(user);
       loadKidAchievements();
+      if (user.role === 'CHILD') {
+        renderKidHomeHub(user);
+      } else {
+        if (kidHub) kidHub.style.display = 'none';
+      }
     }
 
     function setKidSearchMode(mode) {
@@ -4108,13 +4501,21 @@
 
     function switchKidShowcaseTab(tab) {
       activeKidTab = tab || 'curated';
+      const isChild = currentUser?.role === 'CHILD';
       const curatedEl = document.getElementById('showcaseCuratedPanel');
+      const kidHubEl = document.getElementById('kidHomeHub');
       const searchEl = document.getElementById('kidYouTubeSearchPanel');
       const historyEl = document.getElementById('kidHistoryPanel');
       const playlistsEl = document.getElementById('kidPlaylistsPanel');
       const achievementsEl = document.getElementById('kidAchievementsPanel');
 
-      if (curatedEl) curatedEl.style.display = activeKidTab === 'curated' ? 'block' : 'none';
+      if (isChild) {
+        if (curatedEl) curatedEl.style.display = 'none';
+        if (kidHubEl) kidHubEl.style.display = activeKidTab === 'curated' ? 'block' : 'none';
+      } else {
+        if (kidHubEl) kidHubEl.style.display = 'none';
+        if (curatedEl) curatedEl.style.display = activeKidTab === 'curated' ? 'block' : 'none';
+      }
       if (searchEl) searchEl.style.display = activeKidTab === 'search' ? 'block' : 'none';
       if (historyEl) historyEl.style.display = activeKidTab === 'history' ? 'block' : 'none';
       if (playlistsEl) playlistsEl.style.display = activeKidTab === 'playlists' ? 'block' : 'none';
@@ -4126,6 +4527,7 @@
       document.getElementById('kidTabBtnPlaylists')?.classList.toggle('active', activeKidTab === 'playlists');
       document.getElementById('kidTabBtnAchievements')?.classList.toggle('active', activeKidTab === 'achievements');
 
+      if (activeKidTab === 'curated' && isChild) renderKidHomeHub(currentUser);
       if (activeKidTab === 'history') loadKidHistory();
       if (activeKidTab === 'playlists') loadKidPlaylists();
       if (activeKidTab === 'achievements') loadKidAchievements();
@@ -4217,6 +4619,152 @@
       }).join('');
     }
 
+    let kidHomeCategoriesCache = [];
+    let kidHomeSelectedTopic = null;
+    let kidCuratedVisibleLimit = 5;
+    let kidYtVisibleLimit = 10;
+
+    function kidTopicEmoji(name) {
+      const lower = String(name || '').toLowerCase();
+      if (lower.includes('animal') || lower.includes('nature')) return '🦁';
+      if (lower.includes('cartoon') || lower.includes('fun')) return '🎨';
+      if (lower.includes('craft') || lower.includes('art')) return '✂️';
+      if (lower.includes('discovery') || lower.includes('world')) return '🌍';
+      if (lower.includes('yoga') || lower.includes('active')) return '🤸';
+      if (lower.includes('learn') || lower.includes('abc')) return '📚';
+      if (lower.includes('music') || lower.includes('rhyme')) return '🎵';
+      if (lower.includes('science') || lower.includes('space')) return '🚀';
+      if (lower.includes('math') || lower.includes('coding')) return '🔢';
+      if (lower.includes('stor') || lower.includes('read')) return '📖';
+      return '🎬';
+    }
+
+    async function renderKidHomeHub(user) {
+      const hub = document.getElementById('kidHomeHub');
+      if (!hub || user?.role !== 'CHILD') return;
+      hub.style.display = 'block';
+      if (!kidHomeCategoriesCache.length) {
+        try {
+          const res = await fetch(apiUrl('/api/categories'));
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data)) {
+            kidHomeCategoriesCache = json.data.filter(c => c.name !== 'All Videos');
+          }
+        } catch {}
+      }
+
+      const simpleMode = isSimpleKidUser(user);
+      const isToddler = user.ageRating === 'TODDLER';
+
+      if (simpleMode) {
+        if (!kidHomeSelectedTopic) {
+          hub.innerHTML = `
+            <div style="margin-bottom:1rem;">
+              <h2 style="font-family:'Fredoka',cursive; font-size:1.55rem; margin:0 0 0.25rem 0;">${isToddler ? 'Pick a Picture!' : 'Pick a Topic!'}</h2>
+              <p style="color:var(--text-muted); font-size:0.9rem; margin:0;">Tap a topic below to see safe videos.</p>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(175px, 1fr)); gap:0.95rem;">
+              ${kidHomeCategoriesCache.map(c => `
+                <button type="button" onclick="selectKidHubTopic('${c.name.replace(/'/g, "\\'")}')" style="cursor:pointer; background:var(--surface); border:2px solid var(--border); border-radius:20px; padding:${isToddler ? '1.6rem 1rem' : '1.25rem 1rem'}; display:flex; flex-direction:column; align-items:center; gap:0.6rem; color:var(--text); font-family:inherit; transition:transform 0.15s ease, border-color 0.15s ease;" onmouseover="this.style.borderColor='var(--primary)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='none'">
+                  <span style="font-size:${isToddler ? '2.6rem' : '2.15rem'}; line-height:1;">${kidTopicEmoji(c.name)}</span>
+                  <span style="font-weight:800; font-size:0.96rem; text-align:center;">${c.name}</span>
+                </button>
+              `).join('')}
+            </div>
+          `;
+        } else {
+          hub.innerHTML = `
+            <div style="display:flex; align-items:center; gap:0.85rem; margin-bottom:1rem; flex-wrap:wrap;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="selectKidHubTopic(null)">
+                <span class="material-symbols-rounded" style="font-size:1rem;">arrow_back</span> All Topics
+              </button>
+              <h2 style="font-family:'Fredoka',cursive; font-size:1.35rem; margin:0;">${kidTopicEmoji(kidHomeSelectedTopic)} ${kidHomeSelectedTopic}</h2>
+            </div>
+            <div id="kidHubTopicVideos" class="video-grid"><p style="color:var(--text-muted);">Loading safe videos...</p></div>
+          `;
+          loadKidHubTopicVideos(kidHomeSelectedTopic, user.ageRating || 'ALL');
+        }
+        return;
+      }
+
+      // Older Kids / All Ages: Search-first intentional hub
+      hub.innerHTML = `
+        <div class="card" style="padding:1.4rem 1.6rem; margin-bottom:1.15rem; border-color:rgba(76,201,240,0.35);">
+          <h2 style="font-family:'Fredoka',cursive; font-size:1.45rem; margin:0 0 0.35rem 0;">What do you want to watch?</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin:0 0 1rem 0;">Search for a topic, pick a channel, or open one of your playlists.</p>
+          <div onclick="switchKidShowcaseTab('search'); setTimeout(() => document.getElementById('kidYouTubeSearchInput')?.focus(), 50);" style="cursor:pointer; display:flex; align-items:center; gap:0.65rem; padding:0.8rem 1rem; border-radius:var(--radius-sm); background:var(--surface-light); border:1px solid var(--border); color:var(--text-muted); font-size:0.94rem;">
+            <span class="material-symbols-rounded" style="color:var(--secondary);">search</span>
+            <span>Search safe videos or request with ⭐...</span>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+          <h3 style="font-size:1.05rem; margin:0;">Pick a Topic</h3>
+          ${kidHomeSelectedTopic ? `<button type="button" class="btn btn-secondary btn-sm" onclick="selectKidHubTopic(null)">Clear</button>` : ''}
+        </div>
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.25rem;">
+          ${kidHomeCategoriesCache.map(c => `
+            <button type="button" class="filter-pill ${kidHomeSelectedTopic === c.name ? 'active' : ''}" onclick="selectKidHubTopic('${c.name.replace(/'/g, "\\'")}')">
+              ${kidTopicEmoji(c.name)} ${c.name}
+            </button>
+          `).join('')}
+        </div>
+
+        ${!kidHomeSelectedTopic ? `
+          <div class="card" style="padding:2rem 1.5rem; text-align:center;">
+            <div style="font-size:2rem; margin-bottom:0.4rem;">🎯</div>
+            <div style="font-weight:800; font-size:1.05rem; margin-bottom:0.25rem;">No endless feed here!</div>
+            <p style="color:var(--text-muted); font-size:0.88rem; margin:0;">Use Search or pick a Topic above when you know what you want to watch.</p>
+          </div>
+        ` : `
+          <h3 style="font-size:1.1rem; margin:0 0 0.85rem 0;">${kidHomeSelectedTopic}</h3>
+          <div id="kidHubTopicVideos" class="video-grid"><p style="color:var(--text-muted);">Loading safe videos...</p></div>
+        `}
+      `;
+
+      if (kidHomeSelectedTopic) {
+        loadKidHubTopicVideos(kidHomeSelectedTopic, user.ageRating || 'ALL');
+      }
+    }
+
+    function selectKidHubTopic(topicName) {
+      kidHomeSelectedTopic = kidHomeSelectedTopic === topicName ? null : topicName;
+      if (currentUser) renderKidHomeHub(currentUser);
+    }
+
+    async function loadKidHubTopicVideos(topicName, ageRating) {
+      const container = document.getElementById('kidHubTopicVideos');
+      if (!container) return;
+      try {
+        const params = new URLSearchParams();
+        params.set('category', topicName);
+        if (ageRating && ageRating !== 'ALL') params.set('ageRating', ageRating);
+        const res = await fetch(apiUrl('/api/videos?' + params.toString()));
+        const json = await res.json();
+        const videos = json.success ? (json.data || []) : [];
+        if (!videos.length) {
+          container.innerHTML = `<p style="color:var(--text-muted);">No videos in ${topicName} right now.</p>`;
+          return;
+        }
+        container.innerHTML = videos.map(v => `
+          <div class="card video-card" onclick="openPlayer('${v.id}')" style="cursor:pointer;">
+            <div class="video-thumb">
+              <img src="${v.thumbnailUrl}" alt="${v.title}" loading="lazy">
+              <div class="badge-type">${v.sourceType}</div>
+              <div class="badge-age">${v.ageRating}</div>
+              <div class="play-overlay"><span class="material-symbols-rounded">play_arrow</span></div>
+            </div>
+            <div class="video-info">
+              <div style="font-size:0.76rem; color:var(--text-muted); margin-bottom:0.25rem;">${v.channelTitle}</div>
+              <div class="video-title">${v.title}</div>
+            </div>
+          </div>
+        `).join('');
+      } catch {
+        container.innerHTML = '<p style="color:var(--text-muted);">Could not load videos.</p>';
+      }
+    }
+
     async function runKidYouTubeSearch(e) {
       if (e) e.preventDefault();
       const input = document.getElementById('kidYouTubeSearchInput');
@@ -4225,18 +4773,54 @@
       const resultsEl = document.getElementById('kidYouTubeSearchResults');
       const statusEl = document.getElementById('kidSearchStatusBanner');
       if (statusEl) statusEl.style.display = 'none';
-      if (resultsEl) resultsEl.innerHTML = `<p style="color:var(--text-muted);">${kidSearchMode === 'curated' ? 'Searching curated safe videos...' : 'Searching YouTube...'}</p>`;
+      kidCuratedVisibleLimit = 5;
+      kidYtVisibleLimit = 10;
+      if (resultsEl) resultsEl.innerHTML = '<p style="color:var(--text-muted);">Searching curated and YouTube videos...</p>';
+
       try {
-        if (kidSearchMode === 'curated') {
-          const res = await fetch('/api/videos?search=' + encodeURIComponent(q));
-          const json = await res.json();
-          kidCuratedSearchResults = json.success ? (json.data || []) : [];
-          if (!kidCuratedSearchResults.length) {
-            if (resultsEl) resultsEl.innerHTML = '<p style="color:var(--text-muted);">No curated videos found. Try another search or switch to YouTube Search!</p>';
-            return;
-          }
-          if (resultsEl) {
-            resultsEl.innerHTML = kidCuratedSearchResults.map((v) => `
+        const ageFilter = currentUser?.ageRating && currentUser.ageRating !== 'ALL' ? `&ageRating=${encodeURIComponent(currentUser.ageRating)}` : '';
+        const [curatedRes, ytRes] = await Promise.all([
+          fetch(apiUrl('/api/videos?search=' + encodeURIComponent(q) + ageFilter)).then(r => r.json()).catch(() => ({ success: false, data: [] })),
+          authFetch('/api/kids/youtube-search?q=' + encodeURIComponent(q)).then(r => r.json()).catch(() => ({ success: false, message: 'YouTube search unavailable' }))
+        ]);
+
+        kidCuratedSearchResults = curatedRes.success ? (curatedRes.data || []) : [];
+        kidSearchResults = ytRes.success ? (ytRes.data?.results || []) : [];
+        const ytErrorMsg = !ytRes.success ? (ytRes.message || 'YouTube search unavailable') : null;
+
+        if (ytRes.success && ytRes.data?.searchSettings) {
+          if (currentUser) Object.assign(currentUser, ytRes.data.searchSettings);
+          updateKidSearchQuotaBadge(ytRes.data.searchSettings);
+        }
+
+        renderKidYouTubeSearchResults(ytErrorMsg);
+      } catch {
+        if (resultsEl) resultsEl.innerHTML = '<p style="color:var(--text-muted);">Failed to search videos.</p>';
+      }
+    }
+
+    function showMoreKidCurated() {
+      kidCuratedVisibleLimit += 5;
+      renderKidYouTubeSearchResults();
+    }
+
+    function showMoreKidYouTube() {
+      kidYtVisibleLimit += 10;
+      renderKidYouTubeSearchResults();
+    }
+
+    function renderKidYouTubeSearchResults(ytErrorMsg = null) {
+      const resultsEl = document.getElementById('kidYouTubeSearchResults');
+      if (!resultsEl) return;
+
+      const visibleCurated = kidCuratedSearchResults.slice(0, kidCuratedVisibleLimit);
+      const visibleYt = kidSearchResults.slice(0, kidYtVisibleLimit);
+
+      const curatedHtml = !kidCuratedSearchResults.length
+        ? '<p style="color:var(--text-muted); margin-bottom:1.5rem;">No matching curated videos found.</p>'
+        : `
+          <div class="video-grid" style="margin-bottom:0.85rem;">
+            ${visibleCurated.map((v) => `
               <div class="card video-card" onclick="openPlayer('${v.id}')" style="cursor:pointer;">
                 <div class="video-thumb">
                   <img src="${v.thumbnailUrl}" alt="${v.title}" loading="lazy">
@@ -4249,65 +4833,76 @@
                   <div class="video-title">${v.title}</div>
                 </div>
               </div>
-            `).join('');
-          }
-          return;
-        }
-        const res = await authFetch('/api/kids/youtube-search?q=' + encodeURIComponent(q));
-        const json = await res.json();
-        if (!json.success) {
-          if (resultsEl) resultsEl.innerHTML = `<p style="color:var(--primary);">${json.message || 'Search unavailable'}</p>`;
-          return;
-        }
-        kidSearchResults = json.data?.results || [];
-        if (json.data?.searchSettings) {
-          if (currentUser) Object.assign(currentUser, json.data.searchSettings);
-          updateKidSearchQuotaBadge(json.data.searchSettings);
-        }
-        renderKidYouTubeSearchResults();
-      } catch {
-        if (resultsEl) resultsEl.innerHTML = '<p style="color:var(--text-muted);">Failed to search videos.</p>';
-      }
-    }
-
-    function renderKidYouTubeSearchResults() {
-      const resultsEl = document.getElementById('kidYouTubeSearchResults');
-      if (!resultsEl) return;
-      if (!kidSearchResults.length) {
-        resultsEl.innerHTML = '<p style="color:var(--text-muted);">No videos found. Try another search!</p>';
-        return;
-      }
-      resultsEl.innerHTML = kidSearchResults.map((v, idx) => {
-        const badge = v.isCurated
-          ? '<span class="channel-type-badge ondemand">Curated</span>'
-          : v.approvalStatus === 'APPROVED' || v.inHistory
-            ? '<span class="channel-type-badge ondemand" style="background:rgba(6,214,160,0.16); color:var(--success);">Approved</span>'
-            : v.approvalStatus === 'PENDING'
-              ? '<span class="channel-type-badge live">Pending Approval</span>'
-              : v.approvalStatus === 'REJECTED'
-                ? '<span class="channel-type-badge live">Declined</span>'
-                : '<span class="channel-type-badge ondemand">YouTube</span>';
-        return `
-          <div class="card video-card" style="display:flex; flex-direction:column;">
-            <div class="video-thumb" onclick="watchSearchedYouTubeVideo(${idx})" style="cursor:pointer;">
-              <img src="${v.thumbnailUrl}" alt="${v.title}" loading="lazy">
-              <div class="play-overlay"><span class="material-symbols-rounded">play_arrow</span></div>
+            `).join('')}
+          </div>
+          ${kidCuratedSearchResults.length > kidCuratedVisibleLimit ? `
+            <div style="margin-bottom:1.75rem;">
+              <button type="button" class="btn btn-secondary" onclick="showMoreKidCurated()" style="width:100%; justify-content:center;">
+                Show More Curated (${kidCuratedSearchResults.length - kidCuratedVisibleLimit} more)
+              </button>
             </div>
-            <div class="video-info" style="flex:1; display:flex; flex-direction:column; gap:0.4rem;">
-              <div style="display:flex; justify-content:space-between; align-items:center; gap:0.4rem;">
-                <span style="font-size:0.76rem; color:var(--text-muted);">${v.channelTitle}</span>
-                ${badge}
-              </div>
-              <div class="video-title" onclick="watchSearchedYouTubeVideo(${idx})" style="cursor:pointer;">${v.title}</div>
-              <div style="margin-top:auto; padding-top:0.35rem; display:flex; gap:0.4rem; flex-wrap:wrap;">
-                <button type="button" class="btn btn-primary btn-sm" onclick="watchSearchedYouTubeVideo(${idx})">
-                  ${v.isCurated || v.approvalStatus === 'APPROVED' || v.inHistory ? 'Watch Now' : 'Watch / Request'}
+          ` : '<div style="margin-bottom:1.5rem;"></div>'}
+        `;
+
+      const ytHtml = ytErrorMsg
+        ? `<p style="color:var(--primary);">${ytErrorMsg}</p>`
+        : !kidSearchResults.length
+          ? '<p style="color:var(--text-muted);">No YouTube results found.</p>'
+          : `
+            <div class="video-grid" style="margin-bottom:0.85rem;">
+              ${visibleYt.map((v, idx) => {
+                const badge = v.isCurated
+                  ? '<span class="channel-type-badge ondemand">Curated</span>'
+                  : v.approvalStatus === 'APPROVED' || v.inHistory
+                    ? '<span class="channel-type-badge ondemand" style="background:rgba(6,214,160,0.16); color:var(--success);">Approved</span>'
+                    : v.approvalStatus === 'PENDING'
+                      ? '<span class="channel-type-badge live">Pending Approval</span>'
+                      : v.approvalStatus === 'REJECTED'
+                        ? '<span class="channel-type-badge live">Declined</span>'
+                        : '<span class="channel-type-badge ondemand">YouTube</span>';
+                return `
+                  <div class="card video-card" style="display:flex; flex-direction:column;">
+                    <div class="video-thumb" onclick="watchSearchedYouTubeVideo(${idx})" style="cursor:pointer;">
+                      <img src="${v.thumbnailUrl}" alt="${v.title}" loading="lazy">
+                      <div class="play-overlay"><span class="material-symbols-rounded">play_arrow</span></div>
+                    </div>
+                    <div class="video-info" style="flex:1; display:flex; flex-direction:column; gap:0.4rem;">
+                      <div style="display:flex; justify-content:space-between; align-items:center; gap:0.4rem;">
+                        <span style="font-size:0.76rem; color:var(--text-muted);">${v.channelTitle}</span>
+                        ${badge}
+                      </div>
+                      <div class="video-title" onclick="watchSearchedYouTubeVideo(${idx})" style="cursor:pointer;">${v.title}</div>
+                      <div style="margin-top:auto; padding-top:0.35rem; display:flex; gap:0.4rem; flex-wrap:wrap;">
+                        <button type="button" class="btn btn-primary btn-sm" onclick="watchSearchedYouTubeVideo(${idx})">
+                          ${v.isCurated || v.approvalStatus === 'APPROVED' || v.inHistory ? 'Watch Now' : 'Watch / Request'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+            ${kidSearchResults.length > kidYtVisibleLimit ? `
+              <div>
+                <button type="button" class="btn btn-secondary" onclick="showMoreKidYouTube()" style="width:100%; justify-content:center;">
+                  Show More YouTube (${kidSearchResults.length - kidYtVisibleLimit} more)
                 </button>
               </div>
-            </div>
-          </div>
-        `;
-      }).join('');
+            ` : ''}
+          `;
+
+      resultsEl.innerHTML = `
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
+          <h4 style="margin:0; color:var(--success); font-size:1.05rem;">Curated Safe Videos</h4>
+          <span style="font-size:0.82rem; color:var(--text-muted);">${visibleCurated.length} of ${kidCuratedSearchResults.length}</span>
+        </div>
+        ${curatedHtml}
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
+          <h4 style="margin:0; color:var(--accent); font-size:1.05rem;">YouTube Videos</h4>
+          ${kidSearchResults.length ? `<span style="font-size:0.82rem; color:var(--text-muted);">${visibleYt.length} of ${kidSearchResults.length}</span>` : ''}
+        </div>
+        ${ytHtml}
+      `;
     }
 
     async function watchSearchedYouTubeVideo(idx) {
