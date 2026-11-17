@@ -776,6 +776,9 @@
       <a href="mobile-preview.html" class="nav-link" title="Interactive Android App Preview">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">smartphone</span> <span>App Preview</span>
       </a>
+      <a href="learn-more.html#plans" class="nav-link" title="Compare Free & Family Pass">
+        <span class="material-symbols-rounded" style="font-size:1.05rem; color:var(--primary);">workspace_premium</span> <span data-i18n="nav_plans">Family Pass</span>
+      </a>
       <a id="linkChannelsJson" href="https://famitube-api.gamantha.my.id/api/channels" target="_blank" class="nav-link" style="display:none;">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">tv</span> Channels JSON
       </a>
@@ -893,6 +896,7 @@
       <p style="color:var(--text-muted); font-size:0.95rem; margin-top:0.6rem;">
         <span data-i18n="hero_safety_narration">Discover how FamiTube protects your children from inappropriate content — it's the YouTube every parent wishes for.</span>
         <a href="learn-more.html" id="heroSafetyLink" data-i18n="hero_learn_more" style="color:var(--primary); font-weight:700; text-decoration:none; margin-left:0.35rem; white-space:nowrap;">Learn More &gt;</a>
+        <a href="learn-more.html#plans" id="heroPlansLink" data-i18n="hero_compare_plans" style="color:var(--secondary); font-weight:700; text-decoration:none; margin-left:0.75rem; white-space:nowrap;">Free vs. Family Pass &gt;</a>
       </p>
     </div>
 
@@ -3801,10 +3805,16 @@
             </div>
             <div class="form-row" style="align-items:end;">
               <div class="form-group">
-                <label>Daily Watch Limit</label>
-                <select id="pmDailyLimit_${c.id}">
-                  ${[15, 30, 45, 60, 90, 120].map(m => `<option value="${m}" ${(c.dailyLimitMinutes ?? 45) === m ? 'selected' : ''}>${m} minutes</option>`).join('')}
-                </select>
+                <label>Daily Watch Limit (0h 0m = No limit)</label>
+                <div style="display:flex; gap:0.45rem; align-items:center;">
+                  <select id="pmDailyHours_${c.id}" style="flex:1;" aria-label="Hours">
+                    ${Array.from({ length: 13 }, (_, h) => `<option value="${h}" ${Math.floor((c.dailyLimitMinutes ?? 45) / 60) === h ? 'selected' : ''}>${h}h</option>`).join('')}
+                  </select>
+                  <span style="font-weight:700; color:var(--text-muted);">:</span>
+                  <select id="pmDailyMinutes_${c.id}" style="flex:1;" aria-label="Minutes">
+                    ${Array.from({ length: 60 }, (_, m) => `<option value="${m}" ${((c.dailyLimitMinutes ?? 45) % 60) === m ? 'selected' : ''}>${String(m).padStart(2, '0')}m</option>`).join('')}
+                  </select>
+                </div>
               </div>
               <div class="form-group">
                 <label>Parent PIN (4 digits)</label>
@@ -3868,7 +3878,9 @@
     }
 
     async function savePmChildParentalControls(childId) {
-      const dailyLimitMinutes = Number(document.getElementById(`pmDailyLimit_${childId}`)?.value || 45);
+      const limitHours = Math.max(0, Math.min(12, Number(document.getElementById(`pmDailyHours_${childId}`)?.value || 0)));
+      const limitMins = Math.max(0, Math.min(59, Number(document.getElementById(`pmDailyMinutes_${childId}`)?.value || 0)));
+      const dailyLimitMinutes = limitHours * 60 + limitMins;
       const parentPin = String(document.getElementById(`pmParentPin_${childId}`)?.value || '').trim();
       const attentionTrackingEnabled = Boolean(document.getElementById(`pmAttEnabled_${childId}`)?.checked);
       const attentionPauseSeconds = Number(document.getElementById(`pmAttPause_${childId}`)?.value || 30);

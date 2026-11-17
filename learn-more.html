@@ -160,6 +160,126 @@
       justify-content: center;
       margin-bottom: 0.85rem;
     }
+
+    .plans-section {
+      margin-bottom: 2rem;
+    }
+
+    .plans-header {
+      margin-bottom: 1.25rem;
+    }
+
+    .plan-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .plan-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .plan-card.premium {
+      border-color: rgba(255, 51, 102, 0.45);
+      background: linear-gradient(160deg, rgba(255, 51, 102, 0.07), rgba(67, 97, 238, 0.08));
+      box-shadow: 0 10px 26px rgba(255, 51, 102, 0.09);
+    }
+
+    .plan-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 0.25rem 0.65rem;
+      border-radius: 99px;
+      width: fit-content;
+    }
+
+    .plan-badge.free {
+      background: var(--surface-light);
+      color: var(--text-muted);
+    }
+
+    .plan-badge.premium {
+      background: rgba(255, 51, 102, 0.14);
+      color: var(--primary);
+    }
+
+    .matrix-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow-x: auto;
+    }
+
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px;
+      font-size: 0.9rem;
+    }
+
+    .matrix-table th,
+    .matrix-table td {
+      padding: 0.9rem 1.1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .matrix-table thead th {
+      background: var(--surface-light);
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--text);
+    }
+
+    .matrix-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .matrix-table tbody tr:hover {
+      background: rgba(148, 163, 184, 0.06);
+    }
+
+    .matrix-feature {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .matrix-note {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    .matrix-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-weight: 600;
+      font-size: 0.84rem;
+    }
+
+    .matrix-pill.yes {
+      color: var(--success);
+    }
+
+    .matrix-pill.muted {
+      color: var(--text-muted);
+    }
   </style>
 </head>
 <body>
@@ -240,6 +360,138 @@
       </div>
     </section>
 
+    <section id="plans" class="plans-section">
+      <div class="plans-header">
+        <span style="display:inline-flex; align-items:center; gap:0.4rem; font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:var(--secondary); margin-bottom:0.45rem;">
+          <span class="material-symbols-rounded" style="font-size:1rem;">workspace_premium</span>
+          <span data-i18n="plans_eyebrow">Free Forever for Videos</span>
+        </span>
+        <h2 data-i18n="plans_title" style="font-family:'Fredoka', cursive; font-size:1.65rem; line-height:1.25; margin-bottom:0.45rem;">
+          Free vs. FamiTube Family Pass
+        </h2>
+        <p data-i18n="plans_intro" style="color:var(--text-muted); font-size:0.94rem; max-width:740px;">
+          Every curated video on FamiTube is 100% free—we never put videos behind a paywall. Upgrade to Family Pass only when you want multi-child profiles, deeper developmental filters, and household controls.
+        </p>
+      </div>
+
+      <div class="plan-cards">
+        <div class="plan-card">
+          <span class="plan-badge free" data-i18n="plan_free_badge">Free Tier</span>
+          <h3 data-i18n="plan_free_title" style="font-size:1.25rem;">FamiTube Free</h3>
+          <p data-i18n="plan_free_desc" style="color:var(--text-muted); font-size:0.9rem;">
+            Everything you need to start safe, ad-free, curated viewing for one child.
+          </p>
+          <div style="font-family:'Fredoka', cursive; font-size:1.5rem; font-weight:700; margin-top:0.25rem;" data-i18n="plan_free_price">$0 / forever</div>
+        </div>
+
+        <div class="plan-card premium">
+          <span class="plan-badge premium">
+            <span class="material-symbols-rounded" style="font-size:0.95rem;">verified</span>
+            <span data-i18n="plan_prem_badge">Family Pass</span>
+          </span>
+          <h3 data-i18n="plan_prem_title" style="font-size:1.25rem;">FamiTube Family Pass</h3>
+          <p data-i18n="plan_prem_desc" style="color:var(--text-muted); font-size:0.9rem;">
+            Built for growing families, teens, and parents who want full control over pacing, study time, and private channels.
+          </p>
+          <div style="font-family:'Fredoka', cursive; font-size:1.5rem; font-weight:700; color:var(--primary); margin-top:0.25rem;" data-i18n="plan_prem_price">Full Household Controls</div>
+        </div>
+      </div>
+
+      <div class="matrix-wrap">
+        <table class="matrix-table" aria-label="Free vs Family Pass Comparison">
+          <thead>
+            <tr>
+              <th data-i18n="col_feature">Feature</th>
+              <th data-i18n="col_free">Free</th>
+              <th data-i18n="col_premium" style="color:var(--primary);">Family Pass (Premium)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <span class="matrix-feature" data-i18n="f_videos">Curated Video Library</span>
+                <span class="matrix-note" data-i18n="f_videos_note">All approved YouTube &amp; direct streams</span>
+              </td>
+              <td><span class="matrix-pill yes"><span class="material-symbols-rounded" style="font-size:1.05rem;">check_circle</span> <span data-i18n="v_all_free">100% Free (No Paywall)</span></span></td>
+              <td><span class="matrix-pill yes"><span class="material-symbols-rounded" style="font-size:1.05rem;">check_circle</span> <span data-i18n="v_all_free">100% Free (No Paywall)</span></span></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="matrix-feature" data-i18n="f_children">Child Profiles</span>
+                <span class="matrix-note" data-i18n="f_children_note">Separate age ratings, history &amp; timers</span>
+              </td>
+              <td><span class="matrix-pill muted" data-i18n="v_1_child">1 child profile</span></td>
+              <td><span class="matrix-pill yes"><span class="material-symbols-rounded" style="font-size:1.05rem;">all_inclusive</span> <span data-i18n="v_unlimited">Unlimited</span></span></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="matrix-feature" data-i18n="f_age">Age &amp; Developmental Tiers</span>
+                <span class="matrix-note" data-i18n="f_age_note">Toddler, Young Kids, Older Kids &amp; Teens</span>
+              </td>
+              <td><span class="matrix-pill muted" data-i18n="v_age_basic">Kids tiers (2–12)</span></td>
+              <td><span class="matrix-pill yes"><span class="material-symbols-rounded" style="font-size:1.05rem;">check_circle</span> <span data-i18n="v_age_full">Kids + Teen tiers (2–17)</span></span></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="matrix-feature" data-i18n="f_presets">Safety Presets &amp; Tag Filters</span>
+                <span class="matrix-note" data-i18n="f_presets_note">Calm Mode, No Shorts, No Unboxing, Study Mode, Bedtime Safe</span>
+              </td>
+              <td><span class="matrix-pill muted" data-i18n="v_1_preset">1 active preset</span></td>
+              <td><span class="matrix-pill yes"><span class="material-symbols-rounded" style="font-size:1.05rem;">check_circle</span> <span data-i18n="v_presets_full">Stack all presets + custom tag rules</span></span></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="matrix-feature" data-i18n="f_quiz">Channel Quiz Walls</span>
+                <span class="matrix-note" data-i18n="f_quiz_note">Math, Science, English &amp; Logic gates before watching</span>
+              </td>
+              <td><span class="matrix-pill muted" data-i18n="v_1_channel">1 channel</span></td>
+              <td><span class="matrix-pill yes"><span class="material-symbols-rounded" style="font-size:1.05rem;">all_inclusive</span> <span data-i18n="v_unlimited">Unlimited channels</span></span></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="matrix-feature" data-i18n="f_search">Controlled YouTube Search</span>
+                <span class="matrix-note" data-i18n="f_search_note">Parent-approved video search requests</span>
+              </td>
+              <td><span class="matrix-pill muted" data-i18n="v_3_day">Up to 3 requests / day</span></td>
+              <td><span class="matrix-pill yes"><span class="material-symbols-rounded" style="font-size:1.05rem;">all_inclusive</span> <span data-i18n="v_unlimited_approval">Unlimited + instant approval</span></span></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="matrix-feature" data-i18n="f_attention">Attention &amp; Break Tracking</span>
+                <span class="matrix-note" data-i18n="f_attention_note">Gentle focus checks and screen-break prompts</span>
+              </td>
+              <td><span class="matrix-pill muted" data-i18n="v_basic_timer">Basic daily timer</span></td>
+              <td><span class="matrix-pill yes"><span class="material-symbols-rounded" style="font-size:1.05rem;">check_circle</span> <span data-i18n="v_full_attention">Full attention &amp; break checks</span></span></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="matrix-feature" data-i18n="f_private">Private Family Channels &amp; Live TV</span>
+                <span class="matrix-note" data-i18n="f_private_note">24h scheduled channels &amp; co-parent/teacher invites</span>
+              </td>
+              <td><span class="matrix-pill muted" data-i18n="v_public_only">Public channels only</span></td>
+              <td><span class="matrix-pill yes"><span class="material-symbols-rounded" style="font-size:1.05rem;">check_circle</span> <span data-i18n="v_private_full">Create private channels &amp; invite</span></span></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="matrix-feature" data-i18n="f_playlists">Custom Kid Playlists</span>
+                <span class="matrix-note" data-i18n="f_playlists_note">Curated personal or learning playlists</span>
+              </td>
+              <td><span class="matrix-pill muted" data-i18n="v_1_playlist">1 playlist</span></td>
+              <td><span class="matrix-pill yes"><span class="material-symbols-rounded" style="font-size:1.05rem;">all_inclusive</span> <span data-i18n="v_unlimited">Unlimited</span></span></td>
+            </tr>
+            <tr>
+              <td>
+                <span class="matrix-feature" data-i18n="f_insights">Parent Topic Insights</span>
+                <span class="matrix-note" data-i18n="f_insights_note">See what subjects spark your child's curiosity</span>
+              </td>
+              <td><span class="matrix-pill muted" data-i18n="v_basic_history">Basic watch history</span></td>
+              <td><span class="matrix-pill yes"><span class="material-symbols-rounded" style="font-size:1.05rem;">check_circle</span> <span data-i18n="v_weekly_digest">Weekly topic &amp; curiosity digest</span></span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
     <section class="card" style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
       <div>
         <h3 data-i18n="cta_title" style="font-size:1.15rem; margin-bottom:0.25rem;">Ready to set up your family's safe video space?</h3>
@@ -278,7 +530,58 @@
           p4_desc: 'Anak tidak dapat membuat akun atau mengubah aturan orang tua sendiri. Hanya orang tua yang dapat mengelola saluran dan akun keluarga di Studio Kurator.',
           cta_title: 'Siap menyiapkan ruang video aman untuk keluarga Anda?',
           cta_desc: 'Masuk ke Studio Kurator sebagai orang tua untuk membuat saluran dan mendaftarkan akun anak.',
-          cta_btn: 'Mulai sebagai Orang Tua'
+          cta_btn: 'Mulai sebagai Orang Tua',
+          plans_eyebrow: 'Video Gratis Selamanya',
+          plans_title: 'Gratis vs. FamiTube Family Pass',
+          plans_intro: 'Semua video terkurasi di FamiTube 100% gratis—kami tidak pernah mengunci video di balik paywall. Upgrade ke Family Pass hanya jika Anda butuh profil banyak anak, filter perkembangan lanjutan, dan kontrol keluarga.',
+          plan_free_badge: 'Paket Gratis',
+          plan_free_title: 'FamiTube Gratis',
+          plan_free_desc: 'Semua yang Anda butuhkan untuk mulai menonton dengan aman dan bebas iklan untuk satu anak.',
+          plan_free_price: 'Rp 0 / selamanya',
+          plan_prem_badge: 'Family Pass',
+          plan_prem_title: 'FamiTube Family Pass',
+          plan_prem_desc: 'Dirancang untuk keluarga yang berkembang, remaja, dan orang tua yang ingin kontrol penuh atas tempo tontonan, waktu belajar, dan saluran privat.',
+          plan_prem_price: 'Kontrol Keluarga Penuh',
+          col_feature: 'Fitur',
+          col_free: 'Gratis',
+          col_premium: 'Family Pass (Premium)',
+          f_videos: 'Pustaka Video Terkurasi',
+          f_videos_note: 'Semua video YouTube & stream langsung yang disetujui',
+          v_all_free: '100% Gratis (Tanpa Paywall)',
+          f_children: 'Profil Anak',
+          f_children_note: 'Rating usia, riwayat & batas waktu terpisah',
+          v_1_child: '1 profil anak',
+          v_unlimited: 'Tanpa batas',
+          f_age: 'Tingkatan Usia & Perkembangan',
+          f_age_note: 'Balita, Anak Kecil, Anak Lebih Besar & Remaja',
+          v_age_basic: 'Tingkatan anak (2–12)',
+          v_age_full: 'Anak + Remaja (2–17)',
+          f_presets: 'Preset Keamanan & Filter Tag',
+          f_presets_note: 'Mode Tenang, Tanpa Shorts, Tanpa Unboxing, Mode Belajar, Aman Sebelum Tidur',
+          v_1_preset: '1 preset aktif',
+          v_presets_full: 'Gabung semua preset + aturan tag kustom',
+          f_quiz: 'Dinding Kuis Saluran',
+          f_quiz_note: 'Kuis Matematika, Sains, Bahasa Inggris & Logika sebelum menonton',
+          v_1_channel: '1 saluran',
+          f_search: 'Pencarian YouTube Terkontrol',
+          f_search_note: 'Permintaan pencarian video yang disetujui orang tua',
+          v_3_day: 'Maks. 3 permintaan / hari',
+          v_unlimited_approval: 'Tanpa batas + persetujuan instan',
+          f_attention: 'Pelacakan Perhatian & Istirahat',
+          f_attention_note: 'Pemeriksaan fokus lembut dan pengingat istirahat layar',
+          v_basic_timer: 'Timer harian dasar',
+          v_full_attention: 'Pemeriksaan perhatian & istirahat penuh',
+          f_private: 'Saluran Keluarga Privat & Live TV',
+          f_private_note: 'Jadwal saluran 24 jam & undangan orang tua/guru',
+          v_public_only: 'Hanya saluran publik',
+          v_private_full: 'Buat saluran privat & undang anggota',
+          f_playlists: 'Daftar Putar Anak Kustom',
+          f_playlists_note: 'Playlist pribadi atau belajar terkurasi',
+          v_1_playlist: '1 playlist',
+          f_insights: 'Wawasan Topik Orang Tua',
+          f_insights_note: 'Lihat topik apa yang memicu rasa ingin tahu anak Anda',
+          v_basic_history: 'Riwayat tontonan dasar',
+          v_weekly_digest: 'Ringkasan topik & minat mingguan'
         };
         document.querySelectorAll('[data-i18n]').forEach(el => {
           const key = el.getAttribute('data-i18n');
