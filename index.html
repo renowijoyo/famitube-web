@@ -1210,6 +1210,12 @@
           </button>
         </div>
       </div>
+      <div id="channelAgeFilters" class="channel-category-pills" role="group" aria-label="Filter by age group" style="margin-bottom:0.15rem;">
+        <button type="button" class="filter-pill active" data-age="ALL" onclick="setChannelSearchAge('ALL')">All Ages</button>
+        <button type="button" class="filter-pill" data-age="TODDLER" onclick="setChannelSearchAge('TODDLER')">Toddlers (2-4)</button>
+        <button type="button" class="filter-pill" data-age="YOUNG_KIDS" onclick="setChannelSearchAge('YOUNG_KIDS')">Young Kids (5-8)</button>
+        <button type="button" class="filter-pill" data-age="OLDER_KIDS" onclick="setChannelSearchAge('OLDER_KIDS')">Older Kids (9-12)</button>
+      </div>
       <div id="channelCategoryFilters" class="channel-category-pills" role="group" aria-label="Filter by category"></div>
     </div>
 
@@ -1527,7 +1533,7 @@
               </select>
             </div>
           </div>
-          <div class="form-row-3" style="margin-bottom:0.75rem;">
+          <div class="form-row" style="margin-bottom:0.75rem;">
             <div class="form-group">
               <label>Visibility</label>
               <select id="newChanVisibility">
@@ -1535,6 +1541,17 @@
                 <option value="PRIVATE">Private (Owner & Invited Parents Only)</option>
               </select>
             </div>
+            <div class="form-group">
+              <label>Target Age Group</label>
+              <select id="newChanAge">
+                <option value="ALL">All Ages</option>
+                <option value="TODDLER">Toddlers (2 - 4 yrs)</option>
+                <option value="YOUNG_KIDS">Young Kids (5 - 8 yrs)</option>
+                <option value="OLDER_KIDS">Older Kids (9 - 12 yrs)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row" style="margin-bottom:0.75rem;">
             <div class="form-group">
               <label>Description</label>
               <input type="text" id="newChanDesc" placeholder="What kids will watch on this channel...">
@@ -2591,6 +2608,18 @@
       ).join('');
     }
 
+    function formatChannelAgeBadge(ageRating) {
+      const normalized = String(ageRating || 'ALL').toUpperCase();
+      const map = {
+        TODDLER: { label: 'Toddler 2-4', bg: 'rgba(255,183,3,0.16)', color: '#d97706' },
+        YOUNG_KIDS: { label: 'Young Kids 5-8', bg: 'rgba(6,214,160,0.16)', color: '#059669' },
+        OLDER_KIDS: { label: 'Older Kids 9-12', bg: 'rgba(76,201,240,0.18)', color: '#0284c7' },
+        ALL: { label: 'All Ages', bg: 'rgba(131,56,236,0.15)', color: '#7c3aed' }
+      };
+      const meta = map[normalized] || map.ALL;
+      return `<span style="font-size:0.72rem; padding:3px 8px; border-radius:999px; background:${meta.bg}; color:${meta.color}; font-weight:700;">${meta.label}</span>`;
+    }
+
     function renderChannelsGrid() {
       const grid = document.getElementById('channelsGrid');
       grid.innerHTML = allChannels.map(c => {
@@ -2609,6 +2638,7 @@
               <span class="${isLive ? 'pill-live' : 'pill-ondemand'}">
                 ${isLive ? 'LIVE CHANNEL' : 'ON DEMAND CHANNEL'}
               </span>
+              ${formatChannelAgeBadge(c.ageRating)}
               <span style="font-size:0.72rem; padding:3px 8px; border-radius:999px; background:${isPrivate ? 'rgba(255,183,3,0.15)' : 'rgba(6,214,160,0.15)'}; color:${isPrivate ? '#b45309' : '#047857'}; font-weight:700;">
                 ${isPrivate ? 'PRIVATE' : 'PUBLIC'}
               </span>
@@ -2954,6 +2984,7 @@
         name: document.getElementById('newChanName').value,
         channelType,
         category: document.getElementById('newChanCat').value,
+        ageRating: document.getElementById('newChanAge')?.value || 'ALL',
         visibility: document.getElementById('newChanVisibility').value,
         description: document.getElementById('newChanDesc').value,
         avatarUrl: document.getElementById('newChanAvatar').value || undefined,
@@ -4374,6 +4405,7 @@
               <div style="min-width:0;">
                 <div style="font-weight:700; font-size:0.98rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.name}</div>
                 <div style="font-size:0.78rem; color:var(--accent);">${c.category} &bull; ${c.videoCount || 0} videos</div>
+                <div style="margin-top:0.25rem;">${formatChannelAgeBadge(c.ageRating)}</div>
               </div>
             </div>
             <p style="color:var(--text-muted); font-size:0.82rem; line-height:1.4; margin:0;">${c.description}</p>
@@ -4605,12 +4637,18 @@
     let searchableCategories = [];
     let activeChannelSearchCategory = 'ALL';
     let activeChannelSearchType = 'ALL';
+    let activeChannelSearchAge = 'ALL';
     let channelSearchQuery = '';
 
     async function loadChannelSearchPage(useKidsFeed = false) {
       const grid = document.getElementById('channelsSearchGrid');
       if (grid && !searchableChannels.length) {
         grid.innerHTML = '<p style="color:var(--text-muted);">Loading channels...</p>';
+      }
+      if (useKidsFeed && currentUser?.role === 'CHILD') {
+        const childAge = !currentUser.ageRating || currentUser.ageRating === 'ALL' ? 'OLDER_KIDS' : currentUser.ageRating;
+        activeChannelSearchAge = childAge;
+        syncChannelSearchAgePills();
       }
       try {
         const [chanRes, catRes] = await Promise.all([
@@ -4636,6 +4674,18 @@
           grid.innerHTML = '<p style="color:var(--text-muted);">Unable to load channels from API at ' + API_BASE + '</p>';
         }
       }
+    }
+
+    function syncChannelSearchAgePills() {
+      document.querySelectorAll('#channelAgeFilters .filter-pill').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-age') === activeChannelSearchAge);
+      });
+    }
+
+    function setChannelSearchAge(ageRating) {
+      activeChannelSearchAge = ageRating || 'ALL';
+      syncChannelSearchAgePills();
+      renderChannelSearchResults();
     }
 
     function renderChannelSearchCategories() {
@@ -4698,6 +4748,8 @@
     function clearAllChannelFilters() {
       activeChannelSearchCategory = 'ALL';
       activeChannelSearchType = 'ALL';
+      activeChannelSearchAge = 'ALL';
+      syncChannelSearchAgePills();
       document.querySelectorAll('.channel-type-pills .filter-pill').forEach(b => {
         b.classList.toggle('active', b.getAttribute('data-type') === 'ALL');
       });
@@ -4715,6 +4767,10 @@
       const filtered = searchableChannels.filter(c => {
         if (activeChannelSearchCategory !== 'ALL' && c.category !== activeChannelSearchCategory) return false;
         if (activeChannelSearchType !== 'ALL' && c.channelType !== activeChannelSearchType) return false;
+        if (activeChannelSearchAge !== 'ALL') {
+          const chAge = String(c.ageRating || 'ALL').toUpperCase();
+          if (chAge !== activeChannelSearchAge && chAge !== 'ALL') return false;
+        }
         if (q) {
           const hay = `${c.name || ''} ${c.description || ''} ${c.category || ''}`.toLowerCase();
           if (!hay.includes(q)) return false;
@@ -4756,11 +4812,14 @@
               </div>
             </div>
             <p style="color:var(--text-muted); font-size:0.85rem; line-height:1.45; margin:0; flex:1;">${c.description || ''}</p>
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; margin-top:0.2rem;">
-              <span class="channel-type-badge ${isLive ? 'live' : 'ondemand'}">
-                <span class="material-symbols-rounded" style="font-size:0.88rem;">${isLive ? 'live_tv' : 'video_library'}</span>
-                ${isLive ? 'LIVE TV' : 'ON DEMAND'}
-              </span>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; margin-top:0.2rem; flex-wrap:wrap;">
+              <div style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap;">
+                <span class="channel-type-badge ${isLive ? 'live' : 'ondemand'}">
+                  <span class="material-symbols-rounded" style="font-size:0.88rem;">${isLive ? 'live_tv' : 'video_library'}</span>
+                  ${isLive ? 'LIVE TV' : 'ON DEMAND'}
+                </span>
+                ${formatChannelAgeBadge(c.ageRating)}
+              </div>
               <span style="font-size:0.8rem; font-weight:700; color:var(--primary); display:inline-flex; align-items:center; gap:0.15rem;">
                 Watch <span class="material-symbols-rounded" style="font-size:1rem;">arrow_forward</span>
               </span>
@@ -5086,7 +5145,8 @@
       `;
 
       if (kidHomeSelectedTopic) {
-        loadKidHubTopicVideos(kidHomeSelectedTopic, user.ageRating || 'ALL');
+        const effectiveAge = !user.ageRating || user.ageRating === 'ALL' ? 'OLDER_KIDS' : user.ageRating;
+        loadKidHubTopicVideos(kidHomeSelectedTopic, effectiveAge);
       }
     }
 
@@ -5158,7 +5218,10 @@
       if (resultsEl) resultsEl.innerHTML = '<p style="color:var(--text-muted);">Searching curated and YouTube videos...</p>';
 
       try {
-        const ageFilter = currentUser?.ageRating && currentUser.ageRating !== 'ALL' ? `&ageRating=${encodeURIComponent(currentUser.ageRating)}` : '';
+        const resolvedAge = currentUser?.role === 'CHILD'
+          ? (!currentUser.ageRating || currentUser.ageRating === 'ALL' ? 'OLDER_KIDS' : currentUser.ageRating)
+          : currentUser?.ageRating;
+        const ageFilter = resolvedAge && resolvedAge !== 'ALL' ? `&ageRating=${encodeURIComponent(resolvedAge)}` : '';
         const [curatedRes, ytRes] = await Promise.all([
           fetch(apiUrl('/api/videos?search=' + encodeURIComponent(q) + ageFilter)).then(r => r.json()).catch(() => ({ success: false, data: [] })),
           authFetch('/api/kids/youtube-search?q=' + encodeURIComponent(q)).then(r => r.json()).catch(() => ({ success: false, message: 'YouTube search unavailable' }))
