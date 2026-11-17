@@ -773,6 +773,9 @@
       <button id="btnModeStudio" class="nav-link" onclick="openStudio()">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">admin_panel_settings</span> <span data-i18n="nav_studio">Curator Studio</span>
       </button>
+      <a href="mobile-preview.html" class="nav-link" title="Interactive Android App Preview">
+        <span class="material-symbols-rounded" style="font-size:1.05rem;">smartphone</span> <span>App Preview</span>
+      </a>
       <a id="linkChannelsJson" href="https://famitube-api.gamantha.my.id/api/channels" target="_blank" class="nav-link" style="display:none;">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">tv</span> Channels JSON
       </a>
@@ -4931,6 +4934,23 @@
       }
     }
 
+    function getSearchGridColumns() {
+      const resultsEl = document.getElementById('kidYouTubeSearchResults');
+      const w = resultsEl?.clientWidth || window.innerWidth;
+      // Matches .video-grid: repeat(auto-fill, minmax(320px, 1fr)) with 1.5rem (24px) gap
+      return Math.max(1, Math.floor((w + 24) / (320 + 24)));
+    }
+
+    function getCuratedPageSize() {
+      const cols = getSearchGridColumns();
+      return cols === 1 ? 5 : cols * 2;
+    }
+
+    function getYouTubePageSize() {
+      const cols = getSearchGridColumns();
+      return cols === 1 ? 10 : cols * 4;
+    }
+
     async function runKidYouTubeSearch(e) {
       if (e) e.preventDefault();
       const input = document.getElementById('kidYouTubeSearchInput');
@@ -4939,8 +4959,8 @@
       const resultsEl = document.getElementById('kidYouTubeSearchResults');
       const statusEl = document.getElementById('kidSearchStatusBanner');
       if (statusEl) statusEl.style.display = 'none';
-      kidCuratedVisibleLimit = 5;
-      kidYtVisibleLimit = 10;
+      kidCuratedVisibleLimit = getCuratedPageSize();
+      kidYtVisibleLimit = getYouTubePageSize();
       if (resultsEl) resultsEl.innerHTML = '<p style="color:var(--text-muted);">Searching curated and YouTube videos...</p>';
 
       try {
@@ -4966,12 +4986,12 @@
     }
 
     function showMoreKidCurated() {
-      kidCuratedVisibleLimit += 5;
+      kidCuratedVisibleLimit += getCuratedPageSize();
       renderKidYouTubeSearchResults();
     }
 
     function showMoreKidYouTube() {
-      kidYtVisibleLimit += 10;
+      kidYtVisibleLimit += getYouTubePageSize();
       renderKidYouTubeSearchResults();
     }
 

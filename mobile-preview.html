@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FamiTube Android App Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
+  <style>
+    :root {
+      --pink: #FF2E93;
+      --pink-light: #FF6EB4;
+      --blue: #00B4D8;
+      --yellow: #FFD166;
+      --green: #06D6A0;
+      --page-bg: #0b1120;
+      --panel-bg: #111827;
+      --panel-border: #1f2937;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background: radial-gradient(circle at top, #172554 0%, #0b1120 60%);
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      padding: 0.9rem 1.5rem;
+      background: rgba(15, 23, 42, 0.88);
+      border-bottom: 1px solid var(--panel-border);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      text-decoration: none;
+      color: #fff;
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+    .brand-icon {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--pink), var(--pink-light));
+      display: inline-flex; align-items: center; justify-content: center;
+      font-weight: 800; color: #fff;
+    }
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      flex-wrap: wrap;
+    }
+    .ctrl-group {
+      display: inline-flex;
+      background: #1e293b;
+      padding: 3px;
+      border-radius: 99px;
+      border: 1px solid #334155;
+      gap: 2px;
+    }
+    .ctrl-btn {
+      border: none;
+      background: transparent;
+      color: #cbd5e1;
+      padding: 0.36rem 0.8rem;
+      border-radius: 99px;
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .ctrl-btn.active {
+      background: var(--pink);
+      color: #fff;
+    }
+    .back-link {
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 0.84rem;
+      font-weight: 600;
+      padding: 0.42rem 0.85rem;
+      border-radius: 99px;
+      border: 1px solid #334155;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .back-link:hover { color: #fff; border-color: #64748b; }
+
+    .workspace {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 2rem;
+      padding: 1.75rem 1.25rem 2.5rem;
+      flex-wrap: wrap;
+    }
+
+    /* Device Frame */
+    .device-shell {
+      width: 390px;
+      height: 800px;
+      border-radius: 42px;
+      padding: 12px;
+      background: linear-gradient(145deg, #334155, #0f172a);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.65), inset 0 0 0 2px rgba(255,255,255,0.08);
+      display: flex;
+      flex-direction: column;
+      transition: width 0.25s ease, height 0.25s ease, border-radius 0.25s ease;
+    }
+    .device-shell.tablet {
+      width: 720px;
+      height: 880px;
+      border-radius: 28px;
+    }
+    .device-screen {
+      flex: 1;
+      border-radius: 32px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      /* Light theme defaults */
+      --bg: #F8FAFC;
+      --surface: #FFFFFF;
+      --surface-var: #F1F5F9;
+      --text: #0F172A;
+      --text-muted: #64748B;
+      --border: #E2E8F0;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .device-shell.tablet .device-screen { border-radius: 20px; }
+    .device-screen.dark {
+      --bg: #0B1120;
+      --surface: #131B2E;
+      --surface-var: #1E293B;
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --border: #1E293B;
+    }
+
+    /* Android Status Bar */
+    .android-status {
+      height: 28px;
+      padding: 0 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: var(--surface);
+      color: var(--text);
+      flex-shrink: 0;
+    }
+    .camera-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #020617;
+      border: 1px solid #334155;
+    }
+
+    /* FamiTubeTopBar */
+    .app-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .app-topbar-left { display: flex; align-items: center; gap: 8px; }
+    .app-logo {
+      width: 32px; height: 32px; border-radius: 9px;
+      background: linear-gradient(135deg, var(--pink), var(--pink-light));
+      color: #fff; font-weight: 800; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .app-title { font-weight: 800; font-size: 1.05rem; }
+    .app-topbar-actions { display: flex; align-items: center; gap: 5px; }
+    .pill-stars {
+      background: rgba(255, 209, 102, 0.22);
+      color: #B45309;
+      padding: 4px 8px;
+      border-radius: 99px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      border: none;
+      cursor: pointer;
+    }
+    .device-screen.dark .pill-stars { color: #FFD166; }
+    .pill-time {
+      background: var(--surface-var);
+      color: #0284C7;
+      padding: 4px 8px;
+      border-radius: 99px;
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+    .icon-btn {
+      width: 30px; height: 30px; border-radius: 50%;
+      border: none; background: transparent;
+      color: var(--text);
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+    .icon-btn:hover { background: var(--surface-var); }
+
+    /* Scrollable App Content */
+    .app-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px;
+    }
+    .app-body::-webkit-scrollbar { width: 5px; }
+    .app-body::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.35); border-radius: 99px; }
+
+    /* Bottom Navigation Bar */
+    .app-bottombar {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 6px 4px 10px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .nav-item {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      font-family: inherit;
+      font-size: 0.66rem;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 12px;
+    }
+    .nav-item.active {
+      color: var(--pink);
+      background: rgba(255, 46, 147, 0.1);
+    }
+
+    /* App Cards & Components */
+    .hero-banner {
+      background: linear-gradient(135deg, rgba(255,46,147,0.14), rgba(0,180,216,0.14));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .chips-row {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 10px;
+    }
+    .chip {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      padding: 5px 12px;
+      border-radius: 99px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .chip.active { background: var(--pink); color: #fff; border-color: var(--pink); }
+    .video-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    .device-shell.tablet .video-list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .v-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .v-thumb {
+      position: relative;
+      aspect-ratio: 16/9;
+      background: #0f172a;
+      overflow: hidden;
+    }
+    .v-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .v-badge {
+      position: absolute;
+      bottom: 8px; right: 8px;
+      background: rgba(0,0,0,0.78);
+      color: #fff;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+    .v-info { padding: 10px 12px; }
+    .v-title { font-weight: 700; font-size: 0.86rem; line-height: 1.3; margin-bottom: 4px; }
+    .v-meta { font-size: 0.74rem; color: var(--text-muted); }
+
+    .card-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .btn-primary {
+      background: var(--pink);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-outline {
+      background: var(--surface-var);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 9px 12px;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .theme-tile {
+      border: 1.5px solid var(--border);
+      background: var(--surface-var);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 6px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+    .theme-tile.active {
+      border-color: var(--pink);
+      background: rgba(255, 46, 147, 0.12);
+      color: var(--pink);
+    }
+
+    /* Side Inspector Panel */
+    .inspector {
+      width: 310px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid var(--panel-border);
+      border-radius: 20px;
+      padding: 1.25rem;
+    }
+    .inspector h3 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.15rem;
+      margin-bottom: 0.4rem;
+    }
+    .inspector p { font-size: 0.84rem; color: #94a3b8; line-height: 1.5; margin-bottom: 1rem; }
+    .quick-screens { display: flex; flex-direction: column; gap: 0.45rem; }
+    .qs-btn {
+      text-align: left;
+      background: #1e293b;
+      color: #e2e8f0;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 0.55rem 0.8rem;
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .qs-btn:hover { border-color: var(--pink); color: #fff; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a href="index.html" class="brand">
+      <span class="brand-icon">F</span>
+      <span>FamiTube Mobile Preview</span>
+    </a>
+
+    <div class="controls">
+      <div class="ctrl-group">
+        <button class="ctrl-btn active" id="btnPhone" onclick="setDevice('phone')">
+          <span class="material-symbols-rounded" style="font-size:1rem;">smartphone</span> Phone
+        </button>
+        <button class="ctrl-btn" id="btnTablet" onclick="setDevice('tablet')">
+          <span class="material-symbols-rounded" style="font-size:1rem;">tablet_android</span> Tablet
+        </button>
+      </div>
+
+      <div class="ctrl-group">
+        <button class="ctrl-btn active" id="btnThemeLight" onclick="setAppTheme('LIGHT')">Light</button>
+        <button class="ctrl-btn" id="btnThemeDark" onclick="setAppTheme('DARK')">Dark</button>
+      </div>
+
+      <div class="ctrl-group">
+        <button class="ctrl-btn active" id="btnAgeOlder" onclick="setAgeMode('OLDER_KIDS')">Full Kid Mode</button>
+        <button class="ctrl-btn" id="btnAgeSimple" onclick="setAgeMode('TODDLER')">Simple (2-7y)</button>
+      </div>
+
+      <a href="index.html" class="back-link">
+        <span class="material-symbols-rounded" style="font-size:1rem;">arrow_back</span> Back to Web Portal
+      </a>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <div class="device-shell" id="deviceShell">
+      <div class="device-screen" id="deviceScreen">
+        <div class="android-status">
+          <span>11:42</span>
+          <span class="camera-dot" title="Front Camera Attention Tracker"></span>
+          <span>5G • 94%</span>
+        </div>
+
+        <div class="app-topbar" id="appTopBar">
+          <div class="app-topbar-left">
+            <div class="app-logo">F</div>
+            <span class="app-title">FamiTube</span>
+          </div>
+          <div class="app-topbar-actions">
+            <button class="pill-stars" onclick="navigate('achievements')">⭐ <span id="topStars">10000</span></button>
+            <span class="pill-time" id="topTimeLeft">45m left</span>
+            <button class="icon-btn" id="btnTopSearch" onclick="navigate('search')" title="Search">
+              <span class="material-symbols-rounded" style="font-size:1.25rem;">search</span>
+            </button>
+            <button class="icon-btn" onclick="navigate('profile')" title="Profile">
+              <span class="material-symbols-rounded" style="font-size:1.25rem;">account_circle</span>
+            </button>
+            <button class="icon-btn" onclick="navigate('parental_gate')" title="Parental Controls" style="color:var(--pink);">
+              <span class="material-symbols-rounded" style="font-size:1.2rem;">lock</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="app-body" id="appBody"></div>
+
+        <nav class="app-bottombar" id="appBottomBar"></nav>
+      </div>
+    </div>
+
+    <aside class="inspector">
+      <h3>Interactive APK Simulator</h3>
+      <p id="dataSourceNote">Connecting to FamiTube API to load live curated channels and videos...</p>
+      <div class="quick-screens">
+        <button class="qs-btn" onclick="navigate('home')"><span>🏠 Home Feed</span><span>›</span></button>
+        <button class="qs-btn" onclick="navigate('channels')"><span>📺 Channels</span><span>›</span></button>
+        <button class="qs-btn" onclick="navigate('quiz_wall')"><span>🧠 Channel Quiz Wall</span><span>›</span></button>
+        <button class="qs-btn" onclick="navigate('player')"><span>▶️ Video Player + Attention Pause</span><span>›</span></button>
+        <button class="qs-btn" onclick="navigate('search')"><span>🔍 Dual Search (Curated + YouTube)</span><span>›</span></button>
+        <button class="qs-btn" onclick="navigate('achievements')"><span>🏆 Badges &amp; Stars</span><span>›</span></button>
+        <button class="qs-btn" onclick="navigate('profile')"><span>👤 Profile &amp; Theme Switcher</span><span>›</span></button>
+        <button class="qs-btn" onclick="navigate('parental_gate')"><span>🔒 Parental Gate (PIN: 1234)</span><span>›</span></button>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+    const API_BASE = isLocal ? 'http://localhost:4000' : 'https://famitube-api.gamantha.my.id';
+    const authToken = localStorage.getItem('FamiTube_auth_token') || '';
+    let savedUser = null;
+    try { savedUser = JSON.parse(localStorage.getItem('FamiTube_auth_user') || 'null'); } catch {}
+
+    let state = {
+      screen: 'home',
+      theme: 'LIGHT',
+      ageMode: 'OLDER_KIDS',
+      selectedCategory: 'All',
+      searchTab: 'curated',
+      searchQuery: '',
+      isAttentionPaused: false,
+      pinInput: '',
+      stars: 10000,
+      dailyLimit: 45,
+      attentionEnabled: true,
+      channels: [
+        { id: 'ch-1', name: 'SciShow Kids', category: 'Science & Space', channelType: 'ON_DEMAND', videoCount: 12, avatarUrl: 'https://i.ytimg.com/vi/b25g4nZTHvM/hqdefault.jpg', description: 'Fun science experiments and space facts!' },
+        { id: 'ch-2', name: 'Space Explorers 24H TV', category: 'Science & Space', channelType: 'LIVE_TV', videoCount: 8, avatarUrl: 'https://i.ytimg.com/vi/libKVRa01L8/hqdefault.jpg', description: 'Non-stop planets, stars, and astronomy.' }
+      ],
+      videos: [
+        { id: 'v-1', title: 'How Do Rockets Fly to Space?', channelTitle: 'SciShow Kids', category: 'Science & Space', sourceType: 'YOUTUBE', youtubeVideoId: 'b25g4nZTHvM', thumbnailUrl: 'https://i.ytimg.com/vi/b25g4nZTHvM/hqdefault.jpg', duration: 245, ageRating: 'YOUNG_KIDS' },
+        { id: 'v-2', title: 'Solar System 101 | National Geographic', channelTitle: 'Nat Geo Kids', category: 'Science & Space', sourceType: 'YOUTUBE', youtubeVideoId: 'libKVRa01L8', thumbnailUrl: 'https://i.ytimg.com/vi/libKVRa01L8/hqdefault.jpg', duration: 250, ageRating: 'ALL' },
+        { id: 'v-3', title: 'One | Numberblocks Full Episode', channelTitle: 'Numberblocks', category: 'Learning & ABCs', sourceType: 'YOUTUBE', youtubeVideoId: 'AXXP3HMAP6c', thumbnailUrl: 'https://i.ytimg.com/vi/AXXP3HMAP6c/hqdefault.jpg', duration: 300, ageRating: 'TODDLER' }
+      ],
+      activeVideo: null,
+      playlists: [
+        { id: 'pl-1', title: 'Space & Rockets', description: 'Curated space adventures', count: 6 },
+        { id: 'pl-2', title: 'Bedtime Rhymes', description: 'Calm songs for evening', count: 8 }
+      ]
+    };
+    state.activeVideo = state.videos[0];
+
+    async function loadLiveBackendData() {
+      const noteEl = document.getElementById('dataSourceNote');
+      try {
+        const [vidRes, chRes] = await Promise.all([
+          fetch(`${API_BASE}/api/videos`).then(r => r.json()),
+          fetch(`${API_BASE}/api/channels`).then(r => r.json())
+        ]);
+        if (vidRes.success && vidRes.data?.length) {
+          state.videos = vidRes.data;
+          state.activeVideo = state.videos[0];
+        }
+        if (chRes.success && chRes.data?.length) {
+          state.channels = chRes.data;
+        }
+        if (authToken) {
+          const achRes = await fetch(`${API_BASE}/api/kids/achievements`, {
+            headers: { Authorization: `Bearer ${authToken}` }
+          }).then(r => r.json()).catch(() => null);
+          if (achRes?.success && achRes.data) {
+            state.stars = achRes.data.stars ?? state.stars;
+          }
+        }
+        if (noteEl) noteEl.textContent = `Synced live with ${API_BASE} (${state.videos.length} videos, ${state.channels.length} channels).`;
+      } catch {
+        if (noteEl) noteEl.textContent = 'Using built-in offline sample catalog (API unreachable).';
+      }
+      render();
+    }
+
+    function setDevice(mode) {
+      const shell = document.getElementById('deviceShell');
+      shell.classList.toggle('tablet', mode === 'tablet');
+      document.getElementById('btnPhone').classList.toggle('active', mode === 'phone');
+      document.getElementById('btnTablet').classList.toggle('active', mode === 'tablet');
+    }
+
+    function setAppTheme(theme) {
+      state.theme = theme;
+      document.getElementById('deviceScreen').classList.toggle('dark', theme === 'DARK');
+      document.getElementById('btnThemeLight').classList.toggle('active', theme === 'LIGHT');
+      document.getElementById('btnThemeDark').classList.toggle('active', theme === 'DARK');
+      render();
+    }
+
+    function setAgeMode(mode) {
+      state.ageMode = mode;
+      document.getElementById('btnAgeOlder').classList.toggle('active', mode === 'OLDER_KIDS');
+      document.getElementById('btnAgeSimple').classList.toggle('active', mode === 'TODDLER');
+      render();
+    }
+
+    function navigate(screen, extra) {
+      state.screen = screen;
+      if (extra?.video) state.activeVideo = extra.video;
+      if (screen !== 'player') state.isAttentionPaused = false;
+      render();
+    }
+
+    function renderBottomBar() {
+      const bar = document.getElementById('appBottomBar');
+      const simple = state.ageMode === 'TODDLER';
+      const tabs = simple
+        ? [
+            { id: 'home', icon: 'home', label: 'Home' },
+            { id: 'channels', icon: 'tv', label: 'Channels' },
+            { id: 'favorites', icon: 'favorite', label: 'Favorites' }
+          ]
+        : [
+            { id: 'home', icon: 'home', label: 'Home' },
+            { id: 'channels', icon: 'tv', label: 'Channels' },
+            { id: 'playlists', icon: 'playlist_play', label: 'Playlists' },
+            { id: 'favorites', icon: 'favorite', label: 'Library' },
+            { id: 'achievements', icon: 'emoji_events', label: 'Badges' }
+          ];
+      const showBottom = tabs.some(t => t.id === state.screen);
+      bar.style.display = showBottom ? 'flex' : 'none';
+      bar.innerHTML = tabs.map(t => `
+        <button class="nav-item ${state.screen === t.id ? 'active' : ''}" onclick="navigate('${t.id}')">
+          <span class="material-symbols-rounded" style="font-size:1.3rem;">${t.icon}</span>
+          <span>${t.label}</span>
+        </button>
+      `).join('');
+    }
+
+    function render() {
+      const simple = state.ageMode === 'TODDLER';
+      document.getElementById('btnTopSearch').style.display = simple ? 'none' : 'inline-flex';
+      document.getElementById('topStars').textContent = state.stars;
+      document.getElementById('topTimeLeft').textContent = `${state.dailyLimit}m left`;
+      renderBottomBar();
+
+      const body = document.getElementById('appBody');
+      if (state.screen === 'home') {
+        const cats = ['All', ...new Set(state.videos.map(v => v.category).filter(Boolean))];
+        const filtered = state.selectedCategory === 'All'
+          ? state.videos
+          : state.videos.filter(v => v.category === state.selectedCategory);
+        body.innerHTML = `
+          <div class="hero-banner">
+            <div style="font-size:0.72rem; font-weight:800; color:var(--pink); text-transform:uppercase;">Safe Kid Mode</div>
+            <div style="font-weight:800; font-size:1rem; margin:2px 0;">Hi ${savedUser?.name || 'Andrea'}! Ready to explore?</div>
+            <div style="font-size:0.76rem; color:var(--text-muted);">Parent-curated videos with zero algorithmic rabbit holes.</div>
+          </div>
+          <div class="chips-row">
+            ${cats.map(c => `<button class="chip ${state.selectedCategory === c ? 'active' : ''}" onclick="state.selectedCategory='${c}'; render();">${c}</button>`).join('')}
+          </div>
+          <div class="video-list">
+            ${filtered.slice(0, 8).map((v, i) => `
+              <div class="v-card" onclick="navigate('player', { video: state.videos[${state.videos.indexOf(v)}] })">
+                <div class="v-thumb">
+                  <img src="${v.thumbnailUrl}" alt="">
+                  <span class="v-badge">${Math.floor((v.duration||180)/60)}:${String((v.duration||180)%60).padStart(2,'0')}</span>
+                </div>
+                <div class="v-info">
+                  <div class="v-title">${v.title}</div>
+                  <div class="v-meta">${v.channelTitle} • ${v.category}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } else if (state.screen === 'channels') {
+        body.innerHTML = `
+          <h3 style="margin-bottom:10px; font-size:1.05rem;">Curated Channels</h3>
+          ${state.channels.map(c => `
+            <div class="card-box" style="display:flex; align-items:center; gap:12px; cursor:pointer;" onclick="navigate('quiz_wall')">
+              <img src="${c.avatarUrl}" style="width:52px; height:52px; border-radius:50%; object-fit:cover;">
+              <div style="flex:1;">
+                <div style="font-weight:800; font-size:0.9rem;">${c.name}</div>
+                <div style="font-size:0.74rem; color:var(--text-muted);">${c.category} • ${c.channelType === 'LIVE_TV' ? '🔴 LIVE TV' : 'On Demand'}</div>
+              </div>
+              <span class="material-symbols-rounded" style="color:var(--text-muted);">chevron_right</span>
+            </div>
+          `).join('')}
+        `;
+      } else if (state.screen === 'quiz_wall') {
+        body.innerHTML = `
+          <button class="btn-outline" onclick="navigate('channels')" style="margin-bottom:12px;">← Back to Channels</button>
+          <div class="card-box" style="text-align:center; padding:22px 16px;">
+            <div style="font-size:2.4rem; margin-bottom:8px;">🧠</div>
+            <div style="font-weight:800; font-size:1.08rem; margin-bottom:4px;">Unlock This Channel</div>
+            <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:14px;">Answer correctly to watch! (0/3 attempts used)</div>
+            <div style="background:var(--surface-var); padding:14px; border-radius:12px; font-weight:800; margin-bottom:14px;">What is 7 + 5?</div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <button class="btn-outline" onclick="alert('Not quite! Wait 10s for next quiz.')">10</button>
+              <button class="btn-primary" onclick="alert('Correct! Channel unlocked for 30 minutes.'); navigate('channels');">12</button>
+              <button class="btn-outline" onclick="alert('Not quite! Wait 10s for next quiz.')">14</button>
+              <button class="btn-outline" onclick="alert('Not quite! Wait 10s for next quiz.')">15</button>
+            </div>
+          </div>
+        `;
+      } else if (state.screen === 'player') {
+        const v = state.activeVideo || state.videos[0];
+        body.innerHTML = `
+          <button class="btn-outline" onclick="navigate('home')" style="margin-bottom:10px;">← Back</button>
+          <div style="position:relative; aspect-ratio:16/9; border-radius:14px; overflow:hidden; background:#000; margin-bottom:12px;">
+            <img src="${v.thumbnailUrl}" style="width:100%; height:100%; object-fit:cover; opacity:${state.isAttentionPaused ? '0.25' : '0.85'};">
+            ${state.isAttentionPaused ? `
+              <div onclick="state.isAttentionPaused=false; render();" style="position:absolute; inset:0; background:rgba(11,17,32,0.88); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px; text-align:center; cursor:pointer;">
+                <div style="font-weight:800; color:#fff; font-size:1rem; margin-bottom:4px;">Are you still watching?</div>
+                <div style="font-size:0.74rem; color:#94a3b8; margin-bottom:10px;">Video paused at current position. Tap to resume.</div>
+                <span class="btn-primary">Resume Watching</span>
+              </div>
+            ` : `
+              <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">
+                <span class="material-symbols-rounded" style="font-size:3.2rem; color:#fff;">play_circle</span>
+              </div>
+            `}
+          </div>
+          <div class="card-box">
+            <div style="font-weight:800; font-size:0.96rem; margin-bottom:4px;">${v.title}</div>
+            <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:12px;">${v.channelTitle} • ${v.category}</div>
+            <button class="btn-outline" style="width:100%;" onclick="state.isAttentionPaused=!state.isAttentionPaused; render();">
+              ${state.isAttentionPaused ? '▶ Resume From Paused Position' : '📷 Simulate Attention Tracker Pause'}
+            </button>
+          </div>
+        `;
+      } else if (state.screen === 'search') {
+        body.innerHTML = `
+          <div style="display:flex; gap:6px; margin-bottom:10px;">
+            <button class="chip ${state.searchTab==='curated'?'active':''}" onclick="state.searchTab='curated'; render();">Curated Safe</button>
+            <button class="chip ${state.searchTab==='youtube'?'active':''}" onclick="state.searchTab='youtube'; render();">YouTube Search</button>
+          </div>
+          <input type="text" placeholder="Search cartoons, science, music..." value="${state.searchQuery}" oninput="state.searchQuery=this.value;" style="width:100%; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text); margin-bottom:12px;">
+          <div class="card-box" style="font-size:0.8rem; color:var(--text-muted);">
+            ${state.searchTab === 'curated'
+              ? 'Showing curated safe videos matching your age tier.'
+              : 'Parent-supervised YouTube Search: tapping a new video sends an approval email with thumbnail + Give/Deny buttons to your parent.'}
+          </div>
+        `;
+      } else if (state.screen === 'achievements') {
+        body.innerHTML = `
+          <div class="hero-banner" style="text-align:center;">
+            <div style="font-size:2rem;">⭐ ${state.stars}</div>
+            <div style="font-weight:800; font-size:1.05rem;">Level ${Math.floor(state.stars/100)+1} Explorer</div>
+            <div style="font-size:0.76rem; color:var(--text-muted);">Keep watching &amp; passing quizzes to earn more badges!</div>
+          </div>
+          ${[
+            { icon:'🎬', title:'First Watch', desc:'Watch your first video', done:true },
+            { icon:'🧠', title:'Quiz Starter', desc:'Pass a channel quiz', done:true },
+            { icon:'🔍', title:'Safe Searcher', desc:'Watch an approved YouTube video', done:false }
+          ].map(a => `
+            <div class="card-box" style="display:flex; align-items:center; gap:12px; opacity:${a.done?1:0.7};">
+              <div style="font-size:1.6rem;">${a.icon}</div>
+              <div style="flex:1;">
+                <div style="font-weight:800; font-size:0.88rem;">${a.title}</div>
+                <div style="font-size:0.74rem; color:var(--text-muted);">${a.desc}</div>
+              </div>
+              <span style="font-size:0.72rem; font-weight:800; color:${a.done?'#06D6A0':'#F59E0B'};">${a.done?'Unlocked':'Locked'}</span>
+            </div>
+          `).join('')}
+        `;
+      } else if (state.screen === 'profile') {
+        const name = savedUser?.name || 'Andrea Samantha Wijoyo';
+        const email = savedUser?.email || 'andrea.samantha.wijoyo@gmail.com';
+        body.innerHTML = `
+          <button class="btn-outline" onclick="navigate('home')" style="margin-bottom:10px;">← Back</button>
+          <div class="card-box" style="text-align:center;">
+            <div style="width:64px; height:64px; border-radius:50%; margin:0 auto 10px; background:linear-gradient(135deg, var(--pink), var(--blue)); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.6rem; font-weight:800;">
+              ${name.charAt(0).toUpperCase()}
+            </div>
+            <div style="font-weight:800; font-size:1.05rem;">${name}</div>
+            <div style="font-size:0.76rem; color:var(--text-muted); margin-bottom:10px;">${email}</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+              <div style="background:rgba(255,209,102,0.18); padding:10px; border-radius:12px;">
+                <div style="font-weight:800; color:#B45309;">⭐ ${state.stars}</div>
+                <div style="font-size:0.7rem; color:var(--text-muted);">Stars Earned</div>
+              </div>
+              <div style="background:var(--surface-var); padding:10px; border-radius:12px;">
+                <div style="font-weight:800; color:var(--blue);">${state.dailyLimit}m</div>
+                <div style="font-size:0.7rem; color:var(--text-muted);">Left Today</div>
+              </div>
+            </div>
+          </div>
+          <div class="card-box">
+            <div style="font-weight:800; font-size:0.92rem;">App Theme</div>
+            <div style="font-size:0.74rem; color:var(--text-muted);">Choose how FamiTube looks on this device.</div>
+            <div class="theme-grid">
+              <button class="theme-tile ${state.theme==='LIGHT'?'active':''}" onclick="setAppTheme('LIGHT')">☀️ Light</button>
+              <button class="theme-tile ${state.theme==='DARK'?'active':''}" onclick="setAppTheme('DARK')">🌙 Dark</button>
+              <button class="theme-tile" onclick="setAppTheme('LIGHT')">📱 System</button>
+            </div>
+          </div>
+        `;
+      } else if (state.screen === 'parental_gate') {
+        body.innerHTML = `
+          <button class="btn-outline" onclick="navigate('home')" style="margin-bottom:12px;">← Back</button>
+          <div class="card-box" style="text-align:center; padding:22px 16px;">
+            <div style="font-size:2rem; margin-bottom:8px;">🔒</div>
+            <div style="font-weight:800; font-size:1rem; margin-bottom:4px;">Grown-Ups Only</div>
+            <div style="font-size:0.76rem; color:var(--text-muted); margin-bottom:14px;">Enter 4-digit Parent PIN (default: 1234)</div>
+            <input type="password" maxlength="4" value="${state.pinInput}" oninput="state.pinInput=this.value;" placeholder="••••" style="text-align:center; font-size:1.3rem; letter-spacing:8px; width:140px; padding:10px; border-radius:12px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); margin-bottom:12px;">
+            <div>
+              <button class="btn-primary" onclick="if(state.pinInput==='1234'){navigate('parental_settings');}else{alert('Try PIN 1234');}">Unlock Settings</button>
+            </div>
+          </div>
+        `;
+      } else if (state.screen === 'parental_settings') {
+        body.innerHTML = `
+          <button class="btn-outline" onclick="navigate('home')" style="margin-bottom:10px;">← Done</button>
+          <div class="card-box">
+            <div style="font-weight:800; font-size:0.95rem; margin-bottom:8px;">Daily Watch Time Limit</div>
+            <div class="chips-row">
+              ${[15,30,45,60,90,120].map(m => `<button class="chip ${state.dailyLimit===m?'active':''}" onclick="state.dailyLimit=${m}; render();">${m}m</button>`).join('')}
+            </div>
+          </div>
+          <div class="card-box">
+            <div style="font-weight:800; font-size:0.95rem; margin-bottom:6px;">Camera Attention Check</div>
+            <label style="display:flex; align-items:center; gap:8px; font-size:0.82rem; cursor:pointer;">
+              <input type="checkbox" ${state.attentionEnabled?'checked':''} onchange="state.attentionEnabled=this.checked; render();">
+              Auto-pause when viewer looks away
+            </label>
+          </div>
+        `;
+      } else {
+        body.innerHTML = `
+          <h3 style="margin-bottom:10px; font-size:1.05rem;">${state.screen === 'playlists' ? 'Curated Playlists' : 'My Library'}</h3>
+          ${state.playlists.map(p => `
+            <div class="card-box">
+              <div style="font-weight:800; font-size:0.9rem;">🎵 ${p.title}</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">${p.description} • ${p.count} videos</div>
+            </div>
+          `).join('')}
+        `;
+      }
+    }
+
+    loadLiveBackendData();
+    render();
+  </script>
+</body>
+</html>
