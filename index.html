@@ -748,6 +748,108 @@
       background: rgba(76, 201, 240, 0.15);
       color: var(--accent);
     }
+    .hero-carousel {
+      position: relative;
+      padding: 1.75rem 2rem 1.4rem;
+      margin-bottom: 1.75rem;
+      background: linear-gradient(135deg, rgba(255,51,102,0.14), rgba(67,97,238,0.16));
+      border-color: rgba(76,201,240,0.28);
+      overflow: hidden;
+    }
+    .hero-slides {
+      position: relative;
+      min-height: 156px;
+    }
+    .hero-slide {
+      display: none;
+      animation: heroFadeIn 0.35s ease;
+    }
+    .hero-slide.active {
+      display: block;
+    }
+    @keyframes heroFadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      padding: 0.24rem 0.65rem;
+      border-radius: 99px;
+      background: rgba(255, 51, 102, 0.14);
+      color: var(--primary);
+      margin-bottom: 0.6rem;
+    }
+    .hero-slide[data-tone="secondary"] .hero-badge {
+      background: rgba(67, 97, 238, 0.14);
+      color: var(--secondary);
+    }
+    .hero-slide[data-tone="success"] .hero-badge {
+      background: rgba(6, 214, 160, 0.16);
+      color: var(--success);
+    }
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 0.95rem;
+    }
+    .hero-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-top: 1.15rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid rgba(148, 163, 184, 0.22);
+    }
+    .hero-dots {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+    .hero-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 99px;
+      border: none;
+      background: rgba(148, 163, 184, 0.45);
+      cursor: pointer;
+      padding: 0;
+      transition: all 0.2s ease;
+    }
+    .hero-dot.active {
+      width: 26px;
+      background: var(--primary);
+    }
+    .hero-nav-btns {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .hero-nav-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .hero-nav-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
   </style>
 </head>
 <body>
@@ -890,14 +992,94 @@
       </div>
       <span id="loggedInBannerBadge" style="font-size:0.76rem; font-weight:700; padding:0.25rem 0.65rem; border-radius:99px; background:rgba(76,201,240,0.15); color:var(--accent);"></span>
     </div>
-    <div id="showcaseHeroCard" class="card" style="padding:1.75rem 2rem; margin-bottom:1.75rem; background:linear-gradient(135deg, rgba(255,51,102,0.16), rgba(67,97,238,0.18)); border-color:rgba(76,201,240,0.25);">
-      <h2 data-i18n="hero_title" style="font-size:1.6rem; margin-bottom:0.35rem;">Safe, Curated Kids Channels &amp; Educational Videos</h2>
-      <p data-i18n="hero_desc" style="color:var(--text-muted); font-size:0.95rem;">Pick a themed channel below to explore hand-picked, kid-friendly YouTube and educational videos. To add or manage content, switch to <strong>Curator Studio</strong>.</p>
-      <p style="color:var(--text-muted); font-size:0.95rem; margin-top:0.6rem;">
-        <span data-i18n="hero_safety_narration">Discover how FamiTube protects your children from inappropriate content — it's the YouTube every parent wishes for.</span>
-        <a href="learn-more.html" id="heroSafetyLink" data-i18n="hero_learn_more" style="color:var(--primary); font-weight:700; text-decoration:none; margin-left:0.35rem; white-space:nowrap;">Learn More &gt;</a>
-        <a href="learn-more.html#plans" id="heroPlansLink" data-i18n="hero_compare_plans" style="color:var(--secondary); font-weight:700; text-decoration:none; margin-left:0.75rem; white-space:nowrap;">Free vs. Family Pass &gt;</a>
-      </p>
+    <div id="showcaseHeroCard" class="card hero-carousel" aria-roledescription="carousel" aria-label="FamiTube Value Propositions">
+      <div class="hero-slides">
+        <div class="hero-slide active" data-slide="0" data-tone="primary">
+          <span class="hero-badge">
+            <span class="material-symbols-rounded" style="font-size:0.95rem;">verified_user</span>
+            <span data-i18n="hero_s1_badge">100% Parent-Curated</span>
+          </span>
+          <h2 data-i18n="hero_s1_title" style="font-size:1.6rem; margin-bottom:0.4rem;">Safe Video Without the Rabbit Hole</h2>
+          <p data-i18n="hero_s1_desc" style="color:var(--text-muted); font-size:0.95rem; max-width:760px;">
+            Kids only see channels and videos explicitly approved by parents and trusted educators—no random autoplay, no toxic comments, and no algorithmic surprises.
+          </p>
+          <div class="hero-actions">
+            <button type="button" class="btn btn-primary" onclick="document.getElementById('showcaseChannelsGrid')?.scrollIntoView({ behavior: 'smooth' })">
+              <span class="material-symbols-rounded" style="font-size:1.05rem;">subscriptions</span>
+              <span data-i18n="hero_s1_cta">Explore Safe Channels</span>
+            </button>
+            <a href="learn-more.html" data-i18n="hero_learn_more" style="color:var(--primary); font-weight:700; text-decoration:none; white-space:nowrap;">Learn More &gt;</a>
+          </div>
+        </div>
+
+        <div class="hero-slide" data-slide="1" data-tone="secondary">
+          <span class="hero-badge">
+            <span class="material-symbols-rounded" style="font-size:0.95rem;">bedtime</span>
+            <span data-i18n="hero_s2_badge">Calm Mode &amp; No Shorts</span>
+          </span>
+          <h2 data-i18n="hero_s2_title" style="font-size:1.6rem; margin-bottom:0.4rem;">Designed for Focus, Not Endless Scrolling</h2>
+          <p data-i18n="hero_s2_desc" style="color:var(--text-muted); font-size:0.95rem; max-width:760px;">
+            Block addictive Shorts, filter out hyper-stimulating content, and set daily watch limits with gentle bedtime lockouts.
+          </p>
+          <div class="hero-actions">
+            <a href="learn-more.html" class="btn btn-primary">
+              <span class="material-symbols-rounded" style="font-size:1.05rem;">shield_with_heart</span>
+              <span data-i18n="hero_s2_cta">See Safety Controls</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="hero-slide" data-slide="2" data-tone="success">
+          <span class="hero-badge">
+            <span class="material-symbols-rounded" style="font-size:0.95rem;">quiz</span>
+            <span data-i18n="hero_s3_badge">Quiz Walls &amp; Age Tiers</span>
+          </span>
+          <h2 data-i18n="hero_s3_title" style="font-size:1.6rem; margin-bottom:0.4rem;">Turn Screen Time into Curiosity &amp; Learning</h2>
+          <p data-i18n="hero_s3_desc" style="color:var(--text-muted); font-size:0.95rem; max-width:760px;">
+            Unlock favorite channels with quick Math, Science, or English Quiz Walls—and tailor feeds from Toddlers (2–4) all the way to Teens (13–17).
+          </p>
+          <div class="hero-actions">
+            <button type="button" class="btn btn-primary" onclick="openStudio()">
+              <span class="material-symbols-rounded" style="font-size:1.05rem;">admin_panel_settings</span>
+              <span data-i18n="hero_s3_cta">Open Curator Studio</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="hero-slide" data-slide="3" data-tone="primary">
+          <span class="hero-badge">
+            <span class="material-symbols-rounded" style="font-size:0.95rem;">workspace_premium</span>
+            <span data-i18n="hero_s4_badge">Videos Free Forever</span>
+          </span>
+          <h2 data-i18n="hero_s4_title" style="font-size:1.6rem; margin-bottom:0.4rem;">Every Video Is Free. Pay Only for Family Scale.</h2>
+          <p data-i18n="hero_s4_desc" style="color:var(--text-muted); font-size:0.95rem; max-width:760px;">
+            Watch all curated videos at $0 with zero paywalls. Upgrade to Family Pass only when you want unlimited child profiles, custom tag rules, and private family channels.
+          </p>
+          <div class="hero-actions">
+            <a href="learn-more.html#plans" class="btn btn-primary">
+              <span class="material-symbols-rounded" style="font-size:1.05rem;">compare</span>
+              <span data-i18n="hero_s4_cta">Compare Free vs. Family Pass</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-controls">
+        <div class="hero-dots" role="tablist" aria-label="Carousel Slides">
+          <button type="button" class="hero-dot active" data-dot="0" aria-label="Slide 1"></button>
+          <button type="button" class="hero-dot" data-dot="1" aria-label="Slide 2"></button>
+          <button type="button" class="hero-dot" data-dot="2" aria-label="Slide 3"></button>
+          <button type="button" class="hero-dot" data-dot="3" aria-label="Slide 4"></button>
+        </div>
+        <div class="hero-nav-btns">
+          <button type="button" class="hero-nav-btn" id="heroPrevBtn" aria-label="Previous slide">
+            <span class="material-symbols-rounded" style="font-size:1.1rem;">chevron_left</span>
+          </button>
+          <button type="button" class="hero-nav-btn" id="heroNextBtn" aria-label="Next slide">
+            <span class="material-symbols-rounded" style="font-size:1.1rem;">chevron_right</span>
+          </button>
+        </div>
+      </div>
     </div>
 
     <div id="kidToolsBar" style="display:none; margin-bottom:1.25rem; gap:0.55rem; flex-wrap:wrap; align-items:center;">
@@ -5605,6 +5787,24 @@
         hero_desc: 'Pick a themed channel below to explore hand-picked, kid-friendly YouTube and educational videos. To add or manage content, switch to Curator Studio.',
         hero_safety_narration: "Discover how FamiTube protects your children from inappropriate content — it's the YouTube every parent wishes for.",
         hero_learn_more: 'Learn More >',
+        nav_plans: 'Family Pass',
+        hero_compare_plans: 'Free vs. Family Pass >',
+        hero_s1_badge: '100% Parent-Curated',
+        hero_s1_title: 'Safe Video Without the Rabbit Hole',
+        hero_s1_desc: 'Kids only see channels and videos explicitly approved by parents and trusted educators—no random autoplay, no toxic comments, and no algorithmic surprises.',
+        hero_s1_cta: 'Explore Safe Channels',
+        hero_s2_badge: 'Calm Mode & No Shorts',
+        hero_s2_title: 'Designed for Focus, Not Endless Scrolling',
+        hero_s2_desc: 'Block addictive Shorts, filter out hyper-stimulating content, and set daily watch limits with gentle bedtime lockouts.',
+        hero_s2_cta: 'See Safety Controls',
+        hero_s3_badge: 'Quiz Walls & Age Tiers',
+        hero_s3_title: 'Turn Screen Time into Curiosity & Learning',
+        hero_s3_desc: 'Unlock favorite channels with quick Math, Science, or English Quiz Walls—and tailor feeds from Toddlers (2–4) all the way to Teens (13–17).',
+        hero_s3_cta: 'Open Curator Studio',
+        hero_s4_badge: 'Videos Free Forever',
+        hero_s4_title: 'Every Video Is Free. Pay Only for Family Scale.',
+        hero_s4_desc: 'Watch all curated videos at $0 with zero paywalls. Upgrade to Family Pass only when you want unlimited child profiles, custom tag rules, and private family channels.',
+        hero_s4_cta: 'Compare Free vs. Family Pass',
         featured_channels: 'Featured Channels',
         channel_search_title: 'Browse & Search Channels',
         channel_search_desc: 'Filter safe, curated channels by category or search by channel name and topic.',
@@ -5633,6 +5833,24 @@
         hero_desc: 'Pilih saluran di bawah untuk menonton video YouTube dan edukatif ramah anak pilihan. Untuk mengelola konten, buka Studio Kurator.',
         hero_safety_narration: 'Pelajari bagaimana FamiTube melindungi anak Anda dari konten tidak pantas — YouTube impian setiap orang tua.',
         hero_learn_more: 'Pelajari Lebih Lanjut >',
+        nav_plans: 'Family Pass',
+        hero_compare_plans: 'Gratis vs. Family Pass >',
+        hero_s1_badge: '100% Terkurasi Orang Tua',
+        hero_s1_title: 'Tontonan Aman Tanpa Jebakan Algoritma',
+        hero_s1_desc: 'Anak hanya melihat saluran dan video yang disetujui orang tua serta pendidik tepercaya—tanpa autoplay acak, tanpa komentar negatif, dan tanpa kejutan algoritma.',
+        hero_s1_cta: 'Jelajahi Saluran Aman',
+        hero_s2_badge: 'Mode Tenang & Tanpa Shorts',
+        hero_s2_title: 'Dirancang untuk Fokus, Bukan Gulir Tanpa Henti',
+        hero_s2_desc: 'Blokir Shorts yang adiktif, saring tontonan hiper-stimulasi, dan atur batas waktu harian dengan kunci waktu tidur yang lembut.',
+        hero_s2_cta: 'Lihat Kontrol Keamanan',
+        hero_s3_badge: 'Dinding Kuis & Tingkatan Usia',
+        hero_s3_title: 'Ubah Waktu Layar Menjadi Belajar & Eksplorasi',
+        hero_s3_desc: 'Buka saluran favorit dengan Kuis Matematika, Sains, atau Bahasa Inggris singkat—serta sesuaikan feed dari Balita (2–4) hingga Remaja (13–17).',
+        hero_s3_cta: 'Buka Studio Kurator',
+        hero_s4_badge: 'Video Gratis Selamanya',
+        hero_s4_title: 'Semua Video Gratis. Bayar Hanya untuk Skala Keluarga.',
+        hero_s4_desc: 'Tonton semua video terkurasi Rp 0 tanpa paywall. Upgrade ke Family Pass hanya jika Anda butuh profil banyak anak, aturan tag kustom, dan saluran keluarga privat.',
+        hero_s4_cta: 'Bandingkan Gratis vs. Family Pass',
         featured_channels: 'Saluran Unggulan',
         channel_search_title: 'Jelajahi & Cari Saluran',
         channel_search_desc: 'Filter saluran terkurasi berdasarkan kategori atau cari berdasarkan nama dan topik.',
@@ -5765,6 +5983,61 @@
       checkInviteQueryParam();
     }
     initApp();
+
+    (function initHeroCarousel() {
+      const card = document.getElementById('showcaseHeroCard');
+      if (!card) return;
+      const slides = Array.from(card.querySelectorAll('.hero-slide'));
+      const dots = Array.from(card.querySelectorAll('.hero-dot'));
+      const prevBtn = document.getElementById('heroPrevBtn');
+      const nextBtn = document.getElementById('heroNextBtn');
+      if (!slides.length) return;
+
+      let activeIdx = 0;
+      let timer = null;
+
+      function showSlide(idx) {
+        activeIdx = (idx + slides.length) % slides.length;
+        slides.forEach((s, i) => s.classList.toggle('active', i === activeIdx));
+        dots.forEach((d, i) => d.classList.toggle('active', i === activeIdx));
+      }
+
+      function startAuto() {
+        stopAuto();
+        timer = setInterval(() => showSlide(activeIdx + 1), 6000);
+      }
+
+      function stopAuto() {
+        if (timer) {
+          clearInterval(timer);
+          timer = null;
+        }
+      }
+
+      dots.forEach((dot, i) => {
+        dot.addEventListener('click', () => {
+          showSlide(i);
+          startAuto();
+        });
+      });
+
+      prevBtn?.addEventListener('click', () => {
+        showSlide(activeIdx - 1);
+        startAuto();
+      });
+
+      nextBtn?.addEventListener('click', () => {
+        showSlide(activeIdx + 1);
+        startAuto();
+      });
+
+      card.addEventListener('mouseenter', stopAuto);
+      card.addEventListener('mouseleave', startAuto);
+      card.addEventListener('focusin', stopAuto);
+      card.addEventListener('focusout', startAuto);
+
+      startAuto();
+    })();
   </script>
 </body>
 </html>
