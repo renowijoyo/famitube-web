@@ -1282,6 +1282,11 @@
           <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:0.35rem;">Password (min 6 chars)</label>
           <input type="password" id="regPassword" required minlength="6" placeholder="••••••••" style="width:100%;" />
         </div>
+        <div>
+          <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:0.35rem;">Referral Code (Optional)</label>
+          <input type="text" id="regReferralCode" placeholder="e.g. FAMI-XXXXX" style="width:100%; text-transform:uppercase;" />
+          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">Get a 3-month Family Pass voucher with no expiration.</div>
+        </div>
         <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Create Account</button>
       </form>
 
@@ -1359,6 +1364,7 @@
       </div>
 
       <div id="parentModeChildrenGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:1rem;"></div>
+      <div id="parentReferralsSection" style="margin-top:1.75rem;"></div>
     </div>
 
     <div id="childProfileView" style="display:none;">
@@ -2462,12 +2468,13 @@
       const name = document.getElementById('regName').value.trim();
       const email = document.getElementById('regEmail').value.trim();
       const password = document.getElementById('regPassword').value;
+      const referralCode = (document.getElementById('regReferralCode')?.value || '').trim().toUpperCase();
 
       try {
         const res = await fetch(apiUrl('/api/auth/register'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email, password })
+          body: JSON.stringify({ name, email, password, ...(referralCode ? { referralCode } : {}) })
         });
         const json = await res.json();
         if (!res.ok || !json.success) {
@@ -2649,7 +2656,8 @@
             </div>
             <img src="${c.avatarUrl}" style="width:76px; height:76px; border-radius:50%; margin:0 auto 0.75rem; object-fit:cover; border:2px solid ${isLive ? 'var(--primary)' : 'var(--accent)'};">
             <h4 style="font-size:1.1rem; margin-bottom:0.25rem;">${c.name}</h4>
-            <div style="color:var(--accent); font-size:0.8rem; margin-bottom:0.6rem;">${c.category} • ${c.videoCount || 0} videos</div>
+            <div style="color:var(--accent); font-size:0.8rem; margin-bottom:0.25rem;">${c.category} • ${c.videoCount || 0} videos</div>
+            <div style="color:var(--text-muted); font-size:0.76rem; margin-bottom:0.6rem;">by ${c.ownerName || 'Team FamiTube'}</div>
             <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.25rem; flex:1;">${c.description}</p>
             <div style="display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap;">
               <button class="btn btn-primary btn-sm" onclick="openChannelModal('${c.id}')">
@@ -3848,6 +3856,7 @@
       document.getElementById('parentModeApp').style.display = 'block';
       closeChildProfile();
       loadParentModeChildren();
+      loadParentReferralsAndVouchers();
     }
 
     function toggleParentAddChildForm(forceState) {
@@ -3930,6 +3939,67 @@
         if (stillExists) renderChildProfile(stillExists);
         else closeChildProfile();
       }
+    }
+
+    async function loadParentReferralsAndVouchers() {
+      const container = document.getElementById('parentReferralsSection');
+      if (!container) return;
+      try {
+        const res = await authFetch('/api/parent/referrals');
+        const json = await res.json();
+        if (!json.success || !json.data) return;
+        const { referralCode, referredUsers = [], vouchers = [] } = json.data;
+        container.innerHTML = `
+          <div class="channel-creator-box" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;">
+            <div>
+              <h3 style="font-family:'Fredoka',cursive; font-size:1.15rem; margin:0 0 0.35rem 0;">Your Referral Code</h3>
+              <p style="font-size:0.84rem; color:var(--text-muted); margin:0 0 0.75rem 0;">Share this code with other parents so they receive a 3-month Family Pass voucher (no expiration).</p>
+              <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; margin-bottom:0.75rem;">
+                <code style="font-size:1.05rem; font-weight:800; padding:0.45rem 0.85rem; border-radius:var(--radius-sm); background:var(--surface-light); border:1px solid var(--border); letter-spacing:0.06em;">${referralCode}</code>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="navigator.clipboard?.writeText('${referralCode}'); alert('Referral code copied!');">Copy</button>
+              </div>
+              <div style="font-size:0.82rem; color:var(--text-muted);">
+                <strong>${referredUsers.length}</strong> parent${referredUsers.length === 1 ? '' : 's'} registered with your code
+                ${referredUsers.length ? `<ul style="margin:0.35rem 0 0 1rem; padding:0;">${referredUsers.slice(0, 5).map(u => `<li>${u.name} (${u.email})</li>`).join('')}</ul>` : ''}
+              </div>
+            </div>
+            <div>
+              <h3 style="font-family:'Fredoka',cursive; font-size:1.15rem; margin:0 0 0.35rem 0;">Family Pass Vouchers</h3>
+              <p style="font-size:0.84rem; color:var(--text-muted); margin:0 0 0.75rem 0;">Referral vouchers never expire — activate whenever you're ready.</p>
+              ${!vouchers.length
+                ? '<div style="font-size:0.84rem; color:var(--text-muted);">No vouchers yet.</div>'
+                : vouchers.map(v => `
+                  <div style="padding:0.75rem; border-radius:var(--radius-sm); background:var(--surface); border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.5rem;">
+                    <div>
+                      <div style="font-weight:700; font-size:0.9rem;">${v.durationMonths}-Month Family Pass</div>
+                      <div style="font-size:0.76rem; color:var(--text-muted);">Code: ${v.code} • No expiration</div>
+                    </div>
+                    ${v.status === 'AVAILABLE'
+                      ? `<button type="button" class="btn btn-primary btn-sm" onclick="redeemFamilyPassVoucher('${v.id}')">Activate Now</button>`
+                      : `<span style="font-size:0.78rem; font-weight:700; color:var(--success);">Redeemed</span>`
+                    }
+                  </div>
+                `).join('')
+              }
+            </div>
+          </div>
+        `;
+      } catch {
+        // Ignore transient failure
+      }
+    }
+
+    async function redeemFamilyPassVoucher(voucherId) {
+      const res = await authFetch(`/api/parent/vouchers/${voucherId}/redeem`, { method: 'POST' });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Could not redeem voucher');
+      if (currentUser && json.data) {
+        currentUser.plan = json.data.plan;
+        currentUser.planExpiresAt = json.data.planExpiresAt;
+        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(currentUser));
+      }
+      await loadParentReferralsAndVouchers();
+      alert(json.message || '3-Month Family Pass activated!');
     }
 
     function openChildProfile(childId) {
@@ -4405,6 +4475,7 @@
               <div style="min-width:0;">
                 <div style="font-weight:700; font-size:0.98rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.name}</div>
                 <div style="font-size:0.78rem; color:var(--accent);">${c.category} &bull; ${c.videoCount || 0} videos</div>
+                <div style="font-size:0.74rem; color:var(--text-muted);">by ${c.ownerName || 'Team FamiTube'}</div>
                 <div style="margin-top:0.25rem;">${formatChannelAgeBadge(c.ageRating)}</div>
               </div>
             </div>
@@ -4808,7 +4879,7 @@
                   <span style="font-weight:700; font-size:1rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.name}</span>
                   ${c.isVerified ? '<span class="material-symbols-rounded" style="font-size:1rem; color:var(--accent); flex-shrink:0;" title="Verified Safe Channel">verified</span>' : ''}
                 </div>
-                <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.15rem;">${c.category} &bull; ${videoCount} videos</div>
+                <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.15rem;">${c.category} &bull; ${videoCount} videos &bull; by ${c.ownerName || 'Team FamiTube'}</div>
               </div>
             </div>
             <p style="color:var(--text-muted); font-size:0.85rem; line-height:1.45; margin:0; flex:1;">${c.description || ''}</p>
