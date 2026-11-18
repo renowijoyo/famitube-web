@@ -15,15 +15,32 @@
       --blue: #00B4D8;
       --yellow: #FFD166;
       --green: #06D6A0;
+      --page-bg: #F8FAFC;
+      --page-bg-accent: #EFF6FF;
+      --panel-bg: rgba(255, 255, 255, 0.92);
+      --panel-border: #E2E8F0;
+      --page-text: #0F172A;
+      --page-muted: #64748B;
+      --ctrl-bg: #F1F5F9;
+      --ctrl-border: #CBD5E1;
+      --ctrl-text: #475569;
+    }
+    :root[data-theme="dark"] {
       --page-bg: #0b1120;
-      --panel-bg: #111827;
+      --page-bg-accent: #172554;
+      --panel-bg: rgba(15, 23, 42, 0.88);
       --panel-border: #1f2937;
+      --page-text: #f8fafc;
+      --page-muted: #94a3b8;
+      --ctrl-bg: #1e293b;
+      --ctrl-border: #334155;
+      --ctrl-text: #cbd5e1;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-      background: radial-gradient(circle at top, #172554 0%, #0b1120 60%);
-      color: #f8fafc;
+      background: radial-gradient(circle at top, var(--page-bg-accent) 0%, var(--page-bg) 60%);
+      color: var(--page-text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -35,7 +52,7 @@
       gap: 1rem;
       flex-wrap: wrap;
       padding: 0.9rem 1.5rem;
-      background: rgba(15, 23, 42, 0.88);
+      background: var(--panel-bg);
       border-bottom: 1px solid var(--panel-border);
       backdrop-filter: blur(12px);
       position: sticky;
@@ -47,7 +64,7 @@
       align-items: center;
       gap: 0.65rem;
       text-decoration: none;
-      color: #fff;
+      color: var(--page-text);
       font-family: 'Fredoka', sans-serif;
       font-weight: 700;
       font-size: 1.2rem;
@@ -66,16 +83,16 @@
     }
     .ctrl-group {
       display: inline-flex;
-      background: #1e293b;
+      background: var(--ctrl-bg);
       padding: 3px;
       border-radius: 99px;
-      border: 1px solid #334155;
+      border: 1px solid var(--ctrl-border);
       gap: 2px;
     }
     .ctrl-btn {
       border: none;
       background: transparent;
-      color: #cbd5e1;
+      color: var(--ctrl-text);
       padding: 0.36rem 0.8rem;
       border-radius: 99px;
       font-family: inherit;
@@ -91,18 +108,19 @@
       color: #fff;
     }
     .back-link {
-      color: #94a3b8;
+      color: var(--page-muted);
       text-decoration: none;
       font-size: 0.84rem;
       font-weight: 600;
       padding: 0.42rem 0.85rem;
       border-radius: 99px;
-      border: 1px solid #334155;
+      border: 1px solid var(--ctrl-border);
+      background: var(--panel-bg);
       display: inline-flex;
       align-items: center;
       gap: 0.3rem;
     }
-    .back-link:hover { color: #fff; border-color: #64748b; }
+    .back-link:hover { color: var(--page-text); border-color: var(--pink); }
 
     .workspace {
       flex: 1;
@@ -385,23 +403,24 @@
     /* Side Inspector Panel */
     .inspector {
       width: 310px;
-      background: rgba(15, 23, 42, 0.75);
+      background: var(--panel-bg);
       border: 1px solid var(--panel-border);
       border-radius: 20px;
       padding: 1.25rem;
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
     }
     .inspector h3 {
       font-family: 'Fredoka', sans-serif;
       font-size: 1.15rem;
       margin-bottom: 0.4rem;
     }
-    .inspector p { font-size: 0.84rem; color: #94a3b8; line-height: 1.5; margin-bottom: 1rem; }
+    .inspector p { font-size: 0.84rem; color: var(--page-muted); line-height: 1.5; margin-bottom: 1rem; }
     .quick-screens { display: flex; flex-direction: column; gap: 0.45rem; }
     .qs-btn {
       text-align: left;
-      background: #1e293b;
-      color: #e2e8f0;
-      border: 1px solid #334155;
+      background: var(--ctrl-bg);
+      color: var(--page-text);
+      border: 1px solid var(--ctrl-border);
       border-radius: 10px;
       padding: 0.55rem 0.8rem;
       font-family: inherit;
@@ -412,7 +431,7 @@
       align-items: center;
       justify-content: space-between;
     }
-    .qs-btn:hover { border-color: var(--pink); color: #fff; }
+    .qs-btn:hover { border-color: var(--pink); color: var(--pink); }
   </style>
 </head>
 <body>
@@ -489,9 +508,10 @@
       <h3>Interactive APK Simulator</h3>
       <p id="dataSourceNote">Connecting to FamiTube API to load live curated channels and videos...</p>
       <div class="quick-screens">
-        <button class="qs-btn" onclick="navigate('home')"><span>🏠 Home Feed</span><span>›</span></button>
+        <button class="qs-btn" onclick="navigate('login')"><span>🔐 Login (Child / Parent)</span><span>›</span></button>
+        <button class="qs-btn" onclick="navigate('parent_dashboard')"><span>🛡️ Parent Mode Dashboard</span><span>›</span></button>
+        <button class="qs-btn" onclick="navigate('home')"><span>🏠 Home Feed (Child Mode)</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('channels')"><span>📺 Channels</span><span>›</span></button>
-        <button class="qs-btn" onclick="navigate('quiz_wall')"><span>🧠 Channel Quiz Wall</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('player')"><span>▶️ Video Player + Attention Pause</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('search')"><span>🔍 Dual Search (Curated + YouTube)</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('achievements')"><span>🏆 Badges &amp; Stars</span><span>›</span></button>
@@ -513,13 +533,23 @@
       theme: 'LIGHT',
       ageMode: 'OLDER_KIDS',
       selectedCategory: 'All',
-      searchTab: 'curated',
       searchQuery: '',
       isAttentionPaused: false,
       pinInput: '',
       stars: 10000,
       dailyLimit: 45,
       attentionEnabled: true,
+      isParentLogin: false,
+      loginEmail: '',
+      parentTab: 'requests',
+      parentChildren: [
+        { id: 'c-1', name: 'Maya', email: 'maya@famitube.demo', ageRating: 'YOUNG_KIDS', dailyLimitMinutes: 45 },
+        { id: 'c-2', name: 'Leo', email: 'leo@famitube.demo', ageRating: 'OLDER_KIDS', dailyLimitMinutes: 60 }
+      ],
+      parentRequests: [
+        { id: 'req-1', title: 'How Rockets Reach Orbit - NASA Kids', channelTitle: 'NASA Space Place', kidName: 'Leo', thumbnailUrl: 'https://img.youtube.com/vi/BYVZh5kqaFg/hqdefault.jpg', status: 'PENDING' },
+        { id: 'req-2', title: 'Counting by Twos Song', channelTitle: 'Numberblocks', kidName: 'Maya', thumbnailUrl: 'https://i.ytimg.com/vi/AXXP3HMAP6c/hqdefault.jpg', status: 'APPROVED' }
+      ],
       channels: [
         { id: 'ch-1', name: 'TED-Ed & Science Mysteries', category: 'Science & Space', ageRating: 'OLDER_KIDS', channelType: 'ON_DEMAND', videoCount: 10, avatarUrl: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=200&h=200&fit=crop', description: 'Mind-bending science and space mysteries for older kids.' },
         { id: 'ch-2', name: 'Space Explorers 24H TV', category: 'Science & Space', ageRating: 'OLDER_KIDS', channelType: 'LIVE_TV', videoCount: 9, avatarUrl: 'https://i.ytimg.com/vi/libKVRa01L8/hqdefault.jpg', description: 'Non-stop planets, stars, and astronomy.' },
@@ -578,6 +608,7 @@
 
     function setAppTheme(theme) {
       state.theme = theme;
+      document.documentElement.setAttribute('data-theme', theme === 'DARK' ? 'dark' : 'light');
       document.getElementById('deviceScreen').classList.toggle('dark', theme === 'DARK');
       document.getElementById('btnThemeLight').classList.toggle('active', theme === 'LIGHT');
       document.getElementById('btnThemeDark').classList.toggle('active', theme === 'DARK');
@@ -693,7 +724,7 @@
         body.innerHTML = `
           <h3 style="margin-bottom:10px; font-size:1.05rem;">Curated Channels (${ageChannels.length})</h3>
           ${ageChannels.map(c => `
-            <div class="card-box" style="display:flex; align-items:center; gap:12px; cursor:pointer;" onclick="navigate('quiz_wall')">
+            <div class="card-box" style="display:flex; align-items:center; gap:12px; cursor:pointer;" onclick="navigate('home')">
               <img src="${c.avatarUrl}" style="width:52px; height:52px; border-radius:50%; object-fit:cover;">
               <div style="flex:1;">
                 <div style="font-weight:800; font-size:0.9rem;">${c.name}</div>
@@ -702,22 +733,6 @@
               <span class="material-symbols-rounded" style="color:var(--text-muted);">chevron_right</span>
             </div>
           `).join('')}
-        `;
-      } else if (state.screen === 'quiz_wall') {
-        body.innerHTML = `
-          <button class="btn-outline" onclick="navigate('channels')" style="margin-bottom:12px;">← Back to Channels</button>
-          <div class="card-box" style="text-align:center; padding:22px 16px;">
-            <div style="font-size:2.4rem; margin-bottom:8px;">🧠</div>
-            <div style="font-weight:800; font-size:1.08rem; margin-bottom:4px;">Unlock This Channel</div>
-            <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:14px;">Answer correctly to watch! (0/3 attempts used)</div>
-            <div style="background:var(--surface-var); padding:14px; border-radius:12px; font-weight:800; margin-bottom:14px;">What is 7 + 5?</div>
-            <div style="display:flex; flex-direction:column; gap:8px;">
-              <button class="btn-outline" onclick="alert('Not quite! Wait 10s for next quiz.')">10</button>
-              <button class="btn-primary" onclick="alert('Correct! Channel unlocked for 30 minutes.'); navigate('channels');">12</button>
-              <button class="btn-outline" onclick="alert('Not quite! Wait 10s for next quiz.')">14</button>
-              <button class="btn-outline" onclick="alert('Not quite! Wait 10s for next quiz.')">15</button>
-            </div>
-          </div>
         `;
       } else if (state.screen === 'player') {
         const v = state.activeVideo || state.videos[0];
@@ -746,16 +761,39 @@
           </div>
         `;
       } else if (state.screen === 'search') {
+        const q = (state.searchQuery || '').trim().toLowerCase();
+        const curatedMatches = q
+          ? ageVideos.filter(v =>
+              (v.title || '').toLowerCase().includes(q) ||
+              (v.channelTitle || '').toLowerCase().includes(q) ||
+              (v.category || '').toLowerCase().includes(q)
+            )
+          : ageVideos.slice(0, 3);
         body.innerHTML = `
-          <div style="display:flex; gap:6px; margin-bottom:10px;">
-            <button class="chip ${state.searchTab==='curated'?'active':''}" onclick="state.searchTab='curated'; render();">Curated Safe</button>
-            <button class="chip ${state.searchTab==='youtube'?'active':''}" onclick="state.searchTab='youtube'; render();">YouTube Search</button>
-          </div>
-          <input type="text" placeholder="Search cartoons, science, music..." value="${state.searchQuery}" oninput="state.searchQuery=this.value;" style="width:100%; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text); margin-bottom:12px;">
-          <div class="card-box" style="font-size:0.8rem; color:var(--text-muted);">
-            ${state.searchTab === 'curated'
-              ? 'Showing curated safe videos matching your age tier.'
-              : 'Parent-supervised YouTube Search: tapping a new video sends an approval email with thumbnail + Give/Deny buttons to your parent.'}
+          <form onsubmit="event.preventDefault(); render();" style="display:flex; gap:8px; margin-bottom:12px;">
+            <input type="text" placeholder="Search curated or YouTube videos..." value="${state.searchQuery}" oninput="state.searchQuery=this.value;" style="flex:1; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text);">
+            <button type="submit" class="btn-primary" style="padding:10px 14px;">Go</button>
+          </form>
+
+          <div style="font-weight:800; font-size:0.86rem; margin-bottom:8px;">Curated Safe Videos (${curatedMatches.length})</div>
+          ${curatedMatches.length
+            ? curatedMatches.slice(0, 3).map(v => `
+              <div class="card-box" style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="openVideo('${v.id}')">
+                <img src="${v.thumbnailUrl}" style="width:76px; height:48px; border-radius:8px; object-fit:cover;">
+                <div style="flex:1; min-width:0;">
+                  <div style="font-weight:700; font-size:0.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${v.title}</div>
+                  <div style="font-size:0.72rem; color:var(--text-muted);">${v.channelTitle} • ${v.category}</div>
+                </div>
+              </div>
+            `).join('')
+            : `<div class="card-box" style="font-size:0.78rem; color:var(--text-muted);">No curated videos match "${state.searchQuery}".</div>`
+          }
+
+          <div style="font-weight:800; font-size:0.86rem; margin:12px 0 8px;">YouTube Search (Parent Supervised)</div>
+          <div class="card-box" style="font-size:0.78rem; color:var(--text-muted);">
+            ${q
+              ? `YouTube results for "<strong>${state.searchQuery}</strong>": tapping a new video sends a parent approval email with thumbnail + Give/Deny buttons.`
+              : 'Type a topic above and tap Go to search both curated safe videos and parent-supervised YouTube results.'}
           </div>
         `;
       } else if (state.screen === 'achievements') {
@@ -763,11 +801,10 @@
           <div class="hero-banner" style="text-align:center;">
             <div style="font-size:2rem;">⭐ ${state.stars}</div>
             <div style="font-weight:800; font-size:1.05rem;">Level ${Math.floor(state.stars/100)+1} Explorer</div>
-            <div style="font-size:0.76rem; color:var(--text-muted);">Keep watching &amp; passing quizzes to earn more badges!</div>
+            <div style="font-size:0.76rem; color:var(--text-muted);">Keep watching &amp; exploring to earn more badges!</div>
           </div>
           ${[
             { icon:'🎬', title:'First Watch', desc:'Watch your first video', done:true },
-            { icon:'🧠', title:'Quiz Starter', desc:'Pass a channel quiz', done:true },
             { icon:'🔍', title:'Safe Searcher', desc:'Watch an approved YouTube video', done:false }
           ].map(a => `
             <div class="card-box" style="display:flex; align-items:center; gap:12px; opacity:${a.done?1:0.7};">
@@ -811,6 +848,89 @@
               <button class="theme-tile" onclick="setAppTheme('LIGHT')">📱 System</button>
             </div>
           </div>
+        `;
+      } else if (state.screen === 'login') {
+        body.innerHTML = `
+          <div style="text-align:center; padding:10px 4px 14px;">
+            <div style="font-size:2.2rem;">🎬</div>
+            <div style="font-weight:800; font-size:1.18rem;">FamiTube</div>
+            <div style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;">
+              ${state.isParentLogin ? 'Parent / Curator Sign In' : 'Sign in with your email / Gmail account'}
+            </div>
+          </div>
+          <div class="card-box">
+            <div style="font-size:0.74rem; padding:9px 10px; border-radius:10px; margin-bottom:10px; background:${state.isParentLogin ? 'rgba(255,46,147,0.12)' : 'rgba(76,201,240,0.14)'}; color:${state.isParentLogin ? 'var(--pink)' : 'var(--blue)'};">
+              ${state.isParentLogin
+                ? 'Sign in with your parent account to manage children, approve video requests, and adjust family controls.'
+                : 'Only email/Gmail accounts previously registered by a parent or guardian can sign in.'}
+            </div>
+            <input type="email" placeholder="${state.isParentLogin ? 'parent@gmail.com' : 'kid@gmail.com'}" value="${state.loginEmail}" oninput="state.loginEmail=this.value;" style="width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); margin-bottom:8px; font-size:0.84rem;">
+            <input type="password" placeholder="Password" value="••••••" style="width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); margin-bottom:10px; font-size:0.84rem;">
+            <button class="btn-primary" style="width:100%; margin-bottom:8px;" onclick="navigate(state.isParentLogin ? 'parent_dashboard' : 'home')">
+              ${state.isParentLogin ? 'Sign In as Parent' : 'Sign In'}
+            </button>
+            <button class="btn-outline" style="width:100%; margin-bottom:10px;" onclick="navigate(state.isParentLogin ? 'parent_dashboard' : 'home')">
+              Continue with Google
+            </button>
+            <button class="btn-outline" style="width:100%; border-color:var(--pink); color:var(--pink);" onclick="state.isParentLogin=!state.isParentLogin; render();">
+              ${state.isParentLogin ? '← Back to Child Login' : "I'm a Parent — Parent Login"}
+            </button>
+          </div>
+        `;
+      } else if (state.screen === 'parent_dashboard') {
+        const pendingCount = state.parentRequests.filter(r => r.status === 'PENDING').length;
+        body.innerHTML = `
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span style="background:var(--pink); color:#fff; font-size:0.62rem; font-weight:800; padding:3px 7px; border-radius:6px;">PARENT MODE</span>
+              <span style="font-weight:800; font-size:0.92rem;">Family Studio</span>
+            </div>
+            <button class="btn-outline" style="padding:4px 9px; font-size:0.72rem;" onclick="state.isParentLogin=false; navigate('login');">Sign Out</button>
+          </div>
+          <div style="display:flex; gap:6px; margin-bottom:12px;">
+            <button class="chip ${state.parentTab==='requests'?'active':''}" onclick="state.parentTab='requests'; render();">Requests${pendingCount ? ' (' + pendingCount + ')' : ''}</button>
+            <button class="chip ${state.parentTab==='kids'?'active':''}" onclick="state.parentTab='kids'; render();">My Kids (${state.parentChildren.length})</button>
+            <button class="chip ${state.parentTab==='controls'?'active':''}" onclick="state.parentTab='controls'; render();">Controls</button>
+          </div>
+          ${state.parentTab === 'requests' ? `
+            ${state.parentRequests.map(r => `
+              <div class="card-box">
+                <div style="display:flex; gap:10px; align-items:center;">
+                  <img src="${r.thumbnailUrl}" style="width:78px; height:48px; border-radius:8px; object-fit:cover;">
+                  <div style="flex:1; min-width:0;">
+                    <div style="font-weight:800; font-size:0.8rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${r.title}</div>
+                    <div style="font-size:0.7rem; color:var(--text-muted);">${r.channelTitle} • ${r.kidName}</div>
+                    <span style="display:inline-block; margin-top:4px; font-size:0.66rem; font-weight:800; padding:2px 6px; border-radius:6px; background:${r.status==='APPROVED'?'rgba(6,214,160,0.16)':r.status==='REJECTED'?'rgba(255,46,147,0.16)':'rgba(245,158,11,0.18)'}; color:${r.status==='APPROVED'?'#06D6A0':r.status==='REJECTED'?'#FF2E93':'#D97706'};">${r.status}</span>
+                  </div>
+                </div>
+                ${r.status === 'PENDING' ? `
+                  <div style="display:flex; gap:8px; margin-top:10px;">
+                    <button class="btn-outline" style="flex:1;" onclick="state.parentRequests=state.parentRequests.map(x=>x.id==='${r.id}'?{...x,status:'REJECTED'}:x); render();">Decline</button>
+                    <button class="btn-primary" style="flex:1; background:#06D6A0; color:#0B1120;" onclick="state.parentRequests=state.parentRequests.map(x=>x.id==='${r.id}'?{...x,status:'APPROVED'}:x); render();">Approve</button>
+                  </div>
+                ` : ''}
+              </div>
+            `).join('')}
+          ` : state.parentTab === 'kids' ? `
+            ${state.parentChildren.map(c => `
+              <div class="card-box" style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                <div>
+                  <div style="font-weight:800; font-size:0.88rem;">${c.name}</div>
+                  <div style="font-size:0.72rem; color:var(--text-muted);">${c.email}</div>
+                  <div style="font-size:0.7rem; color:var(--blue); margin-top:2px;">Age: ${c.ageRating} • Limit: ${c.dailyLimitMinutes}m/day</div>
+                </div>
+                <button class="btn-outline" style="padding:4px 8px; font-size:0.7rem; color:var(--pink);" onclick="state.parentChildren=state.parentChildren.filter(x=>x.id!=='${c.id}'); render();">Remove</button>
+              </div>
+            `).join('')}
+            <button class="btn-primary" style="width:100%;" onclick="const n=prompt('Child Name:'); if(n){ state.parentChildren.push({id:'c-'+Date.now(), name:n, email:n.toLowerCase().replace(/\\s+/g,'')+'@famitube.demo', ageRating:'YOUNG_KIDS', dailyLimitMinutes:45}); render(); }">+ Add Child Account</button>
+          ` : `
+            <div class="card-box">
+              <div style="font-weight:800; font-size:0.9rem; margin-bottom:4px;">Device &amp; Family Controls</div>
+              <div style="font-size:0.74rem; color:var(--text-muted); margin-bottom:10px;">Daily limit: ${state.dailyLimit}m • Age filter: ${state.ageMode}</div>
+              <button class="btn-primary" style="width:100%; margin-bottom:8px;" onclick="navigate('parental_settings')">Open Parental Settings</button>
+              <button class="btn-outline" style="width:100%;" onclick="navigate('home')">Preview Child Mode</button>
+            </div>
+          `}
         `;
       } else if (state.screen === 'parental_gate') {
         body.innerHTML = `

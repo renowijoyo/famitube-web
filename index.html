@@ -1031,12 +1031,12 @@
 
         <div class="hero-slide" data-slide="2" data-tone="success">
           <span class="hero-badge">
-            <span class="material-symbols-rounded" style="font-size:0.95rem;">quiz</span>
-            <span data-i18n="hero_s3_badge">Quiz Walls &amp; Age Tiers</span>
+            <span class="material-symbols-rounded" style="font-size:0.95rem;">child_care</span>
+            <span data-i18n="hero_s3_badge">Age Tiers &amp; Calm Viewing</span>
           </span>
           <h2 data-i18n="hero_s3_title" style="font-size:1.6rem; margin-bottom:0.4rem;">Turn Screen Time into Curiosity &amp; Learning</h2>
           <p data-i18n="hero_s3_desc" style="color:var(--text-muted); font-size:0.95rem; max-width:760px;">
-            Unlock favorite channels with quick Math, Science, or English Quiz Walls—and tailor feeds from Toddlers (2–4) all the way to Teens (13–17).
+            Tailor feeds from Toddlers (2–4) all the way to Teens (13–17) with Calm Mode, Study Mode, and tag filters parents control.
           </p>
           <div class="hero-actions">
             <button type="button" class="btn btn-primary" onclick="openStudio()">
@@ -1707,17 +1707,6 @@
         </p>
         <div id="parentVideoRequestsList" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
       </div>
-
-      <div class="channel-creator-box">
-        <h3 style="font-size:1.15rem; margin-bottom:0.35rem; display:flex; align-items:center; gap:0.5rem;">
-          <span class="material-symbols-rounded" style="color:var(--primary);">quiz</span>
-          Channel Access &amp; Quiz Wall Controls
-        </h3>
-        <p style="color:var(--text-muted); font-size:0.86rem; margin-bottom:1rem;">
-          Require your kids to pass a quiz before viewing a channel. Configure the quiz type, wait time between wrong answers, and what happens after 3 wrong attempts.
-        </p>
-        <div id="channelControlsList" style="display:flex; flex-direction:column; gap:0.85rem;"></div>
-      </div>
     </div>
 
     <!-- Tab 4: Parental Settings -->
@@ -1979,22 +1968,6 @@
         </button>
       </div>
       <div class="modal-body" id="inviteModalBody"></div>
-    </div>
-  </div>
-
-  <!-- Kid Channel Quiz Wall Modal -->
-  <div class="modal" id="quizWallModal">
-    <div class="modal-content" style="max-width:500px;">
-      <div class="modal-header">
-        <div style="display:flex; align-items:center; gap:0.6rem;">
-          <span class="material-symbols-rounded" style="color:var(--accent);">quiz</span>
-          <h3 id="quizWallTitle" style="font-size:1.15rem; font-weight:700;">Channel Quiz Wall</h3>
-        </div>
-        <button class="btn-icon" onclick="closeQuizWallModal()">
-          <span class="material-symbols-rounded">close</span>
-        </button>
-      </div>
-      <div class="modal-body" id="quizWallBody"></div>
     </div>
   </div>
 
@@ -3749,7 +3722,7 @@
       document.getElementById('tabSettings').style.display = name === 'settings' ? 'block' : 'none';
 
       if (name === 'channels') { loadChannels(); toggleLiveTimelineBuilder(); }
-      if (name === 'kids') { loadParentChildren(); loadParentVideoRequests(); loadParentChannelControls(); }
+      if (name === 'kids') { loadParentChildren(); loadParentVideoRequests(); }
       if (name === 'advisories') loadParentAdvisoryLists();
       if (name === 'settings') loadSettings();
     }
@@ -4341,87 +4314,6 @@
       await loadParentChildren();
     }
 
-    async function loadParentChannelControls() {
-      const el = document.getElementById('channelControlsList');
-      if (!el) return;
-      el.innerHTML = '<div style="color:var(--text-muted); font-size:0.86rem;">Loading channel controls...</div>';
-      try {
-        const res = await authFetch('/api/parent/channel-controls');
-        const json = await res.json();
-        if (!json.success || !json.data.length) {
-          el.innerHTML = '<div style="color:var(--text-muted); font-size:0.86rem;">No channels available.</div>';
-          return;
-        }
-        el.innerHTML = json.data.map(ch => `
-          <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:1rem;">
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.75rem;">
-              <div style="display:flex; align-items:center; gap:0.65rem;">
-                <img src="${ch.channelAvatar}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
-                <div>
-                  <div style="font-weight:700; font-size:0.95rem;">${ch.channelName}</div>
-                  <div style="font-size:0.75rem; color:var(--accent);">${ch.category}</div>
-                </div>
-              </div>
-              <label style="display:flex; align-items:center; gap:0.45rem; font-size:0.86rem; font-weight:600; cursor:pointer;">
-                <input type="checkbox" id="qzEn_${ch.channelId}" ${ch.quizEnabled ? 'checked' : ''} style="width:auto;">
-                Enable Quiz Wall
-              </label>
-            </div>
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(165px, 1fr)); gap:0.65rem; align-items:end;">
-              <div class="form-group" style="margin:0;">
-                <label style="font-size:0.75rem;">Quiz Type</label>
-                <select id="qzType_${ch.channelId}">
-                  <option value="MATH" ${ch.quizType === 'MATH' ? 'selected' : ''}>Math</option>
-                  <option value="SCIENCE" ${ch.quizType === 'SCIENCE' ? 'selected' : ''}>Science</option>
-                  <option value="ENGLISH" ${ch.quizType === 'ENGLISH' ? 'selected' : ''}>English</option>
-                  <option value="LOGIC" ${ch.quizType === 'LOGIC' ? 'selected' : ''}>Logic &amp; Patterns</option>
-                  <option value="MIXED" ${ch.quizType === 'MIXED' ? 'selected' : ''}>Mixed</option>
-                </select>
-              </div>
-              <div class="form-group" style="margin:0;">
-                <label style="font-size:0.75rem;">Wrong Answer Wait (sec)</label>
-                <input type="number" min="1" max="3600" id="qzWait_${ch.channelId}" value="${ch.retryWaitSeconds || 10}">
-              </div>
-              <div class="form-group" style="margin:0;">
-                <label style="font-size:0.75rem;">After 3 Wrong Answers</label>
-                <select id="qzAct_${ch.channelId}">
-                  <option value="LOCKOUT" ${ch.lockoutAction === 'LOCKOUT' ? 'selected' : ''}>Lock out for duration</option>
-                  <option value="ALLOW_AFTER_WAIT" ${ch.lockoutAction === 'ALLOW_AFTER_WAIT' ? 'selected' : ''}>Wait duration, then let through</option>
-                </select>
-              </div>
-              <div class="form-group" style="margin:0;">
-                <label style="font-size:0.75rem;">3-Strike Duration (sec)</label>
-                <input type="number" min="1" max="86400" id="qzDur_${ch.channelId}" value="${ch.lockoutDurationSeconds || 60}">
-              </div>
-              <div>
-                <button class="btn btn-primary btn-sm" style="width:100%; justify-content:center;" onclick="saveChannelControl('${ch.channelId}')">Save Rule</button>
-              </div>
-            </div>
-          </div>
-        `).join('');
-      } catch {
-        el.innerHTML = '<div style="color:#FF6B8B; font-size:0.86rem;">Failed to load channel controls.</div>';
-      }
-    }
-
-    async function saveChannelControl(channelId) {
-      const payload = {
-        quizEnabled: document.getElementById(`qzEn_${channelId}`).checked,
-        quizType: document.getElementById(`qzType_${channelId}`).value,
-        retryWaitSeconds: Number(document.getElementById(`qzWait_${channelId}`).value) || 10,
-        lockoutAction: document.getElementById(`qzAct_${channelId}`).value,
-        lockoutDurationSeconds: Number(document.getElementById(`qzDur_${channelId}`).value) || 60
-      };
-      const res = await authFetch(`/api/parent/channel-controls/${channelId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const json = await res.json();
-      if (!json.success) return alert(json.message || 'Failed to save rule');
-      alert('Channel quiz wall rule saved!');
-    }
-
     let kidsFeedVideos = null;
 
     async function loadShowcase(useKidsFeed = false) {
@@ -4498,9 +4390,8 @@
         if (document.hidden || isShowcaseHovered || showcaseChannels.length <= 1) return;
         const showcaseEl = document.getElementById('showcaseApp');
         if (!showcaseEl || showcaseEl.style.display === 'none') return;
-        const quizModal = document.getElementById('quizWallModal');
         const videoModal = document.getElementById('videoModal');
-        if ((quizModal && quizModal.style.display === 'flex') || (videoModal && videoModal.style.display === 'flex')) return;
+        if (videoModal && videoModal.style.display === 'flex') return;
         await stepChannelCarousel(1, true);
       }, 5000);
     }
@@ -4522,135 +4413,7 @@
       if (!isAuto) resetShowcaseAutoRotate();
     }
 
-    let quizTimerInterval = null;
-
-    function clearQuizTimer() {
-      if (quizTimerInterval) {
-        clearInterval(quizTimerInterval);
-        quizTimerInterval = null;
-      }
-    }
-
-    function closeQuizWallModal() {
-      clearQuizTimer();
-      document.getElementById('quizWallModal').style.display = 'none';
-    }
-
-    async function openQuizWall(channelId, chName) {
-      clearQuizTimer();
-      const modal = document.getElementById('quizWallModal');
-      const body = document.getElementById('quizWallBody');
-      document.getElementById('quizWallTitle').textContent = `${chName || 'Channel'} — Quiz Wall`;
-      body.innerHTML = '<p style="color:var(--text-muted);">Checking channel access...</p>';
-      modal.style.display = 'flex';
-
-      const res = await fetch(apiUrl(`/api/kids/channels/${channelId}/access`), {
-        headers: { Authorization: `Bearer ${authToken}` }
-      });
-      const json = await res.json();
-      if (!json.success) {
-        body.innerHTML = `<p style="color:#FF6B8B;">${json.message || 'Unable to check channel access.'}</p>`;
-        return;
-      }
-      const data = json.data;
-      if (data.unlocked) {
-        closeQuizWallModal();
-        await loadChannelVideosIntoShowcase(channelId);
-        return;
-      }
-      renderQuizWallState(channelId, chName, data);
-    }
-
-    function renderQuizWallState(channelId, chName, data) {
-      clearQuizTimer();
-      const body = document.getElementById('quizWallBody');
-
-      if (data.status === 'COOLDOWN' || data.status === 'LOCKED') {
-        let remaining = data.remainingSeconds || 5;
-        const isLocked = data.status === 'LOCKED';
-        const isAllowAfterWait = isLocked && data.lockoutAction === 'ALLOW_AFTER_WAIT';
-        const headingText = isLocked
-          ? (isAllowAfterWait ? '3 Wrong Answers — Please Wait' : 'Channel Locked (3 Wrong Answers)')
-          : 'Not Quite Right!';
-        const subText = isLocked
-          ? (isAllowAfterWait ? 'You will be let through automatically when the timer finishes:' : 'You can try the quiz again when the lockout ends:')
-          : 'Wait for the next quiz question:';
-
-        body.innerHTML = `
-          <div style="text-align:center; padding:1rem 0;">
-            <span class="material-symbols-rounded" style="font-size:2.75rem; color:${isLocked ? '#FF6B8B' : 'var(--warning)'};">${isLocked ? 'lock_clock' : 'hourglass_top'}</span>
-            <h4 style="font-size:1.15rem; margin:0.5rem 0 0.35rem;">${headingText}</h4>
-            <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:1rem;">${subText}</p>
-            <div id="quizCountdownText" style="font-size:2rem; font-weight:800; color:var(--accent); margin-bottom:0.5rem;">${remaining}s</div>
-            <div style="font-size:0.8rem; color:var(--text-muted);">Wrong attempts: ${data.wrongAttempts || 0} / ${data.maxAttempts || 3}</div>
-          </div>
-        `;
-        quizTimerInterval = setInterval(() => {
-          remaining -= 1;
-          const el = document.getElementById('quizCountdownText');
-          if (el) el.textContent = `${Math.max(0, remaining)}s`;
-          if (remaining <= 0) {
-            clearQuizTimer();
-            openQuizWall(channelId, chName);
-          }
-        }, 1000);
-        return;
-      }
-
-      const q = data.question;
-      body.innerHTML = `
-        <div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.85rem;">
-            <span style="background:rgba(76,201,240,0.15); color:var(--accent); padding:0.25rem 0.65rem; border-radius:99px; font-size:0.75rem; font-weight:700;">${q.type} QUIZ</span>
-            <span style="font-size:0.8rem; color:var(--text-muted);">Wrong attempts: ${data.wrongAttempts || 0} / ${data.maxAttempts || 3}</span>
-          </div>
-          <p style="font-size:1.08rem; font-weight:700; margin-bottom:1rem; line-height:1.45;">${q.prompt}</p>
-          <div id="quizOptionsWrap" style="display:flex; flex-direction:column; gap:0.6rem;">
-            ${q.options.map((opt, idx) => `
-              <button class="btn btn-secondary" style="width:100%; justify-content:flex-start; text-align:left; padding:0.8rem 1rem;" onclick="submitQuizAnswer('${channelId}', '${(chName || '').replace(/'/g, '')}', '${q.id}', ${idx})">
-                ${opt}
-              </button>
-            `).join('')}
-          </div>
-        </div>
-      `;
-    }
-
-    async function submitQuizAnswer(channelId, chName, questionId, selectedIndex) {
-      const res = await fetch(apiUrl(`/api/kids/channels/${channelId}/quiz-answer`), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`
-        },
-        body: JSON.stringify({ questionId, selectedIndex })
-      });
-      const json = await res.json();
-      if (!json.success && !json.data) {
-        alert(json.message || 'Error submitting answer');
-        return;
-      }
-      const data = json.data;
-      if (data.unlocked) {
-        closeQuizWallModal();
-        await loadChannelVideosIntoShowcase(channelId);
-        return;
-      }
-      renderQuizWallState(channelId, chName, data);
-    }
-
     async function selectShowcaseChannel(channelId, isAuto = false) {
-      const ch = showcaseChannels.find(c => c.id === channelId);
-      if (channelId && currentUser?.role === 'CHILD' && authToken) {
-        const res = await fetch(apiUrl(`/api/kids/channels/${channelId}/access`), {
-          headers: { Authorization: `Bearer ${authToken}` }
-        });
-        const json = await res.json();
-        if (json.success && json.data && !json.data.unlocked) {
-          if (!isAuto) await openQuizWall(channelId, ch?.name);
-          return;
-        }
-      }
       await loadChannelVideosIntoShowcase(channelId);
       if (!isAuto) resetShowcaseAutoRotate();
     }
@@ -4908,7 +4671,6 @@
 
     let kidSearchResults = [];
     let kidCuratedSearchResults = [];
-    let kidSearchMode = 'youtube';
     let kidHistoryItems = [];
     let kidPlaylists = [];
     let kidAchievementsData = null;
@@ -4957,24 +4719,6 @@
         renderKidHomeHub(user);
       } else {
         if (kidHub) kidHub.style.display = 'none';
-      }
-    }
-
-    function setKidSearchMode(mode) {
-      kidSearchMode = mode === 'curated' ? 'curated' : 'youtube';
-      document.getElementById('kidSearchModeCurated')?.classList.toggle('active', kidSearchMode === 'curated');
-      document.getElementById('kidSearchModeYouTube')?.classList.toggle('active', kidSearchMode === 'youtube');
-      const input = document.getElementById('kidYouTubeSearchInput');
-      if (input) {
-        input.placeholder = kidSearchMode === 'curated'
-          ? 'Search curated safe cartoons, science, songs...'
-          : 'Search YouTube (parent supervised)...';
-      }
-      if (input && input.value.trim()) {
-        runKidYouTubeSearch();
-      } else {
-        const resultsEl = document.getElementById('kidYouTubeSearchResults');
-        if (resultsEl) resultsEl.innerHTML = '';
       }
     }
 
@@ -5072,7 +4816,6 @@
       const s = d.stats || {};
       const statCards = [
         { label: 'Videos Watched', value: s.videosWatched ?? 0, icon: '🎬' },
-        { label: 'Quizzes Passed', value: s.quizzesPassed ?? 0, icon: '🧠' },
         { label: 'My Playlists', value: s.playlistsCreated ?? 0, icon: '🎵' },
         { label: 'Approved Searches', value: s.approvedSearches ?? 0, icon: '🔍' }
       ];
@@ -5931,9 +5674,9 @@
         hero_s2_title: 'Designed for Focus, Not Endless Scrolling',
         hero_s2_desc: 'Block addictive Shorts, filter out hyper-stimulating content, and set daily watch limits with gentle bedtime lockouts.',
         hero_s2_cta: 'See Safety Controls',
-        hero_s3_badge: 'Quiz Walls & Age Tiers',
+        hero_s3_badge: 'Age Tiers & Calm Viewing',
         hero_s3_title: 'Turn Screen Time into Curiosity & Learning',
-        hero_s3_desc: 'Unlock favorite channels with quick Math, Science, or English Quiz Walls—and tailor feeds from Toddlers (2–4) all the way to Teens (13–17).',
+        hero_s3_desc: 'Tailor feeds from Toddlers (2–4) all the way to Teens (13–17) with Calm Mode, Study Mode, and tag filters parents control.',
         hero_s3_cta: 'Open Curator Studio',
         hero_s4_badge: 'Videos Free Forever',
         hero_s4_title: 'Every Video Is Free. Pay Only for Family Scale.',
@@ -5977,9 +5720,9 @@
         hero_s2_title: 'Dirancang untuk Fokus, Bukan Gulir Tanpa Henti',
         hero_s2_desc: 'Blokir Shorts yang adiktif, saring tontonan hiper-stimulasi, dan atur batas waktu harian dengan kunci waktu tidur yang lembut.',
         hero_s2_cta: 'Lihat Kontrol Keamanan',
-        hero_s3_badge: 'Dinding Kuis & Tingkatan Usia',
+        hero_s3_badge: 'Tingkatan Usia & Tontonan Tenang',
         hero_s3_title: 'Ubah Waktu Layar Menjadi Belajar & Eksplorasi',
-        hero_s3_desc: 'Buka saluran favorit dengan Kuis Matematika, Sains, atau Bahasa Inggris singkat—serta sesuaikan feed dari Balita (2–4) hingga Remaja (13–17).',
+        hero_s3_desc: 'Sesuaikan feed dari Balita (2–4) hingga Remaja (13–17) dengan Mode Tenang, Mode Belajar, dan filter tag yang dikontrol orang tua.',
         hero_s3_cta: 'Buka Studio Kurator',
         hero_s4_badge: 'Video Gratis Selamanya',
         hero_s4_title: 'Semua Video Gratis. Bayar Hanya untuk Skala Keluarga.',
@@ -5996,7 +5739,7 @@
     };
 
     function applyTheme(pref) {
-      const choice = ['light', 'dark', 'system'].includes(pref) ? pref : 'system';
+      const choice = ['light', 'dark', 'system'].includes(pref) ? pref : 'light';
       const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       const resolved = choice === 'system' ? (prefersDark ? 'dark' : 'light') : choice;
       document.documentElement.setAttribute('data-theme', resolved);
@@ -6032,7 +5775,7 @@
 
     if (window.matchMedia) {
       window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-        if ((localStorage.getItem(THEME_PREF_KEY) || 'system') === 'system') {
+        if ((localStorage.getItem(THEME_PREF_KEY) || 'light') === 'system') {
           applyTheme('system');
         }
       });
@@ -6040,7 +5783,7 @@
 
     // Init: show public showcase by default; Curator Studio stays behind login wall
     async function initApp() {
-      applyTheme(localStorage.getItem(THEME_PREF_KEY) || 'system');
+      applyTheme(localStorage.getItem(THEME_PREF_KEY) || 'light');
       applyLanguage(localStorage.getItem(LANG_PREF_KEY) || 'en');
 
       const initParams = new URLSearchParams(window.location.search);

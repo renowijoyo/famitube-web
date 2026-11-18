@@ -338,17 +338,6 @@
       </div>
 
       <div class="card">
-        <div class="pillar-icon" style="background:rgba(6,214,160,0.14); color:var(--success);">
-          <span class="material-symbols-rounded">quiz</span>
-        </div>
-        <h2 data-i18n="p3_title" style="font-size:1.1rem; margin-bottom:0.45rem;">Educational Quiz Walls</h2>
-        <p data-i18n="p3_desc" style="color:var(--text-muted); font-size:0.9rem;">
-          Gate channels behind quick, parent-configured quizzes and cooldown timers so screen time encourages learning and mindful breaks.
-        </p>
-        <img src="assets/pillar-quiz-wall.jpg" alt="Educational Quiz Walls screenshot" class="pillar-shot" loading="lazy">
-      </div>
-
-      <div class="card">
         <div class="pillar-icon" style="background:rgba(76,201,240,0.16); color:var(--accent);">
           <span class="material-symbols-rounded">lock</span>
         </div>
@@ -441,14 +430,6 @@
             </tr>
             <tr>
               <td>
-                <span class="matrix-feature" data-i18n="f_quiz">Channel Quiz Walls</span>
-                <span class="matrix-note" data-i18n="f_quiz_note">Math, Science, English &amp; Logic gates before watching</span>
-              </td>
-              <td><span class="matrix-pill muted" data-i18n="v_1_channel">1 channel</span></td>
-              <td><span class="matrix-pill yes"><span class="material-symbols-rounded" style="font-size:1.05rem;">all_inclusive</span> <span data-i18n="v_unlimited">Unlimited channels</span></span></td>
-            </tr>
-            <tr>
-              <td>
                 <span class="matrix-feature" data-i18n="f_search">Controlled YouTube Search</span>
                 <span class="matrix-note" data-i18n="f_search_note">Parent-approved video search requests</span>
               </td>
@@ -506,7 +487,7 @@
 
   <script>
     (function () {
-      const themePref = localStorage.getItem('FamiTube_theme') || 'system';
+      const themePref = localStorage.getItem('FamiTube_theme') || 'light';
       const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       const resolvedTheme = themePref === 'system' ? (prefersDark ? 'dark' : 'light') : themePref;
       document.documentElement.setAttribute('data-theme', resolvedTheme);
@@ -524,8 +505,6 @@
           p1_desc: 'Setiap saluran dan video di FamiTube dipilih secara sadar oleh orang tua atau kurator tepercaya. Anak-anak tidak akan terseret ke rekomendasi acak.',
           p2_title: 'Akun Anak Berdasarkan Usia',
           p2_desc: 'Orang tua mendaftarkan akun anak dengan filter usia khusus (ALL, 5+, 8+, 12+) agar anak hanya menonton konten sesuai usianya.',
-          p3_title: 'Dinding Kuis Edukatif',
-          p3_desc: 'Kunci saluran dengan kuis singkat dan jeda waktu yang diatur orang tua agar waktu layar mendorong belajar dan istirahat.',
           p4_title: 'Tanpa Pendaftaran Mandiri untuk Anak',
           p4_desc: 'Anak tidak dapat membuat akun atau mengubah aturan orang tua sendiri. Hanya orang tua yang dapat mengelola saluran dan akun keluarga di Studio Kurator.',
           cta_title: 'Siap menyiapkan ruang video aman untuk keluarga Anda?',
@@ -560,9 +539,6 @@
           f_presets_note: 'Mode Tenang, Tanpa Shorts, Tanpa Unboxing, Mode Belajar, Aman Sebelum Tidur',
           v_1_preset: '1 preset aktif',
           v_presets_full: 'Gabung semua preset + aturan tag kustom',
-          f_quiz: 'Dinding Kuis Saluran',
-          f_quiz_note: 'Kuis Matematika, Sains, Bahasa Inggris & Logika sebelum menonton',
-          v_1_channel: '1 saluran',
           f_search: 'Pencarian YouTube Terkontrol',
           f_search_note: 'Permintaan pencarian video yang disetujui orang tua',
           v_3_day: 'Maks. 3 permintaan / hari',
