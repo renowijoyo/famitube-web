@@ -492,9 +492,6 @@
             <button class="icon-btn" onclick="navigate('profile')" title="Profile">
               <span class="material-symbols-rounded" style="font-size:1.25rem;">account_circle</span>
             </button>
-            <button class="icon-btn" onclick="navigate('parental_gate')" title="Parental Controls" style="color:var(--pink);">
-              <span class="material-symbols-rounded" style="font-size:1.2rem;">lock</span>
-            </button>
           </div>
         </div>
 
@@ -541,9 +538,12 @@
       attentionEnabled: true,
       isParentLogin: false,
       loginEmail: '',
+      savedChannelIds: ['ch-1'],
+      topicSearchQuery: '',
+      selectedAddTopic: null,
       parentTab: 'requests',
       parentChildren: [
-        { id: 'c-1', name: 'Maya', email: 'maya@famitube.demo', ageRating: 'YOUNG_KIDS', dailyLimitMinutes: 45 },
+        { id: 'c-1', name: 'Maya', email: 'maya@famitube.demo', ageRating: 'YOUNG_KIDS', dailyLimitMinutes: null },
         { id: 'c-2', name: 'Leo', email: 'leo@famitube.demo', ageRating: 'OLDER_KIDS', dailyLimitMinutes: 60 }
       ],
       parentRequests: [
@@ -578,7 +578,7 @@
           fetch(`${API_BASE}/api/channels`).then(r => r.json())
         ]);
         if (vidRes.success && vidRes.data?.length) {
-          state.videos = vidRes.data;
+          state.videos = [...vidRes.data].sort((a, b) => (Date.parse(b.createdAt) || 0) - (Date.parse(a.createdAt) || 0));
           state.activeVideo = state.videos[0];
         }
         if (chRes.success && chRes.data?.length) {
@@ -679,7 +679,9 @@
       document.getElementById('topTimeLeft').textContent = `${state.dailyLimit}m left`;
       renderBottomBar();
 
-      const ageVideos = state.videos.filter(v => matchesPreviewAge(v.ageRating));
+      const ageVideos = state.videos
+        .filter(v => matchesPreviewAge(v.ageRating))
+        .sort((a, b) => (Date.parse(b.createdAt) || 0) - (Date.parse(a.createdAt) || 0));
       const ageChannels = state.channels.filter(c => matchesPreviewAge(c.ageRating));
       if (!ageVideos.includes(state.activeVideo)) {
         state.activeVideo = ageVideos[0] || state.videos[0];
@@ -693,11 +695,6 @@
           ? ageVideos
           : ageVideos.filter(v => v.category === state.selectedCategory);
         body.innerHTML = `
-          <div class="hero-banner">
-            <div style="font-size:0.72rem; font-weight:800; color:var(--pink); text-transform:uppercase;">Safe Kid Mode • ${formatPreviewAgeLabel(state.ageMode)}</div>
-            <div style="font-weight:800; font-size:1rem; margin:2px 0;">Hi ${savedUser?.name || 'Andrea'}! Ready to explore?</div>
-            <div style="font-size:0.76rem; color:var(--text-muted);">Showing ${ageVideos.length} parent-curated videos for ${formatPreviewAgeLabel(state.ageMode).toLowerCase()}.</div>
-          </div>
           <div class="chips-row">
             ${cats.map(c => `<button class="chip ${state.selectedCategory === c ? 'active' : ''}" onclick="state.selectedCategory='${c}'; render();">${c}</button>`).join('')}
           </div>
@@ -721,18 +718,78 @@
           </div>
         `;
       } else if (state.screen === 'channels') {
+        const myChannels = ageChannels.filter(c => state.savedChannelIds.includes(c.id));
         body.innerHTML = `
-          <h3 style="margin-bottom:10px; font-size:1.05rem;">Curated Channels (${ageChannels.length})</h3>
-          ${ageChannels.map(c => `
-            <div class="card-box" style="display:flex; align-items:center; gap:12px; cursor:pointer;" onclick="navigate('home')">
-              <img src="${c.avatarUrl}" style="width:52px; height:52px; border-radius:50%; object-fit:cover;">
-              <div style="flex:1;">
-                <div style="font-weight:800; font-size:0.9rem;">${c.name}</div>
-                <div style="font-size:0.74rem; color:var(--text-muted);">${c.category} • ${formatPreviewAgeLabel(c.ageRating)} • ${c.channelType === 'LIVE_TV' ? '🔴 LIVE TV' : 'On Demand'}</div>
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+            <h3 style="font-size:1.05rem;">My Channels (${myChannels.length})</h3>
+            <button class="btn-primary" style="padding:6px 12px; font-size:0.78rem;" onclick="state.selectedAddTopic=null; state.topicSearchQuery=''; navigate('add_channel');">Subscribe to a channel</button>
+          </div>
+          ${myChannels.length === 0 ? `
+            <div class="card-box" style="text-align:center; padding:22px 14px;">
+              <div style="font-size:2rem; margin-bottom:6px;">📺</div>
+              <div style="font-weight:800; font-size:0.95rem; margin-bottom:4px;">No Subscribed Channels Yet</div>
+              <div style="font-size:0.76rem; color:var(--text-muted); margin-bottom:12px;">Pick a topic and subscribe to your favorite channels.</div>
+              <button class="btn-primary" onclick="state.selectedAddTopic=null; state.topicSearchQuery=''; navigate('add_channel');">Subscribe to a channel</button>
+            </div>
+          ` : myChannels.map(c => `
+            <div class="card-box" style="display:flex; align-items:center; gap:12px;">
+              <img src="${c.avatarUrl}" style="width:48px; height:48px; border-radius:50%; object-fit:cover; cursor:pointer;" onclick="navigate('home')">
+              <div style="flex:1; min-width:0; cursor:pointer;" onclick="navigate('home')">
+                <div style="font-weight:800; font-size:0.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.name}</div>
+                <div style="font-size:0.72rem; color:var(--text-muted);">${c.category} • ${c.channelType === 'LIVE_TV' ? '🔴 LIVE TV' : 'On Demand'}</div>
               </div>
-              <span class="material-symbols-rounded" style="color:var(--text-muted);">chevron_right</span>
+              <button class="btn-outline" style="padding:4px 8px; font-size:0.7rem; color:var(--pink);" onclick="state.savedChannelIds=state.savedChannelIds.filter(id=>id!=='${c.id}'); render();">Unsubscribe</button>
             </div>
           `).join('')}
+        `;
+      } else if (state.screen === 'add_channel') {
+        const allTopics = [...new Set(ageChannels.map(c => c.category).filter(Boolean))];
+        const tq = (state.topicSearchQuery || '').trim().toLowerCase();
+        const matchingTopics = tq ? allTopics.filter(t => t.toLowerCase().includes(tq)) : allTopics;
+        const topicChannels = state.selectedAddTopic
+          ? ageChannels.filter(c => c.category === state.selectedAddTopic)
+          : [];
+        body.innerHTML = `
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+            <button class="btn-outline" style="padding:5px 10px; font-size:0.76rem;" onclick="navigate('channels')">← My Channels</button>
+            <span style="font-weight:800; font-size:0.88rem;">${state.selectedAddTopic || 'Choose a Topic'}</span>
+          </div>
+          <input type="text" placeholder="Search topics..." value="${state.topicSearchQuery}" oninput="state.topicSearchQuery=this.value; if(this.value.trim() && state.selectedAddTopic && !state.selectedAddTopic.toLowerCase().includes(this.value.trim().toLowerCase())){ state.selectedAddTopic=null; } render(); const el=document.getElementById('topicSearchBox'); if(el){ el.focus(); el.setSelectionRange(el.value.length, el.value.length); }" id="topicSearchBox" style="width:100%; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text); margin-bottom:10px;">
+          ${!state.selectedAddTopic ? `
+            <div style="font-size:0.76rem; color:var(--text-muted); margin-bottom:8px;">Pick a topic to see channels:</div>
+            ${matchingTopics.length === 0 ? `
+              <div class="card-box" style="font-size:0.8rem; color:var(--text-muted);">No topics match "${state.topicSearchQuery}".</div>
+            ` : matchingTopics.map(t => {
+              const cnt = ageChannels.filter(c => c.category === t).length;
+              return `
+                <div class="card-box" style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;" onclick="state.selectedAddTopic='${t.replace(/'/g, "\\'")}'; render();">
+                  <span style="font-weight:800; font-size:0.88rem;">${t}</span>
+                  <span style="font-size:0.74rem; color:var(--pink); font-weight:700;">${cnt} channels ›</span>
+                </div>
+              `;
+            }).join('')}
+          ` : `
+            <div class="chips-row">
+              <button class="chip" onclick="state.selectedAddTopic=null; render();">← All Topics</button>
+              ${matchingTopics.map(t => `<button class="chip ${state.selectedAddTopic===t?'active':''}" onclick="state.selectedAddTopic='${t.replace(/'/g, "\\'")}'; render();">${t}</button>`).join('')}
+            </div>
+            ${topicChannels.map(c => {
+              const isAdded = state.savedChannelIds.includes(c.id);
+              return `
+                <div class="card-box" style="display:flex; align-items:center; gap:10px;">
+                  <img src="${c.avatarUrl}" style="width:44px; height:44px; border-radius:50%; object-fit:cover;">
+                  <div style="flex:1; min-width:0;">
+                    <div style="font-weight:800; font-size:0.86rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.name}</div>
+                    <div style="font-size:0.72rem; color:var(--text-muted);">${c.videoCount} videos</div>
+                  </div>
+                  ${isAdded
+                    ? `<span style="color:#06D6A0; font-weight:800; font-size:0.76rem;">Subscribed ✓</span>`
+                    : `<button class="btn-primary" style="padding:6px 12px; font-size:0.76rem;" onclick="if(!state.savedChannelIds.includes('${c.id}')) state.savedChannelIds.unshift('${c.id}'); render();">Subscribe</button>`
+                  }
+                </div>
+              `;
+            }).join('')}
+          `}
         `;
       } else if (state.screen === 'player') {
         const v = state.activeVideo || state.videos[0];
@@ -848,6 +905,16 @@
               <button class="theme-tile" onclick="setAppTheme('LIGHT')">📱 System</button>
             </div>
           </div>
+          <div class="card-box" style="display:flex; align-items:center; justify-content:space-between; gap:10px; cursor:pointer;" onclick="navigate('parental_gate')">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span class="material-symbols-rounded" style="color:var(--pink); font-size:1.35rem;">lock</span>
+              <div>
+                <div style="font-weight:800; font-size:0.9rem;">Parental Controls</div>
+                <div style="font-size:0.72rem; color:var(--text-muted);">Grown-Ups Only (PIN: 1234)</div>
+              </div>
+            </div>
+            <span class="material-symbols-rounded" style="color:var(--text-muted);">chevron_right</span>
+          </div>
         `;
       } else if (state.screen === 'login') {
         body.innerHTML = `
@@ -912,22 +979,33 @@
               </div>
             `).join('')}
           ` : state.parentTab === 'kids' ? `
-            ${state.parentChildren.map(c => `
-              <div class="card-box" style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
-                <div>
-                  <div style="font-weight:800; font-size:0.88rem;">${c.name}</div>
-                  <div style="font-size:0.72rem; color:var(--text-muted);">${c.email}</div>
-                  <div style="font-size:0.7rem; color:var(--blue); margin-top:2px;">Age: ${c.ageRating} • Limit: ${c.dailyLimitMinutes}m/day</div>
+            ${state.parentChildren.map(c => {
+              const effectiveLimit = c.dailyLimitMinutes !== null && c.dailyLimitMinutes !== undefined ? c.dailyLimitMinutes : state.dailyLimit;
+              const isOverridden = c.dailyLimitMinutes !== null && c.dailyLimitMinutes !== undefined;
+              return `
+              <div class="card-box">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                  <div>
+                    <div style="font-weight:800; font-size:0.88rem;">${c.name}</div>
+                    <div style="font-size:0.72rem; color:var(--text-muted);">${c.email}</div>
+                    <div style="font-size:0.7rem; color:var(--blue); margin-top:2px;">Age: ${c.ageRating} • Limit: ${effectiveLimit}m/day</div>
+                    <div style="font-size:0.68rem; font-weight:700; margin-top:2px; color:${isOverridden ? 'var(--pink)' : '#06D6A0'};">${isOverridden ? 'Custom Kid Override' : 'Using Global Controls'}</div>
+                  </div>
+                  <div style="display:flex; flex-direction:column; gap:4px;">
+                    <button class="btn-outline" style="padding:4px 8px; font-size:0.68rem;" onclick="const v=prompt('Override daily limit (min) for ${c.name}, or leave blank for Global:', '${isOverridden ? c.dailyLimitMinutes : ''}'); if(v!==null){ c_val=v.trim(); state.parentChildren=state.parentChildren.map(x=>x.id==='${c.id}'?{...x, dailyLimitMinutes: c_val===''?null:Number(c_val)}:x); render(); }">Override</button>
+                    <button class="btn-outline" style="padding:4px 8px; font-size:0.68rem; color:var(--pink);" onclick="state.parentChildren=state.parentChildren.filter(x=>x.id!=='${c.id}'); render();">Remove</button>
+                  </div>
                 </div>
-                <button class="btn-outline" style="padding:4px 8px; font-size:0.7rem; color:var(--pink);" onclick="state.parentChildren=state.parentChildren.filter(x=>x.id!=='${c.id}'); render();">Remove</button>
               </div>
-            `).join('')}
-            <button class="btn-primary" style="width:100%;" onclick="const n=prompt('Child Name:'); if(n){ state.parentChildren.push({id:'c-'+Date.now(), name:n, email:n.toLowerCase().replace(/\\s+/g,'')+'@famitube.demo', ageRating:'YOUNG_KIDS', dailyLimitMinutes:45}); render(); }">+ Add Child Account</button>
+              `;
+            }).join('')}
+            <button class="btn-primary" style="width:100%;" onclick="const n=prompt('Child Name:'); if(n){ state.parentChildren.push({id:'c-'+Date.now(), name:n, email:n.toLowerCase().replace(/\\s+/g,'')+'@famitube.demo', ageRating:'YOUNG_KIDS', dailyLimitMinutes:null}); render(); }">+ Add Child Account</button>
           ` : `
             <div class="card-box">
-              <div style="font-weight:800; font-size:0.9rem; margin-bottom:4px;">Device &amp; Family Controls</div>
-              <div style="font-size:0.74rem; color:var(--text-muted); margin-bottom:10px;">Daily limit: ${state.dailyLimit}m • Age filter: ${state.ageMode}</div>
-              <button class="btn-primary" style="width:100%; margin-bottom:8px;" onclick="navigate('parental_settings')">Open Parental Settings</button>
+              <div style="font-weight:800; font-size:0.9rem; margin-bottom:4px;">Global Parental Controls (All Kids)</div>
+              <div style="font-size:0.74rem; color:var(--text-muted); margin-bottom:10px;">Default for all kids unless overridden per child.</div>
+              <div style="font-size:0.76rem; margin-bottom:8px;">Global Daily Limit: <strong>${state.dailyLimit}m</strong> • Age: <strong>${state.ageMode}</strong></div>
+              <button class="btn-primary" style="width:100%; margin-bottom:8px;" onclick="navigate('parental_settings')">Edit Global Controls</button>
               <button class="btn-outline" style="width:100%;" onclick="navigate('home')">Preview Child Mode</button>
             </div>
           `}

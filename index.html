@@ -1711,21 +1711,80 @@
 
     <!-- Tab 4: Parental Settings -->
     <div id="tabSettings" style="display:none;">
-      <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:2rem; max-width:600px;">
-        <h3 style="font-family:'Fredoka',cursive; font-size:1.3rem; margin-bottom:1rem;">Parental & App Defaults</h3>
-        <div class="form-group" style="margin-bottom:1.25rem;">
-          <label>App Name</label>
-          <input type="text" id="cfgAppName">
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.5rem; align-items:start;">
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:2rem;">
+          <h3 style="font-family:'Fredoka',cursive; font-size:1.3rem; margin-bottom:0.35rem;">Global Parental Controls (All Kids)</h3>
+          <p style="color:var(--text-muted); font-size:0.84rem; margin-bottom:1.25rem;">
+            Applies to all registered children by default unless overridden on a specific child in <strong>My Kids</strong>.
+          </p>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.85rem; margin-bottom:1rem;">
+            <div class="form-group" style="margin:0;">
+              <label>Global Parent PIN (4 digits)</label>
+              <input type="text" maxlength="4" id="globalPin" placeholder="1234">
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label>Global Daily Limit (min)</label>
+              <input type="number" min="0" max="720" id="globalDailyLimit" placeholder="45">
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label>Global Default Age Tier</label>
+            <select id="globalAgeRating">
+              <option value="ALL">All Ages (12+)</option>
+              <option value="TODDLER">Toddlers (0-4)</option>
+              <option value="YOUNG_KIDS">Young Kids (5-7)</option>
+              <option value="OLDER_KIDS">Explorers (8-11)</option>
+            </select>
+          </div>
+          <div style="padding:0.85rem; border-radius:var(--radius-sm); background:var(--bg); border:1px solid var(--border); margin-bottom:1rem;">
+            <label style="display:flex; align-items:center; gap:0.5rem; font-weight:600; font-size:0.88rem; cursor:pointer; margin-bottom:0.65rem;">
+              <input type="checkbox" id="globalAttentionEnabled" style="width:auto;">
+              Enable Attention Tracking
+            </label>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:0.76rem;">Pause After (sec)</label>
+                <input type="number" min="5" max="300" id="globalAttentionPause">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label style="font-size:0.76rem;">Min Watch (%)</label>
+                <input type="number" min="10" max="100" id="globalAttentionMinPct">
+              </div>
+            </div>
+          </div>
+          <div style="padding:0.85rem; border-radius:var(--radius-sm); background:var(--bg); border:1px solid var(--border); margin-bottom:1.25rem;">
+            <label style="display:flex; align-items:center; gap:0.5rem; font-weight:600; font-size:0.88rem; cursor:pointer; margin-bottom:0.55rem;">
+              <input type="checkbox" id="globalYtSearchEnabled" style="width:auto;">
+              Enable YouTube Search for Kids
+            </label>
+            <label style="display:flex; align-items:center; gap:0.5rem; font-weight:600; font-size:0.86rem; cursor:pointer; margin-bottom:0.65rem;">
+              <input type="checkbox" id="globalYtRequireApproval" style="width:auto;">
+              Require Parent Approval for YouTube Results
+            </label>
+            <div class="form-group" style="margin:0;">
+              <label style="font-size:0.76rem;">Max Searched Videos (0 = unlimited)</label>
+              <input type="number" min="0" id="globalYtSearchLimit">
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="saveGlobalParentalControls()">Save Global Controls</button>
         </div>
-        <div class="form-group" style="margin-bottom:1.25rem;">
-          <label>Default Daily Screen Time Limit (Minutes)</label>
-          <input type="number" id="cfgWatchLimit">
+
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:2rem;">
+          <h3 style="font-family:'Fredoka',cursive; font-size:1.3rem; margin-bottom:1rem;">App Defaults</h3>
+          <div class="form-group" style="margin-bottom:1.25rem;">
+            <label>App Name</label>
+            <input type="text" id="cfgAppName">
+          </div>
+          <div class="form-group" style="margin-bottom:1.25rem;">
+            <label>Default Daily Screen Time Limit (Minutes)</label>
+            <input type="number" id="cfgWatchLimit">
+          </div>
+          <div class="form-group" style="margin-bottom:1.5rem;">
+            <label>Welcome Banner Message</label>
+            <input type="text" id="cfgWelcome">
+          </div>
+          <button class="btn btn-secondary" onclick="saveSettings()">Save App Defaults</button>
         </div>
-        <div class="form-group" style="margin-bottom:1.5rem;">
-          <label>Welcome Banner Message</label>
-          <input type="text" id="cfgWelcome">
-        </div>
-        <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
       </div>
     </div>
 
@@ -3537,6 +3596,47 @@
         document.getElementById('cfgWatchLimit').value = json.data.parentalDefaults.defaultWatchLimitMinutes;
         document.getElementById('cfgWelcome').value = json.data.welcomeMessage;
       }
+      await loadGlobalParentalControls();
+    }
+
+    async function loadGlobalParentalControls() {
+      try {
+        const res = await authFetch('/api/parent/controls');
+        const json = await res.json();
+        if (!json.success || !json.data) return;
+        const c = json.data;
+        document.getElementById('globalPin').value = c.parentPin || '1234';
+        document.getElementById('globalDailyLimit').value = c.dailyLimitMinutes ?? 45;
+        document.getElementById('globalAgeRating').value = c.ageRating || 'ALL';
+        document.getElementById('globalAttentionEnabled').checked = c.attentionTrackingEnabled !== false;
+        document.getElementById('globalAttentionPause').value = c.attentionPauseSeconds ?? 30;
+        document.getElementById('globalAttentionMinPct').value = c.attentionMinWatchPercent ?? 70;
+        document.getElementById('globalYtSearchEnabled').checked = c.youtubeSearchEnabled !== false;
+        document.getElementById('globalYtRequireApproval').checked = c.searchRequireApproval !== false;
+        document.getElementById('globalYtSearchLimit').value = c.searchViewLimit ?? 0;
+      } catch {}
+    }
+
+    async function saveGlobalParentalControls() {
+      const payload = {
+        parentPin: document.getElementById('globalPin').value.trim(),
+        dailyLimitMinutes: Number(document.getElementById('globalDailyLimit').value),
+        ageRating: document.getElementById('globalAgeRating').value,
+        attentionTrackingEnabled: document.getElementById('globalAttentionEnabled').checked,
+        attentionPauseSeconds: Number(document.getElementById('globalAttentionPause').value),
+        attentionMinWatchPercent: Number(document.getElementById('globalAttentionMinPct').value),
+        youtubeSearchEnabled: document.getElementById('globalYtSearchEnabled').checked,
+        searchRequireApproval: document.getElementById('globalYtRequireApproval').checked,
+        searchViewLimit: Number(document.getElementById('globalYtSearchLimit').value)
+      };
+      const res = await authFetch('/api/parent/controls', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to save global controls');
+      alert('Global parental controls saved for all kids!');
     }
 
     function formatTime(seconds) {
@@ -3805,11 +3905,73 @@
             </div>
             <div style="display:flex; gap:0.45rem;">
               <button type="button" class="btn btn-secondary btn-sm" onclick="resetChildSearchViews('${c.id}')">Reset Count</button>
-              <button type="button" class="btn btn-primary btn-sm" onclick="saveChildSearchSettings('${c.id}')">Save Search Settings</button>
+              <button type="button" class="btn btn-primary btn-sm" onclick="saveChildSearchSettings('${c.id}')">Save Override</button>
+            </div>
+          </div>
+          <div style="padding:0.75rem 0.9rem; border-radius:var(--radius-sm); background:var(--surface); border:1px solid var(--border); display:flex; flex-wrap:wrap; gap:0.85rem; align-items:center; justify-content:space-between;">
+            <div style="display:flex; flex-wrap:wrap; gap:0.85rem; align-items:center; font-size:0.82rem;">
+              <span style="font-weight:700; color:${Object.keys(c.overrides || {}).length ? 'var(--primary)' : 'var(--accent)'};">
+                ${Object.keys(c.overrides || {}).length ? 'Custom Override Active' : 'Using Global Controls'}
+              </span>
+              <label style="display:inline-flex; align-items:center; gap:0.35rem;">
+                Daily Limit (min):
+                <input type="number" min="0" max="720" id="childDailyLimit_${c.id}" value="${c.dailyLimitMinutes ?? 45}" style="width:68px; padding:0.25rem 0.45rem; border-radius:4px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
+              </label>
+              <label style="display:inline-flex; align-items:center; gap:0.35rem;">
+                PIN:
+                <input type="text" maxlength="4" id="childPin_${c.id}" value="${c.parentPin || '1234'}" style="width:60px; padding:0.25rem 0.45rem; border-radius:4px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
+              </label>
+              <label style="display:inline-flex; align-items:center; gap:0.35rem; cursor:pointer;">
+                <input type="checkbox" id="childAttention_${c.id}" ${c.attentionTrackingEnabled !== false ? 'checked' : ''}>
+                Attention Check
+              </label>
+            </div>
+            <div style="display:flex; gap:0.45rem;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="resetChildOverrides('${c.id}')">Use Global</button>
+              <button type="button" class="btn btn-primary btn-sm" onclick="saveChildOverrides('${c.id}')">Save Kid Override</button>
             </div>
           </div>
         </div>
       `).join('');
+    }
+
+    async function saveChildOverrides(childId) {
+      const payload = {
+        dailyLimitMinutes: Number(document.getElementById(`childDailyLimit_${childId}`).value),
+        parentPin: document.getElementById(`childPin_${childId}`).value.trim(),
+        attentionTrackingEnabled: document.getElementById(`childAttention_${childId}`).checked
+      };
+      const res = await authFetch(`/api/parent/children/${childId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to save kid override');
+      await loadParentChildren();
+    }
+
+    async function resetChildOverrides(childId) {
+      const res = await authFetch(`/api/parent/children/${childId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          overrides: {
+            parentPin: null,
+            dailyLimitMinutes: null,
+            ageRating: null,
+            attentionTrackingEnabled: null,
+            attentionPauseSeconds: null,
+            attentionMinWatchPercent: null,
+            youtubeSearchEnabled: null,
+            searchViewLimit: null,
+            searchRequireApproval: null
+          }
+        })
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to reset to global');
+      await loadParentChildren();
     }
 
     let parentModeChildrenCache = [];
@@ -4978,7 +5140,9 @@
         if (ageRating && ageRating !== 'ALL') params.set('ageRating', ageRating);
         const res = await fetch(apiUrl('/api/videos?' + params.toString()));
         const json = await res.json();
-        const videos = json.success ? (json.data || []) : [];
+        const videos = (json.success ? (json.data || []) : [])
+          .slice()
+          .sort((a, b) => (Date.parse(b.createdAt) || 0) - (Date.parse(a.createdAt) || 0));
         if (!videos.length) {
           container.innerHTML = `<p style="color:var(--text-muted);">No videos in ${topicName} right now.</p>`;
           return;
