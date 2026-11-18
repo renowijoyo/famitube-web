@@ -5183,6 +5183,27 @@
       return cols === 1 ? 10 : cols * 4;
     }
 
+    async function getCachedGpsCoords() {
+      try {
+        const cached = JSON.parse(sessionStorage.getItem('famitube_gps_coords') || 'null');
+        if (cached && Date.now() - cached.ts < 10 * 60 * 1000) {
+          return { lat: cached.lat, lon: cached.lon };
+        }
+      } catch {}
+      if (!navigator.geolocation) return null;
+      return new Promise((resolve) => {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const coords = { lat: pos.coords.latitude, lon: pos.coords.longitude, ts: Date.now() };
+            try { sessionStorage.setItem('famitube_gps_coords', JSON.stringify(coords)); } catch {}
+            resolve({ lat: coords.lat, lon: coords.lon });
+          },
+          () => resolve(null),
+          { enableHighAccuracy: false, timeout: 2500, maximumAge: 600000 }
+        );
+      });
+    }
+
     async function runKidYouTubeSearch(e) {
       if (e) e.preventDefault();
       const input = document.getElementById('kidYouTubeSearchInput');
@@ -5200,9 +5221,20 @@
           ? (!currentUser.ageRating || currentUser.ageRating === 'ALL' ? 'OLDER_KIDS' : currentUser.ageRating)
           : currentUser?.ageRating;
         const ageFilter = resolvedAge && resolvedAge !== 'ALL' ? `&ageRating=${encodeURIComponent(resolvedAge)}` : '';
+        const gps = await getCachedGpsCoords();
+        const navLocale = (navigator.language || 'en-US').split(/[-_]/);
+        const autoLang = (navLocale[0] || '').toLowerCase();
+        const autoRegion = (navLocale[1] || '').toUpperCase();
+        const ytParams = new URLSearchParams({ q });
+        if (gps) {
+          ytParams.set('lat', String(gps.lat));
+          ytParams.set('lon', String(gps.lon));
+        }
+        if (autoRegion && autoRegion.length === 2) ytParams.set('region', autoRegion);
+        if (autoLang && autoLang.length === 2) ytParams.set('lang', autoLang);
         const [curatedRes, ytRes] = await Promise.all([
           fetch(apiUrl('/api/videos?search=' + encodeURIComponent(q) + ageFilter)).then(r => r.json()).catch(() => ({ success: false, data: [] })),
-          authFetch('/api/kids/youtube-search?q=' + encodeURIComponent(q)).then(r => r.json()).catch(() => ({ success: false, message: 'YouTube search unavailable' }))
+          authFetch('/api/kids/youtube-search?' + ytParams.toString()).then(r => r.json()).catch(() => ({ success: false, message: 'YouTube search unavailable' }))
         ]);
 
         kidCuratedSearchResults = curatedRes.success ? (curatedRes.data || []) : [];
