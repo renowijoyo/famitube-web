@@ -4556,9 +4556,10 @@
         const res = await authFetch(`/api/parent/children/${childId}/switch-session`, {
           method: 'POST'
         });
-        const json = await res.json();
-        if (!json.success || !json.token || !json.user) {
-          return alert(json.message || 'Unable to switch to child mode.');
+        const contentType = res.headers.get('content-type') || '';
+        const json = contentType.includes('application/json') ? await res.json() : null;
+        if (!res.ok || !json?.success || !json?.token || !json?.user) {
+          return alert(json?.message || `Unable to switch to child mode (HTTP ${res.status}).`);
         }
         localStorage.setItem('FamiTube_parent_backup_token', authToken);
         localStorage.setItem('FamiTube_parent_backup_user', JSON.stringify(currentUser));
