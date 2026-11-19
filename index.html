@@ -4768,18 +4768,50 @@
           <div style="margin-top:0.9rem; padding:1rem; border-radius:var(--radius-sm); background:var(--bg); border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
             <div>
               <div style="font-weight:700; font-size:0.95rem;">Safe Browser</div>
-              <div style="font-size:0.8rem; color:var(--text-muted);">Show or hide the browser for ${c.name}. No approval is needed to browse when it is on.</div>
+              <div style="font-size:0.8rem; color:var(--text-muted);">Show or hide the browser for ${c.name} and choose the search provider it uses. No approval is needed to browse when it is on.</div>
             </div>
-            <div style="display:flex; align-items:center; gap:0.85rem;">
+            <div style="display:flex; align-items:center; gap:0.85rem; flex-wrap:wrap;">
               <label style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; font-size:0.86rem; cursor:pointer;">
                 <input type="checkbox" id="pmBrowserEnabled_${c.id}" ${c.browserEnabled !== false ? 'checked' : ''}>
                 Enable Safe Browser
+              </label>
+              <label style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; font-size:0.86rem;">
+                Search provider
+                <select id="pmBrowserProvider_${c.id}" class="pm-browser-provider" data-current="${c.browserSearchProvider || ''}" style="padding:0.4rem 0.6rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:inherit;"></select>
               </label>
               <button type="button" class="btn btn-primary btn-sm" onclick="savePmChildBrowserControls('${c.id}')">Save</button>
             </div>
           </div>
         </div>
       `;
+      refreshSearchProviderOptions();
+    }
+
+    let searchProviderOptions = [
+      { id: 'GOOGLE', label: 'Google SafeSearch', template: 'https://www.google.com/search?safe=active&q={query}' },
+      { id: 'DUCKDUCKGO', label: 'DuckDuckGo Safe', template: 'https://duckduckgo.com/?kp=1&q={query}' },
+      { id: 'BING', label: 'Bing SafeSearch', template: 'https://www.bing.com/search?adlt=strict&q={query}' }
+    ];
+
+    async function refreshSearchProviderOptions() {
+      const paint = () => {
+        document.querySelectorAll('.pm-browser-provider').forEach(sel => {
+          const current = sel.dataset.current || sel.value;
+          const selected = searchProviderOptions.some(o => o.id === current) ? current : searchProviderOptions[0].id;
+          sel.innerHTML = searchProviderOptions
+            .map(o => `<option value="${o.id}" ${o.id === selected ? 'selected' : ''}>${o.label}</option>`)
+            .join('');
+        });
+      };
+      paint();
+      try {
+        const res = await authFetch('/api/browser/search-providers');
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data) && json.data.length) {
+          searchProviderOptions = json.data;
+          paint();
+        }
+      } catch {}
     }
 
     function onProfileBirthdayChange(childId, birthdayStr) {
@@ -4852,7 +4884,8 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           browserEnabled,
-          browserAllowlistOnly: false
+          browserAllowlistOnly: false,
+          browserSearchProvider: document.getElementById(`pmBrowserProvider_${childId}`)?.value || undefined
         })
       });
       const json = await res.json();
@@ -6012,39 +6045,77 @@
           return;
         }
         content.innerHTML = `
-          <form onsubmit="submitKidBrowserSearch(event)" style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+          <form onsubmit="submitKidBrowserSearch(event)" style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:1rem;">
             <input type="text" id="kidBrowserSearchInput" placeholder="Search the web or type a website..." style="flex:1 1 260px; padding:0.7rem 1rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit; font-size:0.95rem;" required>
             <button type="submit" class="btn btn-primary">
-              <span class="material-symbols-rounded" style="font-size:1.05rem;">search</span> Go
+              <span class="material-symbols-rounded" style="font-size:1.05rem;">search</span> Search
             </button>
           </form>
+          <div id="kidBrowserResults"></div>
+          <div id="kidBrowserViewer" style="display:none;"></div>
         `;
       } catch {
         content.innerHTML = '<p style="color:var(--text-muted);">Could not load the browser.</p>';
       }
     }
 
-    async function visitKidBrowserSite(url) {
-      try {
-        await authFetch('/api/kids/browser/history', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url, title: url.replace(/^https?:\/\//, '') })
-        });
-      } catch {}
-      window.open(url, '_blank', 'noopener,noreferrer');
+    function kbEsc(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     }
 
-    function submitKidBrowserSearch(e) {
+    function logKidBrowserVisit(url) {
+      authFetch('/api/kids/browser/history', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, title: url.replace(/^https?:\/\//, '') })
+      }).catch(() => {});
+    }
+
+    // Show a page inside this page (no new tab). Some sites refuse to be embedded, so a fallback link is offered.
+    function openKidBrowserPage(url) {
+      const results = document.getElementById('kidBrowserResults');
+      const viewer = document.getElementById('kidBrowserViewer');
+      if (!results || !viewer) return;
+      logKidBrowserVisit(url);
+      results.style.display = 'none';
+      viewer.style.display = 'block';
+      viewer.innerHTML = `
+        <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap; margin-bottom:0.6rem;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="closeKidBrowserPage()">
+            <span class="material-symbols-rounded" style="font-size:1rem;">arrow_back</span> Back to results
+          </button>
+          <span style="font-size:0.82rem; color:var(--text-muted); flex:1 1 200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${kbEsc(url)}</span>
+          <a href="${kbEsc(url)}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">Page not showing? Open in new tab</a>
+        </div>
+        <iframe src="${kbEsc(url)}" referrerpolicy="no-referrer" sandbox="allow-scripts allow-forms allow-same-origin allow-popups" style="width:100%; height:70vh; border:1px solid var(--border); border-radius:var(--radius-sm); background:#fff;"></iframe>
+      `;
+    }
+
+    function closeKidBrowserPage() {
+      const results = document.getElementById('kidBrowserResults');
+      const viewer = document.getElementById('kidBrowserViewer');
+      if (viewer) { viewer.style.display = 'none'; viewer.innerHTML = ''; }
+      if (results) results.style.display = 'block';
+    }
+
+    async function submitKidBrowserSearch(e) {
       e.preventDefault();
       const input = document.getElementById('kidBrowserSearchInput');
       const raw = String(input?.value || '').trim();
       if (!raw) return;
+
       const looksLikeSite = !/\s/.test(raw) && /^(https?:\/\/)?[^\s.]+\.[^\s.]{2,}/i.test(raw);
-      const url = looksLikeSite
-        ? (/^https?:\/\//i.test(raw) ? raw : `https://${raw}`)
-        : `https://www.google.com/search?q=${encodeURIComponent(raw)}`;
-      visitKidBrowserSite(url);
+      if (looksLikeSite) {
+        openKidBrowserPage(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`);
+        return;
+      }
+
+      // Format search URL using child's chosen search provider
+      const providerId = (kidParentalSettings?.browserSearchProvider || 'GOOGLE').toUpperCase();
+      const provider = searchProviderOptions.find(p => p.id === providerId) || searchProviderOptions[0];
+      const searchUrl = (provider.template || 'https://www.google.com/search?safe=active&q={query}')
+        .replace('{query}', encodeURIComponent(raw));
+      openKidBrowserPage(searchUrl);
     }
 
     // --- Daily Screen Time Timer & Quick Access Parental Controls (PIN) ---
