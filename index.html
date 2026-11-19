@@ -932,9 +932,22 @@
       </div>
 
       <div id="userBar" style="display:none; position:relative; align-items:center; gap:0.65rem;">
+        <button type="button" id="headerTimePill" onclick="openKidParentalPinGate()" title="Remaining Daily Screen Time (Tap for Parental Controls)" style="display:none; align-items:center; gap:0.35rem; padding:0.42rem 0.78rem; border-radius:99px; border:1px solid rgba(6,214,160,0.45); background:rgba(6,214,160,0.14); color:#06d6a0; font-weight:800; font-size:0.84rem; cursor:pointer; white-space:nowrap;">
+          <span class="material-symbols-rounded" style="font-size:1rem;">schedule</span>
+          <span id="headerTimeLabel">45m</span>
+        </button>
+
         <button type="button" id="headerStarsPill" onclick="if(typeof switchView==='function') switchView('showcase'); if(typeof switchKidShowcaseTab==='function') switchKidShowcaseTab('achievements');" title="My Stars &amp; Badges" style="display:inline-flex; align-items:center; gap:0.35rem; padding:0.42rem 0.78rem; border-radius:99px; border:1px solid rgba(255,209,102,0.45); background:rgba(255,209,102,0.14); color:#ffd166; font-weight:800; font-size:0.84rem; cursor:pointer; white-space:nowrap;">
           <span>⭐</span>
           <span id="headerStarsCount">0</span>
+        </button>
+
+        <button type="button" id="headerBrowserBtn" class="btn btn-secondary" onclick="if(typeof switchKidShowcaseTab==='function') switchKidShowcaseTab('browser');" title="Safe Browser" style="display:none; padding:0.55rem;">
+          <span class="material-symbols-rounded">public</span>
+        </button>
+
+        <button type="button" id="headerParentalBtn" class="btn btn-secondary" onclick="openKidParentalPinGate()" title="Quick Parental Controls (PIN)" style="display:none; padding:0.55rem; border-color:rgba(255,46,147,0.35); color:var(--primary);">
+          <span class="material-symbols-rounded">lock</span>
         </button>
 
         <div style="position:relative;">
@@ -979,6 +992,9 @@
                 </select>
               </label>
             </div>
+            <button id="profileParentalBtn" onclick="document.getElementById('profileDropdownMenu').style.display='none'; openKidParentalPinGate();" style="display:none; width:100%; align-items:center; gap:0.55rem; padding:0.75rem 1rem; background:none; border:none; border-top:1px solid var(--border); color:var(--text); font-family:inherit; font-size:0.88rem; font-weight:600; cursor:pointer; text-align:left;" onmouseover="this.style.background='var(--surface-light)'" onmouseout="this.style.background='none'">
+              <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--primary);">lock</span> <span>Parental Controls (PIN)</span>
+            </button>
             <button onclick="handleLogout()" style="width:100%; display:flex; align-items:center; gap:0.55rem; padding:0.75rem 1rem; background:none; border:none; border-top:1px solid var(--border); color:#FF809D; font-family:inherit; font-size:0.88rem; font-weight:600; cursor:pointer; text-align:left;" onmouseover="this.style.background='rgba(255,51,102,0.1)'" onmouseout="this.style.background='none'">
               <span class="material-symbols-rounded" style="font-size:1.1rem;">logout</span> <span data-i18n="logout">Logout</span>
             </button>
@@ -1089,19 +1105,28 @@
 
     <div id="kidToolsBar" style="display:none; margin-bottom:1.25rem; gap:0.55rem; flex-wrap:wrap; align-items:center;">
       <button type="button" class="filter-pill active" id="kidTabBtnCurated" onclick="switchKidShowcaseTab('curated')">
-        <span class="material-symbols-rounded" style="font-size:1rem;">subscriptions</span> Curated Channels
+        <span class="material-symbols-rounded" style="font-size:1rem;">home</span> Explore
+      </button>
+      <button type="button" class="filter-pill" id="kidTabBtnChannels" onclick="openChannelsNav()">
+        <span class="material-symbols-rounded" style="font-size:1rem;">tv</span> Channels
       </button>
       <button type="button" class="filter-pill" id="kidTabBtnSearch" onclick="switchKidShowcaseTab('search')">
         <span class="material-symbols-rounded" style="font-size:1rem;">youtube_searched_for</span> Search &amp; YouTube
       </button>
-      <button type="button" class="filter-pill" id="kidTabBtnHistory" onclick="switchKidShowcaseTab('history')">
-        <span class="material-symbols-rounded" style="font-size:1rem;">history</span> My History
-      </button>
       <button type="button" class="filter-pill" id="kidTabBtnPlaylists" onclick="switchKidShowcaseTab('playlists')">
-        <span class="material-symbols-rounded" style="font-size:1rem;">playlist_play</span> My Playlists
+        <span class="material-symbols-rounded" style="font-size:1rem;">playlist_play</span> Playlists
+      </button>
+      <button type="button" class="filter-pill" id="kidTabBtnFavorites" onclick="switchKidShowcaseTab('favorites')">
+        <span class="material-symbols-rounded" style="font-size:1rem;">favorite</span> Favorites
+      </button>
+      <button type="button" class="filter-pill" id="kidTabBtnHistory" onclick="switchKidShowcaseTab('history')">
+        <span class="material-symbols-rounded" style="font-size:1rem;">history</span> History
       </button>
       <button type="button" class="filter-pill" id="kidTabBtnAchievements" onclick="switchKidShowcaseTab('achievements')">
-        <span class="material-symbols-rounded" style="font-size:1rem;">emoji_events</span> Badges &amp; Stars
+        <span class="material-symbols-rounded" style="font-size:1rem;">emoji_events</span> Badges
+      </button>
+      <button type="button" class="filter-pill" id="kidTabBtnBrowser" onclick="switchKidShowcaseTab('browser')">
+        <span class="material-symbols-rounded" style="font-size:1rem;">public</span> Safe Browser
       </button>
       <button type="button" id="kidLevelPill" onclick="switchKidShowcaseTab('achievements')" style="margin-left:auto; display:inline-flex; align-items:center; gap:0.4rem; padding:0.35rem 0.85rem; border-radius:99px; border:1px solid rgba(255,209,102,0.38); background:rgba(255,209,102,0.12); color:#ffd166; font-weight:700; font-size:0.82rem; cursor:pointer;">
         ⭐ 0 • Lv.1
@@ -1158,6 +1183,31 @@
       <div id="kidAchievementsStats" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:0.85rem; margin-bottom:1.25rem;"></div>
       <h3 style="font-size:1.15rem; margin-bottom:0.85rem;">Achievements &amp; Badges</h3>
       <div id="kidAchievementsGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:1rem;"></div>
+    </div>
+
+    <div id="kidFavoritesPanel" style="display:none; margin-bottom:2rem;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap; margin-bottom:1rem;">
+        <div>
+          <h3 style="font-size:1.2rem; margin:0 0 0.2rem 0;">My Favorites</h3>
+          <p style="color:var(--text-muted); font-size:0.86rem; margin:0;">Tap the heart on any video to save it here for quick watching.</p>
+        </div>
+      </div>
+      <div id="kidFavoritesGrid" class="video-grid"></div>
+    </div>
+
+    <div id="kidBrowserPanel" style="display:none; margin-bottom:2rem;">
+      <div class="card" style="padding:1.25rem 1.4rem; margin-bottom:1.25rem;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.75rem;">
+          <div>
+            <h3 style="font-size:1.15rem; margin:0 0 0.2rem 0;">Safe Kids Browser</h3>
+            <p style="color:var(--text-muted); font-size:0.86rem; margin:0;">Visit parent-approved educational websites or request a new site.</p>
+          </div>
+          <span id="kidBrowserModeBadge" style="font-size:0.78rem; font-weight:700; padding:0.28rem 0.72rem; border-radius:99px; background:rgba(6,214,160,0.14); color:#06d6a0;">Allowlist Active</span>
+        </div>
+        <div id="kidBrowserContent">
+          <p style="color:var(--text-muted);">Loading safe browser settings...</p>
+        </div>
+      </div>
     </div>
 
     <div id="kidHomeHub" style="display:none; margin-bottom:2rem;"></div>
@@ -2036,6 +2086,119 @@
         </button>
       </div>
       <div class="modal-body" id="inviteModalBody"></div>
+    </div>
+  </div>
+
+  <!-- Parent PIN Gate Modal (Quick Access from Child Page) -->
+  <div class="modal" id="kidPinGateModal">
+    <div class="modal-content" style="max-width:400px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:0.55rem;">
+          <span class="material-symbols-rounded" style="color:var(--primary);">lock</span>
+          <h3 style="font-size:1.15rem; font-weight:700; margin:0;">Grown-Ups Only</h3>
+        </div>
+        <button class="btn-icon" onclick="closeKidPinGate()">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="color:var(--text-muted); font-size:0.88rem; margin-top:0;">Enter your 4-digit Parent PIN to open quick parental controls.</p>
+        <form onsubmit="submitKidPinGate(event)" style="display:flex; flex-direction:column; gap:0.85rem;">
+          <input type="password" id="kidPinGateInput" maxlength="4" inputmode="numeric" pattern="\d{4}" placeholder="••••" autocomplete="off" style="text-align:center; font-size:1.5rem; letter-spacing:0.5rem; padding:0.75rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg); color:var(--text);" required>
+          <div id="kidPinGateError" style="display:none; color:#ff6b8b; font-size:0.84rem; font-weight:600; text-align:center;"></div>
+          <div style="display:flex; gap:0.6rem; justify-content:flex-end;">
+            <button type="button" class="btn btn-secondary" onclick="closeKidPinGate()">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="kidPinGateSubmitBtn">Unlock</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Parental Controls Modal (Synced to Backend & Android) -->
+  <div class="modal" id="kidParentalControlsModal">
+    <div class="modal-content" style="max-width:520px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:0.55rem;">
+          <span class="material-symbols-rounded" style="color:var(--primary);">admin_panel_settings</span>
+          <h3 style="font-size:1.15rem; font-weight:700; margin:0;">Quick Parental Controls</h3>
+        </div>
+        <button class="btn-icon" onclick="closeKidParentalControlsModal()">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form onsubmit="saveKidParentalControls(event)" style="display:flex; flex-direction:column; gap:1rem;">
+          <div class="card" style="padding:0.9rem 1rem; background:var(--surface-light);">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.55rem;">
+              <label style="font-weight:700; font-size:0.9rem;">Daily Screen Time Limit</label>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="resetKidTodayTimer()">Reset Today's Timer</button>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.65rem;">
+              <div>
+                <label style="display:block; font-size:0.78rem; color:var(--text-muted); margin-bottom:0.25rem;">Hours (0-12)</label>
+                <input type="number" id="kidPcLimitHours" min="0" max="12" value="0" style="width:100%;">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.78rem; color:var(--text-muted); margin-bottom:0.25rem;">Minutes (0-59)</label>
+                <input type="number" id="kidPcLimitMinutes" min="0" max="59" value="45" style="width:100%;">
+              </div>
+            </div>
+            <div style="font-size:0.76rem; color:var(--text-muted); margin-top:0.4rem;">Set 0h 0m for unlimited daily watch time.</div>
+          </div>
+
+          <div>
+            <label style="display:block; font-weight:700; font-size:0.9rem; margin-bottom:0.35rem;">Age Content Filter</label>
+            <select id="kidPcAgeRating" style="width:100%; padding:0.6rem 0.75rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit;">
+              <option value="TODDLER">Toddlers (Ages 0-4) — Simple Mode</option>
+              <option value="YOUNG_KIDS">Young Kids (Ages 5-7) — Simple Mode</option>
+              <option value="OLDER_KIDS">Explorers / Tweens (Ages 8-11)</option>
+              <option value="ALL">Pre-Teens &amp; Up (Ages 12+)</option>
+            </select>
+          </div>
+
+          <div class="card" style="padding:0.9rem 1rem; background:var(--surface-light);">
+            <label style="display:flex; align-items:center; gap:0.6rem; cursor:pointer; font-weight:700; font-size:0.9rem;">
+              <input type="checkbox" id="kidPcAttentionEnabled">
+              <span>Camera Attention Tracking (Android)</span>
+            </label>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.65rem; margin-top:0.65rem;">
+              <div>
+                <label style="display:block; font-size:0.78rem; color:var(--text-muted); margin-bottom:0.25rem;">Pause After (sec)</label>
+                <input type="number" id="kidPcAttentionPause" min="5" max="300" value="30" style="width:100%;">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.78rem; color:var(--text-muted); margin-bottom:0.25rem;">Min Watch (%)</label>
+                <input type="number" id="kidPcAttentionPercent" min="10" max="100" value="60" style="width:100%;">
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label style="display:block; font-weight:700; font-size:0.9rem; margin-bottom:0.35rem;">Change Parent PIN (4 digits)</label>
+            <input type="text" id="kidPcNewPin" maxlength="4" pattern="\d{4}" placeholder="1234" style="width:100%;">
+          </div>
+
+          <div id="kidPcStatusMsg" style="display:none; font-size:0.84rem; font-weight:600;"></div>
+
+          <div style="display:flex; gap:0.6rem; justify-content:flex-end;">
+            <button type="button" class="btn btn-secondary" onclick="closeKidParentalControlsModal()">Close</button>
+            <button type="submit" class="btn btn-primary" id="kidPcSaveBtn">Save &amp; Sync</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Daily Screen Time Limit Reached Overlay -->
+  <div id="kidTimeUpOverlay" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.94); z-index:900; align-items:center; justify-content:center; padding:1.5rem;">
+    <div class="card" style="max-width:420px; width:100%; padding:2rem; text-align:center;">
+      <div style="font-size:3rem; margin-bottom:0.5rem;">🌙</div>
+      <h2 style="font-family:'Fredoka',cursive; margin:0 0 0.5rem 0;">Time for a Break!</h2>
+      <p style="color:var(--text-muted); font-size:0.92rem; margin:0 0 1.4rem 0;">You've reached your daily screen time limit. Great job exploring today!</p>
+      <button type="button" class="btn btn-primary" style="width:100%; justify-content:center;" onclick="openKidParentalPinGate()">
+        <span class="material-symbols-rounded">lock</span> Parent Unlock (PIN)
+      </button>
     </div>
   </div>
 
@@ -3837,8 +4000,23 @@
     }
 
     let activeModalVideo = null;
+    const kidVideoById = new Map();
+
+    function openPlayer(videoId) {
+      const video = kidVideoById.get(videoId) || (kidsFeedVideos || []).find(v => v.id === videoId);
+      if (video) {
+        previewVideo(video);
+      }
+    }
 
     function previewVideo(video) {
+      if (currentUser?.role === 'CHILD' && isKidTimeUp()) {
+        showKidTimeUpOverlay();
+        return;
+      }
+      if (video && video.id) {
+        kidVideoById.set(video.id, video);
+      }
       activeModalVideo = video;
       document.getElementById('modalTitle').textContent = video.title;
       document.getElementById('modalDesc').textContent = video.description || 'No description provided.';
@@ -3857,12 +4035,16 @@
         const bar = document.getElementById('modalPlaylistBar');
         if (bar) bar.style.display = 'none';
       }
+      if (currentUser?.role === 'CHILD') {
+        startKidWatchTimer();
+      }
       loadModalParentReviews(video);
 
       document.getElementById('playerModal').style.display = 'flex';
     }
 
     function closePlayerModal() {
+      stopKidWatchTimer();
       document.getElementById('playerContainer').innerHTML = '';
       document.getElementById('playerModal').style.display = 'none';
     }
@@ -4486,6 +4668,14 @@
     }
 
     let kidsFeedVideos = null;
+    let kidParentalSettings = {
+      parentPin: '1234',
+      dailyLimitMinutes: 45,
+      ageRating: 'ALL',
+      attentionTrackingEnabled: false,
+      attentionPauseSeconds: 30,
+      attentionMinWatchPercent: 60
+    };
 
     async function loadShowcase(useKidsFeed = false) {
       try {
@@ -4497,6 +4687,17 @@
           if (json.success && json.data) {
             showcaseChannels = json.data.channels || [];
             kidsFeedVideos = json.data.videos || [];
+            kidsFeedVideos.forEach(v => { if (v?.id) kidVideoById.set(v.id, v); });
+            if (json.data.parentalSettings) {
+              kidParentalSettings = { ...kidParentalSettings, ...json.data.parentalSettings };
+              if (currentUser && json.data.parentalSettings.ageRating) {
+                currentUser.ageRating = json.data.parentalSettings.ageRating;
+              }
+              updateKidTimePill();
+              if (currentUser?.role === 'CHILD') {
+                updateKidToolsVisibility(currentUser);
+              }
+            }
             const hasActive = showcaseChannels.some(c => c.id === activeShowcaseChannelId);
             const initialId = hasActive ? activeShowcaseChannelId : (showcaseChannels[0]?.id || null);
             renderShowcaseChannels();
@@ -4853,16 +5054,30 @@
 
     function updateKidToolsVisibility(user) {
       const bar = document.getElementById('kidToolsBar');
+      const channelsBtn = document.getElementById('kidTabBtnChannels');
       const searchBtn = document.getElementById('kidTabBtnSearch');
       const playlistsBtn = document.getElementById('kidTabBtnPlaylists');
+      const historyBtn = document.getElementById('kidTabBtnHistory');
+      const browserBtn = document.getElementById('kidTabBtnBrowser');
       const curatedTabBtn = document.getElementById('kidTabBtnCurated');
       const navChannelsBtn = document.getElementById('btnNavChannels');
       const heroCard = document.getElementById('showcaseHeroCard');
       const kidHub = document.getElementById('kidHomeHub');
       const curatedPanel = document.getElementById('showcaseCuratedPanel');
 
+      const isChild = user?.role === 'CHILD';
+      const headerTimePill = document.getElementById('headerTimePill');
+      const headerBrowserBtn = document.getElementById('headerBrowserBtn');
+      const headerParentalBtn = document.getElementById('headerParentalBtn');
+      const profileParentalBtn = document.getElementById('profileParentalBtn');
+
+      if (headerTimePill) headerTimePill.style.display = isChild ? 'inline-flex' : 'none';
+      if (headerBrowserBtn) headerBrowserBtn.style.display = isChild ? 'inline-flex' : 'none';
+      if (headerParentalBtn) headerParentalBtn.style.display = isChild ? 'inline-flex' : 'none';
+      if (profileParentalBtn) profileParentalBtn.style.display = isChild ? 'flex' : 'none';
+
       if (heroCard) {
-        heroCard.style.display = user?.role === 'CHILD' ? 'none' : 'block';
+        heroCard.style.display = isChild ? 'none' : 'block';
       }
       if (!bar) return;
       if (!user || !authToken) {
@@ -4878,15 +5093,19 @@
       if (curatedTabBtn) {
         curatedTabBtn.innerHTML = `<span class="material-symbols-rounded" style="font-size:1rem;">${simpleMode ? 'grid_view' : 'home'}</span> ${simpleMode ? 'Topics' : 'Explore'}`;
       }
+      if (channelsBtn) channelsBtn.style.display = simpleMode ? 'none' : 'inline-flex';
       if (searchBtn) searchBtn.style.display = simpleMode ? 'none' : 'inline-flex';
       if (playlistsBtn) playlistsBtn.style.display = simpleMode ? 'none' : 'inline-flex';
-      if (navChannelsBtn && user.role === 'CHILD') {
+      if (historyBtn) historyBtn.style.display = simpleMode ? 'none' : 'inline-flex';
+      if (browserBtn) browserBtn.style.display = simpleMode ? 'none' : 'inline-flex';
+      if (navChannelsBtn && isChild) {
         navChannelsBtn.style.display = simpleMode ? 'none' : 'inline-flex';
       }
 
+      updateKidTimePill();
       updateKidSearchQuotaBadge(user);
       loadKidAchievements();
-      if (user.role === 'CHILD') {
+      if (isChild) {
         renderKidHomeHub(user);
       } else {
         if (kidHub) kidHub.style.display = 'none';
@@ -4912,6 +5131,8 @@
       const historyEl = document.getElementById('kidHistoryPanel');
       const playlistsEl = document.getElementById('kidPlaylistsPanel');
       const achievementsEl = document.getElementById('kidAchievementsPanel');
+      const favoritesEl = document.getElementById('kidFavoritesPanel');
+      const browserEl = document.getElementById('kidBrowserPanel');
 
       if (isChild) {
         if (curatedEl) curatedEl.style.display = 'none';
@@ -4924,17 +5145,23 @@
       if (historyEl) historyEl.style.display = activeKidTab === 'history' ? 'block' : 'none';
       if (playlistsEl) playlistsEl.style.display = activeKidTab === 'playlists' ? 'block' : 'none';
       if (achievementsEl) achievementsEl.style.display = activeKidTab === 'achievements' ? 'block' : 'none';
+      if (favoritesEl) favoritesEl.style.display = activeKidTab === 'favorites' ? 'block' : 'none';
+      if (browserEl) browserEl.style.display = activeKidTab === 'browser' ? 'block' : 'none';
 
       document.getElementById('kidTabBtnCurated')?.classList.toggle('active', activeKidTab === 'curated');
       document.getElementById('kidTabBtnSearch')?.classList.toggle('active', activeKidTab === 'search');
       document.getElementById('kidTabBtnHistory')?.classList.toggle('active', activeKidTab === 'history');
       document.getElementById('kidTabBtnPlaylists')?.classList.toggle('active', activeKidTab === 'playlists');
       document.getElementById('kidTabBtnAchievements')?.classList.toggle('active', activeKidTab === 'achievements');
+      document.getElementById('kidTabBtnFavorites')?.classList.toggle('active', activeKidTab === 'favorites');
+      document.getElementById('kidTabBtnBrowser')?.classList.toggle('active', activeKidTab === 'browser');
 
       if (activeKidTab === 'curated' && isChild) renderKidHomeHub(currentUser);
       if (activeKidTab === 'history') loadKidHistory();
       if (activeKidTab === 'playlists') loadKidPlaylists();
       if (activeKidTab === 'achievements') loadKidAchievements();
+      if (activeKidTab === 'favorites') renderKidFavorites();
+      if (activeKidTab === 'browser') loadKidBrowser();
     }
 
     async function loadKidAchievements() {
@@ -5109,6 +5336,33 @@
           </div>
         </div>
 
+        <div style="display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:0.75rem; margin-bottom:1.35rem;">
+          <button type="button" onclick="openChannelsNav()" class="card" style="cursor:pointer; padding:0.95rem 0.5rem; display:flex; flex-direction:column; align-items:center; gap:0.45rem; border-radius:16px;">
+            <span style="width:40px; height:40px; border-radius:50%; background:rgba(76,201,240,0.16); color:var(--accent); display:inline-flex; align-items:center; justify-content:center;">
+              <span class="material-symbols-rounded">tv</span>
+            </span>
+            <span style="font-size:0.82rem; font-weight:700; color:var(--text);">Channels</span>
+          </button>
+          <button type="button" onclick="switchKidShowcaseTab('playlists')" class="card" style="cursor:pointer; padding:0.95rem 0.5rem; display:flex; flex-direction:column; align-items:center; gap:0.45rem; border-radius:16px;">
+            <span style="width:40px; height:40px; border-radius:50%; background:rgba(255,46,147,0.16); color:var(--primary); display:inline-flex; align-items:center; justify-content:center;">
+              <span class="material-symbols-rounded">video_library</span>
+            </span>
+            <span style="font-size:0.82rem; font-weight:700; color:var(--text);">Playlists</span>
+          </button>
+          <button type="button" onclick="switchKidShowcaseTab('favorites')" class="card" style="cursor:pointer; padding:0.95rem 0.5rem; display:flex; flex-direction:column; align-items:center; gap:0.45rem; border-radius:16px;">
+            <span style="width:40px; height:40px; border-radius:50%; background:rgba(6,214,160,0.16); color:#06d6a0; display:inline-flex; align-items:center; justify-content:center;">
+              <span class="material-symbols-rounded">favorite</span>
+            </span>
+            <span style="font-size:0.82rem; font-weight:700; color:var(--text);">Favorites</span>
+          </button>
+          <button type="button" onclick="switchKidShowcaseTab('achievements')" class="card" style="cursor:pointer; padding:0.95rem 0.5rem; display:flex; flex-direction:column; align-items:center; gap:0.45rem; border-radius:16px;">
+            <span style="width:40px; height:40px; border-radius:50%; background:rgba(255,209,102,0.16); color:#ffd166; display:inline-flex; align-items:center; justify-content:center;">
+              <span class="material-symbols-rounded">emoji_events</span>
+            </span>
+            <span style="font-size:0.82rem; font-weight:700; color:var(--text);">Badges</span>
+          </button>
+        </div>
+
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
           <h3 style="font-size:1.05rem; margin:0;">Pick a Topic</h3>
           ${kidHomeSelectedTopic ? `<button type="button" class="btn btn-secondary btn-sm" onclick="selectKidHubTopic(null)">Clear</button>` : ''}
@@ -5160,22 +5414,438 @@
           container.innerHTML = `<p style="color:var(--text-muted);">No videos in ${topicName} right now.</p>`;
           return;
         }
-        container.innerHTML = videos.map(v => `
-          <div class="card video-card" onclick="openPlayer('${v.id}')" style="cursor:pointer;">
-            <div class="video-thumb">
-              <img src="${v.thumbnailUrl}" alt="${v.title}" loading="lazy">
-              <div class="badge-type">${v.sourceType}</div>
-              <div class="badge-age">${v.ageRating}</div>
-              <div class="play-overlay"><span class="material-symbols-rounded">play_arrow</span></div>
-            </div>
-            <div class="video-info">
+        videos.forEach(v => { if (v?.id) kidVideoById.set(v.id, v); });
+        container.innerHTML = videos.map(v => renderKidVideoCardHtml(v)).join('');
+      } catch {
+        container.innerHTML = '<p style="color:var(--text-muted);">Could not load videos.</p>';
+      }
+    }
+
+    function renderKidVideoCardHtml(v) {
+      const fav = isKidFavorite(v.id);
+      return `
+        <div class="card video-card" style="position:relative;">
+          <div class="video-thumb" onclick="openPlayer('${v.id}')" style="cursor:pointer;">
+            <img src="${v.thumbnailUrl}" alt="${v.title}" loading="lazy">
+            <div class="badge-type">${v.sourceType}</div>
+            <div class="badge-age">${v.ageRating}</div>
+            <div class="play-overlay"><span class="material-symbols-rounded">play_arrow</span></div>
+          </div>
+          <div class="video-info" style="display:flex; align-items:flex-start; justify-content:space-between; gap:0.5rem;">
+            <div onclick="openPlayer('${v.id}')" style="cursor:pointer; min-width:0; flex:1;">
               <div style="font-size:0.76rem; color:var(--text-muted); margin-bottom:0.25rem;">${v.channelTitle}</div>
               <div class="video-title">${v.title}</div>
             </div>
+            <button type="button" onclick="event.stopPropagation(); toggleKidFavorite('${v.id}')" title="${fav ? 'Remove from Favorites' : 'Save to Favorites'}" style="background:none; border:none; cursor:pointer; padding:0.25rem; color:${fav ? '#ff2e93' : 'var(--text-muted)'}; flex-shrink:0;">
+              <span class="material-symbols-rounded" style="font-size:1.3rem;">${fav ? 'favorite' : 'favorite_border'}</span>
+            </button>
           </div>
-        `).join('');
+        </div>
+      `;
+    }
+
+    // --- Kid Favorites (matching Android FavoritesScreen) ---
+    function getKidFavoritesStorageKey() {
+      return `famitube_favorites_${currentUser?.id || 'guest'}`;
+    }
+
+    function getKidFavorites() {
+      try {
+        const raw = localStorage.getItem(getKidFavoritesStorageKey());
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
       } catch {
-        container.innerHTML = '<p style="color:var(--text-muted);">Could not load videos.</p>';
+        return [];
+      }
+    }
+
+    function isKidFavorite(videoId) {
+      return getKidFavorites().some(v => v.id === videoId);
+    }
+
+    function toggleKidFavorite(videoId) {
+      const list = getKidFavorites();
+      const idx = list.findIndex(v => v.id === videoId);
+      if (idx >= 0) {
+        list.splice(idx, 1);
+      } else {
+        const v = kidVideoById.get(videoId) || (kidsFeedVideos || []).find(x => x.id === videoId);
+        if (v) list.unshift(v);
+      }
+      try {
+        localStorage.setItem(getKidFavoritesStorageKey(), JSON.stringify(list.slice(0, 100)));
+      } catch {}
+      if (activeKidTab === 'favorites') {
+        renderKidFavorites();
+      } else if (activeKidTab === 'curated' && kidHomeSelectedTopic && currentUser) {
+        renderKidHomeHub(currentUser);
+      }
+    }
+
+    function renderKidFavorites() {
+      const grid = document.getElementById('kidFavoritesGrid');
+      if (!grid) return;
+      const favs = getKidFavorites();
+      favs.forEach(v => { if (v?.id) kidVideoById.set(v.id, v); });
+      if (!favs.length) {
+        grid.innerHTML = '<div class="card" style="padding:1.5rem; color:var(--text-muted);">No favorites yet. Tap the ❤️ on any video to save it here!</div>';
+        return;
+      }
+      grid.innerHTML = favs.map(v => renderKidVideoCardHtml(v)).join('');
+    }
+
+    // --- Kid Safe Browser (matching Android BrowserScreen) ---
+    async function loadKidBrowser() {
+      const content = document.getElementById('kidBrowserContent');
+      const badge = document.getElementById('kidBrowserModeBadge');
+      if (!content || !authToken) return;
+      content.innerHTML = '<p style="color:var(--text-muted);">Loading safe browser...</p>';
+      try {
+        const [cfgRes, histRes, reqRes] = await Promise.all([
+          authFetch('/api/kids/browser/config'),
+          authFetch('/api/kids/browser/history?limit=15'),
+          authFetch('/api/kids/browser/requests')
+        ]);
+        const cfgJson = await cfgRes.json();
+        const histJson = await histRes.json();
+        const reqJson = await reqRes.json();
+
+        const cfg = cfgJson.data || {};
+        if (badge) {
+          badge.textContent = cfg.browserEnabled === false ? 'Disabled by Parent' : (cfg.browserAllowlistOnly !== false ? 'Allowlist Active' : 'Filtered Mode');
+          badge.style.color = cfg.browserEnabled === false ? '#ff6b8b' : '#06d6a0';
+        }
+        if (cfg.browserEnabled === false) {
+          content.innerHTML = '<p style="color:var(--text-muted);">Safe Browser is currently turned off by your parent.</p>';
+          return;
+        }
+
+        const allowed = Array.isArray(cfg.allowedDomains) ? cfg.allowedDomains : [];
+        const history = Array.isArray(histJson.data) ? histJson.data : [];
+        const requests = Array.isArray(reqJson.data) ? reqJson.data : [];
+
+        content.innerHTML = `
+          <div style="margin-bottom:1.25rem;">
+            <div style="font-weight:700; font-size:0.92rem; margin-bottom:0.55rem;">Approved Safe Websites</div>
+            ${allowed.length ? `
+              <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+                ${allowed.map(d => `
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="visitKidBrowserSite('https://${d.replace(/'/g, "\\'")}')">
+                    <span class="material-symbols-rounded" style="font-size:1rem; color:#06d6a0;">verified</span> ${d}
+                  </button>
+                `).join('')}
+              </div>
+            ` : '<p style="color:var(--text-muted); font-size:0.86rem;">No approved domains added yet.</p>'}
+          </div>
+
+          <form onsubmit="submitKidBrowserRequest(event)" style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:1.25rem;">
+            <input type="text" id="kidBrowserReqInput" placeholder="Request a website (e.g. nasa.gov)..." style="flex:1 1 220px; padding:0.65rem 0.9rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg); color:var(--text);" required>
+            <button type="submit" class="btn btn-primary btn-sm">Ask Parent to Allow</button>
+          </form>
+
+          ${requests.length ? `
+            <div style="margin-bottom:1rem;">
+              <div style="font-weight:700; font-size:0.9rem; margin-bottom:0.45rem;">My Website Requests</div>
+              <div style="display:flex; flex-direction:column; gap:0.4rem;">
+                ${requests.slice(0, 6).map(r => `
+                  <div style="display:flex; justify-content:space-between; align-items:center; padding:0.55rem 0.8rem; border-radius:var(--radius-sm); background:var(--surface-light); font-size:0.84rem;">
+                    <span>${r.domain || r.url}</span>
+                    <span style="font-weight:700; color:${r.status === 'APPROVED' ? '#06d6a0' : (r.status === 'DENIED' ? '#ff6b8b' : '#ffd166')};">${r.status}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          ${history.length ? `
+            <div>
+              <div style="font-weight:700; font-size:0.9rem; margin-bottom:0.45rem;">Recent Safe Visits</div>
+              <div style="display:flex; flex-direction:column; gap:0.35rem;">
+                ${history.slice(0, 5).map(h => `
+                  <div style="font-size:0.82rem; color:var(--text-muted);">${h.title || h.domain || h.url}</div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+        `;
+      } catch {
+        content.innerHTML = '<p style="color:var(--text-muted);">Could not load safe browser settings.</p>';
+      }
+    }
+
+    async function visitKidBrowserSite(url) {
+      try {
+        await authFetch('/api/kids/browser/history', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, title: url.replace(/^https?:\/\//, '') })
+        });
+      } catch {}
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+
+    async function submitKidBrowserRequest(e) {
+      e.preventDefault();
+      const input = document.getElementById('kidBrowserReqInput');
+      const raw = String(input?.value || '').trim();
+      if (!raw) return;
+      const url = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+      try {
+        const res = await authFetch('/api/kids/browser/requests', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+        const json = await res.json();
+        if (!json.success) {
+          alert(json.message || 'Could not submit website request.');
+          return;
+        }
+        if (input) input.value = '';
+        loadKidBrowser();
+      } catch {
+        alert('Could not submit website request.');
+      }
+    }
+
+    // --- Daily Screen Time Timer & Quick Access Parental Controls (PIN) ---
+    let kidWatchTimerInterval = null;
+    let kidUnlockedPinCache = '';
+
+    function getKidWatchSecondsKey() {
+      const today = new Date().toISOString().slice(0, 10);
+      return `famitube_watch_${currentUser?.id || 'guest'}_${today}`;
+    }
+
+    function getKidWatchSecondsToday() {
+      try {
+        return Math.max(0, parseInt(localStorage.getItem(getKidWatchSecondsKey()) || '0', 10) || 0);
+      } catch {
+        return 0;
+      }
+    }
+
+    function getKidRemainingMinutes() {
+      const limitMin = Number(kidParentalSettings?.dailyLimitMinutes ?? 0);
+      if (limitMin <= 0) return null; // Unlimited
+      const usedMin = Math.floor(getKidWatchSecondsToday() / 60);
+      return Math.max(0, limitMin - usedMin);
+    }
+
+    function isKidTimeUp() {
+      const rem = getKidRemainingMinutes();
+      return rem !== null && rem <= 0;
+    }
+
+    function updateKidTimePill() {
+      const label = document.getElementById('headerTimeLabel');
+      const pill = document.getElementById('headerTimePill');
+      if (!label || !pill) return;
+      const rem = getKidRemainingMinutes();
+      if (rem === null) {
+        label.textContent = '∞';
+        pill.style.color = '#06d6a0';
+      } else {
+        label.textContent = `${rem}m`;
+        pill.style.color = rem <= 5 ? '#ff6b8b' : '#06d6a0';
+      }
+    }
+
+    function startKidWatchTimer() {
+      stopKidWatchTimer();
+      kidWatchTimerInterval = setInterval(() => {
+        if (!currentUser || currentUser.role !== 'CHILD') return;
+        const nextSec = getKidWatchSecondsToday() + 10;
+        try {
+          localStorage.setItem(getKidWatchSecondsKey(), String(nextSec));
+        } catch {}
+        updateKidTimePill();
+        if (isKidTimeUp()) {
+          closePlayerModal();
+          showKidTimeUpOverlay();
+        }
+      }, 10000);
+    }
+
+    function stopKidWatchTimer() {
+      if (kidWatchTimerInterval) {
+        clearInterval(kidWatchTimerInterval);
+        kidWatchTimerInterval = null;
+      }
+    }
+
+    function showKidTimeUpOverlay() {
+      const el = document.getElementById('kidTimeUpOverlay');
+      if (el) el.style.display = 'flex';
+    }
+
+    function hideKidTimeUpOverlay() {
+      const el = document.getElementById('kidTimeUpOverlay');
+      if (el) el.style.display = 'none';
+    }
+
+    function openKidParentalPinGate() {
+      const modal = document.getElementById('kidPinGateModal');
+      const input = document.getElementById('kidPinGateInput');
+      const err = document.getElementById('kidPinGateError');
+      if (err) err.style.display = 'none';
+      if (input) input.value = '';
+      if (modal) modal.style.display = 'flex';
+      setTimeout(() => input?.focus(), 60);
+    }
+
+    function closeKidPinGate() {
+      const modal = document.getElementById('kidPinGateModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    async function submitKidPinGate(e) {
+      e.preventDefault();
+      const input = document.getElementById('kidPinGateInput');
+      const err = document.getElementById('kidPinGateError');
+      const btn = document.getElementById('kidPinGateSubmitBtn');
+      const pin = String(input?.value || '').trim();
+      if (!/^\d{4}$/.test(pin)) {
+        if (err) {
+          err.textContent = 'Please enter a 4-digit PIN.';
+          err.style.display = 'block';
+        }
+        return;
+      }
+      if (btn) btn.disabled = true;
+      try {
+        const res = await authFetch('/api/kids/parental-controls/verify-pin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pin })
+        });
+        const json = await res.json();
+        if (!res.ok || !json.success) {
+          if (err) {
+            err.textContent = json.message || 'Incorrect Parent PIN.';
+            err.style.display = 'block';
+          }
+          return;
+        }
+        if (json.data) {
+          kidParentalSettings = { ...kidParentalSettings, ...json.data };
+        }
+        kidUnlockedPinCache = pin;
+        closeKidPinGate();
+        openKidParentalControlsModal();
+      } catch {
+        if (pin === (kidParentalSettings.parentPin || '1234')) {
+          kidUnlockedPinCache = pin;
+          closeKidPinGate();
+          openKidParentalControlsModal();
+        } else if (err) {
+          err.textContent = 'Incorrect Parent PIN.';
+          err.style.display = 'block';
+        }
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    function openKidParentalControlsModal() {
+      const limit = Number(kidParentalSettings.dailyLimitMinutes ?? 45);
+      document.getElementById('kidPcLimitHours').value = String(Math.floor(limit / 60));
+      document.getElementById('kidPcLimitMinutes').value = String(limit % 60);
+      document.getElementById('kidPcAgeRating').value = kidParentalSettings.ageRating || currentUser?.ageRating || 'ALL';
+      document.getElementById('kidPcAttentionEnabled').checked = Boolean(kidParentalSettings.attentionTrackingEnabled);
+      document.getElementById('kidPcAttentionPause').value = String(kidParentalSettings.attentionPauseSeconds ?? 30);
+      document.getElementById('kidPcAttentionPercent').value = String(kidParentalSettings.attentionMinWatchPercent ?? 60);
+      document.getElementById('kidPcNewPin').value = kidParentalSettings.parentPin || kidUnlockedPinCache || '1234';
+      const status = document.getElementById('kidPcStatusMsg');
+      if (status) status.style.display = 'none';
+      document.getElementById('kidParentalControlsModal').style.display = 'flex';
+    }
+
+    function closeKidParentalControlsModal() {
+      document.getElementById('kidParentalControlsModal').style.display = 'none';
+    }
+
+    function resetKidTodayTimer() {
+      try {
+        localStorage.removeItem(getKidWatchSecondsKey());
+      } catch {}
+      updateKidTimePill();
+      hideKidTimeUpOverlay();
+      const status = document.getElementById('kidPcStatusMsg');
+      if (status) {
+        status.textContent = "Today's screen time timer has been reset.";
+        status.style.color = '#06d6a0';
+        status.style.display = 'block';
+      }
+    }
+
+    async function saveKidParentalControls(e) {
+      e.preventDefault();
+      const status = document.getElementById('kidPcStatusMsg');
+      const btn = document.getElementById('kidPcSaveBtn');
+      const hours = Math.max(0, Math.min(12, parseInt(document.getElementById('kidPcLimitHours').value || '0', 10) || 0));
+      const mins = Math.max(0, Math.min(59, parseInt(document.getElementById('kidPcLimitMinutes').value || '0', 10) || 0));
+      const dailyLimitMinutes = hours * 60 + mins;
+      const ageRating = document.getElementById('kidPcAgeRating').value;
+      const attentionTrackingEnabled = document.getElementById('kidPcAttentionEnabled').checked;
+      const attentionPauseSeconds = Math.max(5, Math.min(300, parseInt(document.getElementById('kidPcAttentionPause').value || '30', 10) || 30));
+      const attentionMinWatchPercent = Math.max(10, Math.min(100, parseInt(document.getElementById('kidPcAttentionPercent').value || '60', 10) || 60));
+      const newPin = String(document.getElementById('kidPcNewPin').value || '').trim();
+
+      if (!/^\d{4}$/.test(newPin)) {
+        if (status) {
+          status.textContent = 'Parent PIN must be exactly 4 digits.';
+          status.style.color = '#ff6b8b';
+          status.style.display = 'block';
+        }
+        return;
+      }
+
+      if (btn) btn.disabled = true;
+      try {
+        const res = await authFetch('/api/kids/parental-controls', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            currentPin: kidUnlockedPinCache || kidParentalSettings.parentPin || '1234',
+            parentPin: newPin,
+            dailyLimitMinutes,
+            ageRating,
+            attentionTrackingEnabled,
+            attentionPauseSeconds,
+            attentionMinWatchPercent
+          })
+        });
+        const json = await res.json();
+        if (!res.ok || !json.success) {
+          if (status) {
+            status.textContent = json.message || 'Could not save parental controls.';
+            status.style.color = '#ff6b8b';
+            status.style.display = 'block';
+          }
+          return;
+        }
+        kidParentalSettings = { ...kidParentalSettings, ...(json.data || {}) };
+        kidUnlockedPinCache = newPin;
+        if (currentUser) {
+          currentUser.ageRating = kidParentalSettings.ageRating;
+          updateKidToolsVisibility(currentUser);
+        }
+        updateKidTimePill();
+        if (!isKidTimeUp()) hideKidTimeUpOverlay();
+        if (status) {
+          status.textContent = 'Parental controls saved and synced!';
+          status.style.color = '#06d6a0';
+          status.style.display = 'block';
+        }
+      } catch {
+        if (status) {
+          status.textContent = 'Network error while saving parental controls.';
+          status.style.color = '#ff6b8b';
+          status.style.display = 'block';
+        }
+      } finally {
+        if (btn) btn.disabled = false;
       }
     }
 
