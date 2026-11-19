@@ -978,14 +978,8 @@
       <button type="button" class="nav-link" id="kidTabBtnSearch" style="display:none;" onclick="openKidTabFromHeader('search')">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">youtube_searched_for</span> Search &amp; YouTube
       </button>
-      <button type="button" class="nav-link" id="kidTabBtnPlaylists" style="display:none;" onclick="openKidTabFromHeader('playlists')">
-        <span class="material-symbols-rounded" style="font-size:1.05rem;">playlist_play</span> Playlists
-      </button>
       <button type="button" class="nav-link" id="kidTabBtnFavorites" style="display:none;" onclick="openKidTabFromHeader('favorites')">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">favorite</span> Favorites
-      </button>
-      <button type="button" class="nav-link" id="kidTabBtnHistory" style="display:none;" onclick="openKidTabFromHeader('history')">
-        <span class="material-symbols-rounded" style="font-size:1.05rem;">history</span> History
       </button>
       <button type="button" class="nav-link" id="kidTabBtnAchievements" style="display:none;" onclick="openKidTabFromHeader('achievements')">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">emoji_events</span> Badges
@@ -1167,7 +1161,7 @@
             </div>
             <div>
               <div data-i18n="guest_pill_stars_title" style="font-weight:700; font-size:0.92rem; margin-bottom:0.15rem;">Stars &amp; Badges</div>
-              <div data-i18n="guest_pill_stars_desc" style="font-size:0.82rem; color:var(--text-muted);">Earn stars, unlock badges, and build your own favorite playlists.</div>
+              <div data-i18n="guest_pill_stars_desc" style="font-size:0.82rem; color:var(--text-muted);">Earn stars, unlock badges, and save your favorite videos in lists.</div>
             </div>
           </div>
         </div>
@@ -1304,29 +1298,14 @@
         <div id="kidSearchStatusBanner" style="display:none; margin-top:0.85rem; padding:0.75rem 1rem; border-radius:var(--radius-sm); font-size:0.86rem;"></div>
       </div>
       <div id="kidYouTubeSearchResults"></div>
-    </div>
-
-    <div id="kidHistoryPanel" style="display:none; margin-bottom:2rem;">
-      <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap; margin-bottom:1rem;">
-        <div>
+      <div id="kidHistorySection" style="margin-top:2rem;">
+        <div style="margin-bottom:1rem;">
           <h3 style="font-size:1.2rem;">My Watch History &amp; Approved Videos</h3>
-          <p style="color:var(--text-muted); font-size:0.86rem;">Videos approved by your parent can be watched anytime without asking again and added to your playlists.</p>
+          <p style="color:var(--text-muted); font-size:0.86rem;">Videos approved by your parent can be watched anytime without asking again and added to your favorites.</p>
         </div>
+        <div id="kidHistoryGrid" class="video-grid"></div>
+        <div id="kidHistoryMore" style="margin-top:0.85rem;"></div>
       </div>
-      <div id="kidHistoryGrid" class="video-grid"></div>
-    </div>
-
-    <div id="kidPlaylistsPanel" style="display:none; margin-bottom:2rem;">
-      <div class="card" style="padding:1.25rem 1.4rem; margin-bottom:1.25rem;">
-        <h3 style="font-size:1.15rem; margin-bottom:0.6rem;">My Playlists</h3>
-        <form onsubmit="createKidPlaylistSubmit(event)" style="display:flex; gap:0.6rem; flex-wrap:wrap;">
-          <input type="text" id="kidNewPlaylistTitle" placeholder="New playlist name (e.g. Science Favorites)..." style="flex:1 1 240px; padding:0.65rem 0.95rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit; font-size:0.92rem;" required>
-          <button type="submit" class="btn btn-primary btn-sm">
-            <span class="material-symbols-rounded" style="font-size:1rem;">playlist_add</span> Create Playlist
-          </button>
-        </form>
-      </div>
-      <div id="kidPlaylistsContainer" style="display:flex; flex-direction:column; gap:1rem;"></div>
     </div>
 
     <div id="kidAchievementsPanel" style="display:none; margin-bottom:2rem;">
@@ -1342,9 +1321,11 @@
       <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap; margin-bottom:1rem;">
         <div>
           <h3 style="font-size:1.2rem; margin:0 0 0.2rem 0;">My Favorites</h3>
-          <p style="color:var(--text-muted); font-size:0.86rem; margin:0;">Tap the heart on any video to save it here for quick watching.</p>
+          <p style="color:var(--text-muted); font-size:0.86rem; margin:0;">Tap the heart on any video to save it here. You can also put it in a list of your own.</p>
         </div>
       </div>
+      <div id="kidFavoritesLists" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center; margin-bottom:1rem;"></div>
+      <div id="kidFavoritesListHeader" style="display:none; align-items:center; justify-content:space-between; gap:0.75rem; margin-bottom:0.85rem;"></div>
       <div id="kidFavoritesGrid" class="video-grid"></div>
     </div>
 
@@ -2044,7 +2025,7 @@
         <p id="modalDesc" style="color:var(--text-muted); font-size:0.9rem;"></p>
         <div id="modalPlaylistBar" style="display:none; margin-top:0.85rem; padding-top:0.85rem; border-top:1px solid var(--border); align-items:center; gap:0.6rem; flex-wrap:wrap;">
           <span style="font-size:0.84rem; font-weight:600; display:inline-flex; align-items:center; gap:0.3rem;">
-            <span class="material-symbols-rounded" style="font-size:1.05rem; color:var(--accent);">playlist_add</span> Add to Playlist:
+            <span class="material-symbols-rounded" style="font-size:1.05rem; color:var(--accent);">favorite</span> Add to a favorites list:
           </span>
           <select id="modalPlaylistSelect" style="padding:0.4rem 0.65rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.84rem;"></select>
           <button type="button" class="btn btn-primary btn-sm" onclick="addCurrentModalVideoToPlaylist()">Save</button>
@@ -2461,7 +2442,7 @@
         return;
       }
       setModeButtons('channels');
-      ['kidTabBtnCurated', 'kidTabBtnSearch', 'kidTabBtnHistory', 'kidTabBtnPlaylists', 'kidTabBtnAchievements', 'kidTabBtnFavorites']
+      ['kidTabBtnCurated', 'kidTabBtnSearch', 'kidTabBtnAchievements', 'kidTabBtnFavorites']
         .forEach(id => document.getElementById(id)?.classList.remove('active'));
       document.getElementById('kidTabBtnChannels')?.classList.add('active');
       if (window.location.hash !== '#channels') {
@@ -5370,6 +5351,7 @@
     let kidSearchResults = [];
     let kidCuratedSearchResults = [];
     let kidHistoryItems = [];
+    let kidHistoryVisibleLimit = 0;
     let kidPlaylists = [];
     let kidAchievementsData = null;
     let activeKidTab = 'curated';
@@ -5382,7 +5364,6 @@
     function updateKidToolsVisibility(user) {
       const channelsBtn = document.getElementById('kidTabBtnChannels');
       const searchBtn = document.getElementById('kidTabBtnSearch');
-      const playlistsBtn = document.getElementById('kidTabBtnPlaylists');
       const favoritesBtn = document.getElementById('kidTabBtnFavorites');
       const historyBtn = document.getElementById('kidTabBtnHistory');
       const achievementsBtn = document.getElementById('kidTabBtnAchievements');
@@ -5408,7 +5389,7 @@
       if (heroCard) {
         heroCard.style.display = 'none';
       }
-      const kidNavBtns = [curatedTabBtn, channelsBtn, searchBtn, playlistsBtn, favoritesBtn, historyBtn, achievementsBtn];
+      const kidNavBtns = [curatedTabBtn, channelsBtn, searchBtn, favoritesBtn, historyBtn, achievementsBtn];
       if (!user || !authToken) {
         kidNavBtns.forEach(btn => { if (btn) btn.style.display = 'none'; });
         if (guestEntryEl) guestEntryEl.style.display = 'flex';
@@ -5431,7 +5412,6 @@
       }
       if (channelsBtn) channelsBtn.style.display = simpleMode ? 'none' : 'inline-flex';
       if (searchBtn) searchBtn.style.display = simpleMode ? 'none' : 'inline-flex';
-      if (playlistsBtn) playlistsBtn.style.display = simpleMode ? 'none' : 'inline-flex';
       if (favoritesBtn) favoritesBtn.style.display = 'inline-flex';
       if (historyBtn) historyBtn.style.display = simpleMode ? 'none' : 'inline-flex';
       if (achievementsBtn) achievementsBtn.style.display = 'inline-flex';
@@ -5467,6 +5447,7 @@
     }
 
     function switchKidShowcaseTab(tab, keepSelectedChannel = false) {
+      if (tab === 'history') tab = 'search';
       activeKidTab = tab || 'curated';
       if (!keepSelectedChannel) {
         kidViewingSelectedChannel = false;
@@ -5477,9 +5458,7 @@
       const backToExploreBtn = document.getElementById('btnBackToKidExplore');
       const kidHubEl = document.getElementById('kidHomeHub');
       const searchEl = document.getElementById('kidYouTubeSearchPanel');
-      const historyEl = document.getElementById('kidHistoryPanel');
-      const playlistsEl = document.getElementById('kidPlaylistsPanel');
-      const achievementsEl = document.getElementById('kidAchievementsPanel');
+            const achievementsEl = document.getElementById('kidAchievementsPanel');
       const favoritesEl = document.getElementById('kidFavoritesPanel');
       const browserEl = document.getElementById('kidBrowserPanel');
 
@@ -5499,24 +5478,19 @@
         if (backToExploreBtn) backToExploreBtn.style.display = 'none';
       }
       if (searchEl) searchEl.style.display = activeKidTab === 'search' ? 'block' : 'none';
-      if (historyEl) historyEl.style.display = activeKidTab === 'history' ? 'block' : 'none';
-      if (playlistsEl) playlistsEl.style.display = activeKidTab === 'playlists' ? 'block' : 'none';
       if (achievementsEl) achievementsEl.style.display = activeKidTab === 'achievements' ? 'block' : 'none';
       if (favoritesEl) favoritesEl.style.display = activeKidTab === 'favorites' ? 'block' : 'none';
 
       document.getElementById('kidTabBtnCurated')?.classList.toggle('active', activeKidTab === 'curated');
       document.getElementById('kidTabBtnChannels')?.classList.remove('active');
       document.getElementById('kidTabBtnSearch')?.classList.toggle('active', activeKidTab === 'search');
-      document.getElementById('kidTabBtnHistory')?.classList.toggle('active', activeKidTab === 'history');
-      document.getElementById('kidTabBtnPlaylists')?.classList.toggle('active', activeKidTab === 'playlists');
       document.getElementById('kidTabBtnAchievements')?.classList.toggle('active', activeKidTab === 'achievements');
       document.getElementById('kidTabBtnFavorites')?.classList.toggle('active', activeKidTab === 'favorites');
 
       if (activeKidTab === 'curated' && isChild) renderKidHomeHub(currentUser);
-      if (activeKidTab === 'history') loadKidHistory();
-      if (activeKidTab === 'playlists') loadKidPlaylists();
+      if (activeKidTab === 'search') loadKidHistory();
       if (activeKidTab === 'achievements') loadKidAchievements();
-      if (activeKidTab === 'favorites') renderKidFavorites();
+      if (activeKidTab === 'favorites') { renderKidFavorites(); loadKidPlaylists(); }
     }
 
     async function loadKidAchievements() {
@@ -5569,7 +5543,7 @@
       const s = d.stats || {};
       const statCards = [
         { label: 'Videos Watched', value: s.videosWatched ?? 0, icon: '🎬' },
-        { label: 'My Playlists', value: s.playlistsCreated ?? 0, icon: '🎵' },
+        { label: 'My Lists', value: s.playlistsCreated ?? 0, icon: '🎵' },
         { label: 'Approved Searches', value: s.approvedSearches ?? 0, icon: '🔍' }
       ];
       statsEl.innerHTML = statCards.map((c) => `
@@ -5684,25 +5658,19 @@
       hub.innerHTML = `
         <div class="card" style="padding:1.4rem 1.6rem; margin-bottom:1.15rem; border-color:rgba(76,201,240,0.35);">
           <h2 style="font-family:'Fredoka',cursive; font-size:1.45rem; margin:0 0 0.35rem 0;">What do you want to watch?</h2>
-          <p style="color:var(--text-muted); font-size:0.9rem; margin:0 0 1rem 0;">Search for a topic, pick a channel, or open one of your playlists.</p>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin:0 0 1rem 0;">Search for a topic, pick a channel, or open your favorites.</p>
           <div onclick="switchKidShowcaseTab('search'); setTimeout(() => document.getElementById('kidYouTubeSearchInput')?.focus(), 50);" style="cursor:pointer; display:flex; align-items:center; gap:0.65rem; padding:0.8rem 1rem; border-radius:var(--radius-sm); background:var(--surface-light); border:1px solid var(--border); color:var(--text-muted); font-size:0.94rem;">
             <span class="material-symbols-rounded" style="color:var(--secondary);">search</span>
             <span>Search safe videos or request with ⭐...</span>
           </div>
         </div>
 
-        <div style="display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:0.75rem; margin-bottom:1.35rem;">
+        <div style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:0.75rem; margin-bottom:1.35rem;">
           <button type="button" onclick="openChannelsNav()" class="card" style="cursor:pointer; padding:0.95rem 0.5rem; display:flex; flex-direction:column; align-items:center; gap:0.45rem; border-radius:16px;">
             <span style="width:40px; height:40px; border-radius:50%; background:rgba(76,201,240,0.16); color:var(--accent); display:inline-flex; align-items:center; justify-content:center;">
               <span class="material-symbols-rounded">tv</span>
             </span>
             <span style="font-size:0.82rem; font-weight:700; color:var(--text);">Channels</span>
-          </button>
-          <button type="button" onclick="switchKidShowcaseTab('playlists')" class="card" style="cursor:pointer; padding:0.95rem 0.5rem; display:flex; flex-direction:column; align-items:center; gap:0.45rem; border-radius:16px;">
-            <span style="width:40px; height:40px; border-radius:50%; background:rgba(255,46,147,0.16); color:var(--primary); display:inline-flex; align-items:center; justify-content:center;">
-              <span class="material-symbols-rounded">video_library</span>
-            </span>
-            <span style="font-size:0.82rem; font-weight:700; color:var(--text);">Playlists</span>
           </button>
           <button type="button" onclick="switchKidShowcaseTab('favorites')" class="card" style="cursor:pointer; padding:0.95rem 0.5rem; display:flex; flex-direction:column; align-items:center; gap:0.45rem; border-radius:16px;">
             <span style="width:40px; height:40px; border-radius:50%; background:rgba(6,214,160,0.16); color:#06d6a0; display:inline-flex; align-items:center; justify-content:center;">
@@ -5818,14 +5786,117 @@
       return getKidFavorites().some(v => v.id === videoId);
     }
 
+    let kidFavActiveList = null;
+
+    function kidEsc(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function kidVideoToListItem(v) {
+      const yt = v.youtubeVideoId || v.id;
+      return {
+        key: yt || v.id,
+        youtubeVideoId: v.youtubeVideoId || v.id,
+        videoId: v.id,
+        title: v.title || '',
+        channelTitle: v.channelTitle || 'FamiTube',
+        thumbnailUrl: v.thumbnailUrl || '',
+        sourceType: v.sourceType || 'YOUTUBE',
+        sourceUrl: v.sourceUrl || ''
+      };
+    }
+
+    async function addVideoToKidList(listId, v) {
+      try {
+        const res = await authFetch(`/api/kids/playlists/${listId}/items`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(kidVideoToListItem(v))
+        });
+        const json = await res.json();
+        if (json.success) { await loadKidPlaylists(); return { ok: true }; }
+        return { ok: false, message: json.message || 'Could not add to list' };
+      } catch {
+        return { ok: false, message: 'Could not add to list' };
+      }
+    }
+
+    async function createKidList(title) {
+      title = (title || '').trim();
+      if (!title) return null;
+      try {
+        const res = await authFetch('/api/kids/playlists', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title })
+        });
+        const json = await res.json();
+        if (!json.success) { alert(json.message || 'Could not create list'); return null; }
+        await loadKidPlaylists();
+        return (kidPlaylists.find(p => p.id === json.data?.id) || kidPlaylists.find(p => p.title === title) || null);
+      } catch {
+        alert('Could not create list');
+        return null;
+      }
+    }
+
+    function hideKidFavToast() {
+      document.getElementById('kidFavToast')?.remove();
+    }
+
+    async function showKidFavToast(videoId) {
+      hideKidFavToast();
+      if (!authToken) return;
+      const v = kidVideoById.get(videoId) || (kidsFeedVideos || []).find(x => x.id === videoId);
+      if (!v) return;
+      await loadKidPlaylists();
+      const el = document.createElement('div');
+      el.id = 'kidFavToast';
+      el.className = 'card';
+      el.style.cssText = 'position:fixed; right:1rem; bottom:1rem; z-index:9999; padding:0.9rem 1rem; max-width:320px; box-shadow:0 8px 28px rgba(0,0,0,0.35);';
+      el.innerHTML = `
+        <div style="font-weight:700; margin-bottom:0.5rem;">Saved to Favorites ❤️</div>
+        <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.5rem;">Want to put it in a list too?</div>
+        <div id="kidFavToastLists" style="display:flex; flex-wrap:wrap; gap:0.35rem; margin-bottom:0.5rem;">
+          ${kidPlaylists.map(pl => `<button type="button" class="btn btn-secondary btn-sm" data-list="${kidEsc(pl.id)}">${kidEsc(pl.title)}</button>`).join('')}
+          <button type="button" class="btn btn-secondary btn-sm" data-new="1">+ New list</button>
+        </div>
+        <div id="kidFavToastMsg" style="font-size:0.78rem; color:var(--text-muted); min-height:1em;"></div>
+        <button type="button" class="btn btn-primary btn-sm" data-done="1" style="margin-top:0.4rem;">No thanks</button>`;
+      el.addEventListener('click', async (e) => {
+        const b = e.target.closest('button');
+        if (!b) return;
+        const msg = el.querySelector('#kidFavToastMsg');
+        if (b.dataset.done) return hideKidFavToast();
+        let listId = b.dataset.list;
+        if (b.dataset.new) {
+          const name = prompt('Name your new list:');
+          const pl = await createKidList(name);
+          if (!pl) return;
+          listId = pl.id;
+        }
+        if (!listId) return;
+        const r = await addVideoToKidList(listId, v);
+        if (r.ok) {
+          msg.textContent = 'Added to list ✓';
+          setTimeout(hideKidFavToast, 1200);
+        } else {
+          msg.textContent = r.message;
+        }
+      });
+      document.body.appendChild(el);
+      setTimeout(hideKidFavToast, 12000);
+    }
+
     function toggleKidFavorite(videoId) {
       const list = getKidFavorites();
       const idx = list.findIndex(v => v.id === videoId);
+      let added = false;
       if (idx >= 0) {
         list.splice(idx, 1);
       } else {
         const v = kidVideoById.get(videoId) || (kidsFeedVideos || []).find(x => x.id === videoId);
-        if (v) list.unshift(v);
+        if (v) { list.unshift(v); added = true; }
       }
       try {
         localStorage.setItem(getKidFavoritesStorageKey(), JSON.stringify(list.slice(0, 100)));
@@ -5835,13 +5906,67 @@
       } else if (activeKidTab === 'curated' && kidHomeSelectedTopic && currentUser) {
         renderKidHomeHub(currentUser);
       }
+      if (added) showKidFavToast(videoId); else hideKidFavToast();
+    }
+
+    function selectKidFavList(id) {
+      kidFavActiveList = id || null;
+      renderKidFavorites();
+    }
+
+    async function newKidFavList() {
+      const name = prompt('Name your new list:');
+      const pl = await createKidList(name);
+      if (pl) selectKidFavList(pl.id);
     }
 
     function renderKidFavorites() {
       const grid = document.getElementById('kidFavoritesGrid');
       if (!grid) return;
+      const chips = document.getElementById('kidFavoritesLists');
+      const header = document.getElementById('kidFavoritesListHeader');
       const favs = getKidFavorites();
       favs.forEach(v => { if (v?.id) kidVideoById.set(v.id, v); });
+      const active = kidFavActiveList ? kidPlaylists.find(p => p.id === kidFavActiveList) : null;
+      if (kidFavActiveList && !active) kidFavActiveList = null;
+      if (chips) {
+        const chip = (label, id, on) => `<button type="button" class="btn ${on ? 'btn-primary' : 'btn-secondary'} btn-sm" onclick="selectKidFavList(${id ? `'${kidEsc(id)}'` : 'null'})">${label}</button>`;
+        chips.style.cssText = 'display:flex; flex-wrap:wrap; gap:0.4rem; margin-bottom:1rem;';
+        chips.innerHTML = chip('All ❤️ (' + favs.length + ')', null, !active)
+          + kidPlaylists.map(pl => chip(kidEsc(pl.title) + ' (' + (pl.items?.length || 0) + ')', pl.id, active && active.id === pl.id)).join('')
+          + '<button type="button" class="btn btn-secondary btn-sm" onclick="newKidFavList()">+ New list</button>';
+      }
+      if (header) {
+        if (active) {
+          header.style.display = 'flex';
+          header.style.cssText = 'display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;';
+          header.innerHTML = `<h4 style="font-size:1.05rem;">${kidEsc(active.title)}</h4><button type="button" class="btn btn-secondary btn-sm" onclick="deleteKidPlaylist('${kidEsc(active.id)}')">Delete list</button>`;
+        } else {
+          header.style.display = 'none';
+        }
+      }
+      if (active) {
+        const items = active.items || [];
+        if (!items.length) {
+          grid.innerHTML = '<div class="card" style="padding:1.5rem; color:var(--text-muted);">This list is empty. Tap ❤️ on a video, then choose this list!</div>';
+          return;
+        }
+        grid.innerHTML = items.map((item, iIdx) => `
+          <div class="card video-card" style="display:flex; flex-direction:column;">
+            <div class="video-thumb" onclick="playKidPlaylistItem('${kidEsc(active.id)}', ${iIdx})" style="cursor:pointer;">
+              <img src="${kidEsc(item.thumbnailUrl)}" alt="${kidEsc(item.title)}" loading="lazy">
+              <div class="play-overlay"><span class="material-symbols-rounded">play_arrow</span></div>
+            </div>
+            <div class="video-info" style="display:flex; flex-direction:column; gap:0.35rem;">
+              <div class="video-title" onclick="playKidPlaylistItem('${kidEsc(active.id)}', ${iIdx})" style="cursor:pointer;">${kidEsc(item.title)}</div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.75rem; color:var(--text-muted);">${kidEsc(item.channelTitle)}</span>
+                <button type="button" class="btn btn-secondary btn-sm" style="padding:0.2rem 0.5rem; font-size:0.72rem;" onclick="removeKidPlaylistItem('${kidEsc(active.id)}', '${kidEsc(item.key)}')">Remove</button>
+              </div>
+            </div>
+          </div>`).join('');
+        return;
+      }
       if (!favs.length) {
         grid.innerHTML = '<div class="card" style="padding:1.5rem; color:var(--text-muted);">No favorites yet. Tap the ❤️ on any video to save it here!</div>';
         return;
@@ -6363,7 +6488,7 @@
     async function loadKidHistory() {
       const grid = document.getElementById('kidHistoryGrid');
       if (!grid || !authToken) return;
-      grid.innerHTML = '<p style="color:var(--text-muted);">Loading history...</p>';
+      if (!kidHistoryItems.length) grid.innerHTML = '<p style="color:var(--text-muted);">Loading history...</p>';
       try {
         const [histRes, plRes] = await Promise.all([
           authFetch('/api/kids/history'),
@@ -6373,6 +6498,7 @@
         const plJson = await plRes.json();
         kidHistoryItems = histJson.success ? (histJson.data || []) : [];
         kidPlaylists = plJson.success ? (plJson.data || []) : [];
+        kidHistoryVisibleLimit = Math.max(kidHistoryVisibleLimit, getYouTubePageSize());
         renderKidHistory();
       } catch {
         grid.innerHTML = '<p style="color:var(--text-muted);">Unable to load watch history.</p>';
@@ -6386,7 +6512,10 @@
         grid.innerHTML = '<p style="color:var(--text-muted);">No videos in your history yet. Watch a curated video or request a YouTube search video!</p>';
         return;
       }
-      grid.innerHTML = kidHistoryItems.map((h, idx) => `
+      const more = document.getElementById('kidHistoryMore');
+      const visibleHist = kidHistoryItems.slice(0, kidHistoryVisibleLimit || getYouTubePageSize());
+      if (more) more.innerHTML = kidHistoryItems.length > visibleHist.length ? `<button type="button" class="btn btn-secondary" onclick="showMoreKidHistory()" style="width:100%; justify-content:center;">Show More History (${kidHistoryItems.length - visibleHist.length} more)</button>` : '';
+      grid.innerHTML = visibleHist.map((h, idx) => `
         <div class="card video-card" style="display:flex; flex-direction:column;">
           <div class="video-thumb" onclick="playKidHistoryItem(${idx})" style="cursor:pointer;">
             <img src="${h.thumbnailUrl}" alt="${h.title}" loading="lazy">
@@ -6404,12 +6533,17 @@
                 <select id="histPlSelect_${idx}" style="padding:0.28rem 0.45rem; border-radius:4px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.76rem; max-width:130px;">
                   ${kidPlaylists.map(pl => `<option value="${pl.id}">${pl.title}</option>`).join('')}
                 </select>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="addHistoryItemToPlaylist(${idx})">+ Playlist</button>
-              ` : `<button type="button" class="btn btn-secondary btn-sm" onclick="switchKidShowcaseTab('playlists')">Create Playlist</button>`}
+                <button type="button" class="btn btn-secondary btn-sm" onclick="addHistoryItemToPlaylist(${idx})">+ List</button>
+              ` : `<button type="button" class="btn btn-secondary btn-sm" onclick="switchKidShowcaseTab('favorites')">See Favorites</button>`}
             </div>
           </div>
         </div>
       `).join('');
+    }
+
+    function showMoreKidHistory() {
+      kidHistoryVisibleLimit = (kidHistoryVisibleLimit || getYouTubePageSize()) + getYouTubePageSize();
+      renderKidHistory();
     }
 
     function playKidHistoryItem(idx) {
@@ -6432,98 +6566,26 @@
       const sel = document.getElementById(`histPlSelect_${idx}`);
       const playlistId = sel?.value;
       if (!h || !playlistId) return;
-      const res = await authFetch(`/api/kids/playlists/${playlistId}/items`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          key: h.itemKey || h.youtubeVideoId || h.videoId,
-          youtubeVideoId: h.youtubeVideoId,
-          videoId: h.videoId,
-          title: h.title,
-          channelTitle: h.channelTitle,
-          thumbnailUrl: h.thumbnailUrl,
-          sourceType: h.sourceType,
-          sourceUrl: h.sourceUrl
-        })
+      const r = await addVideoToKidList(playlistId, {
+        id: h.videoId || h.itemKey, youtubeVideoId: h.youtubeVideoId, title: h.title,
+        channelTitle: h.channelTitle, thumbnailUrl: h.thumbnailUrl, sourceType: h.sourceType, sourceUrl: h.sourceUrl
       });
-      const json = await res.json();
-      if (json.success) {
-        alert('Added to playlist!');
-      } else {
-        alert(json.message || 'Failed to add to playlist');
-      }
+      alert(r.ok ? 'Added to list!' : r.message);
     }
 
     async function loadKidPlaylists() {
-      const container = document.getElementById('kidPlaylistsContainer');
       if (!authToken) return;
       try {
         const res = await authFetch('/api/kids/playlists');
         const json = await res.json();
         kidPlaylists = json.success ? (json.data || []) : [];
-        if (container) renderKidPlaylists();
-      } catch {
-        if (container) container.innerHTML = '<p style="color:var(--text-muted);">Unable to load playlists.</p>';
-      }
+      } catch {}
+      if (activeKidTab === 'favorites') renderKidFavorites();
     }
 
-    async function createKidPlaylistSubmit(e) {
-      e.preventDefault();
-      const input = document.getElementById('kidNewPlaylistTitle');
-      const title = (input?.value || '').trim();
-      if (!title) return;
-      const res = await authFetch('/api/kids/playlists', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title })
-      });
-      const json = await res.json();
-      if (!json.success) return alert(json.message || 'Failed to create playlist');
-      if (input) input.value = '';
-      await loadKidPlaylists();
-    }
-
-    function renderKidPlaylists() {
-      const container = document.getElementById('kidPlaylistsContainer');
-      if (!container) return;
-      if (!kidPlaylists.length) {
-        container.innerHTML = '<div class="card" style="padding:1.25rem; color:var(--text-muted);">No playlists yet. Create one above to save your favorite & approved videos!</div>';
-        return;
-      }
-      container.innerHTML = kidPlaylists.map((pl, pIdx) => `
-        <div class="card" style="padding:1.15rem;">
-          <div style="display:flex; justify-content:space-between; align-items:center; gap:0.75rem; margin-bottom:0.85rem;">
-            <div>
-              <h4 style="font-size:1.05rem;">${pl.title}</h4>
-              <span style="font-size:0.78rem; color:var(--text-muted);">${pl.items.length} videos</span>
-            </div>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="deleteKidPlaylist('${pl.id}')">Delete Playlist</button>
-          </div>
-          ${pl.items.length ? `
-            <div class="video-grid">
-              ${pl.items.map((item, iIdx) => `
-                <div class="card video-card" style="display:flex; flex-direction:column;">
-                  <div class="video-thumb" onclick="playKidPlaylistItem(${pIdx}, ${iIdx})" style="cursor:pointer;">
-                    <img src="${item.thumbnailUrl}" alt="${item.title}" loading="lazy">
-                    <div class="play-overlay"><span class="material-symbols-rounded">play_arrow</span></div>
-                  </div>
-                  <div class="video-info" style="display:flex; flex-direction:column; gap:0.35rem;">
-                    <div class="video-title" onclick="playKidPlaylistItem(${pIdx}, ${iIdx})" style="cursor:pointer;">${item.title}</div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.25rem;">
-                      <span style="font-size:0.75rem; color:var(--text-muted);">${item.channelTitle}</span>
-                      <button type="button" class="btn btn-secondary btn-sm" style="padding:0.2rem 0.5rem; font-size:0.72rem;" onclick="removeKidPlaylistItem('${pl.id}', '${item.key}')">Remove</button>
-                    </div>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          ` : '<p style="color:var(--text-muted); font-size:0.86rem;">This playlist is empty. Add videos from History or while watching!</p>'}
-        </div>
-      `).join('');
-    }
-
-    function playKidPlaylistItem(pIdx, iIdx) {
-      const item = kidPlaylists[pIdx]?.items?.[iIdx];
+    function playKidPlaylistItem(playlistId, iIdx) {
+      const pl = kidPlaylists.find(p => p.id === playlistId);
+      const item = pl?.items?.[iIdx];
       if (!item) return;
       previewVideo({
         id: item.videoId || item.key,
@@ -6533,7 +6595,7 @@
         title: item.title,
         channelTitle: item.channelTitle,
         thumbnailUrl: item.thumbnailUrl,
-        description: `From playlist: ${kidPlaylists[pIdx].title}`
+        description: `From list: ${pl.title}`
       });
     }
 
@@ -6544,10 +6606,10 @@
     }
 
     async function deleteKidPlaylist(playlistId) {
-      if (!confirm('Delete this playlist?')) return;
+      if (!confirm('Delete this list? Your videos stay in Favorites.')) return;
       const res = await authFetch(`/api/kids/playlists/${playlistId}`, { method: 'DELETE' });
       const json = await res.json();
-      if (json.success) await loadKidPlaylists();
+      if (json.success) { kidFavActiveList = null; await loadKidPlaylists(); }
     }
 
     async function populateModalPlaylistBar() {
@@ -6558,9 +6620,9 @@
       if (status) status.textContent = '';
       await loadKidPlaylists();
       if (!kidPlaylists.length) {
-        sel.innerHTML = '<option value="">(Create a playlist in My Playlists first)</option>';
+        sel.innerHTML = '<option value="">(Create a list in My Favorites first)</option>';
       } else {
-        sel.innerHTML = kidPlaylists.map(pl => `<option value="${pl.id}">${pl.title}</option>`).join('');
+        sel.innerHTML = kidPlaylists.map(pl => `<option value="${kidEsc(pl.id)}">${kidEsc(pl.title)}</option>`).join('');
       }
       bar.style.display = 'flex';
     }
@@ -6570,25 +6632,8 @@
       const status = document.getElementById('modalPlaylistStatus');
       const playlistId = sel?.value;
       if (!playlistId || !activeModalVideo) return;
-      const key = activeModalVideo.youtubeVideoId || activeModalVideo.id;
-      const res = await authFetch(`/api/kids/playlists/${playlistId}/items`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          key,
-          youtubeVideoId: activeModalVideo.youtubeVideoId,
-          videoId: activeModalVideo.id,
-          title: activeModalVideo.title,
-          channelTitle: activeModalVideo.channelTitle || 'FamiTube',
-          thumbnailUrl: activeModalVideo.thumbnailUrl || '',
-          sourceType: activeModalVideo.sourceType || 'YOUTUBE',
-          sourceUrl: activeModalVideo.sourceUrl || ''
-        })
-      });
-      const json = await res.json();
-      if (json.success && status) {
-        status.textContent = 'Saved!';
-      }
+      const r = await addVideoToKidList(playlistId, activeModalVideo);
+      if (status) status.textContent = r.ok ? 'Saved!' : r.message;
     }
 
     async function loadModalParentReviews(video) {
@@ -6780,7 +6825,7 @@
         guest_pill_web_title: 'Cool Websites',
         guest_pill_web_desc: 'Visit fun learning games, space, nature, and encyclopedia sites.',
         guest_pill_stars_title: 'Stars & Badges',
-        guest_pill_stars_desc: 'Earn stars, unlock badges, and build your own favorite playlists.',
+        guest_pill_stars_desc: 'Earn stars, unlock badges, and save your favorite videos in lists.',
         guest_parent_title: 'Learn more how FamiTube protects your children on the internet',
         guest_parent_desc: "Discover FamiTube's unique value proposition—100% parent-curated channels, age-rated child accounts, Calm Mode, and zero self-registration for kids.",
         guest_parent_learn_cta: 'Learn More',
@@ -6839,7 +6884,7 @@
         guest_pill_web_title: 'Situs Keren',
         guest_pill_web_desc: 'Kunjungi situs belajar, luar angkasa, alam, dan ensiklopedia seru.',
         guest_pill_stars_title: 'Bintang & Lencana',
-        guest_pill_stars_desc: 'Kumpulkan bintang, buka lencana, dan buat playlist favoritmu.',
+        guest_pill_stars_desc: 'Kumpulkan bintang, buka lencana, dan simpan video favoritmu dalam daftar.',
         guest_parent_title: 'Pelajari bagaimana FamiTube melindungi anak Anda di internet',
         guest_parent_desc: 'Temukan keunggulan unik FamiTube—100% saluran terkurasi orang tua, akun anak berdasarkan usia, Mode Tenang, dan tanpa pendaftaran mandiri untuk anak.',
         guest_parent_learn_cta: 'Pelajari Lebih Lanjut',
