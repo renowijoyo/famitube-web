@@ -1373,6 +1373,10 @@
     <div id="kidHomeHub" style="display:none; margin-bottom:2rem;"></div>
 
     <div id="showcaseCuratedPanel" style="display:none;">
+    <button type="button" id="btnBackToKidExplore" class="btn btn-secondary btn-sm" style="display:none; margin-bottom:1rem;" onclick="kidViewingSelectedChannel = false; switchKidShowcaseTab('curated');">
+      <span class="material-symbols-rounded" style="font-size:1rem;">arrow_back</span> Back to Explore
+    </button>
+    <div id="showcaseFeaturedChannelsSection">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; gap:1rem; flex-wrap:wrap;">
       <h3 data-i18n="featured_channels" style="font-size:1.2rem;">Featured Channels</h3>
       <div style="display:flex; align-items:center; gap:0.45rem;">
@@ -1385,6 +1389,7 @@
       </div>
     </div>
     <div id="showcaseChannels" class="channel-carousel"></div>
+    </div>
 
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; gap:1rem; flex-wrap:wrap;">
       <h3 id="showcaseVideosHeading" style="font-size:1.2rem;">Curated Videos</h3>
@@ -2443,6 +2448,10 @@
       }
       const guestEntryEl = document.getElementById('guestEntryView');
       if (guestEntryEl) guestEntryEl.style.display = 'none';
+      if (currentUser?.role === 'CHILD' && !kidViewingSelectedChannel) {
+        activeKidTab = 'curated';
+        switchKidShowcaseTab('curated');
+      }
       loadShowcase(useKidsFeed || (currentUser && currentUser.role === 'CHILD'));
     }
 
@@ -4582,6 +4591,7 @@
       parentPreviewChild = child;
       activeKidTab = 'curated';
       kidHomeSelectedTopic = null;
+      kidViewingSelectedChannel = false;
       const previewBanner = document.getElementById('parentPreviewBanner');
       const previewText = document.getElementById('parentPreviewBannerText');
       if (previewBanner && previewText) {
@@ -4591,7 +4601,7 @@
       const heroCard = document.getElementById('showcaseHeroCard');
       if (heroCard) heroCard.style.display = 'none';
       const curatedEl = document.getElementById('showcaseCuratedPanel');
-      if (curatedEl) curatedEl.style.display = 'block';
+      if (curatedEl) curatedEl.style.display = 'none';
       openHome(false);
       await renderKidHomeHub({ ...child, role: 'CHILD' });
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -5480,12 +5490,13 @@
 
     async function openChannelFromSearch(channelId) {
       activeShowcaseChannelId = channelId;
-      if (currentUser?.role === 'CHILD') {
+      if (currentUser?.role === 'CHILD' || parentPreviewChild) {
+        kidViewingSelectedChannel = true;
         activeKidTab = 'curated';
       }
       openHome(currentUser?.role === 'CHILD');
-      if (currentUser?.role === 'CHILD') {
-        switchKidShowcaseTab('curated');
+      if (currentUser?.role === 'CHILD' || parentPreviewChild) {
+        switchKidShowcaseTab('curated', true);
       }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -5496,6 +5507,7 @@
     let kidPlaylists = [];
     let kidAchievementsData = null;
     let activeKidTab = 'curated';
+    let kidViewingSelectedChannel = false;
 
     function isSimpleKidUser(user) {
       return user?.role === 'CHILD' && (user.ageRating === 'TODDLER' || user.ageRating === 'YOUNG_KIDS');
@@ -5575,10 +5587,15 @@
       badge.textContent = `${limitText}${reqApproval ? ' • Parent approval required' : ''}`;
     }
 
-    function switchKidShowcaseTab(tab) {
+    function switchKidShowcaseTab(tab, keepSelectedChannel = false) {
       activeKidTab = tab || 'curated';
+      if (!keepSelectedChannel) {
+        kidViewingSelectedChannel = false;
+      }
       const isChild = currentUser?.role === 'CHILD' || Boolean(parentPreviewChild);
       const curatedEl = document.getElementById('showcaseCuratedPanel');
+      const featuredChannelsSection = document.getElementById('showcaseFeaturedChannelsSection');
+      const backToExploreBtn = document.getElementById('btnBackToKidExplore');
       const kidHubEl = document.getElementById('kidHomeHub');
       const searchEl = document.getElementById('kidYouTubeSearchPanel');
       const historyEl = document.getElementById('kidHistoryPanel');
@@ -5591,11 +5608,16 @@
         if (kidHubEl) kidHubEl.style.display = 'none';
         if (curatedEl) curatedEl.style.display = 'none';
       } else if (isChild) {
-        if (kidHubEl) kidHubEl.style.display = activeKidTab === 'curated' ? 'block' : 'none';
-        if (curatedEl) curatedEl.style.display = activeKidTab === 'curated' ? 'block' : 'none';
+        const showSelectedChannel = activeKidTab === 'curated' && kidViewingSelectedChannel;
+        if (kidHubEl) kidHubEl.style.display = (activeKidTab === 'curated' && !kidViewingSelectedChannel) ? 'block' : 'none';
+        if (curatedEl) curatedEl.style.display = showSelectedChannel ? 'block' : 'none';
+        if (featuredChannelsSection) featuredChannelsSection.style.display = showSelectedChannel ? 'none' : 'block';
+        if (backToExploreBtn) backToExploreBtn.style.display = showSelectedChannel ? 'inline-flex' : 'none';
       } else {
         if (kidHubEl) kidHubEl.style.display = 'none';
         if (curatedEl) curatedEl.style.display = activeKidTab === 'curated' ? 'block' : 'none';
+        if (featuredChannelsSection) featuredChannelsSection.style.display = 'block';
+        if (backToExploreBtn) backToExploreBtn.style.display = 'none';
       }
       if (searchEl) searchEl.style.display = activeKidTab === 'search' ? 'block' : 'none';
       if (historyEl) historyEl.style.display = activeKidTab === 'history' ? 'block' : 'none';
