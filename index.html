@@ -99,29 +99,39 @@
     .top-nav {
       display: flex;
       align-items: center;
-      gap: 0.35rem;
+      gap: 0.25rem;
       background: var(--surface-light);
       border: 1px solid var(--border);
       padding: 0.3rem;
       border-radius: 99px;
+      flex: 0 1 auto;
+      min-width: 0;
+      max-width: 100%;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .top-nav::-webkit-scrollbar {
+      display: none;
     }
 
     .nav-link {
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
-      padding: 0.45rem 0.9rem;
+      gap: 0.35rem;
+      padding: 0.42rem 0.78rem;
       border-radius: 99px;
       border: none;
       background: transparent;
       color: var(--text-muted);
       font-family: inherit;
-      font-size: 0.86rem;
+      font-size: 0.83rem;
       font-weight: 600;
       cursor: pointer;
       text-decoration: none;
       transition: all 0.2s;
       white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .nav-link:hover {
@@ -950,15 +960,39 @@
       <button id="btnModeParent" class="nav-link" style="display:none;" onclick="openParentMode()">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">supervisor_account</span> <span>Parent Mode</span>
       </button>
-      <button id="btnModeStudio" class="nav-link" onclick="openStudio()">
+      <button id="btnModeStudio" class="nav-link" style="display:none;" onclick="openStudio()">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">admin_panel_settings</span> <span data-i18n="nav_studio">Curator Studio</span>
       </button>
-      <a href="mobile-preview.html" class="nav-link" title="Interactive Android App Preview">
+      <a id="navAppPreview" href="mobile-preview.html" class="nav-link" title="Interactive Android App Preview">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">smartphone</span> <span>App Preview</span>
       </a>
-      <a href="learn-more.html#plans" class="nav-link" title="Compare Free & Family Pass">
+      <a id="navFamilyPass" href="learn-more.html#plans" class="nav-link" title="Compare Free & Family Pass">
         <span class="material-symbols-rounded" style="font-size:1.05rem; color:var(--primary);">workspace_premium</span> <span data-i18n="nav_plans">Family Pass</span>
       </a>
+      <button type="button" class="nav-link active" id="kidTabBtnCurated" style="display:none;" onclick="openKidTabFromHeader('curated')">
+        <span class="material-symbols-rounded" style="font-size:1.05rem;">home</span> Explore
+      </button>
+      <button type="button" class="nav-link" id="kidTabBtnChannels" style="display:none;" onclick="openChannelsNav()">
+        <span class="material-symbols-rounded" style="font-size:1.05rem;">tv</span> Channels
+      </button>
+      <button type="button" class="nav-link" id="kidTabBtnSearch" style="display:none;" onclick="openKidTabFromHeader('search')">
+        <span class="material-symbols-rounded" style="font-size:1.05rem;">youtube_searched_for</span> Search &amp; YouTube
+      </button>
+      <button type="button" class="nav-link" id="kidTabBtnPlaylists" style="display:none;" onclick="openKidTabFromHeader('playlists')">
+        <span class="material-symbols-rounded" style="font-size:1.05rem;">playlist_play</span> Playlists
+      </button>
+      <button type="button" class="nav-link" id="kidTabBtnFavorites" style="display:none;" onclick="openKidTabFromHeader('favorites')">
+        <span class="material-symbols-rounded" style="font-size:1.05rem;">favorite</span> Favorites
+      </button>
+      <button type="button" class="nav-link" id="kidTabBtnHistory" style="display:none;" onclick="openKidTabFromHeader('history')">
+        <span class="material-symbols-rounded" style="font-size:1.05rem;">history</span> History
+      </button>
+      <button type="button" class="nav-link" id="kidTabBtnAchievements" style="display:none;" onclick="openKidTabFromHeader('achievements')">
+        <span class="material-symbols-rounded" style="font-size:1.05rem;">emoji_events</span> Badges
+      </button>
+      <button type="button" class="nav-link" id="kidTabBtnBrowser" style="display:none;" onclick="openKidTabFromHeader('browser')">
+        <span class="material-symbols-rounded" style="font-size:1.05rem;">public</span> Safe Browser
+      </button>
       <a id="linkChannelsJson" href="https://famitube-api.gamantha.my.id/api/channels" target="_blank" class="nav-link" style="display:none;">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">tv</span> Channels JSON
       </a>
@@ -1005,7 +1039,11 @@
       </div>
 
       <div id="userBar" style="display:none; position:relative; align-items:center; gap:0.65rem;">
-        <button type="button" id="headerBrowserBtn" class="btn btn-secondary" onclick="if(typeof switchKidShowcaseTab==='function') switchKidShowcaseTab('browser');" title="Safe Browser" style="display:none; padding:0.55rem;">
+        <button type="button" id="kidLevelPill" onclick="openKidTabFromHeader('achievements')" style="display:none; align-items:center; gap:0.4rem; padding:0.38rem 0.8rem; border-radius:99px; border:1px solid rgba(255,209,102,0.38); background:rgba(255,209,102,0.12); color:#ffd166; font-weight:700; font-size:0.8rem; cursor:pointer; white-space:nowrap;">
+          ⭐ 0 • Lv.1
+        </button>
+
+        <button type="button" id="headerBrowserBtn" class="btn btn-secondary" onclick="if(typeof openKidTabFromHeader==='function') openKidTabFromHeader('browser');" title="Safe Browser" style="display:none; padding:0.55rem;">
           <span class="material-symbols-rounded">public</span>
         </button>
 
@@ -1095,15 +1133,11 @@
     </div>
     <div id="guestEntryView" class="guest-entry-wrap" style="display:none;">
       <section class="card guest-child-hero">
-        <span class="guest-entry-badge">
-          <span class="material-symbols-rounded" style="font-size:1rem;">rocket_launch</span>
-          <span data-i18n="guest_child_badge">Safe Internet &amp; YouTube for Kids</span>
-        </span>
         <h2 data-i18n="guest_child_title" style="font-family:'Fredoka', cursive; font-size:2rem; line-height:1.2; margin-bottom:0.65rem;">
-          Start Exploring YouTube &amp; the Internet Safely!
+          Discover, Learn &amp; Explore Amazing Worlds!
         </h2>
         <p data-i18n="guest_child_desc" style="color:var(--text-muted); font-size:1rem; max-width:700px; margin-bottom:1.25rem;">
-          Ready to watch fun cartoons, science experiments, and music, or browse cool websites picked by your parents? Log in to your FamiTube account to start exploring safely!
+          Ready for awesome cartoons, mind-blowing science experiments, music, and cool websites? Log in to your FamiTube account and start your adventure!
         </p>
         <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
           <button type="button" class="btn btn-primary" onclick="showAuthGate('CHILD')" style="padding:0.75rem 1.4rem; font-size:0.95rem;">
@@ -1121,8 +1155,8 @@
               <span class="material-symbols-rounded">play_circle</span>
             </div>
             <div>
-              <div data-i18n="guest_pill_yt_title" style="font-weight:700; font-size:0.92rem; margin-bottom:0.15rem;">Safe YouTube</div>
-              <div data-i18n="guest_pill_yt_desc" style="font-size:0.82rem; color:var(--text-muted);">Parent-approved channels &amp; supervised search without random rabbit holes.</div>
+              <div data-i18n="guest_pill_yt_title" style="font-weight:700; font-size:0.92rem; margin-bottom:0.15rem;">Awesome Channels</div>
+              <div data-i18n="guest_pill_yt_desc" style="font-size:0.82rem; color:var(--text-muted);">Explore hand-picked cartoons, science, music, and fun stories.</div>
             </div>
           </div>
           <div class="guest-mini-pill">
@@ -1130,8 +1164,8 @@
               <span class="material-symbols-rounded">public</span>
             </div>
             <div>
-              <div data-i18n="guest_pill_web_title" style="font-weight:700; font-size:0.92rem; margin-bottom:0.15rem;">Safe Internet Browser</div>
-              <div data-i18n="guest_pill_web_desc" style="font-size:0.82rem; color:var(--text-muted);">Visit kid-friendly educational websites approved by your parents.</div>
+              <div data-i18n="guest_pill_web_title" style="font-weight:700; font-size:0.92rem; margin-bottom:0.15rem;">Cool Websites</div>
+              <div data-i18n="guest_pill_web_desc" style="font-size:0.82rem; color:var(--text-muted);">Visit fun learning games, space, nature, and encyclopedia sites.</div>
             </div>
           </div>
           <div class="guest-mini-pill">
@@ -1148,10 +1182,6 @@
 
       <section class="guest-parent-sign" aria-label="For Parents">
         <div style="flex:1 1 420px;">
-          <span class="guest-entry-badge parent">
-            <span class="material-symbols-rounded" style="font-size:1rem;">shield_with_heart</span>
-            <span data-i18n="guest_parent_badge">For Parents &amp; Guardians</span>
-          </span>
           <h3 data-i18n="guest_parent_title" style="font-family:'Fredoka', cursive; font-size:1.4rem; line-height:1.25; margin-bottom:0.4rem;">
             Learn more how FamiTube protects your children on the internet
           </h3>
@@ -1261,36 +1291,6 @@
           </button>
         </div>
       </div>
-    </div>
-
-    <div id="kidToolsBar" style="display:none; margin-bottom:1.25rem; gap:0.55rem; flex-wrap:wrap; align-items:center;">
-      <button type="button" class="filter-pill active" id="kidTabBtnCurated" onclick="switchKidShowcaseTab('curated')">
-        <span class="material-symbols-rounded" style="font-size:1rem;">home</span> Explore
-      </button>
-      <button type="button" class="filter-pill" id="kidTabBtnChannels" onclick="openChannelsNav()">
-        <span class="material-symbols-rounded" style="font-size:1rem;">tv</span> Channels
-      </button>
-      <button type="button" class="filter-pill" id="kidTabBtnSearch" onclick="switchKidShowcaseTab('search')">
-        <span class="material-symbols-rounded" style="font-size:1rem;">youtube_searched_for</span> Search &amp; YouTube
-      </button>
-      <button type="button" class="filter-pill" id="kidTabBtnPlaylists" onclick="switchKidShowcaseTab('playlists')">
-        <span class="material-symbols-rounded" style="font-size:1rem;">playlist_play</span> Playlists
-      </button>
-      <button type="button" class="filter-pill" id="kidTabBtnFavorites" onclick="switchKidShowcaseTab('favorites')">
-        <span class="material-symbols-rounded" style="font-size:1rem;">favorite</span> Favorites
-      </button>
-      <button type="button" class="filter-pill" id="kidTabBtnHistory" onclick="switchKidShowcaseTab('history')">
-        <span class="material-symbols-rounded" style="font-size:1rem;">history</span> History
-      </button>
-      <button type="button" class="filter-pill" id="kidTabBtnAchievements" onclick="switchKidShowcaseTab('achievements')">
-        <span class="material-symbols-rounded" style="font-size:1rem;">emoji_events</span> Badges
-      </button>
-      <button type="button" class="filter-pill" id="kidTabBtnBrowser" onclick="switchKidShowcaseTab('browser')">
-        <span class="material-symbols-rounded" style="font-size:1rem;">public</span> Safe Browser
-      </button>
-      <button type="button" id="kidLevelPill" onclick="switchKidShowcaseTab('achievements')" style="margin-left:auto; display:inline-flex; align-items:center; gap:0.4rem; padding:0.35rem 0.85rem; border-radius:99px; border:1px solid rgba(255,209,102,0.38); background:rgba(255,209,102,0.12); color:#ffd166; font-weight:700; font-size:0.82rem; cursor:pointer;">
-        ⭐ 0 • Lv.1
-      </button>
     </div>
 
     <div id="kidYouTubeSearchPanel" style="display:none; margin-bottom:2rem;">
@@ -2481,6 +2481,9 @@
         return;
       }
       setModeButtons('channels');
+      ['kidTabBtnCurated', 'kidTabBtnSearch', 'kidTabBtnHistory', 'kidTabBtnPlaylists', 'kidTabBtnAchievements', 'kidTabBtnFavorites', 'kidTabBtnBrowser']
+        .forEach(id => document.getElementById(id)?.classList.remove('active'));
+      document.getElementById('kidTabBtnChannels')?.classList.add('active');
       if (window.location.hash !== '#channels') {
         history.replaceState(null, '', '#channels');
       }
@@ -2727,16 +2730,24 @@
         }
       }
       if (user?.role === 'CHILD') {
-        document.getElementById('btnNavHome').style.display = 'inline-flex';
-        document.getElementById('btnNavChannels').style.display = 'inline-flex';
+        document.getElementById('btnNavHome').style.display = 'none';
+        document.getElementById('btnNavChannels').style.display = 'none';
         document.getElementById('btnModeParent').style.display = 'none';
         document.getElementById('btnModeStudio').style.display = 'none';
+        const appPreviewEl = document.getElementById('navAppPreview');
+        const familyPassEl = document.getElementById('navFamilyPass');
+        if (appPreviewEl) appPreviewEl.style.display = 'none';
+        if (familyPassEl) familyPassEl.style.display = 'none';
         document.getElementById('profileMenuMeta').textContent = `${user.email} • Kid Mode`;
       } else {
         document.getElementById('btnNavHome').style.display = 'none';
         document.getElementById('btnNavChannels').style.display = 'none';
         document.getElementById('btnModeParent').style.display = 'inline-flex';
         document.getElementById('btnModeStudio').style.display = 'inline-flex';
+        const appPreviewEl = document.getElementById('navAppPreview');
+        const familyPassEl = document.getElementById('navFamilyPass');
+        if (appPreviewEl) appPreviewEl.style.display = 'inline-flex';
+        if (familyPassEl) familyPassEl.style.display = 'inline-flex';
         document.getElementById('profileMenuMeta').textContent = `${user?.email || ''} • Parent`;
       }
       const logoutLabel = document.getElementById('logoutMenuBtnLabel');
@@ -2838,7 +2849,11 @@
       document.getElementById('btnNavHome').style.display = 'inline-flex';
       document.getElementById('btnNavChannels').style.display = 'inline-flex';
       document.getElementById('btnModeParent').style.display = 'none';
-      document.getElementById('btnModeStudio').style.display = 'inline-flex';
+      document.getElementById('btnModeStudio').style.display = 'none';
+      const appPreviewEl = document.getElementById('navAppPreview');
+      const familyPassEl = document.getElementById('navFamilyPass');
+      if (appPreviewEl) appPreviewEl.style.display = 'inline-flex';
+      if (familyPassEl) familyPassEl.style.display = 'inline-flex';
       document.getElementById('parentModeApp').style.display = 'none';
       if (wasChild) {
         openHome(false);
@@ -5534,14 +5549,15 @@
     }
 
     function updateKidToolsVisibility(user) {
-      const bar = document.getElementById('kidToolsBar');
       const channelsBtn = document.getElementById('kidTabBtnChannels');
       const searchBtn = document.getElementById('kidTabBtnSearch');
       const playlistsBtn = document.getElementById('kidTabBtnPlaylists');
+      const favoritesBtn = document.getElementById('kidTabBtnFavorites');
       const historyBtn = document.getElementById('kidTabBtnHistory');
+      const achievementsBtn = document.getElementById('kidTabBtnAchievements');
       const browserBtn = document.getElementById('kidTabBtnBrowser');
       const curatedTabBtn = document.getElementById('kidTabBtnCurated');
-      const navChannelsBtn = document.getElementById('btnNavChannels');
+      const levelPill = document.getElementById('kidLevelPill');
       const heroCard = document.getElementById('showcaseHeroCard');
       const guestEntryEl = document.getElementById('guestEntryView');
       const kidHub = document.getElementById('kidHomeHub');
@@ -5557,15 +5573,16 @@
       if (profileKidStatsRow) profileKidStatsRow.style.display = isChild ? 'grid' : 'none';
       if (headerTimePill) headerTimePill.style.display = isChild ? 'inline-flex' : 'none';
       if (headerBrowserBtn) headerBrowserBtn.style.display = isChild ? 'inline-flex' : 'none';
-      if (headerParentalBtn) headerParentalBtn.style.display = isChild ? 'inline-flex' : 'none';
+      if (headerParentalBtn) headerParentalBtn.style.display = 'none';
       if (profileParentalBtn) profileParentalBtn.style.display = isChild ? 'flex' : 'none';
+      if (levelPill) levelPill.style.display = 'none';
 
       if (heroCard) {
         heroCard.style.display = 'none';
       }
-      if (!bar) return;
+      const kidNavBtns = [curatedTabBtn, channelsBtn, searchBtn, playlistsBtn, favoritesBtn, historyBtn, achievementsBtn, browserBtn];
       if (!user || !authToken) {
-        bar.style.display = 'none';
+        kidNavBtns.forEach(btn => { if (btn) btn.style.display = 'none'; });
         if (guestEntryEl) guestEntryEl.style.display = 'flex';
         if (kidHub) kidHub.style.display = 'none';
         if (curatedPanel) curatedPanel.style.display = 'none';
@@ -5573,28 +5590,29 @@
       }
       if (guestEntryEl) guestEntryEl.style.display = 'none';
 
+      if (!isChild) {
+        kidNavBtns.forEach(btn => { if (btn) btn.style.display = 'none'; });
+        if (kidHub) kidHub.style.display = 'none';
+        return;
+      }
+
       const simpleMode = isSimpleKidUser(user);
-      bar.style.display = 'flex';
       if (curatedTabBtn) {
-        curatedTabBtn.innerHTML = `<span class="material-symbols-rounded" style="font-size:1rem;">${simpleMode ? 'grid_view' : 'home'}</span> ${simpleMode ? 'Topics' : 'Explore'}`;
+        curatedTabBtn.style.display = 'inline-flex';
+        curatedTabBtn.innerHTML = `<span class="material-symbols-rounded" style="font-size:1.05rem;">${simpleMode ? 'grid_view' : 'home'}</span> ${simpleMode ? 'Topics' : 'Explore'}`;
       }
       if (channelsBtn) channelsBtn.style.display = simpleMode ? 'none' : 'inline-flex';
       if (searchBtn) searchBtn.style.display = simpleMode ? 'none' : 'inline-flex';
       if (playlistsBtn) playlistsBtn.style.display = simpleMode ? 'none' : 'inline-flex';
+      if (favoritesBtn) favoritesBtn.style.display = 'inline-flex';
       if (historyBtn) historyBtn.style.display = simpleMode ? 'none' : 'inline-flex';
+      if (achievementsBtn) achievementsBtn.style.display = 'inline-flex';
       if (browserBtn) browserBtn.style.display = simpleMode ? 'none' : 'inline-flex';
-      if (navChannelsBtn && isChild) {
-        navChannelsBtn.style.display = simpleMode ? 'none' : 'inline-flex';
-      }
 
       updateKidTimePill();
       updateKidSearchQuotaBadge(user);
       loadKidAchievements();
-      if (isChild) {
-        switchKidShowcaseTab(activeKidTab || 'curated');
-      } else {
-        if (kidHub) kidHub.style.display = 'none';
-      }
+      switchKidShowcaseTab(activeKidTab || 'curated');
     }
 
     function updateKidSearchQuotaBadge(settings) {
@@ -5605,6 +5623,20 @@
       const reqApproval = settings?.searchRequireApproval !== false;
       const limitText = limit > 0 ? `${used} / ${limit} searched videos used` : `${used} searched videos watched (Unlimited)`;
       badge.textContent = `${limitText}${reqApproval ? ' • Parent approval required' : ''}`;
+    }
+
+    function openKidTabFromHeader(tab) {
+      if (window.location.hash === '#channels') {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+      document.getElementById('linkChannelsJson').style.display = 'none';
+      document.getElementById('showcaseApp').style.display = 'block';
+      document.getElementById('channelsSearchApp').style.display = 'none';
+      document.getElementById('authGate').style.display = 'none';
+      document.getElementById('parentModeApp').style.display = 'none';
+      document.getElementById('studioApp').style.display = 'none';
+      setModeButtons('showcase');
+      switchKidShowcaseTab(tab);
     }
 
     function switchKidShowcaseTab(tab, keepSelectedChannel = false) {
@@ -5647,6 +5679,7 @@
       if (browserEl) browserEl.style.display = activeKidTab === 'browser' ? 'block' : 'none';
 
       document.getElementById('kidTabBtnCurated')?.classList.toggle('active', activeKidTab === 'curated');
+      document.getElementById('kidTabBtnChannels')?.classList.remove('active');
       document.getElementById('kidTabBtnSearch')?.classList.toggle('active', activeKidTab === 'search');
       document.getElementById('kidTabBtnHistory')?.classList.toggle('active', activeKidTab === 'history');
       document.getElementById('kidTabBtnPlaylists')?.classList.toggle('active', activeKidTab === 'playlists');
@@ -7028,18 +7061,16 @@
         sign_in: 'Sign In',
         guest_visitor: 'Guest Visitor',
         guest_sub: 'Sign in as Parent or Kid',
-        guest_child_badge: 'Safe Internet & YouTube for Kids',
-        guest_child_title: 'Start Exploring YouTube & the Internet Safely!',
-        guest_child_desc: 'Ready to watch fun cartoons, science experiments, and music, or browse cool websites picked by your parents? Log in to your FamiTube account to start exploring safely!',
+        guest_child_title: 'Discover, Learn & Explore Amazing Worlds!',
+        guest_child_desc: 'Ready for awesome cartoons, mind-blowing science experiments, music, and cool websites? Log in to your FamiTube account and start your adventure!',
         guest_child_login_cta: 'Child Login & Start Exploring',
         guest_child_note: "Ask your parent for your username and passcode if you don't have one yet.",
-        guest_pill_yt_title: 'Safe YouTube',
-        guest_pill_yt_desc: 'Parent-approved channels & supervised search without random rabbit holes.',
-        guest_pill_web_title: 'Safe Internet Browser',
-        guest_pill_web_desc: 'Visit kid-friendly educational websites approved by your parents.',
+        guest_pill_yt_title: 'Awesome Channels',
+        guest_pill_yt_desc: 'Explore hand-picked cartoons, science, music, and fun stories.',
+        guest_pill_web_title: 'Cool Websites',
+        guest_pill_web_desc: 'Visit fun learning games, space, nature, and encyclopedia sites.',
         guest_pill_stars_title: 'Stars & Badges',
         guest_pill_stars_desc: 'Earn stars, unlock badges, and build your own favorite playlists.',
-        guest_parent_badge: 'For Parents & Guardians',
         guest_parent_title: 'Learn more how FamiTube protects your children on the internet',
         guest_parent_desc: "Discover FamiTube's unique value proposition—100% parent-curated channels, age-rated child accounts, Safe Browser allowlists, Calm Mode, and zero self-registration for kids.",
         guest_parent_learn_cta: 'Learn More',
@@ -7089,18 +7120,16 @@
         sign_in: 'Masuk',
         guest_visitor: 'Tamu',
         guest_sub: 'Masuk sebagai Orang Tua atau Anak',
-        guest_child_badge: 'Internet & YouTube Aman untuk Anak',
-        guest_child_title: 'Mulai Jelajahi YouTube & Internet dengan Aman!',
-        guest_child_desc: 'Siap menonton kartun seru, eksperimen sains, dan musik, atau menjelajahi situs keren pilihan orang tua? Masuk ke akun FamiTube kamu untuk mulai menjelajah dengan aman!',
+        guest_child_title: 'Temukan, Pelajari & Jelajahi Dunia yang Seru!',
+        guest_child_desc: 'Siap menonton kartun seru, eksperimen sains menakjubkan, musik, dan situs-situs keren? Masuk ke akun FamiTube kamu dan mulai petualanganmu!',
         guest_child_login_cta: 'Masuk Anak & Mulai Jelajahi',
         guest_child_note: 'Minta username dan kode sandi ke orang tuamu jika kamu belum memilikinya.',
-        guest_pill_yt_title: 'YouTube Aman',
-        guest_pill_yt_desc: 'Saluran pilihan orang tua & pencarian terawasi tanpa jebakan algoritma.',
-        guest_pill_web_title: 'Browser Internet Aman',
-        guest_pill_web_desc: 'Kunjungi situs edukatif ramah anak yang telah disetujui orang tua.',
+        guest_pill_yt_title: 'Saluran Seru',
+        guest_pill_yt_desc: 'Jelajahi kartun pilihan, sains, musik, dan cerita menarik.',
+        guest_pill_web_title: 'Situs Keren',
+        guest_pill_web_desc: 'Kunjungi situs belajar, luar angkasa, alam, dan ensiklopedia seru.',
         guest_pill_stars_title: 'Bintang & Lencana',
         guest_pill_stars_desc: 'Kumpulkan bintang, buka lencana, dan buat playlist favoritmu.',
-        guest_parent_badge: 'Untuk Orang Tua & Wali',
         guest_parent_title: 'Pelajari bagaimana FamiTube melindungi anak Anda di internet',
         guest_parent_desc: 'Temukan keunggulan unik FamiTube—100% saluran terkurasi orang tua, akun anak berdasarkan usia, daftar situs aman Safe Browser, Mode Tenang, dan tanpa pendaftaran mandiri untuk anak.',
         guest_parent_learn_cta: 'Pelajari Lebih Lanjut',
@@ -7243,7 +7272,7 @@
             document.getElementById('userBar').style.display = 'none';
             document.getElementById('loggedInWelcomeBanner').style.display = 'none';
             document.getElementById('guestProfileMenu').style.display = 'flex';
-            document.getElementById('btnModeStudio').style.display = 'inline-flex';
+            document.getElementById('btnModeStudio').style.display = 'none';
           }
         } catch {
           // keep cached session UI if API is temporarily unreachable
