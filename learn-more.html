@@ -296,7 +296,7 @@
     <div style="display:flex; gap:0.65rem; align-items:center; flex-wrap:wrap;">
       <a href="index.html" class="btn btn-secondary">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">arrow_back</span>
-        <span data-i18n="back_home">Back to Channels</span>
+        <span data-i18n="back_home">Back to Home</span>
       </a>
       <a href="index.html?mode=studio" class="btn btn-primary">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">admin_panel_settings</span>
@@ -351,6 +351,16 @@
           Kids cannot sign up or change parental rules on their own. Only parent accounts can manage channels, videos, and family defaults in Curator Studio.
         </p>
         <img src="assets/pillar-no-self-reg.jpg" alt="No Self-Registration for Kids screenshot" class="pillar-shot" loading="lazy">
+      </div>
+
+      <div class="card">
+        <div class="pillar-icon" style="background:rgba(6,214,160,0.16); color:var(--success);">
+          <span class="material-symbols-rounded">public</span>
+        </div>
+        <h2 data-i18n="p5_title" style="font-size:1.1rem; margin-bottom:0.45rem;">Safe Internet Browser &amp; Controlled Search</h2>
+        <p data-i18n="p5_desc" style="color:var(--text-muted); font-size:0.9rem;">
+          Children only browse parent-approved educational websites in Safe Kids Browser, and YouTube search requests require parent approval—protecting them across both video and the wider web.
+        </p>
       </div>
     </section>
 
@@ -484,7 +494,7 @@
         <p data-i18n="cta_desc" style="color:var(--text-muted); font-size:0.9rem;">Sign in to Curator Studio as a parent to create channels and register child accounts.</p>
       </div>
       <div style="display:flex; gap:0.65rem; flex-wrap:wrap;">
-        <a href="index.html" class="btn btn-secondary" data-i18n="back_home">Back to Channels</a>
+        <a href="index.html" class="btn btn-secondary" data-i18n="back_home">Back to Home</a>
         <a href="index.html?mode=studio" class="btn btn-primary" data-i18n="cta_btn">Get Started as Parent</a>
       </div>
     </section>
@@ -501,7 +511,7 @@
       document.documentElement.lang = lang;
       if (lang === 'id') {
         const dict = {
-          back_home: 'Kembali ke Saluran',
+          back_home: 'Kembali ke Beranda',
           open_studio: 'Studio Kurator',
           eyebrow: 'Dibuat untuk Orang Tua & Keluarga',
           page_title: 'YouTube Impian Setiap Orang Tua',
@@ -512,6 +522,8 @@
           p2_desc: 'Orang tua mendaftarkan akun anak dengan filter usia khusus (ALL, 5+, 8+, 12+) agar anak hanya menonton konten sesuai usianya.',
           p4_title: 'Tanpa Pendaftaran Mandiri untuk Anak',
           p4_desc: 'Anak tidak dapat membuat akun atau mengubah aturan orang tua sendiri. Hanya orang tua yang dapat mengelola saluran dan akun keluarga di Studio Kurator.',
+          p5_title: 'Browser Internet Aman & Pencarian Terkontrol',
+          p5_desc: 'Anak hanya dapat membuka situs edukatif yang disetujui orang tua di Safe Kids Browser, dan permintaan pencarian YouTube memerlukan persetujuan orang tua—melindungi mereka di video maupun web.',
           cta_title: 'Siap menyiapkan ruang video aman untuk keluarga Anda?',
           cta_desc: 'Masuk ke Studio Kurator sebagai orang tua untuk membuat saluran dan mendaftarkan akun anak.',
           cta_btn: 'Mulai sebagai Orang Tua',

@@ -855,6 +855,79 @@
       border-color: var(--primary);
       color: var(--primary);
     }
+    .guest-entry-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .guest-child-hero {
+      padding: 2.25rem;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, rgba(255,51,102,0.12), rgba(76,201,240,0.16));
+      border: 1px solid rgba(76,201,240,0.32);
+      position: relative;
+      overflow: hidden;
+    }
+    .guest-entry-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      padding: 0.28rem 0.75rem;
+      border-radius: 99px;
+      background: rgba(255, 51, 102, 0.14);
+      color: var(--primary);
+      margin-bottom: 0.85rem;
+    }
+    .guest-entry-badge.parent {
+      background: rgba(67, 97, 238, 0.14);
+      color: var(--secondary);
+    }
+    .guest-pillars-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 0.9rem;
+      margin-top: 1.5rem;
+    }
+    .guest-mini-pill {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.95rem 1.05rem;
+      border-radius: var(--radius-md);
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+    .guest-mini-pill-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .guest-parent-sign {
+      padding: 1.75rem 2rem;
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      border: 1px solid rgba(67,97,238,0.28);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+    }
+    @media (max-width: 640px) {
+      .guest-child-hero, .guest-parent-sign {
+        padding: 1.4rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -932,16 +1005,6 @@
       </div>
 
       <div id="userBar" style="display:none; position:relative; align-items:center; gap:0.65rem;">
-        <button type="button" id="headerTimePill" onclick="openKidParentalPinGate()" title="Remaining Daily Screen Time (Tap for Parental Controls)" style="display:none; align-items:center; gap:0.35rem; padding:0.42rem 0.78rem; border-radius:99px; border:1px solid rgba(6,214,160,0.45); background:rgba(6,214,160,0.14); color:#06d6a0; font-weight:800; font-size:0.84rem; cursor:pointer; white-space:nowrap;">
-          <span class="material-symbols-rounded" style="font-size:1rem;">schedule</span>
-          <span id="headerTimeLabel">45m</span>
-        </button>
-
-        <button type="button" id="headerStarsPill" onclick="if(typeof switchView==='function') switchView('showcase'); if(typeof switchKidShowcaseTab==='function') switchKidShowcaseTab('achievements');" title="My Stars &amp; Badges" style="display:inline-flex; align-items:center; gap:0.35rem; padding:0.42rem 0.78rem; border-radius:99px; border:1px solid rgba(255,209,102,0.45); background:rgba(255,209,102,0.14); color:#ffd166; font-weight:800; font-size:0.84rem; cursor:pointer; white-space:nowrap;">
-          <span>⭐</span>
-          <span id="headerStarsCount">0</span>
-        </button>
-
         <button type="button" id="headerBrowserBtn" class="btn btn-secondary" onclick="if(typeof switchKidShowcaseTab==='function') switchKidShowcaseTab('browser');" title="Safe Browser" style="display:none; padding:0.55rem;">
           <span class="material-symbols-rounded">public</span>
         </button>
@@ -975,6 +1038,16 @@
               <div id="profileMenuName" style="font-weight:700; font-size:0.9rem;"></div>
               <div id="profileMenuMeta" style="font-size:0.78rem; color:var(--text-muted); margin-top:0.15rem;"></div>
             </div>
+            <div id="profileKidStatsRow" style="display:none; grid-template-columns:1fr 1fr; gap:0.5rem; padding:0.75rem 1rem; border-bottom:1px solid var(--border); background:var(--surface);">
+              <button type="button" id="headerTimePill" onclick="document.getElementById('profileDropdownMenu').style.display='none'; openKidParentalPinGate();" title="Remaining Daily Screen Time (Tap for Parental Controls)" style="display:inline-flex; align-items:center; justify-content:center; gap:0.35rem; padding:0.45rem 0.6rem; border-radius:10px; border:1px solid rgba(6,214,160,0.4); background:rgba(6,214,160,0.12); color:#06d6a0; font-weight:800; font-size:0.82rem; cursor:pointer; white-space:nowrap;">
+                <span class="material-symbols-rounded" style="font-size:1rem;">schedule</span>
+                <span id="headerTimeLabel">45m</span>
+              </button>
+              <button type="button" id="headerStarsPill" onclick="document.getElementById('profileDropdownMenu').style.display='none'; if(typeof switchView==='function') switchView('showcase'); if(typeof switchKidShowcaseTab==='function') switchKidShowcaseTab('achievements');" title="My Stars &amp; Badges" style="display:inline-flex; align-items:center; justify-content:center; gap:0.35rem; padding:0.45rem 0.6rem; border-radius:10px; border:1px solid rgba(255,209,102,0.4); background:rgba(255,209,102,0.12); color:#ffd166; font-weight:800; font-size:0.82rem; cursor:pointer; white-space:nowrap;">
+                <span>⭐</span>
+                <span id="headerStarsCount">0</span>
+              </button>
+            </div>
             <div class="dropdown-prefs" style="border-top:none;" onclick="event.stopPropagation()">
               <label class="dropdown-pref-row">
                 <span data-i18n="language_label">Language</span>
@@ -995,8 +1068,8 @@
             <button id="profileParentalBtn" onclick="document.getElementById('profileDropdownMenu').style.display='none'; openKidParentalPinGate();" style="display:none; width:100%; align-items:center; gap:0.55rem; padding:0.75rem 1rem; background:none; border:none; border-top:1px solid var(--border); color:var(--text); font-family:inherit; font-size:0.88rem; font-weight:600; cursor:pointer; text-align:left;" onmouseover="this.style.background='var(--surface-light)'" onmouseout="this.style.background='none'">
               <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--primary);">lock</span> <span>Parental Controls (PIN)</span>
             </button>
-            <button onclick="handleLogout()" style="width:100%; display:flex; align-items:center; gap:0.55rem; padding:0.75rem 1rem; background:none; border:none; border-top:1px solid var(--border); color:#FF809D; font-family:inherit; font-size:0.88rem; font-weight:600; cursor:pointer; text-align:left;" onmouseover="this.style.background='rgba(255,51,102,0.1)'" onmouseout="this.style.background='none'">
-              <span class="material-symbols-rounded" style="font-size:1.1rem;">logout</span> <span data-i18n="logout">Logout</span>
+            <button id="logoutMenuBtn" onclick="handleLogout()" style="width:100%; display:flex; align-items:center; gap:0.55rem; padding:0.75rem 1rem; background:none; border:none; border-top:1px solid var(--border); color:#FF809D; font-family:inherit; font-size:0.88rem; font-weight:600; cursor:pointer; text-align:left;" onmouseover="this.style.background='rgba(255,51,102,0.1)'" onmouseout="this.style.background='none'">
+              <span class="material-symbols-rounded" style="font-size:1.1rem;">logout</span> <span id="logoutMenuBtnLabel" data-i18n="logout">Logout</span>
             </button>
           </div>
         </div>
@@ -1006,6 +1079,13 @@
 
   <!-- Public Kids Showcase -->
   <div class="container" id="showcaseApp" style="display:block;">
+    <div id="parentPreviewBanner" class="card" style="display:none; padding:0.85rem 1.25rem; margin-bottom:1rem; background:rgba(67,97,238,0.12); border-color:rgba(67,97,238,0.35); align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap;">
+      <div style="display:flex; align-items:center; gap:0.65rem;">
+        <span class="material-symbols-rounded" style="color:var(--secondary);">visibility</span>
+        <span id="parentPreviewBannerText" style="font-size:0.92rem; font-weight:700;"></span>
+      </div>
+      <button type="button" class="btn btn-primary btn-sm" onclick="exitParentPreview()">Back to Parent Mode</button>
+    </div>
     <div id="loggedInWelcomeBanner" class="card" style="display:none; padding:0.9rem 1.25rem; margin-bottom:1rem; background:rgba(6,214,160,0.1); border-color:rgba(6,214,160,0.3); align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap;">
       <div style="display:flex; align-items:center; gap:0.65rem;">
         <span class="material-symbols-rounded" style="color:var(--success);">verified_user</span>
@@ -1013,7 +1093,87 @@
       </div>
       <span id="loggedInBannerBadge" style="font-size:0.76rem; font-weight:700; padding:0.25rem 0.65rem; border-radius:99px; background:rgba(76,201,240,0.15); color:var(--accent);"></span>
     </div>
-    <div id="showcaseHeroCard" class="card hero-carousel" aria-roledescription="carousel" aria-label="FamiTube Value Propositions">
+    <div id="guestEntryView" class="guest-entry-wrap" style="display:none;">
+      <section class="card guest-child-hero">
+        <span class="guest-entry-badge">
+          <span class="material-symbols-rounded" style="font-size:1rem;">rocket_launch</span>
+          <span data-i18n="guest_child_badge">Safe Internet &amp; YouTube for Kids</span>
+        </span>
+        <h2 data-i18n="guest_child_title" style="font-family:'Fredoka', cursive; font-size:2rem; line-height:1.2; margin-bottom:0.65rem;">
+          Start Exploring YouTube &amp; the Internet Safely!
+        </h2>
+        <p data-i18n="guest_child_desc" style="color:var(--text-muted); font-size:1rem; max-width:700px; margin-bottom:1.25rem;">
+          Ready to watch fun cartoons, science experiments, and music, or browse cool websites picked by your parents? Log in to your FamiTube account to start exploring safely!
+        </p>
+        <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+          <button type="button" class="btn btn-primary" onclick="showAuthGate('CHILD')" style="padding:0.75rem 1.4rem; font-size:0.95rem;">
+            <span class="material-symbols-rounded" style="font-size:1.15rem;">child_care</span>
+            <span data-i18n="guest_child_login_cta">Child Login &amp; Start Exploring</span>
+          </button>
+          <span data-i18n="guest_child_note" style="font-size:0.84rem; color:var(--text-muted); font-weight:500;">
+            Ask your parent for your username and passcode if you don't have one yet.
+          </span>
+        </div>
+
+        <div class="guest-pillars-row">
+          <div class="guest-mini-pill">
+            <div class="guest-mini-pill-icon" style="background:rgba(255,51,102,0.12); color:var(--primary);">
+              <span class="material-symbols-rounded">play_circle</span>
+            </div>
+            <div>
+              <div data-i18n="guest_pill_yt_title" style="font-weight:700; font-size:0.92rem; margin-bottom:0.15rem;">Safe YouTube</div>
+              <div data-i18n="guest_pill_yt_desc" style="font-size:0.82rem; color:var(--text-muted);">Parent-approved channels &amp; supervised search without random rabbit holes.</div>
+            </div>
+          </div>
+          <div class="guest-mini-pill">
+            <div class="guest-mini-pill-icon" style="background:rgba(76,201,240,0.15); color:var(--accent);">
+              <span class="material-symbols-rounded">public</span>
+            </div>
+            <div>
+              <div data-i18n="guest_pill_web_title" style="font-weight:700; font-size:0.92rem; margin-bottom:0.15rem;">Safe Internet Browser</div>
+              <div data-i18n="guest_pill_web_desc" style="font-size:0.82rem; color:var(--text-muted);">Visit kid-friendly educational websites approved by your parents.</div>
+            </div>
+          </div>
+          <div class="guest-mini-pill">
+            <div class="guest-mini-pill-icon" style="background:rgba(6,214,160,0.14); color:var(--success);">
+              <span class="material-symbols-rounded">emoji_events</span>
+            </div>
+            <div>
+              <div data-i18n="guest_pill_stars_title" style="font-weight:700; font-size:0.92rem; margin-bottom:0.15rem;">Stars &amp; Badges</div>
+              <div data-i18n="guest_pill_stars_desc" style="font-size:0.82rem; color:var(--text-muted);">Earn stars, unlock badges, and build your own favorite playlists.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="guest-parent-sign" aria-label="For Parents">
+        <div style="flex:1 1 420px;">
+          <span class="guest-entry-badge parent">
+            <span class="material-symbols-rounded" style="font-size:1rem;">shield_with_heart</span>
+            <span data-i18n="guest_parent_badge">For Parents &amp; Guardians</span>
+          </span>
+          <h3 data-i18n="guest_parent_title" style="font-family:'Fredoka', cursive; font-size:1.4rem; line-height:1.25; margin-bottom:0.4rem;">
+            Learn more how FamiTube protects your children on the internet
+          </h3>
+          <p data-i18n="guest_parent_desc" style="color:var(--text-muted); font-size:0.92rem; max-width:640px;">
+            Discover FamiTube's unique value proposition—100% parent-curated channels, age-rated child accounts, Safe Browser allowlists, Calm Mode, and zero self-registration for kids.
+          </p>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+          <a href="learn-more.html" class="btn btn-primary" style="padding:0.7rem 1.25rem;">
+            <span class="material-symbols-rounded" style="font-size:1.05rem;">shield_with_heart</span>
+            <span data-i18n="guest_parent_learn_cta">Learn More</span>
+            <span class="material-symbols-rounded" style="font-size:1.05rem;">arrow_forward</span>
+          </a>
+          <button type="button" class="btn btn-secondary" onclick="showAuthGate('PARENT')" style="padding:0.7rem 1.2rem;">
+            <span class="material-symbols-rounded" style="font-size:1.05rem;">admin_panel_settings</span>
+            <span data-i18n="parent_sign_in">Parent / Curator Sign In</span>
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <div id="showcaseHeroCard" class="card hero-carousel" style="display:none;" aria-roledescription="carousel" aria-label="FamiTube Value Propositions">
       <div class="hero-slides">
         <div class="hero-slide active" data-slide="0" data-tone="primary">
           <span class="hero-badge">
@@ -1025,7 +1185,7 @@
             Kids only see channels and videos explicitly approved by parents and trusted educators—no random autoplay, no toxic comments, and no algorithmic surprises.
           </p>
           <div class="hero-actions">
-            <button type="button" class="btn btn-primary" onclick="document.getElementById('showcaseChannelsGrid')?.scrollIntoView({ behavior: 'smooth' })">
+            <button type="button" class="btn btn-primary" onclick="openChannelsNav()">
               <span class="material-symbols-rounded" style="font-size:1.05rem;">subscriptions</span>
               <span data-i18n="hero_s1_cta">Explore Safe Channels</span>
             </button>
@@ -1212,7 +1372,7 @@
 
     <div id="kidHomeHub" style="display:none; margin-bottom:2rem;"></div>
 
-    <div id="showcaseCuratedPanel">
+    <div id="showcaseCuratedPanel" style="display:none;">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; gap:1rem; flex-wrap:wrap;">
       <h3 data-i18n="featured_channels" style="font-size:1.2rem;">Featured Channels</h3>
       <div style="display:flex; align-items:center; gap:0.45rem;">
@@ -2257,7 +2417,7 @@
     }
 
     function openHome(useKidsFeed = false) {
-      if (currentUser?.role === 'PARENT') {
+      if (currentUser?.role === 'PARENT' && !parentPreviewChild) {
         openParentMode();
         return;
       }
@@ -2271,6 +2431,18 @@
       document.getElementById('authGate').style.display = 'none';
       document.getElementById('parentModeApp').style.display = 'none';
       document.getElementById('studioApp').style.display = 'none';
+      if (!authToken || !currentUser) {
+        if (showcaseAutoRotateTimer) clearInterval(showcaseAutoRotateTimer);
+        const guestEntryEl = document.getElementById('guestEntryView');
+        if (guestEntryEl) guestEntryEl.style.display = 'flex';
+        const heroEl = document.getElementById('showcaseHeroCard');
+        if (heroEl) heroEl.style.display = 'none';
+        const curatedEl = document.getElementById('showcaseCuratedPanel');
+        if (curatedEl) curatedEl.style.display = 'none';
+        return;
+      }
+      const guestEntryEl = document.getElementById('guestEntryView');
+      if (guestEntryEl) guestEntryEl.style.display = 'none';
       loadShowcase(useKidsFeed || (currentUser && currentUser.role === 'CHILD'));
     }
 
@@ -2538,6 +2710,13 @@
         document.getElementById('btnModeStudio').style.display = 'inline-flex';
         document.getElementById('profileMenuMeta').textContent = `${user?.email || ''} • Parent`;
       }
+      const logoutLabel = document.getElementById('logoutMenuBtnLabel');
+      const hasParentBackup = Boolean(localStorage.getItem('FamiTube_parent_backup_token'));
+      if (logoutLabel) {
+        logoutLabel.textContent = (user?.role === 'CHILD' && hasParentBackup)
+          ? 'Logout (Back to Parent)'
+          : 'Logout';
+      }
       renderNotifications(user);
       updateKidToolsVisibility(user);
     }
@@ -2585,12 +2764,42 @@
     }
 
     function handleLogout() {
+      const parentBackupToken = localStorage.getItem('FamiTube_parent_backup_token');
+      const parentBackupUserRaw = localStorage.getItem('FamiTube_parent_backup_user');
+      if (currentUser?.role === 'CHILD' && parentBackupToken && parentBackupUserRaw) {
+        try {
+          const parentUser = JSON.parse(parentBackupUserRaw);
+          if (typeof stopKidWatchTimer === 'function') stopKidWatchTimer();
+          localStorage.removeItem('FamiTube_parent_backup_token');
+          localStorage.removeItem('FamiTube_parent_backup_user');
+          parentPreviewChild = null;
+          kidHomeSelectedTopic = null;
+          activeKidTab = 'curated';
+          authToken = parentBackupToken;
+          localStorage.setItem(AUTH_TOKEN_KEY, authToken);
+          localStorage.setItem(AUTH_USER_KEY, JSON.stringify(parentUser));
+          document.getElementById('profileDropdownMenu').style.display = 'none';
+          document.getElementById('notifDropdownMenu').style.display = 'none';
+          handleAuthenticatedUser(parentUser);
+          return;
+        } catch {
+          localStorage.removeItem('FamiTube_parent_backup_token');
+          localStorage.removeItem('FamiTube_parent_backup_user');
+        }
+      }
+
       const wasChild = currentUser?.role === 'CHILD';
+      if (typeof stopKidWatchTimer === 'function') stopKidWatchTimer();
+      parentPreviewChild = null;
+      const previewBanner = document.getElementById('parentPreviewBanner');
+      if (previewBanner) previewBanner.style.display = 'none';
       authToken = '';
       currentUser = null;
       updateKidToolsVisibility(null);
       localStorage.removeItem(AUTH_TOKEN_KEY);
       localStorage.removeItem(AUTH_USER_KEY);
+      localStorage.removeItem('FamiTube_parent_backup_token');
+      localStorage.removeItem('FamiTube_parent_backup_user');
       localStorage.removeItem('famitube_welcome_seen');
       document.getElementById('profileDropdownMenu').style.display = 'none';
       document.getElementById('notifDropdownMenu').style.display = 'none';
@@ -4167,12 +4376,16 @@
 
     let parentModeChildrenCache = [];
     let activeChildProfileId = null;
+    let parentPreviewChild = null;
 
     function openParentMode() {
       if (!authToken || currentUser?.role !== 'PARENT') {
         showAuthGate('PARENT');
         return;
       }
+      parentPreviewChild = null;
+      const previewBanner = document.getElementById('parentPreviewBanner');
+      if (previewBanner) previewBanner.style.display = 'none';
       setModeButtons('parent');
       document.getElementById('linkChannelsJson').style.display = 'none';
       document.getElementById('showcaseApp').style.display = 'none';
@@ -4337,6 +4550,59 @@
       renderChildProfile(child);
     }
 
+    async function switchToChildMode(childId) {
+      if (!authToken || currentUser?.role !== 'PARENT') return;
+      try {
+        const res = await authFetch(`/api/parent/children/${childId}/switch-session`, {
+          method: 'POST'
+        });
+        const json = await res.json();
+        if (!json.success || !json.token || !json.user) {
+          return alert(json.message || 'Unable to switch to child mode.');
+        }
+        localStorage.setItem('FamiTube_parent_backup_token', authToken);
+        localStorage.setItem('FamiTube_parent_backup_user', JSON.stringify(currentUser));
+        authToken = json.token;
+        localStorage.setItem(AUTH_TOKEN_KEY, authToken);
+        localStorage.removeItem('famitube_welcome_seen');
+        activeKidTab = 'curated';
+        kidHomeSelectedTopic = null;
+        parentPreviewChild = null;
+        handleAuthenticatedUser(json.user);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (err) {
+        alert('Failed to switch to child mode.');
+      }
+    }
+
+    async function previewAsChild(childId) {
+      const child = parentModeChildrenCache.find(c => c.id === childId);
+      if (!child) return;
+      parentPreviewChild = child;
+      activeKidTab = 'curated';
+      kidHomeSelectedTopic = null;
+      const previewBanner = document.getElementById('parentPreviewBanner');
+      const previewText = document.getElementById('parentPreviewBannerText');
+      if (previewBanner && previewText) {
+        previewText.textContent = `Previewing Kid View as ${child.name} (${formatAgeGroupLabel(child.ageRating)})`;
+        previewBanner.style.display = 'flex';
+      }
+      const heroCard = document.getElementById('showcaseHeroCard');
+      if (heroCard) heroCard.style.display = 'none';
+      const curatedEl = document.getElementById('showcaseCuratedPanel');
+      if (curatedEl) curatedEl.style.display = 'block';
+      openHome(false);
+      await renderKidHomeHub({ ...child, role: 'CHILD' });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function exitParentPreview() {
+      parentPreviewChild = null;
+      const previewBanner = document.getElementById('parentPreviewBanner');
+      if (previewBanner) previewBanner.style.display = 'none';
+      openParentMode();
+    }
+
     function closeChildProfile() {
       activeChildProfileId = null;
       const listEl = document.getElementById('parentChildrenListView');
@@ -4360,7 +4626,12 @@
                 <div style="font-size:0.86rem; color:var(--text-muted);">${c.email}${c.birthday ? ` • 🎂 ${c.birthday}` : ''}</div>
               </div>
             </div>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="removeChildFromProfile('${c.id}')">Remove Child</button>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button type="button" class="btn btn-primary btn-sm" onclick="switchToChildMode('${c.id}')">
+                <span class="material-symbols-rounded" style="font-size:1rem;">switch_account</span> Switch to Child Mode
+              </button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="removeChildFromProfile('${c.id}')">Remove Child</button>
+            </div>
           </div>
 
           <div class="form-row" style="margin-bottom:1rem; align-items:end;">
@@ -4447,8 +4718,56 @@
               Enable Camera Attention Check (pauses video when child looks away)
             </label>
           </div>
+
+          <div style="margin-top:0.9rem; padding:1rem; border-radius:var(--radius-sm); background:var(--bg); border:1px solid var(--border);">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.75rem;">
+              <div>
+                <div style="font-weight:700; font-size:0.95rem;">Safe Browser Controls</div>
+                <div style="font-size:0.8rem; color:var(--text-muted);">Manage website access, allowed/blocked domains, site requests, and browsing history for ${c.name}.</div>
+              </div>
+              <button type="button" class="btn btn-primary btn-sm" onclick="savePmChildBrowserControls('${c.id}')">Save Browsing Controls</button>
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:1rem; font-size:0.86rem; margin-bottom:0.85rem;">
+              <label style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; cursor:pointer;">
+                <input type="checkbox" id="pmBrowserEnabled_${c.id}" ${c.browserEnabled !== false ? 'checked' : ''}>
+                Enable Safe Browser
+              </label>
+              <label style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; cursor:pointer;">
+                <input type="checkbox" id="pmBrowserAllowlistOnly_${c.id}" ${c.browserAllowlistOnly !== false ? 'checked' : ''}>
+                Allowlist Only (Restrict to Allowed Domains)
+              </label>
+              <label style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; cursor:pointer;">
+                <input type="checkbox" id="pmBrowserLogHistory_${c.id}" ${c.browserLogHistory !== false ? 'checked' : ''}>
+                Log Browsing History
+              </label>
+            </div>
+            <div class="form-row" style="margin-bottom:0.85rem;">
+              <div class="form-group">
+                <label>Allowed Domains (comma separated)</label>
+                <textarea id="pmAllowedDomains_${c.id}" rows="2" placeholder="pbskids.org, kids.nationalgeographic.com">${(c.allowedDomains || []).join(', ')}</textarea>
+              </div>
+              <div class="form-group">
+                <label>Blocked Domains (comma separated)</label>
+                <textarea id="pmBlockedDomains_${c.id}" rows="2" placeholder="tiktok.com, instagram.com">${(c.blockedDomains || []).join(', ')}</textarea>
+              </div>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:0.85rem;">
+              <div style="padding:0.75rem; border-radius:var(--radius-sm); background:var(--surface); border:1px solid var(--border);">
+                <div style="font-weight:700; font-size:0.84rem; margin-bottom:0.45rem;">Website Requests</div>
+                <div id="pmChildSiteRequests_${c.id}" style="font-size:0.8rem; color:var(--text-muted);">Loading requests...</div>
+              </div>
+              <div style="padding:0.75rem; border-radius:var(--radius-sm); background:var(--surface); border:1px solid var(--border);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.45rem;">
+                  <span style="font-weight:700; font-size:0.84rem;">Recent Browser History</span>
+                  <button type="button" class="btn btn-secondary btn-sm" style="padding:0.2rem 0.55rem; font-size:0.74rem;" onclick="clearPmChildBrowserHistory('${c.id}')">Clear</button>
+                </div>
+                <div id="pmChildBrowserHistory_${c.id}" style="font-size:0.8rem; color:var(--text-muted); max-height:170px; overflow-y:auto;">Loading history...</div>
+              </div>
+            </div>
+          </div>
         </div>
       `;
+      loadPmChildBrowserActivity(c.id);
     }
 
     function onProfileBirthdayChange(childId, birthdayStr) {
@@ -4512,6 +4831,107 @@
       if (!json.success) return alert(json.message || 'Failed to save parental controls');
       await loadParentModeChildren();
       alert('Parental controls saved and synced!');
+    }
+
+    async function savePmChildBrowserControls(childId) {
+      const browserEnabled = Boolean(document.getElementById(`pmBrowserEnabled_${childId}`)?.checked);
+      const browserAllowlistOnly = Boolean(document.getElementById(`pmBrowserAllowlistOnly_${childId}`)?.checked);
+      const browserLogHistory = Boolean(document.getElementById(`pmBrowserLogHistory_${childId}`)?.checked);
+      const parseDomains = (id) =>
+        String(document.getElementById(id)?.value || '')
+          .split(/[\s,]+/)
+          .map(d => d.trim().toLowerCase())
+          .filter(Boolean);
+      const allowedDomains = parseDomains(`pmAllowedDomains_${childId}`);
+      const blockedDomains = parseDomains(`pmBlockedDomains_${childId}`);
+
+      const res = await authFetch(`/api/parent/children/${childId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          browserEnabled,
+          browserAllowlistOnly,
+          browserLogHistory,
+          allowedDomains,
+          blockedDomains
+        })
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to save browsing controls');
+      await loadParentModeChildren();
+      alert('Browsing controls saved!');
+    }
+
+    async function loadPmChildBrowserActivity(childId) {
+      const reqEl = document.getElementById(`pmChildSiteRequests_${childId}`);
+      const histEl = document.getElementById(`pmChildBrowserHistory_${childId}`);
+      if (!reqEl && !histEl) return;
+
+      try {
+        const [reqRes, histRes] = await Promise.all([
+          authFetch('/api/parent/site-requests'),
+          authFetch(`/api/parent/children/${childId}/browser-history?limit=25`)
+        ]);
+        const [reqJson, histJson] = await Promise.all([
+          reqRes.json().catch(() => ({})),
+          histRes.json().catch(() => ({}))
+        ]);
+
+        if (reqEl) {
+          const allReqs = Array.isArray(reqJson.data) ? reqJson.data : [];
+          const childReqs = allReqs.filter(r => r.kidId === childId);
+          reqEl.innerHTML = childReqs.length
+            ? childReqs.slice(0, 10).map(r => `
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:0.4rem; padding:0.35rem 0; border-bottom:1px solid var(--border);">
+                  <div style="min-width:0;">
+                    <div style="font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${r.domain}</div>
+                    <div style="font-size:0.72rem; color:var(--text-muted);">${r.status}</div>
+                  </div>
+                  ${r.status === 'PENDING' ? `
+                    <div style="display:flex; gap:0.3rem; flex-shrink:0;">
+                      <button type="button" class="btn btn-primary btn-sm" style="padding:0.2rem 0.5rem; font-size:0.72rem;" onclick="decidePmSiteRequest('${childId}', '${r.id}', 'APPROVED')">Allow</button>
+                      <button type="button" class="btn btn-secondary btn-sm" style="padding:0.2rem 0.5rem; font-size:0.72rem;" onclick="decidePmSiteRequest('${childId}', '${r.id}', 'REJECTED')">Deny</button>
+                    </div>
+                  ` : ''}
+                </div>
+              `).join('')
+            : '<div>No website requests yet.</div>';
+        }
+
+        if (histEl) {
+          const items = Array.isArray(histJson.data) ? histJson.data : [];
+          histEl.innerHTML = items.length
+            ? items.map(h => `
+                <div style="padding:0.3rem 0; border-bottom:1px solid var(--border);">
+                  <div style="font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${h.title || h.domain}</div>
+                  <div style="font-size:0.72rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${h.domain} • ${new Date(h.visitedAt).toLocaleString()}</div>
+                </div>
+              `).join('')
+            : '<div>No browser history recorded yet.</div>';
+        }
+      } catch {
+        if (reqEl) reqEl.textContent = 'Unable to load website requests.';
+        if (histEl) histEl.textContent = 'Unable to load browser history.';
+      }
+    }
+
+    async function decidePmSiteRequest(childId, requestId, decision) {
+      const res = await authFetch(`/api/parent/site-requests/${requestId}/decide`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ decision })
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to update site request');
+      await loadParentModeChildren();
+    }
+
+    async function clearPmChildBrowserHistory(childId) {
+      if (!confirm('Clear all browser history for this child?')) return;
+      const res = await authFetch(`/api/parent/children/${childId}/browser-history`, { method: 'DELETE' });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to clear browser history');
+      await loadPmChildBrowserActivity(childId);
     }
 
     async function resetPmChildSearchViews(childId) {
@@ -4679,6 +5099,28 @@
 
     async function loadShowcase(useKidsFeed = false) {
       try {
+        if (!authToken || !currentUser) {
+          showcaseChannels = [];
+          kidsFeedVideos = null;
+          if (showcaseAutoRotateTimer) clearInterval(showcaseAutoRotateTimer);
+          return;
+        }
+        if (parentPreviewChild) {
+          const previewAge = !parentPreviewChild.ageRating || parentPreviewChild.ageRating === 'ALL'
+            ? 'OLDER_KIDS'
+            : parentPreviewChild.ageRating;
+          const res = await fetch(apiUrl(`/api/channels?ageRating=${encodeURIComponent(previewAge)}`));
+          const json = await res.json();
+          if (json.success) {
+            showcaseChannels = json.data || [];
+            const hasActive = showcaseChannels.some(c => c.id === activeShowcaseChannelId);
+            const initialId = hasActive ? activeShowcaseChannelId : (showcaseChannels[0]?.id || null);
+            renderShowcaseChannels();
+            await selectShowcaseChannel(initialId, true);
+            resetShowcaseAutoRotate();
+          }
+          return;
+        }
         if (useKidsFeed && authToken) {
           const res = await fetch(apiUrl('/api/kids/feed'), {
             headers: { Authorization: `Bearer ${authToken}` }
@@ -5068,31 +5510,35 @@
       const curatedTabBtn = document.getElementById('kidTabBtnCurated');
       const navChannelsBtn = document.getElementById('btnNavChannels');
       const heroCard = document.getElementById('showcaseHeroCard');
+      const guestEntryEl = document.getElementById('guestEntryView');
       const kidHub = document.getElementById('kidHomeHub');
       const curatedPanel = document.getElementById('showcaseCuratedPanel');
 
       const isChild = user?.role === 'CHILD';
+      const profileKidStatsRow = document.getElementById('profileKidStatsRow');
       const headerTimePill = document.getElementById('headerTimePill');
       const headerBrowserBtn = document.getElementById('headerBrowserBtn');
       const headerParentalBtn = document.getElementById('headerParentalBtn');
       const profileParentalBtn = document.getElementById('profileParentalBtn');
 
+      if (profileKidStatsRow) profileKidStatsRow.style.display = isChild ? 'grid' : 'none';
       if (headerTimePill) headerTimePill.style.display = isChild ? 'inline-flex' : 'none';
       if (headerBrowserBtn) headerBrowserBtn.style.display = isChild ? 'inline-flex' : 'none';
       if (headerParentalBtn) headerParentalBtn.style.display = isChild ? 'inline-flex' : 'none';
       if (profileParentalBtn) profileParentalBtn.style.display = isChild ? 'flex' : 'none';
 
       if (heroCard) {
-        heroCard.style.display = isChild ? 'none' : 'block';
+        heroCard.style.display = 'none';
       }
       if (!bar) return;
       if (!user || !authToken) {
         bar.style.display = 'none';
+        if (guestEntryEl) guestEntryEl.style.display = 'flex';
         if (kidHub) kidHub.style.display = 'none';
-        if (curatedPanel) curatedPanel.style.display = 'block';
-        switchKidShowcaseTab('curated');
+        if (curatedPanel) curatedPanel.style.display = 'none';
         return;
       }
+      if (guestEntryEl) guestEntryEl.style.display = 'none';
 
       const simpleMode = isSimpleKidUser(user);
       bar.style.display = 'flex';
@@ -5130,7 +5576,7 @@
 
     function switchKidShowcaseTab(tab) {
       activeKidTab = tab || 'curated';
-      const isChild = currentUser?.role === 'CHILD';
+      const isChild = currentUser?.role === 'CHILD' || Boolean(parentPreviewChild);
       const curatedEl = document.getElementById('showcaseCuratedPanel');
       const kidHubEl = document.getElementById('kidHomeHub');
       const searchEl = document.getElementById('kidYouTubeSearchPanel');
@@ -5140,7 +5586,10 @@
       const favoritesEl = document.getElementById('kidFavoritesPanel');
       const browserEl = document.getElementById('kidBrowserPanel');
 
-      if (isChild) {
+      if (!currentUser || !authToken) {
+        if (kidHubEl) kidHubEl.style.display = 'none';
+        if (curatedEl) curatedEl.style.display = 'none';
+      } else if (isChild) {
         if (kidHubEl) kidHubEl.style.display = activeKidTab === 'curated' ? 'block' : 'none';
         if (curatedEl) curatedEl.style.display = activeKidTab === 'curated' ? 'block' : 'none';
       } else {
@@ -6536,6 +6985,21 @@
         sign_in: 'Sign In',
         guest_visitor: 'Guest Visitor',
         guest_sub: 'Sign in as Parent or Kid',
+        guest_child_badge: 'Safe Internet & YouTube for Kids',
+        guest_child_title: 'Start Exploring YouTube & the Internet Safely!',
+        guest_child_desc: 'Ready to watch fun cartoons, science experiments, and music, or browse cool websites picked by your parents? Log in to your FamiTube account to start exploring safely!',
+        guest_child_login_cta: 'Child Login & Start Exploring',
+        guest_child_note: "Ask your parent for your username and passcode if you don't have one yet.",
+        guest_pill_yt_title: 'Safe YouTube',
+        guest_pill_yt_desc: 'Parent-approved channels & supervised search without random rabbit holes.',
+        guest_pill_web_title: 'Safe Internet Browser',
+        guest_pill_web_desc: 'Visit kid-friendly educational websites approved by your parents.',
+        guest_pill_stars_title: 'Stars & Badges',
+        guest_pill_stars_desc: 'Earn stars, unlock badges, and build your own favorite playlists.',
+        guest_parent_badge: 'For Parents & Guardians',
+        guest_parent_title: 'Learn more how FamiTube protects your children on the internet',
+        guest_parent_desc: "Discover FamiTube's unique value proposition—100% parent-curated channels, age-rated child accounts, Safe Browser allowlists, Calm Mode, and zero self-registration for kids.",
+        guest_parent_learn_cta: 'Learn More',
         parent_sign_in: 'Parent / Curator Sign In',
         kids_sign_in: 'Kids Sign In',
         language_label: 'Language',
@@ -6582,6 +7046,21 @@
         sign_in: 'Masuk',
         guest_visitor: 'Tamu',
         guest_sub: 'Masuk sebagai Orang Tua atau Anak',
+        guest_child_badge: 'Internet & YouTube Aman untuk Anak',
+        guest_child_title: 'Mulai Jelajahi YouTube & Internet dengan Aman!',
+        guest_child_desc: 'Siap menonton kartun seru, eksperimen sains, dan musik, atau menjelajahi situs keren pilihan orang tua? Masuk ke akun FamiTube kamu untuk mulai menjelajah dengan aman!',
+        guest_child_login_cta: 'Masuk Anak & Mulai Jelajahi',
+        guest_child_note: 'Minta username dan kode sandi ke orang tuamu jika kamu belum memilikinya.',
+        guest_pill_yt_title: 'YouTube Aman',
+        guest_pill_yt_desc: 'Saluran pilihan orang tua & pencarian terawasi tanpa jebakan algoritma.',
+        guest_pill_web_title: 'Browser Internet Aman',
+        guest_pill_web_desc: 'Kunjungi situs edukatif ramah anak yang telah disetujui orang tua.',
+        guest_pill_stars_title: 'Bintang & Lencana',
+        guest_pill_stars_desc: 'Kumpulkan bintang, buka lencana, dan buat playlist favoritmu.',
+        guest_parent_badge: 'Untuk Orang Tua & Wali',
+        guest_parent_title: 'Pelajari bagaimana FamiTube melindungi anak Anda di internet',
+        guest_parent_desc: 'Temukan keunggulan unik FamiTube—100% saluran terkurasi orang tua, akun anak berdasarkan usia, daftar situs aman Safe Browser, Mode Tenang, dan tanpa pendaftaran mandiri untuk anak.',
+        guest_parent_learn_cta: 'Pelajari Lebih Lanjut',
         parent_sign_in: 'Masuk Orang Tua / Kurator',
         kids_sign_in: 'Masuk Anak',
         language_label: 'Bahasa',
