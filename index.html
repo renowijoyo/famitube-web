@@ -981,9 +981,7 @@
       <button type="button" class="nav-link" id="kidTabBtnFavorites" style="display:none;" onclick="openKidTabFromHeader('favorites')">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">favorite</span> Favorites
       </button>
-      <button type="button" class="nav-link" id="kidTabBtnAchievements" style="display:none;" onclick="openKidTabFromHeader('achievements')">
-        <span class="material-symbols-rounded" style="font-size:1.05rem;">emoji_events</span> Badges
-      </button>
+
       <a id="linkChannelsJson" href="https://famitube-api.gamantha.my.id/api/channels" target="_blank" class="nav-link" style="display:none;">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">tv</span> Channels JSON
       </a>
@@ -1030,13 +1028,7 @@
       </div>
 
       <div id="userBar" style="display:none; position:relative; align-items:center; gap:0.65rem;">
-        <button type="button" id="kidLevelPill" onclick="openKidTabFromHeader('achievements')" style="display:none; align-items:center; gap:0.4rem; padding:0.38rem 0.8rem; border-radius:99px; border:1px solid rgba(255,209,102,0.38); background:rgba(255,209,102,0.12); color:#ffd166; font-weight:700; font-size:0.8rem; cursor:pointer; white-space:nowrap;">
-          🏆 0 Badges • Lv.1
-        </button>
-        <button type="button" id="kidFamibuxPill" onclick="openKidTabFromHeader('achievements')" title="Famibux Balance" style="display:none; align-items:center; gap:0.4rem; padding:0.38rem 0.75rem; border-radius:99px; border:1px solid rgba(255,46,147,0.4); background:rgba(255,46,147,0.12); color:var(--primary); font-weight:800; font-size:0.82rem; cursor:pointer; white-space:nowrap;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:middle; display:inline-block;"><circle cx="12" cy="12" r="10" fill="url(#famibuxBrandPill)" stroke="#C71F52" stroke-width="1.5"/><circle cx="12" cy="12" r="8.2" stroke="rgba(255,255,255,0.28)" stroke-width="0.75" stroke-dasharray="1.5 1"/><line x1="11" y1="4.5" x2="11" y2="19.5" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"/><rect x="9.8" y="6" width="2.4" height="11.5" rx="1.2" fill="#FFFFFF"/><path d="M10 6H16.2C16.9 6 17.4 6.5 17.4 7.2C17.4 7.9 16.9 8.4 16.2 8.4H10V6Z" fill="#FFFFFF"/><path d="M6.5 11.2H15C15.7 11.2 16.2 11.7 16.2 12.4C16.2 13.1 15.7 13.6 15 13.6H6.5C5.8 13.6 5.3 13.1 5.3 12.4C5.3 11.7 5.8 11.2 6.5 11.2Z" fill="#FFFFFF"/><defs><linearGradient id="famibuxBrandPill" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse"><stop stop-color="#FF58C1"/><stop offset="0.5" stop-color="#FF2E93"/><stop offset="1" stop-color="#D81159"/></linearGradient></defs></svg>
-          <span id="headerFamibuxCount">0</span>
-        </button>
+
 
         <button type="button" id="headerParentalBtn" class="btn btn-secondary" onclick="openKidParentalPinGate()" title="Quick Parental Controls (PIN)" style="display:none; padding:0.55rem; border-color:rgba(255,46,147,0.35); color:var(--primary);">
           <span class="material-symbols-rounded">lock</span>
@@ -1067,15 +1059,27 @@
               <div id="profileMenuName" style="font-weight:700; font-size:0.9rem;"></div>
               <div id="profileMenuMeta" style="font-size:0.78rem; color:var(--text-muted); margin-top:0.15rem;"></div>
             </div>
-            <div id="profileKidStatsRow" style="display:none; grid-template-columns:1fr 1fr; gap:0.5rem; padding:0.75rem 1rem; border-bottom:1px solid var(--border); background:var(--surface);">
-              <button type="button" id="headerTimePill" onclick="document.getElementById('profileDropdownMenu').style.display='none'; openKidParentalPinGate();" title="Remaining Daily Screen Time (Tap for Parental Controls)" style="display:inline-flex; align-items:center; justify-content:center; gap:0.35rem; padding:0.45rem 0.6rem; border-radius:10px; border:1px solid rgba(6,214,160,0.4); background:rgba(6,214,160,0.12); color:#06d6a0; font-weight:800; font-size:0.82rem; cursor:pointer; white-space:nowrap;">
-                <span class="material-symbols-rounded" style="font-size:1rem;">schedule</span>
-                <span id="headerTimeLabel">45m</span>
+            <div id="profileKidStatsRow" style="display:none; flex-direction:column; gap:0.55rem; padding:0.75rem 1rem; border-bottom:1px solid var(--border); background:var(--surface);">
+              <button type="button" id="profileLevelBtn" onclick="document.getElementById('profileDropdownMenu').style.display='none'; if(typeof switchView==='function') switchView('showcase'); if(typeof switchKidShowcaseTab==='function') switchKidShowcaseTab('achievements');" title="View Badges &amp; Achievements" style="display:flex; align-items:center; justify-content:space-between; gap:0.6rem; padding:0.5rem 0.75rem; border-radius:10px; border:1px solid rgba(255,209,102,0.4); background:rgba(255,209,102,0.1); color:#ffd166; font-weight:700; font-size:0.84rem; cursor:pointer; text-align:left; width:100%;">
+                <div style="display:flex; align-items:center; gap:0.45rem;">
+                  <span style="font-size:1.15rem;">🏆</span>
+                  <div style="display:flex; flex-direction:column; line-height:1.2;">
+                    <span id="profileLevelTitle" style="font-weight:800; font-size:0.86rem; color:#ffd166;">Lv.1 Curious Explorer</span>
+                    <span id="profileBadgesSubtitle" style="font-size:0.72rem; color:var(--text-muted);">0 Badges Unlocked</span>
+                  </div>
+                </div>
+                <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--text-muted);">chevron_right</span>
               </button>
-              <button type="button" id="headerStarsPill" onclick="document.getElementById('profileDropdownMenu').style.display='none'; if(typeof switchView==='function') switchView('showcase'); if(typeof switchKidShowcaseTab==='function') switchKidShowcaseTab('achievements');" title="My Famibux &amp; Badges" style="display:inline-flex; align-items:center; justify-content:center; gap:0.35rem; padding:0.45rem 0.6rem; border-radius:10px; border:1px solid rgba(255,46,147,0.4); background:rgba(255,46,147,0.12); color:var(--primary); font-weight:800; font-size:0.82rem; cursor:pointer; white-space:nowrap;">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="vertical-align:middle; display:inline-block;"><circle cx="12" cy="12" r="10" fill="url(#famibuxBrandProf)" stroke="#C71F52" stroke-width="1.5"/><circle cx="12" cy="12" r="8.2" stroke="rgba(255,255,255,0.28)" stroke-width="0.75" stroke-dasharray="1.5 1"/><line x1="11" y1="4.5" x2="11" y2="19.5" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"/><rect x="9.8" y="6" width="2.4" height="11.5" rx="1.2" fill="#FFFFFF"/><path d="M10 6H16.2C16.9 6 17.4 6.5 17.4 7.2C17.4 7.9 16.9 8.4 16.2 8.4H10V6Z" fill="#FFFFFF"/><path d="M6.5 11.2H15C15.7 11.2 16.2 11.7 16.2 12.4C16.2 13.1 15.7 13.6 15 13.6H6.5C5.8 13.6 5.3 13.1 5.3 12.4C5.3 11.7 5.8 11.2 6.5 11.2Z" fill="#FFFFFF"/><defs><linearGradient id="famibuxBrandProf" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse"><stop stop-color="#FF58C1"/><stop offset="0.5" stop-color="#FF2E93"/><stop offset="1" stop-color="#D81159"/></linearGradient></defs></svg>
-                <span id="headerStarsCount">0</span>
-              </button>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+                <button type="button" id="headerTimePill" onclick="document.getElementById('profileDropdownMenu').style.display='none'; openKidParentalPinGate();" title="Remaining Daily Screen Time (Tap for Parental Controls)" style="display:inline-flex; align-items:center; justify-content:center; gap:0.35rem; padding:0.45rem 0.6rem; border-radius:10px; border:1px solid rgba(6,214,160,0.4); background:rgba(6,214,160,0.12); color:#06d6a0; font-weight:800; font-size:0.82rem; cursor:pointer; white-space:nowrap;">
+                  <span class="material-symbols-rounded" style="font-size:1rem;">schedule</span>
+                  <span id="headerTimeLabel">45m</span>
+                </button>
+                <button type="button" id="headerStarsPill" onclick="document.getElementById('profileDropdownMenu').style.display='none'; if(typeof switchView==='function') switchView('showcase'); if(typeof switchKidShowcaseTab==='function') switchKidShowcaseTab('achievements');" title="My Famibux Balance" style="display:inline-flex; align-items:center; justify-content:center; gap:0.35rem; padding:0.45rem 0.6rem; border-radius:10px; border:1px solid rgba(251,133,0,0.4); background:rgba(251,133,0,0.12); color:#ffb703; font-weight:800; font-size:0.82rem; cursor:pointer; white-space:nowrap;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="vertical-align:middle; display:inline-block;"><circle cx="12" cy="12" r="10" fill="url(#famibuxGoldProf)" stroke="#E09F00" stroke-width="1.5"/><circle cx="12" cy="12" r="8.2" stroke="rgba(255,255,255,0.3)" stroke-width="0.75" stroke-dasharray="1.5 1"/><line x1="11" y1="4.5" x2="11" y2="19.5" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"/><rect x="9.8" y="6" width="2.4" height="11.5" rx="1.2" fill="#FFFFFF"/><path d="M10 6H16.2C16.9 6 17.4 6.5 17.4 7.2C17.4 7.9 16.9 8.4 16.2 8.4H10V6Z" fill="#FFFFFF"/><path d="M6.5 11.2H15C15.7 11.2 16.2 11.7 16.2 12.4C16.2 13.1 15.7 13.6 15 13.6H6.5C5.8 13.6 5.3 13.1 5.3 12.4C5.3 11.7 5.8 11.2 6.5 11.2Z" fill="#FFFFFF"/><defs><linearGradient id="famibuxGoldProf" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse"><stop stop-color="#FFE066"/><stop offset="0.6" stop-color="#FFB703"/><stop offset="1" stop-color="#FB8500"/></linearGradient></defs></svg>
+                  <span id="headerStarsCount">0</span>
+                </button>
+              </div>
             </div>
             <div class="dropdown-prefs" style="border-top:none;" onclick="event.stopPropagation()">
               <label class="dropdown-pref-row">
@@ -5384,12 +5388,11 @@
       const headerParentalBtn = document.getElementById('headerParentalBtn');
       const profileParentalBtn = document.getElementById('profileParentalBtn');
 
-      if (profileKidStatsRow) profileKidStatsRow.style.display = isChild ? 'grid' : 'none';
+      if (profileKidStatsRow) profileKidStatsRow.style.display = isChild ? 'flex' : 'none';
       if (headerTimePill) headerTimePill.style.display = isChild ? 'inline-flex' : 'none';
       if (headerParentalBtn) headerParentalBtn.style.display = 'none';
       if (profileParentalBtn) profileParentalBtn.style.display = isChild ? 'flex' : 'none';
       if (levelPill) levelPill.style.display = 'none';
-      const famibuxPill = document.getElementById('kidFamibuxPill');
       if (famibuxPill) famibuxPill.style.display = 'none';
 
       if (heroCard) {
@@ -5421,8 +5424,6 @@
       if (favoritesBtn) favoritesBtn.style.display = 'inline-flex';
       if (historyBtn) historyBtn.style.display = simpleMode ? 'none' : 'inline-flex';
       if (achievementsBtn) achievementsBtn.style.display = 'inline-flex';
-      if (levelPill) levelPill.style.display = 'inline-flex';
-      if (famibuxPill) famibuxPill.style.display = 'inline-flex';
 
       updateKidTimePill();
       updateKidSearchQuotaBadge(user);
@@ -5502,8 +5503,8 @@
     }
 
         function famibuxIconHtml(size = 18) {
-      return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" style="vertical-align:middle; display:inline-block; filter: drop-shadow(0 2px 4px rgba(255,46,147,0.35)); flex-shrink:0;">
-        <circle cx="12" cy="12" r="10" fill="url(#famibuxBrandGrad)" stroke="#C71F52" stroke-width="1.5"/>
+      return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" style="vertical-align:middle; display:inline-block; filter: drop-shadow(0 2px 4px rgba(251,133,0,0.3)); flex-shrink:0;">
+        <circle cx="12" cy="12" r="10" fill="url(#famibuxGoldGrad)" stroke="#E09F00" stroke-width="1.5"/>
         <circle cx="12" cy="12" r="8.2" stroke="rgba(255,255,255,0.3)" stroke-width="0.75" stroke-dasharray="1.5 1"/>
         <!-- Vertical coin strike line crossing through -->
         <line x1="11" y1="4.5" x2="11" y2="19.5" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"/>
@@ -5514,10 +5515,10 @@
         <!-- Horizontal crossing coin bar going across the stem -->
         <path d="M6.5 11.2H15C15.7 11.2 16.2 11.7 16.2 12.4C16.2 13.1 15.7 13.6 15 13.6H6.5C5.8 13.6 5.3 13.1 5.3 12.4C5.3 11.7 5.8 11.2 6.5 11.2Z" fill="#FFFFFF"/>
         <defs>
-          <linearGradient id="famibuxBrandGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#FF58C1"/>
-            <stop offset="0.5" stop-color="#FF2E93"/>
-            <stop offset="1" stop-color="#D81159"/>
+          <linearGradient id="famibuxGoldGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#FFE066"/>
+            <stop offset="0.6" stop-color="#FFB703"/>
+            <stop offset="1" stop-color="#FB8500"/>
           </linearGradient>
         </defs>
       </svg>`;
@@ -5538,6 +5539,14 @@
         const headerFamibux = document.getElementById('headerFamibuxCount');
         if (headerFamibux) {
           headerFamibux.textContent = String(famibuxCount);
+        }
+        const profileLevelTitle = document.getElementById('profileLevelTitle');
+        if (profileLevelTitle) {
+          profileLevelTitle.textContent = `Lv.${json.data.level} ${json.data.levelTitle}`;
+        }
+        const profileBadgesSubtitle = document.getElementById('profileBadgesSubtitle');
+        if (profileBadgesSubtitle) {
+          profileBadgesSubtitle.textContent = `${json.data.unlockedCount} of ${json.data.totalCount} Badges Unlocked`;
         }
         const pill = document.getElementById('kidLevelPill');
         if (pill) {
@@ -5567,7 +5576,7 @@
             <p style="color:var(--text-muted); font-size:0.88rem;">${d.unlockedCount} of ${d.totalCount} badges unlocked • Badges level you up!</p>
           </div>
           <div style="text-align:right;">
-            <div style="font-size:1.9rem; font-weight:800; color:var(--primary); display:inline-flex; align-items:center; gap:0.4rem;">
+            <div style="font-size:1.9rem; font-weight:800; color:#ffb703; display:inline-flex; align-items:center; gap:0.4rem;">
               ${famibuxIconHtml(28)} ${famibux}
             </div>
             <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.15rem;">
@@ -5601,14 +5610,14 @@
         const pct = Math.min(100, Math.round(((a.progress || 0) / (a.target || 1)) * 100));
         const reward = a.rewardFamibux ?? a.rewardStars ?? 0;
         return `
-          <div class="card" style="padding:1.1rem; border:${a.unlocked ? '1px solid rgba(255,46,147,0.55)' : '1px solid var(--border)'}; opacity:${a.unlocked ? '1' : '0.78'};">
+          <div class="card" style="padding:1.1rem; border:${a.unlocked ? '1px solid rgba(255,209,102,0.55)' : '1px solid var(--border)'}; opacity:${a.unlocked ? '1' : '0.78'};">
             <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.6rem;">
-              <div style="width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.6rem; background:${a.unlocked ? 'rgba(255,46,147,0.18)' : 'rgba(255,255,255,0.06)'};">
+              <div style="width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.6rem; background:${a.unlocked ? 'rgba(255,209,102,0.18)' : 'rgba(255,255,255,0.06)'};">
                 ${a.icon}
               </div>
               <div style="flex:1;">
                 <div style="font-weight:700; font-size:0.98rem;">${a.title}</div>
-                <div style="font-size:0.78rem; color:${a.unlocked ? '#06d6a0' : 'var(--primary)'}; font-weight:700; display:flex; align-items:center; gap:0.3rem;">
+                <div style="font-size:0.78rem; color:${a.unlocked ? '#06d6a0' : '#ffb703'}; font-weight:700; display:flex; align-items:center; gap:0.3rem;">
                   ${a.unlocked ? 'Unlocked!' : `+${reward} ${famibuxIconHtml(14)} Famibux`}
                 </div>
               </div>
