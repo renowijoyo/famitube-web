@@ -1481,7 +1481,12 @@
         </div>
         <div>
           <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:0.35rem;">Password</label>
-          <input type="password" id="loginPassword" required placeholder="••••••••" style="width:100%;" />
+          <div style="position:relative;">
+            <input type="password" id="loginPassword" required placeholder="••••••••" style="width:100%; padding-right:2.5rem;" />
+            <button type="button" onclick="togglePasswordVisibility('loginPassword', this)" aria-label="Show password" style="position:absolute; right:0.55rem; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; display:inline-flex; align-items:center; padding:0.2rem;">
+              <span class="material-symbols-rounded" style="font-size:1.15rem;">visibility</span>
+            </button>
+          </div>
         </div>
         <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Sign In</button>
         <button type="button" id="resendVerifyBtn" class="btn btn-secondary" style="display:none; width:100%; justify-content:center;" onclick="handleResendVerification()">
@@ -1500,7 +1505,12 @@
         </div>
         <div>
           <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:0.35rem;">Password (min 6 chars)</label>
-          <input type="password" id="regPassword" required minlength="6" placeholder="••••••••" style="width:100%;" />
+          <div style="position:relative;">
+            <input type="password" id="regPassword" required minlength="6" placeholder="••••••••" style="width:100%; padding-right:2.5rem;" />
+            <button type="button" onclick="togglePasswordVisibility('regPassword', this)" aria-label="Show password" style="position:absolute; right:0.55rem; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; display:inline-flex; align-items:center; padding:0.2rem;">
+              <span class="material-symbols-rounded" style="font-size:1.15rem;">visibility</span>
+            </button>
+          </div>
         </div>
         <div>
           <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:0.35rem;">Referral Code (Optional)</label>
@@ -2398,6 +2408,16 @@
       el.style.background = isError ? 'rgba(255, 51, 102, 0.15)' : 'rgba(6, 214, 160, 0.15)';
       el.style.color = isError ? '#FF6B8B' : '#06D6A0';
       el.style.border = `1px solid ${isError ? 'rgba(255, 51, 102, 0.35)' : 'rgba(6, 214, 160, 0.35)'}`;
+    }
+
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      const icon = btn?.querySelector('.material-symbols-rounded');
+      if (icon) icon.textContent = show ? 'visibility_off' : 'visibility';
+      if (btn) btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
     }
 
     function switchAuthTab(tab) {
