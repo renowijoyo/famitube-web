@@ -1031,7 +1031,11 @@
 
       <div id="userBar" style="display:none; position:relative; align-items:center; gap:0.65rem;">
         <button type="button" id="kidLevelPill" onclick="openKidTabFromHeader('achievements')" style="display:none; align-items:center; gap:0.4rem; padding:0.38rem 0.8rem; border-radius:99px; border:1px solid rgba(255,209,102,0.38); background:rgba(255,209,102,0.12); color:#ffd166; font-weight:700; font-size:0.8rem; cursor:pointer; white-space:nowrap;">
-          ⭐ 0 • Lv.1
+          🏆 0 Badges • Lv.1
+        </button>
+        <button type="button" id="kidFamibuxPill" onclick="openKidTabFromHeader('achievements')" title="Famibux Balance" style="display:none; align-items:center; gap:0.4rem; padding:0.38rem 0.75rem; border-radius:99px; border:1px solid rgba(251,133,0,0.4); background:rgba(251,133,0,0.12); color:#ffb703; font-weight:800; font-size:0.82rem; cursor:pointer; white-space:nowrap;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:middle; display:inline-block;"><circle cx="12" cy="12" r="10" fill="#FFB703" stroke="#E09F00" stroke-width="1.5"/><path d="M8.5 7.5H15.5C16.3 7.5 16.8 8.1 16.8 8.8C16.8 9.5 16.3 10.1 15.5 10.1H11.5V12.2H14.5C15.2 12.2 15.7 12.7 15.7 13.4C15.7 14.1 15.2 14.6 14.5 14.6H11.5V17.5C11.5 18.2 11 18.7 10.3 18.7C9.6 18.7 9.1 18.2 9.1 17.5V8.5C9.1 7.9 9.6 7.5 10.3 7.5H8.5Z" fill="#FFF"/></svg>
+          <span id="headerFamibuxCount">0</span>
         </button>
 
         <button type="button" id="headerParentalBtn" class="btn btn-secondary" onclick="openKidParentalPinGate()" title="Quick Parental Controls (PIN)" style="display:none; padding:0.55rem; border-color:rgba(255,46,147,0.35); color:var(--primary);">
@@ -1068,8 +1072,8 @@
                 <span class="material-symbols-rounded" style="font-size:1rem;">schedule</span>
                 <span id="headerTimeLabel">45m</span>
               </button>
-              <button type="button" id="headerStarsPill" onclick="document.getElementById('profileDropdownMenu').style.display='none'; if(typeof switchView==='function') switchView('showcase'); if(typeof switchKidShowcaseTab==='function') switchKidShowcaseTab('achievements');" title="My Stars &amp; Badges" style="display:inline-flex; align-items:center; justify-content:center; gap:0.35rem; padding:0.45rem 0.6rem; border-radius:10px; border:1px solid rgba(255,209,102,0.4); background:rgba(255,209,102,0.12); color:#ffd166; font-weight:800; font-size:0.82rem; cursor:pointer; white-space:nowrap;">
-                <span>⭐</span>
+              <button type="button" id="headerStarsPill" onclick="document.getElementById('profileDropdownMenu').style.display='none'; if(typeof switchView==='function') switchView('showcase'); if(typeof switchKidShowcaseTab==='function') switchKidShowcaseTab('achievements');" title="My Famibux &amp; Badges" style="display:inline-flex; align-items:center; justify-content:center; gap:0.35rem; padding:0.45rem 0.6rem; border-radius:10px; border:1px solid rgba(251,133,0,0.4); background:rgba(251,133,0,0.12); color:#ffb703; font-weight:800; font-size:0.82rem; cursor:pointer; white-space:nowrap;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="vertical-align:middle; display:inline-block;"><circle cx="12" cy="12" r="10" fill="#FFB703" stroke="#E09F00" stroke-width="1.5"/><path d="M8.5 7.5H15.5C16.3 7.5 16.8 8.1 16.8 8.8C16.8 9.5 16.3 10.1 15.5 10.1H11.5V12.2H14.5C15.2 12.2 15.7 12.7 15.7 13.4C15.7 14.1 15.2 14.6 14.5 14.6H11.5V17.5C11.5 18.2 11 18.7 10.3 18.7C9.6 18.7 9.1 18.2 9.1 17.5V8.5C9.1 7.9 9.6 7.5 10.3 7.5H8.5Z" fill="#FFF"/></svg>
                 <span id="headerStarsCount">0</span>
               </button>
             </div>
@@ -1160,8 +1164,8 @@
               <span class="material-symbols-rounded">emoji_events</span>
             </div>
             <div>
-              <div data-i18n="guest_pill_stars_title" style="font-weight:700; font-size:0.92rem; margin-bottom:0.15rem;">Stars &amp; Badges</div>
-              <div data-i18n="guest_pill_stars_desc" style="font-size:0.82rem; color:var(--text-muted);">Earn stars, unlock badges, and save your favorite videos in lists.</div>
+              <div data-i18n="guest_pill_stars_title" style="font-weight:700; font-size:0.92rem; margin-bottom:0.15rem;">Famibux &amp; Badges</div>
+              <div data-i18n="guest_pill_stars_desc" style="font-size:0.82rem; color:var(--text-muted);">Earn Famibux, unlock badges, and save your favorite videos in lists.</div>
             </div>
           </div>
         </div>
@@ -1310,7 +1314,7 @@
 
     <div id="kidAchievementsPanel" style="display:none; margin-bottom:2rem;">
       <div id="kidAchievementsHero" class="card" style="padding:1.4rem 1.6rem; margin-bottom:1.25rem; background:linear-gradient(135deg, rgba(255,46,147,0.12), rgba(76,201,240,0.12));">
-        <p style="color:var(--text-muted);">Loading your stars and badges...</p>
+        <p style="color:var(--text-muted);">Loading your Famibux and badges...</p>
       </div>
       <div id="kidAchievementsStats" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:0.85rem; margin-bottom:1.25rem;"></div>
       <h3 style="font-size:1.15rem; margin-bottom:0.85rem;">Achievements &amp; Badges</h3>
@@ -4714,7 +4718,7 @@
                 </select>
               </div>
               <div class="form-group">
-                <label>Min Watch for Stars</label>
+                <label>Min Watch for Famibux</label>
                 <select id="pmAttMinPct_${c.id}">
                   ${[50, 70, 85, 100].map(p => `<option value="${p}" ${(c.attentionMinWatchPercent ?? 70) === p ? 'selected' : ''}>${p}% active</option>`).join('')}
                 </select>
@@ -5385,6 +5389,8 @@
       if (headerParentalBtn) headerParentalBtn.style.display = 'none';
       if (profileParentalBtn) profileParentalBtn.style.display = isChild ? 'flex' : 'none';
       if (levelPill) levelPill.style.display = 'none';
+      const famibuxPill = document.getElementById('kidFamibuxPill');
+      if (famibuxPill) famibuxPill.style.display = 'none';
 
       if (heroCard) {
         heroCard.style.display = 'none';
@@ -5415,6 +5421,8 @@
       if (favoritesBtn) favoritesBtn.style.display = 'inline-flex';
       if (historyBtn) historyBtn.style.display = simpleMode ? 'none' : 'inline-flex';
       if (achievementsBtn) achievementsBtn.style.display = 'inline-flex';
+      if (levelPill) levelPill.style.display = 'inline-flex';
+      if (famibuxPill) famibuxPill.style.display = 'inline-flex';
 
       updateKidTimePill();
       updateKidSearchQuotaBadge(user);
@@ -5493,6 +5501,20 @@
       if (activeKidTab === 'favorites') { renderKidFavorites(); loadKidPlaylists(); }
     }
 
+        function famibuxIconHtml(size = 18) {
+      return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" style="vertical-align:middle; display:inline-block; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.25)); flex-shrink:0;">
+        <circle cx="12" cy="12" r="10" fill="url(#famibuxGold)" stroke="#E09F00" stroke-width="1.5"/>
+        <path d="M8.5 7.5H15.5C16.3 7.5 16.8 8.1 16.8 8.8C16.8 9.5 16.3 10.1 15.5 10.1H11.5V12.2H14.5C15.2 12.2 15.7 12.7 15.7 13.4C15.7 14.1 15.2 14.6 14.5 14.6H11.5V17.5C11.5 18.2 11 18.7 10.3 18.7C9.6 18.7 9.1 18.2 9.1 17.5V8.5C9.1 7.9 9.6 7.5 10.3 7.5H8.5Z" fill="#FFF"/>
+        <defs>
+          <linearGradient id="famibuxGold" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#FFE066"/>
+            <stop offset="0.6" stop-color="#FFB703"/>
+            <stop offset="1" stop-color="#FB8500"/>
+          </linearGradient>
+        </defs>
+      </svg>`;
+    }
+
     async function loadKidAchievements() {
       if (!authToken) return;
       try {
@@ -5500,13 +5522,18 @@
         const json = await res.json();
         if (!json.success || !json.data) return;
         kidAchievementsData = json.data;
+        const famibuxCount = json.data.famibux ?? json.data.stars ?? 0;
         const headerStars = document.getElementById('headerStarsCount');
         if (headerStars) {
-          headerStars.textContent = String(json.data.stars ?? 0);
+          headerStars.textContent = String(famibuxCount);
+        }
+        const headerFamibux = document.getElementById('headerFamibuxCount');
+        if (headerFamibux) {
+          headerFamibux.textContent = String(famibuxCount);
         }
         const pill = document.getElementById('kidLevelPill');
         if (pill) {
-          pill.textContent = `⭐ ${json.data.stars} • Lv.${json.data.level} ${json.data.levelTitle}`;
+          pill.textContent = `🏆 ${json.data.unlockedCount} Badges • Lv.${json.data.level} ${json.data.levelTitle}`;
         }
         renderKidAchievements();
       } catch {
@@ -5521,17 +5548,25 @@
       const d = kidAchievementsData;
       if (!d || !heroEl || !statsEl || !gridEl) return;
 
+      const famibux = d.famibux ?? d.stars ?? 0;
+      const nextBadges = d.nextLevelBadges ?? d.nextLevelStars ?? d.totalCount;
+
       heroEl.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:0.9rem;">
           <div>
             <div style="font-size:0.82rem; font-weight:700; color:#ffd166; text-transform:uppercase; letter-spacing:0.06em;">Level ${d.level} Explorer</div>
             <h3 style="font-size:1.5rem; margin:0.15rem 0;">${d.levelTitle}</h3>
-            <p style="color:var(--text-muted); font-size:0.88rem;">${d.unlockedCount} of ${d.totalCount} badges unlocked</p>
+            <p style="color:var(--text-muted); font-size:0.88rem;">${d.unlockedCount} of ${d.totalCount} badges unlocked • Badges level you up!</p>
           </div>
           <div style="text-align:right;">
-            <div style="font-size:1.9rem; font-weight:800; color:#ffd166;">⭐ ${d.stars}</div>
-            <div style="font-size:0.8rem; color:var(--text-muted);">
-              ${d.level === 5 ? 'Max Level Reached!' : `Next level at ${d.nextLevelStars} ⭐`}
+            <div style="font-size:1.9rem; font-weight:800; color:#ffb703; display:inline-flex; align-items:center; gap:0.4rem;">
+              ${famibuxIconHtml(28)} ${famibux}
+            </div>
+            <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.15rem;">
+              Famibux Currency
+            </div>
+            <div style="font-size:0.78rem; color:#ffd166; margin-top:0.2rem;">
+              ${d.level === 5 ? 'Max Level Reached!' : `Next level at ${nextBadges} badges`}
             </div>
           </div>
         </div>
@@ -5556,6 +5591,7 @@
 
       gridEl.innerHTML = (d.achievements || []).map((a) => {
         const pct = Math.min(100, Math.round(((a.progress || 0) / (a.target || 1)) * 100));
+        const reward = a.rewardFamibux ?? a.rewardStars ?? 0;
         return `
           <div class="card" style="padding:1.1rem; border:${a.unlocked ? '1px solid rgba(255,209,102,0.55)' : '1px solid var(--border)'}; opacity:${a.unlocked ? '1' : '0.78'};">
             <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.6rem;">
@@ -5564,8 +5600,8 @@
               </div>
               <div style="flex:1;">
                 <div style="font-weight:700; font-size:0.98rem;">${a.title}</div>
-                <div style="font-size:0.78rem; color:${a.unlocked ? '#06d6a0' : '#ffd166'}; font-weight:700;">
-                  ${a.unlocked ? 'Unlocked!' : `+${a.rewardStars} ⭐`}
+                <div style="font-size:0.78rem; color:${a.unlocked ? '#06d6a0' : '#ffb703'}; font-weight:700; display:flex; align-items:center; gap:0.3rem;">
+                  ${a.unlocked ? 'Unlocked!' : `+${reward} ${famibuxIconHtml(14)} Famibux`}
                 </div>
               </div>
             </div>
@@ -6824,8 +6860,8 @@
         guest_pill_yt_desc: 'Explore hand-picked cartoons, science, music, and fun stories.',
         guest_pill_web_title: 'Cool Websites',
         guest_pill_web_desc: 'Visit fun learning games, space, nature, and encyclopedia sites.',
-        guest_pill_stars_title: 'Stars & Badges',
-        guest_pill_stars_desc: 'Earn stars, unlock badges, and save your favorite videos in lists.',
+        guest_pill_stars_title: 'Famibux & Badges',
+        guest_pill_stars_desc: 'Earn Famibux, unlock badges, and save your favorite videos in lists.',
         guest_parent_title: 'Learn more how FamiTube protects your children on the internet',
         guest_parent_desc: "Discover FamiTube's unique value proposition—100% parent-curated channels, age-rated child accounts, Calm Mode, and zero self-registration for kids.",
         guest_parent_learn_cta: 'Learn More',
@@ -6883,8 +6919,8 @@
         guest_pill_yt_desc: 'Jelajahi kartun pilihan, sains, musik, dan cerita menarik.',
         guest_pill_web_title: 'Situs Keren',
         guest_pill_web_desc: 'Kunjungi situs belajar, luar angkasa, alam, dan ensiklopedia seru.',
-        guest_pill_stars_title: 'Bintang & Lencana',
-        guest_pill_stars_desc: 'Kumpulkan bintang, buka lencana, dan simpan video favoritmu dalam daftar.',
+        guest_pill_stars_title: 'Famibux & Lencana',
+        guest_pill_stars_desc: 'Kumpulkan Famibux, buka lencana, dan simpan video favoritmu dalam daftar.',
         guest_parent_title: 'Pelajari bagaimana FamiTube melindungi anak Anda di internet',
         guest_parent_desc: 'Temukan keunggulan unik FamiTube—100% saluran terkurasi orang tua, akun anak berdasarkan usia, Mode Tenang, dan tanpa pendaftaran mandiri untuk anak.',
         guest_parent_learn_cta: 'Pelajari Lebih Lanjut',
