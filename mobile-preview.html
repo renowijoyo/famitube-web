@@ -442,6 +442,7 @@
     <a href="index.html" class="brand">
       <span class="brand-icon"><img src="assets/famitube-icon.png" alt="FamiTube"></span>
       <span>FamiTube Mobile Preview</span>
+      <span id="previewAppVersion" style="font-family:inherit; font-size:0.74rem; font-weight:800; padding:2px 8px; border-radius:99px; background:rgba(255,46,147,0.18); color:#ff6eb4; border:1px solid rgba(255,46,147,0.35);">v1.0.0</span>
     </a>
 
     <div class="controls">
@@ -530,6 +531,7 @@
 
     let state = {
       screen: 'home',
+      appVersion: '1.0.0',
       theme: 'LIGHT',
       ageMode: 'OLDER_KIDS',
       selectedCategory: 'All',
@@ -572,6 +574,23 @@
       ]
     };
     state.activeVideo = state.videos[0];
+
+    async function syncAndroidVersionFromRepo() {
+      try {
+        const res = await fetch('https://raw.githubusercontent.com/renowijoyo/famitube-android/main/app/build.gradle.kts', { cache: 'no-store' });
+        if (!res.ok) return;
+        const text = await res.text();
+        const match = text.match(/versionName\s*=\s*"([^"]+)"/);
+        if (match && match[1]) {
+          state.appVersion = match[1];
+          const badge = document.getElementById('previewAppVersion');
+          if (badge) badge.textContent = `v${state.appVersion}`;
+          render();
+        }
+      } catch {
+        // Keep fallback version
+      }
+    }
 
     async function loadLiveBackendData() {
       const noteEl = document.getElementById('dataSourceNote');
@@ -1067,6 +1086,7 @@
       }
     }
 
+    syncAndroidVersionFromRepo();
     loadLiveBackendData();
     render();
   </script>

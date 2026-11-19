@@ -5037,7 +5037,13 @@
 
     async function openChannelFromSearch(channelId) {
       activeShowcaseChannelId = channelId;
+      if (currentUser?.role === 'CHILD') {
+        activeKidTab = 'curated';
+      }
       openHome(currentUser?.role === 'CHILD');
+      if (currentUser?.role === 'CHILD') {
+        switchKidShowcaseTab('curated');
+      }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -5106,7 +5112,7 @@
       updateKidSearchQuotaBadge(user);
       loadKidAchievements();
       if (isChild) {
-        renderKidHomeHub(user);
+        switchKidShowcaseTab(activeKidTab || 'curated');
       } else {
         if (kidHub) kidHub.style.display = 'none';
       }
@@ -5135,8 +5141,8 @@
       const browserEl = document.getElementById('kidBrowserPanel');
 
       if (isChild) {
-        if (curatedEl) curatedEl.style.display = 'none';
         if (kidHubEl) kidHubEl.style.display = activeKidTab === 'curated' ? 'block' : 'none';
+        if (curatedEl) curatedEl.style.display = activeKidTab === 'curated' ? 'block' : 'none';
       } else {
         if (kidHubEl) kidHubEl.style.display = 'none';
         if (curatedEl) curatedEl.style.display = activeKidTab === 'curated' ? 'block' : 'none';
