@@ -490,6 +490,13 @@
           <div class="app-topbar-actions">
             <button class="pill-stars" onclick="navigate('achievements')">⭐ <span id="topStars">10000</span></button>
             <span class="pill-time" id="topTimeLeft">45m left</span>
+            <button class="icon-btn" id="btnTopNotif" onclick="navigate('notifications')" title="Notifications" style="position:relative;">
+              <span class="material-symbols-rounded" style="font-size:1.2rem;">notifications</span>
+              <span id="topNotifBadge" style="position:absolute; top:2px; right:2px; min-width:14px; height:14px; border-radius:99px; background:var(--pink); color:#fff; font-size:0.58rem; font-weight:800; display:flex; align-items:center; justify-content:center; padding:0 3px;">2</span>
+            </button>
+            <button class="icon-btn" id="btnTopBrowser" onclick="navigate('browser')" title="Safe Browser">
+              <span class="material-symbols-rounded" style="font-size:1.2rem;">public</span>
+            </button>
             <button class="icon-btn" id="btnTopSearch" onclick="navigate('search')" title="Search">
               <span class="material-symbols-rounded" style="font-size:1.25rem;">search</span>
             </button>
@@ -515,6 +522,8 @@
         <button class="qs-btn" onclick="navigate('channels')"><span>📺 Channels</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('player')"><span>▶️ Video Player + Attention Pause</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('search')"><span>🔍 Dual Search (Curated + YouTube)</span><span>›</span></button>
+        <button class="qs-btn" onclick="navigate('browser')"><span>🌐 Safe Browser</span><span>›</span></button>
+        <button class="qs-btn" onclick="navigate('notifications')"><span>🔔 Notifications</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('achievements')"><span>🏆 Badges &amp; Stars</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('profile')"><span>👤 Profile &amp; Theme Switcher</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('parental_gate')"><span>🔒 Parental Gate (PIN: 1234)</span><span>›</span></button>
@@ -670,18 +679,18 @@
 
     function renderBottomBar() {
       const bar = document.getElementById('appBottomBar');
-      const simple = state.ageMode === 'TODDLER';
+      const simple = state.ageMode === 'TODDLER' || state.ageMode === 'YOUNG_KIDS';
       const tabs = simple
         ? [
-            { id: 'home', icon: 'home', label: 'Home' },
-            { id: 'channels', icon: 'tv', label: 'Channels' },
-            { id: 'favorites', icon: 'favorite', label: 'Favorites' }
+            { id: 'home', icon: 'home', label: 'Topics' },
+            { id: 'favorites', icon: 'favorite', label: 'Favorites' },
+            { id: 'achievements', icon: 'emoji_events', label: 'Badges' }
           ]
         : [
-            { id: 'home', icon: 'home', label: 'Home' },
+            { id: 'home', icon: 'home', label: 'Explore' },
             { id: 'channels', icon: 'tv', label: 'Channels' },
-            { id: 'playlists', icon: 'playlist_play', label: 'Playlists' },
-            { id: 'favorites', icon: 'favorite', label: 'Library' },
+            { id: 'playlists', icon: 'video_library', label: 'Playlists' },
+            { id: 'favorites', icon: 'favorite', label: 'Favorites' },
             { id: 'achievements', icon: 'emoji_events', label: 'Badges' }
           ];
       const showBottom = tabs.some(t => t.id === state.screen);
@@ -839,6 +848,54 @@
             </button>
           </div>
         `;
+      } else if (state.screen === 'browser') {
+        const sites = [
+          { name: "NASA Kids' Club", domain: 'nasa.gov', icon: '🚀' },
+          { name: 'National Geographic Kids', domain: 'kids.nationalgeographic.com', icon: '🦁' },
+          { name: 'PBS KIDS', domain: 'pbskids.org', icon: '🎨' },
+          { name: 'Khan Academy Kids', domain: 'khanacademy.org', icon: '📚' }
+        ];
+        body.innerHTML = `
+          <button class="btn-outline" onclick="navigate('home')" style="margin-bottom:10px;">← Back</button>
+          <div class="card-box">
+            <div style="font-weight:800; font-size:0.98rem; margin-bottom:4px;">🌐 Embedded Safe Browser</div>
+            <div style="font-size:0.74rem; color:var(--text-muted); margin-bottom:10px;">Only parent-approved educational domains are allowed. Every visit is logged for parent monitoring.</div>
+            <div style="display:flex; gap:6px;">
+              <input type="text" id="previewBrowserUrl" value="https://kids.nationalgeographic.com" style="flex:1; padding:8px 10px; border-radius:10px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); font-size:0.78rem;">
+              <button class="btn-primary" style="padding:8px 12px;" onclick="const u=document.getElementById('previewBrowserUrl').value; const ok=['nasa.gov','nationalgeographic.com','pbskids.org','khanacademy.org'].some(d=>u.includes(d)); alert(ok ? 'Opening safe site in embedded browser!' : 'Blocked by FamiTube Safe Browser: domain not approved by parent.');">Go</button>
+            </div>
+          </div>
+          <div style="font-weight:800; font-size:0.84rem; margin-bottom:8px;">Parent-Approved Websites</div>
+          ${sites.map(s => `
+            <div class="card-box" style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="document.getElementById('previewBrowserUrl').value='https://${s.domain}'; alert('Loaded ${s.name} safely!');">
+              <div style="font-size:1.5rem;">${s.icon}</div>
+              <div style="flex:1;">
+                <div style="font-weight:800; font-size:0.86rem;">${s.name}</div>
+                <div style="font-size:0.72rem; color:var(--text-muted);">${s.domain}</div>
+              </div>
+              <span style="font-size:0.72rem; font-weight:700; color:var(--blue);">Open ›</span>
+            </div>
+          `).join('')}
+        `;
+      } else if (state.screen === 'notifications') {
+        const notifs = [
+          { title: 'Video Approved!', desc: '"How Do Rockets Fly?" was approved by your parent.', time: '5m ago', icon: '✅' },
+          { title: 'New Badge Unlocked!', desc: 'You earned Quiz Starter (+35 ⭐)', time: '1h ago', icon: '🏆' }
+        ];
+        body.innerHTML = `
+          <button class="btn-outline" onclick="navigate('home')" style="margin-bottom:10px;">← Back</button>
+          <h3 style="margin-bottom:10px; font-size:1.05rem;">Notifications</h3>
+          ${notifs.map(n => `
+            <div class="card-box" style="display:flex; align-items:flex-start; gap:10px;">
+              <div style="font-size:1.4rem;">${n.icon}</div>
+              <div style="flex:1;">
+                <div style="font-weight:800; font-size:0.86rem;">${n.title}</div>
+                <div style="font-size:0.74rem; color:var(--text-muted); margin-top:2px;">${n.desc}</div>
+                <div style="font-size:0.68rem; color:var(--blue); margin-top:4px;">${n.time}</div>
+              </div>
+            </div>
+          `).join('')}
+        `;
       } else if (state.screen === 'search') {
         const q = (state.searchQuery || '').trim().toLowerCase();
         const curatedMatches = q
@@ -937,6 +994,7 @@
             </div>
             <span class="material-symbols-rounded" style="color:var(--text-muted);">chevron_right</span>
           </div>
+          <div style="text-align:center; font-size:0.72rem; color:var(--text-muted); padding:6px 0;">FamiTube v${state.appVersion} (Build 1)</div>
         `;
       } else if (state.screen === 'login') {
         body.innerHTML = `
