@@ -586,6 +586,19 @@
 
     async function syncAndroidVersionFromRepo() {
       try {
+        const relRes = await fetch('https://api.github.com/repos/renowijoyo/famitube-android/releases/latest', { cache: 'no-store' });
+        if (relRes.ok) {
+          const rel = await relRes.json();
+          const apkAsset = (rel.assets || []).find(a => /FamiTube-v([^-]+)-/.test(a.name || ''));
+          const assetMatch = apkAsset?.name?.match(/FamiTube-v([^-]+)-/);
+          if (assetMatch && assetMatch[1]) {
+            state.appVersion = assetMatch[1];
+            const badge = document.getElementById('previewAppVersion');
+            if (badge) badge.textContent = `v${state.appVersion}`;
+            render();
+            return;
+          }
+        }
         const res = await fetch('https://raw.githubusercontent.com/renowijoyo/famitube-android/main/app/build.gradle.kts', { cache: 'no-store' });
         if (!res.ok) return;
         const text = await res.text();
