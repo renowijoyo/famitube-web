@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FamiTube Studio - Video Curation Admin</title>
+  <link rel="icon" type="image/png" href="assets/famitube-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -204,16 +205,20 @@
     .brand-logo {
       width: 42px;
       height: 42px;
-      background: linear-gradient(135deg, #FF3366, #FF758C);
       border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
-      font-family: 'Fredoka', cursive;
-      font-size: 1.5rem;
-      font-weight: 700;
-      box-shadow: 0 4px 14px rgba(255, 51, 102, 0.4);
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(255, 58, 153, 0.35);
+    }
+
+    .brand-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
     .brand-title {
@@ -856,7 +861,7 @@
 
   <header>
     <a href="/" class="brand" onclick="event.preventDefault(); openHome();">
-      <div class="brand-logo">F</div>
+      <div class="brand-logo"><img src="assets/famitube-icon.png" alt="FamiTube"></div>
       <div>
         <span class="brand-title">FamiTube</span>
       </div>
@@ -1226,7 +1231,7 @@
   <div id="authGate" style="display:none; min-height:calc(100vh - 80px); align-items:center; justify-content:center; padding:2rem;">
     <div class="card" style="width:100%; max-width:440px; padding:2rem;">
       <div style="text-align:center; margin-bottom:1.25rem;">
-        <div class="brand-logo" style="margin:0 auto 0.75rem;">F</div>
+        <div class="brand-logo" style="width:64px; height:64px; border-radius:16px; margin:0 auto 0.75rem;"><img src="assets/famitube-icon.png" alt="FamiTube"></div>
         <h2 id="authTitle" style="margin-bottom:0.25rem;">Sign In to FamiTube</h2>
         <p id="authSubtitle" style="color:var(--text-muted); font-size:0.9rem;">Choose your account type below to sign in.</p>
       </div>
@@ -1440,8 +1445,12 @@
                 <option value="Science & Space">Science & Space</option>
                 <option value="Learning & ABCs">Learning & ABCs</option>
                 <option value="Music & Rhymes">Music & Rhymes</option>
-                <option value="Animals & Nature">Animals & Nature</option>
-                <option value="Art & Crafts">Art & Crafts</option>
+                <option value="Animals &amp; Nature">Animals &amp; Nature</option>
+                <option value="Art &amp; Crafts">Art &amp; Crafts</option>
+                <option value="Video Games &amp; Gaming">Video Games &amp; Gaming</option>
+                <option value="Hobbies &amp; DIY">Hobbies &amp; DIY</option>
+                <option value="Sports &amp; Outdoors">Sports &amp; Outdoors</option>
+                <option value="Cooking &amp; Baking">Cooking &amp; Baking</option>
               </select>
             </div>
             <div class="form-group">
@@ -5034,6 +5043,10 @@
       if (lower.includes('science') || lower.includes('space')) return '🚀';
       if (lower.includes('math') || lower.includes('coding')) return '🔢';
       if (lower.includes('stor') || lower.includes('read')) return '📖';
+      if (lower.includes('game') || lower.includes('gaming')) return '🎮';
+      if (lower.includes('hobb') || lower.includes('diy')) return '🛠️';
+      if (lower.includes('sport') || lower.includes('outdoor')) return '⚽';
+      if (lower.includes('cook') || lower.includes('bak')) return '🧁';
       return '🎬';
     }
 
