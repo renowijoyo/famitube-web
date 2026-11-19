@@ -5377,6 +5377,7 @@
       const achievementsBtn = document.getElementById('kidTabBtnAchievements');
       const curatedTabBtn = document.getElementById('kidTabBtnCurated');
       const levelPill = document.getElementById('kidLevelPill');
+      const famibuxPill = document.getElementById('kidFamibuxPill');
       const heroCard = document.getElementById('showcaseHeroCard');
       const guestEntryEl = document.getElementById('guestEntryView');
       const kidHub = document.getElementById('kidHomeHub');
@@ -5423,7 +5424,8 @@
       if (searchBtn) searchBtn.style.display = simpleMode ? 'none' : 'inline-flex';
       if (favoritesBtn) favoritesBtn.style.display = 'inline-flex';
       if (historyBtn) historyBtn.style.display = simpleMode ? 'none' : 'inline-flex';
-      if (achievementsBtn) achievementsBtn.style.display = 'inline-flex';
+      if (achievementsBtn) achievementsBtn.style.display = 'none';
+
 
       updateKidTimePill();
       updateKidSearchQuotaBadge(user);
