@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -1360,9 +1360,9 @@
         <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.75rem;">
           <div>
             <h3 style="font-size:1.15rem; margin:0 0 0.2rem 0;">Safe Kids Browser</h3>
-            <p style="color:var(--text-muted); font-size:0.86rem; margin:0;">Visit parent-approved educational websites or request a new site.</p>
+            <p style="color:var(--text-muted); font-size:0.86rem; margin:0;">Search the web or visit any website.</p>
           </div>
-          <span id="kidBrowserModeBadge" style="font-size:0.78rem; font-weight:700; padding:0.28rem 0.72rem; border-radius:99px; background:rgba(6,214,160,0.14); color:#06d6a0;">Allowlist Active</span>
+          <span id="kidBrowserModeBadge" style="font-size:0.78rem; font-weight:700; padding:0.28rem 0.72rem; border-radius:99px; background:rgba(6,214,160,0.14); color:#06d6a0;">On</span>
         </div>
         <div id="kidBrowserContent">
           <p style="color:var(--text-muted);">Loading safe browser settings...</p>
@@ -4765,55 +4765,21 @@
             </label>
           </div>
 
-          <div style="margin-top:0.9rem; padding:1rem; border-radius:var(--radius-sm); background:var(--bg); border:1px solid var(--border);">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.75rem;">
-              <div>
-                <div style="font-weight:700; font-size:0.95rem;">Safe Browser Controls</div>
-                <div style="font-size:0.8rem; color:var(--text-muted);">Manage website access, allowed/blocked domains, site requests, and browsing history for ${c.name}.</div>
-              </div>
-              <button type="button" class="btn btn-primary btn-sm" onclick="savePmChildBrowserControls('${c.id}')">Save Browsing Controls</button>
+          <div style="margin-top:0.9rem; padding:1rem; border-radius:var(--radius-sm); background:var(--bg); border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+            <div>
+              <div style="font-weight:700; font-size:0.95rem;">Safe Browser</div>
+              <div style="font-size:0.8rem; color:var(--text-muted);">Show or hide the browser for ${c.name}. No approval is needed to browse when it is on.</div>
             </div>
-            <div style="display:flex; flex-wrap:wrap; gap:1rem; font-size:0.86rem; margin-bottom:0.85rem;">
-              <label style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; cursor:pointer;">
+            <div style="display:flex; align-items:center; gap:0.85rem;">
+              <label style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; font-size:0.86rem; cursor:pointer;">
                 <input type="checkbox" id="pmBrowserEnabled_${c.id}" ${c.browserEnabled !== false ? 'checked' : ''}>
                 Enable Safe Browser
               </label>
-              <label style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; cursor:pointer;">
-                <input type="checkbox" id="pmBrowserAllowlistOnly_${c.id}" ${c.browserAllowlistOnly !== false ? 'checked' : ''}>
-                Allowlist Only (Restrict to Allowed Domains)
-              </label>
-              <label style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; cursor:pointer;">
-                <input type="checkbox" id="pmBrowserLogHistory_${c.id}" ${c.browserLogHistory !== false ? 'checked' : ''}>
-                Log Browsing History
-              </label>
-            </div>
-            <div class="form-row" style="margin-bottom:0.85rem;">
-              <div class="form-group">
-                <label>Allowed Domains (comma separated)</label>
-                <textarea id="pmAllowedDomains_${c.id}" rows="2" placeholder="pbskids.org, kids.nationalgeographic.com">${(c.allowedDomains || []).join(', ')}</textarea>
-              </div>
-              <div class="form-group">
-                <label>Blocked Domains (comma separated)</label>
-                <textarea id="pmBlockedDomains_${c.id}" rows="2" placeholder="tiktok.com, instagram.com">${(c.blockedDomains || []).join(', ')}</textarea>
-              </div>
-            </div>
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:0.85rem;">
-              <div style="padding:0.75rem; border-radius:var(--radius-sm); background:var(--surface); border:1px solid var(--border);">
-                <div style="font-weight:700; font-size:0.84rem; margin-bottom:0.45rem;">Website Requests</div>
-                <div id="pmChildSiteRequests_${c.id}" style="font-size:0.8rem; color:var(--text-muted);">Loading requests...</div>
-              </div>
-              <div style="padding:0.75rem; border-radius:var(--radius-sm); background:var(--surface); border:1px solid var(--border);">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.45rem;">
-                  <span style="font-weight:700; font-size:0.84rem;">Recent Browser History</span>
-                  <button type="button" class="btn btn-secondary btn-sm" style="padding:0.2rem 0.55rem; font-size:0.74rem;" onclick="clearPmChildBrowserHistory('${c.id}')">Clear</button>
-                </div>
-                <div id="pmChildBrowserHistory_${c.id}" style="font-size:0.8rem; color:var(--text-muted); max-height:170px; overflow-y:auto;">Loading history...</div>
-              </div>
+              <button type="button" class="btn btn-primary btn-sm" onclick="savePmChildBrowserControls('${c.id}')">Save</button>
             </div>
           </div>
         </div>
       `;
-      loadPmChildBrowserActivity(c.id);
     }
 
     function onProfileBirthdayChange(childId, birthdayStr) {
@@ -4881,25 +4847,12 @@
 
     async function savePmChildBrowserControls(childId) {
       const browserEnabled = Boolean(document.getElementById(`pmBrowserEnabled_${childId}`)?.checked);
-      const browserAllowlistOnly = Boolean(document.getElementById(`pmBrowserAllowlistOnly_${childId}`)?.checked);
-      const browserLogHistory = Boolean(document.getElementById(`pmBrowserLogHistory_${childId}`)?.checked);
-      const parseDomains = (id) =>
-        String(document.getElementById(id)?.value || '')
-          .split(/[\s,]+/)
-          .map(d => d.trim().toLowerCase())
-          .filter(Boolean);
-      const allowedDomains = parseDomains(`pmAllowedDomains_${childId}`);
-      const blockedDomains = parseDomains(`pmBlockedDomains_${childId}`);
-
       const res = await authFetch(`/api/parent/children/${childId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           browserEnabled,
-          browserAllowlistOnly,
-          browserLogHistory,
-          allowedDomains,
-          blockedDomains
+          browserAllowlistOnly: false
         })
       });
       const json = await res.json();
@@ -5608,11 +5561,26 @@
       if (historyBtn) historyBtn.style.display = simpleMode ? 'none' : 'inline-flex';
       if (achievementsBtn) achievementsBtn.style.display = 'inline-flex';
       if (browserBtn) browserBtn.style.display = simpleMode ? 'none' : 'inline-flex';
+      applyKidBrowserVisibility();
 
       updateKidTimePill();
       updateKidSearchQuotaBadge(user);
       loadKidAchievements();
       switchKidShowcaseTab(activeKidTab || 'curated');
+    }
+
+    async function applyKidBrowserVisibility() {
+      if (!authToken || currentUser?.role !== 'CHILD') return;
+      try {
+        const res = await authFetch('/api/kids/browser/config');
+        const json = await res.json();
+        if (json?.data?.browserEnabled !== false) return;
+        const tabBtn = document.getElementById('kidTabBtnBrowser');
+        const globeBtn = document.getElementById('headerBrowserBtn');
+        if (tabBtn) tabBtn.style.display = 'none';
+        if (globeBtn) globeBtn.style.display = 'none';
+        if (activeKidTab === 'browser') switchKidShowcaseTab('curated');
+      } catch {}
     }
 
     function updateKidSearchQuotaBadge(settings) {
@@ -6030,77 +5998,29 @@
       const content = document.getElementById('kidBrowserContent');
       const badge = document.getElementById('kidBrowserModeBadge');
       if (!content || !authToken) return;
-      content.innerHTML = '<p style="color:var(--text-muted);">Loading safe browser...</p>';
+      content.innerHTML = '<p style="color:var(--text-muted);">Loading browser...</p>';
       try {
-        const [cfgRes, histRes, reqRes] = await Promise.all([
-          authFetch('/api/kids/browser/config'),
-          authFetch('/api/kids/browser/history?limit=15'),
-          authFetch('/api/kids/browser/requests')
-        ]);
+        const cfgRes = await authFetch('/api/kids/browser/config');
         const cfgJson = await cfgRes.json();
-        const histJson = await histRes.json();
-        const reqJson = await reqRes.json();
-
         const cfg = cfgJson.data || {};
         if (badge) {
-          badge.textContent = cfg.browserEnabled === false ? 'Disabled by Parent' : (cfg.browserAllowlistOnly !== false ? 'Allowlist Active' : 'Filtered Mode');
+          badge.textContent = cfg.browserEnabled === false ? 'Off' : 'On';
           badge.style.color = cfg.browserEnabled === false ? '#ff6b8b' : '#06d6a0';
         }
         if (cfg.browserEnabled === false) {
-          content.innerHTML = '<p style="color:var(--text-muted);">Safe Browser is currently turned off by your parent.</p>';
+          content.innerHTML = '<p style="color:var(--text-muted);">The browser is turned off right now.</p>';
           return;
         }
-
-        const allowed = Array.isArray(cfg.allowedDomains) ? cfg.allowedDomains : [];
-        const history = Array.isArray(histJson.data) ? histJson.data : [];
-        const requests = Array.isArray(reqJson.data) ? reqJson.data : [];
-
         content.innerHTML = `
-          <div style="margin-bottom:1.25rem;">
-            <div style="font-weight:700; font-size:0.92rem; margin-bottom:0.55rem;">Approved Safe Websites</div>
-            ${allowed.length ? `
-              <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
-                ${allowed.map(d => `
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="visitKidBrowserSite('https://${d.replace(/'/g, "\\'")}')">
-                    <span class="material-symbols-rounded" style="font-size:1rem; color:#06d6a0;">verified</span> ${d}
-                  </button>
-                `).join('')}
-              </div>
-            ` : '<p style="color:var(--text-muted); font-size:0.86rem;">No approved domains added yet.</p>'}
-          </div>
-
-          <form onsubmit="submitKidBrowserRequest(event)" style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:1.25rem;">
-            <input type="text" id="kidBrowserReqInput" placeholder="Request a website (e.g. nasa.gov)..." style="flex:1 1 220px; padding:0.65rem 0.9rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg); color:var(--text);" required>
-            <button type="submit" class="btn btn-primary btn-sm">Ask Parent to Allow</button>
+          <form onsubmit="submitKidBrowserSearch(event)" style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+            <input type="text" id="kidBrowserSearchInput" placeholder="Search the web or type a website..." style="flex:1 1 260px; padding:0.7rem 1rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit; font-size:0.95rem;" required>
+            <button type="submit" class="btn btn-primary">
+              <span class="material-symbols-rounded" style="font-size:1.05rem;">search</span> Go
+            </button>
           </form>
-
-          ${requests.length ? `
-            <div style="margin-bottom:1rem;">
-              <div style="font-weight:700; font-size:0.9rem; margin-bottom:0.45rem;">My Website Requests</div>
-              <div style="display:flex; flex-direction:column; gap:0.4rem;">
-                ${requests.slice(0, 6).map(r => `
-                  <div style="display:flex; justify-content:space-between; align-items:center; padding:0.55rem 0.8rem; border-radius:var(--radius-sm); background:var(--surface-light); font-size:0.84rem;">
-                    <span>${r.domain || r.url}</span>
-                    <span style="font-weight:700; color:${r.status === 'APPROVED' ? '#06d6a0' : (r.status === 'DENIED' ? '#ff6b8b' : '#ffd166')};">${r.status}</span>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-          ` : ''}
-
-          ${history.length ? `
-            <div>
-              <div style="font-weight:700; font-size:0.9rem; margin-bottom:0.45rem;">Recent Safe Visits</div>
-              <div style="display:flex; flex-direction:column; gap:0.35rem;">
-                ${history.slice(0, 5).map(h => `
-                  <div style="font-size:0.82rem; color:var(--text-muted);">${h.title || h.domain || h.url}</div>
-                `).join('')}
-              </div>
-            </div>
-          ` : ''}
         `;
       } catch {
-        content.innerHTML = '<p style="color:var(--text-muted);">Could not load safe browser settings.</p>';
+        content.innerHTML = '<p style="color:var(--text-muted);">Could not load the browser.</p>';
       }
     }
 
@@ -6115,28 +6035,16 @@
       window.open(url, '_blank', 'noopener,noreferrer');
     }
 
-    async function submitKidBrowserRequest(e) {
+    function submitKidBrowserSearch(e) {
       e.preventDefault();
-      const input = document.getElementById('kidBrowserReqInput');
+      const input = document.getElementById('kidBrowserSearchInput');
       const raw = String(input?.value || '').trim();
       if (!raw) return;
-      const url = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
-      try {
-        const res = await authFetch('/api/kids/browser/requests', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url })
-        });
-        const json = await res.json();
-        if (!json.success) {
-          alert(json.message || 'Could not submit website request.');
-          return;
-        }
-        if (input) input.value = '';
-        loadKidBrowser();
-      } catch {
-        alert('Could not submit website request.');
-      }
+      const looksLikeSite = !/\s/.test(raw) && /^(https?:\/\/)?[^\s.]+\.[^\s.]{2,}/i.test(raw);
+      const url = looksLikeSite
+        ? (/^https?:\/\//i.test(raw) ? raw : `https://${raw}`)
+        : `https://www.google.com/search?q=${encodeURIComponent(raw)}`;
+      visitKidBrowserSite(url);
     }
 
     // --- Daily Screen Time Timer & Quick Access Parental Controls (PIN) ---
