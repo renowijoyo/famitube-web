@@ -990,9 +990,6 @@
       <button type="button" class="nav-link" id="kidTabBtnAchievements" style="display:none;" onclick="openKidTabFromHeader('achievements')">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">emoji_events</span> Badges
       </button>
-      <button type="button" class="nav-link" id="kidTabBtnBrowser" style="display:none;" onclick="openKidTabFromHeader('browser')">
-        <span class="material-symbols-rounded" style="font-size:1.05rem;">public</span> Safe Browser
-      </button>
       <a id="linkChannelsJson" href="https://famitube-api.gamantha.my.id/api/channels" target="_blank" class="nav-link" style="display:none;">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">tv</span> Channels JSON
       </a>
@@ -1041,10 +1038,6 @@
       <div id="userBar" style="display:none; position:relative; align-items:center; gap:0.65rem;">
         <button type="button" id="kidLevelPill" onclick="openKidTabFromHeader('achievements')" style="display:none; align-items:center; gap:0.4rem; padding:0.38rem 0.8rem; border-radius:99px; border:1px solid rgba(255,209,102,0.38); background:rgba(255,209,102,0.12); color:#ffd166; font-weight:700; font-size:0.8rem; cursor:pointer; white-space:nowrap;">
           ⭐ 0 • Lv.1
-        </button>
-
-        <button type="button" id="headerBrowserBtn" class="btn btn-secondary" onclick="if(typeof openKidTabFromHeader==='function') openKidTabFromHeader('browser');" title="Safe Browser" style="display:none; padding:0.55rem;">
-          <span class="material-symbols-rounded">public</span>
         </button>
 
         <button type="button" id="headerParentalBtn" class="btn btn-secondary" onclick="openKidParentalPinGate()" title="Quick Parental Controls (PIN)" style="display:none; padding:0.55rem; border-color:rgba(255,46,147,0.35); color:var(--primary);">
@@ -1186,7 +1179,7 @@
             Learn more how FamiTube protects your children on the internet
           </h3>
           <p data-i18n="guest_parent_desc" style="color:var(--text-muted); font-size:0.92rem; max-width:640px;">
-            Discover FamiTube's unique value proposition—100% parent-curated channels, age-rated child accounts, Safe Browser allowlists, Calm Mode, and zero self-registration for kids.
+            Discover FamiTube's unique value proposition—100% parent-curated channels, age-rated child accounts, Calm Mode, and zero self-registration for kids.
           </p>
         </div>
         <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
@@ -1355,20 +1348,7 @@
       <div id="kidFavoritesGrid" class="video-grid"></div>
     </div>
 
-    <div id="kidBrowserPanel" style="display:none; margin-bottom:2rem;">
-      <div class="card" style="padding:1.25rem 1.4rem; margin-bottom:1.25rem;">
-        <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.75rem;">
-          <div>
-            <h3 style="font-size:1.15rem; margin:0 0 0.2rem 0;">Safe Kids Browser</h3>
-            <p style="color:var(--text-muted); font-size:0.86rem; margin:0;">Search the web or visit any website.</p>
-          </div>
-          <span id="kidBrowserModeBadge" style="font-size:0.78rem; font-weight:700; padding:0.28rem 0.72rem; border-radius:99px; background:rgba(6,214,160,0.14); color:#06d6a0;">On</span>
-        </div>
-        <div id="kidBrowserContent">
-          <p style="color:var(--text-muted);">Loading safe browser settings...</p>
-        </div>
-      </div>
-    </div>
+
 
     <div id="kidHomeHub" style="display:none; margin-bottom:2rem;"></div>
 
@@ -2481,7 +2461,7 @@
         return;
       }
       setModeButtons('channels');
-      ['kidTabBtnCurated', 'kidTabBtnSearch', 'kidTabBtnHistory', 'kidTabBtnPlaylists', 'kidTabBtnAchievements', 'kidTabBtnFavorites', 'kidTabBtnBrowser']
+      ['kidTabBtnCurated', 'kidTabBtnSearch', 'kidTabBtnHistory', 'kidTabBtnPlaylists', 'kidTabBtnAchievements', 'kidTabBtnFavorites']
         .forEach(id => document.getElementById(id)?.classList.remove('active'));
       document.getElementById('kidTabBtnChannels')?.classList.add('active');
       if (window.location.hash !== '#channels') {
@@ -4764,54 +4744,8 @@
               Enable Camera Attention Check (pauses video when child looks away)
             </label>
           </div>
-
-          <div style="margin-top:0.9rem; padding:1rem; border-radius:var(--radius-sm); background:var(--bg); border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
-            <div>
-              <div style="font-weight:700; font-size:0.95rem;">Safe Browser</div>
-              <div style="font-size:0.8rem; color:var(--text-muted);">Show or hide the browser for ${c.name} and choose the search provider it uses. No approval is needed to browse when it is on.</div>
-            </div>
-            <div style="display:flex; align-items:center; gap:0.85rem; flex-wrap:wrap;">
-              <label style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; font-size:0.86rem; cursor:pointer;">
-                <input type="checkbox" id="pmBrowserEnabled_${c.id}" ${c.browserEnabled !== false ? 'checked' : ''}>
-                Enable Safe Browser
-              </label>
-              <label style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; font-size:0.86rem;">
-                Search provider
-                <select id="pmBrowserProvider_${c.id}" class="pm-browser-provider" data-current="${c.browserSearchProvider || ''}" style="padding:0.4rem 0.6rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:inherit;"></select>
-              </label>
-              <button type="button" class="btn btn-primary btn-sm" onclick="savePmChildBrowserControls('${c.id}')">Save</button>
-            </div>
-          </div>
         </div>
       `;
-      refreshSearchProviderOptions();
-    }
-
-    let searchProviderOptions = [
-      { id: 'GOOGLE', label: 'Google SafeSearch', template: 'https://www.google.com/search?safe=active&q={query}' },
-      { id: 'DUCKDUCKGO', label: 'DuckDuckGo Safe', template: 'https://duckduckgo.com/?kp=1&q={query}' },
-      { id: 'BING', label: 'Bing SafeSearch', template: 'https://www.bing.com/search?adlt=strict&q={query}' }
-    ];
-
-    async function refreshSearchProviderOptions() {
-      const paint = () => {
-        document.querySelectorAll('.pm-browser-provider').forEach(sel => {
-          const current = sel.dataset.current || sel.value;
-          const selected = searchProviderOptions.some(o => o.id === current) ? current : searchProviderOptions[0].id;
-          sel.innerHTML = searchProviderOptions
-            .map(o => `<option value="${o.id}" ${o.id === selected ? 'selected' : ''}>${o.label}</option>`)
-            .join('');
-        });
-      };
-      paint();
-      try {
-        const res = await authFetch('/api/browser/search-providers');
-        const json = await res.json();
-        if (json.success && Array.isArray(json.data) && json.data.length) {
-          searchProviderOptions = json.data;
-          paint();
-        }
-      } catch {}
     }
 
     function onProfileBirthdayChange(childId, birthdayStr) {
@@ -4875,95 +4809,6 @@
       if (!json.success) return alert(json.message || 'Failed to save parental controls');
       await loadParentModeChildren();
       alert('Parental controls saved and synced!');
-    }
-
-    async function savePmChildBrowserControls(childId) {
-      const browserEnabled = Boolean(document.getElementById(`pmBrowserEnabled_${childId}`)?.checked);
-      const res = await authFetch(`/api/parent/children/${childId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          browserEnabled,
-          browserAllowlistOnly: false,
-          browserSearchProvider: document.getElementById(`pmBrowserProvider_${childId}`)?.value || undefined
-        })
-      });
-      const json = await res.json();
-      if (!json.success) return alert(json.message || 'Failed to save browsing controls');
-      await loadParentModeChildren();
-      alert('Browsing controls saved!');
-    }
-
-    async function loadPmChildBrowserActivity(childId) {
-      const reqEl = document.getElementById(`pmChildSiteRequests_${childId}`);
-      const histEl = document.getElementById(`pmChildBrowserHistory_${childId}`);
-      if (!reqEl && !histEl) return;
-
-      try {
-        const [reqRes, histRes] = await Promise.all([
-          authFetch('/api/parent/site-requests'),
-          authFetch(`/api/parent/children/${childId}/browser-history?limit=25`)
-        ]);
-        const [reqJson, histJson] = await Promise.all([
-          reqRes.json().catch(() => ({})),
-          histRes.json().catch(() => ({}))
-        ]);
-
-        if (reqEl) {
-          const allReqs = Array.isArray(reqJson.data) ? reqJson.data : [];
-          const childReqs = allReqs.filter(r => r.kidId === childId);
-          reqEl.innerHTML = childReqs.length
-            ? childReqs.slice(0, 10).map(r => `
-                <div style="display:flex; justify-content:space-between; align-items:center; gap:0.4rem; padding:0.35rem 0; border-bottom:1px solid var(--border);">
-                  <div style="min-width:0;">
-                    <div style="font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${r.domain}</div>
-                    <div style="font-size:0.72rem; color:var(--text-muted);">${r.status}</div>
-                  </div>
-                  ${r.status === 'PENDING' ? `
-                    <div style="display:flex; gap:0.3rem; flex-shrink:0;">
-                      <button type="button" class="btn btn-primary btn-sm" style="padding:0.2rem 0.5rem; font-size:0.72rem;" onclick="decidePmSiteRequest('${childId}', '${r.id}', 'APPROVED')">Allow</button>
-                      <button type="button" class="btn btn-secondary btn-sm" style="padding:0.2rem 0.5rem; font-size:0.72rem;" onclick="decidePmSiteRequest('${childId}', '${r.id}', 'REJECTED')">Deny</button>
-                    </div>
-                  ` : ''}
-                </div>
-              `).join('')
-            : '<div>No website requests yet.</div>';
-        }
-
-        if (histEl) {
-          const items = Array.isArray(histJson.data) ? histJson.data : [];
-          histEl.innerHTML = items.length
-            ? items.map(h => `
-                <div style="padding:0.3rem 0; border-bottom:1px solid var(--border);">
-                  <div style="font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${h.title || h.domain}</div>
-                  <div style="font-size:0.72rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${h.domain} • ${new Date(h.visitedAt).toLocaleString()}</div>
-                </div>
-              `).join('')
-            : '<div>No browser history recorded yet.</div>';
-        }
-      } catch {
-        if (reqEl) reqEl.textContent = 'Unable to load website requests.';
-        if (histEl) histEl.textContent = 'Unable to load browser history.';
-      }
-    }
-
-    async function decidePmSiteRequest(childId, requestId, decision) {
-      const res = await authFetch(`/api/parent/site-requests/${requestId}/decide`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ decision })
-      });
-      const json = await res.json();
-      if (!json.success) return alert(json.message || 'Failed to update site request');
-      await loadParentModeChildren();
-    }
-
-    async function clearPmChildBrowserHistory(childId) {
-      if (!confirm('Clear all browser history for this child?')) return;
-      const res = await authFetch(`/api/parent/children/${childId}/browser-history`, { method: 'DELETE' });
-      const json = await res.json();
-      if (!json.success) return alert(json.message || 'Failed to clear browser history');
-      await loadPmChildBrowserActivity(childId);
     }
 
     async function resetPmChildSearchViews(childId) {
@@ -5541,7 +5386,6 @@
       const favoritesBtn = document.getElementById('kidTabBtnFavorites');
       const historyBtn = document.getElementById('kidTabBtnHistory');
       const achievementsBtn = document.getElementById('kidTabBtnAchievements');
-      const browserBtn = document.getElementById('kidTabBtnBrowser');
       const curatedTabBtn = document.getElementById('kidTabBtnCurated');
       const levelPill = document.getElementById('kidLevelPill');
       const heroCard = document.getElementById('showcaseHeroCard');
@@ -5552,13 +5396,11 @@
       const isChild = user?.role === 'CHILD';
       const profileKidStatsRow = document.getElementById('profileKidStatsRow');
       const headerTimePill = document.getElementById('headerTimePill');
-      const headerBrowserBtn = document.getElementById('headerBrowserBtn');
       const headerParentalBtn = document.getElementById('headerParentalBtn');
       const profileParentalBtn = document.getElementById('profileParentalBtn');
 
       if (profileKidStatsRow) profileKidStatsRow.style.display = isChild ? 'grid' : 'none';
       if (headerTimePill) headerTimePill.style.display = isChild ? 'inline-flex' : 'none';
-      if (headerBrowserBtn) headerBrowserBtn.style.display = isChild ? 'inline-flex' : 'none';
       if (headerParentalBtn) headerParentalBtn.style.display = 'none';
       if (profileParentalBtn) profileParentalBtn.style.display = isChild ? 'flex' : 'none';
       if (levelPill) levelPill.style.display = 'none';
@@ -5566,7 +5408,7 @@
       if (heroCard) {
         heroCard.style.display = 'none';
       }
-      const kidNavBtns = [curatedTabBtn, channelsBtn, searchBtn, playlistsBtn, favoritesBtn, historyBtn, achievementsBtn, browserBtn];
+      const kidNavBtns = [curatedTabBtn, channelsBtn, searchBtn, playlistsBtn, favoritesBtn, historyBtn, achievementsBtn];
       if (!user || !authToken) {
         kidNavBtns.forEach(btn => { if (btn) btn.style.display = 'none'; });
         if (guestEntryEl) guestEntryEl.style.display = 'flex';
@@ -5593,27 +5435,11 @@
       if (favoritesBtn) favoritesBtn.style.display = 'inline-flex';
       if (historyBtn) historyBtn.style.display = simpleMode ? 'none' : 'inline-flex';
       if (achievementsBtn) achievementsBtn.style.display = 'inline-flex';
-      if (browserBtn) browserBtn.style.display = simpleMode ? 'none' : 'inline-flex';
-      applyKidBrowserVisibility();
 
       updateKidTimePill();
       updateKidSearchQuotaBadge(user);
       loadKidAchievements();
       switchKidShowcaseTab(activeKidTab || 'curated');
-    }
-
-    async function applyKidBrowserVisibility() {
-      if (!authToken || currentUser?.role !== 'CHILD') return;
-      try {
-        const res = await authFetch('/api/kids/browser/config');
-        const json = await res.json();
-        if (json?.data?.browserEnabled !== false) return;
-        const tabBtn = document.getElementById('kidTabBtnBrowser');
-        const globeBtn = document.getElementById('headerBrowserBtn');
-        if (tabBtn) tabBtn.style.display = 'none';
-        if (globeBtn) globeBtn.style.display = 'none';
-        if (activeKidTab === 'browser') switchKidShowcaseTab('curated');
-      } catch {}
     }
 
     function updateKidSearchQuotaBadge(settings) {
@@ -5677,7 +5503,6 @@
       if (playlistsEl) playlistsEl.style.display = activeKidTab === 'playlists' ? 'block' : 'none';
       if (achievementsEl) achievementsEl.style.display = activeKidTab === 'achievements' ? 'block' : 'none';
       if (favoritesEl) favoritesEl.style.display = activeKidTab === 'favorites' ? 'block' : 'none';
-      if (browserEl) browserEl.style.display = activeKidTab === 'browser' ? 'block' : 'none';
 
       document.getElementById('kidTabBtnCurated')?.classList.toggle('active', activeKidTab === 'curated');
       document.getElementById('kidTabBtnChannels')?.classList.remove('active');
@@ -5686,14 +5511,12 @@
       document.getElementById('kidTabBtnPlaylists')?.classList.toggle('active', activeKidTab === 'playlists');
       document.getElementById('kidTabBtnAchievements')?.classList.toggle('active', activeKidTab === 'achievements');
       document.getElementById('kidTabBtnFavorites')?.classList.toggle('active', activeKidTab === 'favorites');
-      document.getElementById('kidTabBtnBrowser')?.classList.toggle('active', activeKidTab === 'browser');
 
       if (activeKidTab === 'curated' && isChild) renderKidHomeHub(currentUser);
       if (activeKidTab === 'history') loadKidHistory();
       if (activeKidTab === 'playlists') loadKidPlaylists();
       if (activeKidTab === 'achievements') loadKidAchievements();
       if (activeKidTab === 'favorites') renderKidFavorites();
-      if (activeKidTab === 'browser') loadKidBrowser();
     }
 
     async function loadKidAchievements() {
@@ -6024,98 +5847,6 @@
         return;
       }
       grid.innerHTML = favs.map(v => renderKidVideoCardHtml(v)).join('');
-    }
-
-    // --- Kid Safe Browser (matching Android BrowserScreen) ---
-    async function loadKidBrowser() {
-      const content = document.getElementById('kidBrowserContent');
-      const badge = document.getElementById('kidBrowserModeBadge');
-      if (!content || !authToken) return;
-      content.innerHTML = '<p style="color:var(--text-muted);">Loading browser...</p>';
-      try {
-        const cfgRes = await authFetch('/api/kids/browser/config');
-        const cfgJson = await cfgRes.json();
-        const cfg = cfgJson.data || {};
-        if (badge) {
-          badge.textContent = cfg.browserEnabled === false ? 'Off' : 'On';
-          badge.style.color = cfg.browserEnabled === false ? '#ff6b8b' : '#06d6a0';
-        }
-        if (cfg.browserEnabled === false) {
-          content.innerHTML = '<p style="color:var(--text-muted);">The browser is turned off right now.</p>';
-          return;
-        }
-        content.innerHTML = `
-          <form onsubmit="submitKidBrowserSearch(event)" style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:1rem;">
-            <input type="text" id="kidBrowserSearchInput" placeholder="Search the web or type a website..." style="flex:1 1 260px; padding:0.7rem 1rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit; font-size:0.95rem;" required>
-            <button type="submit" class="btn btn-primary">
-              <span class="material-symbols-rounded" style="font-size:1.05rem;">search</span> Search
-            </button>
-          </form>
-          <div id="kidBrowserResults"></div>
-          <div id="kidBrowserViewer" style="display:none;"></div>
-        `;
-      } catch {
-        content.innerHTML = '<p style="color:var(--text-muted);">Could not load the browser.</p>';
-      }
-    }
-
-    function kbEsc(s) {
-      return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-    }
-
-    function logKidBrowserVisit(url) {
-      authFetch('/api/kids/browser/history', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url, title: url.replace(/^https?:\/\//, '') })
-      }).catch(() => {});
-    }
-
-    // Show a page inside this page (no new tab). Some sites refuse to be embedded, so a fallback link is offered.
-    function openKidBrowserPage(url) {
-      const results = document.getElementById('kidBrowserResults');
-      const viewer = document.getElementById('kidBrowserViewer');
-      if (!results || !viewer) return;
-      logKidBrowserVisit(url);
-      results.style.display = 'none';
-      viewer.style.display = 'block';
-      viewer.innerHTML = `
-        <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap; margin-bottom:0.6rem;">
-          <button type="button" class="btn btn-secondary btn-sm" onclick="closeKidBrowserPage()">
-            <span class="material-symbols-rounded" style="font-size:1rem;">arrow_back</span> Back to results
-          </button>
-          <span style="font-size:0.82rem; color:var(--text-muted); flex:1 1 200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${kbEsc(url)}</span>
-          <a href="${kbEsc(url)}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">Page not showing? Open in new tab</a>
-        </div>
-        <iframe src="${kbEsc(url)}" referrerpolicy="no-referrer" sandbox="allow-scripts allow-forms allow-same-origin allow-popups" style="width:100%; height:70vh; border:1px solid var(--border); border-radius:var(--radius-sm); background:#fff;"></iframe>
-      `;
-    }
-
-    function closeKidBrowserPage() {
-      const results = document.getElementById('kidBrowserResults');
-      const viewer = document.getElementById('kidBrowserViewer');
-      if (viewer) { viewer.style.display = 'none'; viewer.innerHTML = ''; }
-      if (results) results.style.display = 'block';
-    }
-
-    async function submitKidBrowserSearch(e) {
-      e.preventDefault();
-      const input = document.getElementById('kidBrowserSearchInput');
-      const raw = String(input?.value || '').trim();
-      if (!raw) return;
-
-      const looksLikeSite = !/\s/.test(raw) && /^(https?:\/\/)?[^\s.]+\.[^\s.]{2,}/i.test(raw);
-      if (looksLikeSite) {
-        openKidBrowserPage(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`);
-        return;
-      }
-
-      // Format search URL using child's chosen search provider
-      const providerId = (kidParentalSettings?.browserSearchProvider || 'GOOGLE').toUpperCase();
-      const provider = searchProviderOptions.find(p => p.id === providerId) || searchProviderOptions[0];
-      const searchUrl = (provider.template || 'https://www.google.com/search?safe=active&q={query}')
-        .replace('{query}', encodeURIComponent(raw));
-      openKidBrowserPage(searchUrl);
     }
 
     // --- Daily Screen Time Timer & Quick Access Parental Controls (PIN) ---
@@ -7051,7 +6782,7 @@
         guest_pill_stars_title: 'Stars & Badges',
         guest_pill_stars_desc: 'Earn stars, unlock badges, and build your own favorite playlists.',
         guest_parent_title: 'Learn more how FamiTube protects your children on the internet',
-        guest_parent_desc: "Discover FamiTube's unique value proposition—100% parent-curated channels, age-rated child accounts, Safe Browser allowlists, Calm Mode, and zero self-registration for kids.",
+        guest_parent_desc: "Discover FamiTube's unique value proposition—100% parent-curated channels, age-rated child accounts, Calm Mode, and zero self-registration for kids.",
         guest_parent_learn_cta: 'Learn More',
         parent_sign_in: 'Parent / Curator Sign In',
         kids_sign_in: 'Kids Sign In',
@@ -7110,7 +6841,7 @@
         guest_pill_stars_title: 'Bintang & Lencana',
         guest_pill_stars_desc: 'Kumpulkan bintang, buka lencana, dan buat playlist favoritmu.',
         guest_parent_title: 'Pelajari bagaimana FamiTube melindungi anak Anda di internet',
-        guest_parent_desc: 'Temukan keunggulan unik FamiTube—100% saluran terkurasi orang tua, akun anak berdasarkan usia, daftar situs aman Safe Browser, Mode Tenang, dan tanpa pendaftaran mandiri untuk anak.',
+        guest_parent_desc: 'Temukan keunggulan unik FamiTube—100% saluran terkurasi orang tua, akun anak berdasarkan usia, Mode Tenang, dan tanpa pendaftaran mandiri untuk anak.',
         guest_parent_learn_cta: 'Pelajari Lebih Lanjut',
         parent_sign_in: 'Masuk Orang Tua / Kurator',
         kids_sign_in: 'Masuk Anak',
