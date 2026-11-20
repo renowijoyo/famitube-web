@@ -1361,7 +1361,12 @@
     </div>
 
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; gap:1rem; flex-wrap:wrap;">
-      <h3 id="showcaseVideosHeading" style="font-size:1.2rem;">Curated Videos</h3>
+      <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+        <h3 id="showcaseVideosHeading" style="font-size:1.2rem; margin:0;">Curated Videos</h3>
+        <button type="button" id="btnShowcaseChannelSubscribe" class="btn btn-sm btn-primary" style="display:none; padding:0.25rem 0.75rem; font-size:0.78rem; border-radius:99px; gap:0.3rem;" onclick="onShowcaseChannelSubscribeClick()">
+          <span class="material-symbols-rounded" style="font-size:1rem;">add</span> <span>Subscribe</span>
+        </button>
+      </div>
       <span id="showcaseVideosCount" style="color:var(--text-muted); font-size:0.9rem;"></span>
     </div>
     <div id="showcaseVideos" class="video-grid"></div>
@@ -1396,6 +1401,9 @@
           </button>
           <button type="button" class="filter-pill" data-type="ON_DEMAND" onclick="setChannelSearchType('ON_DEMAND', this)">
             <span class="material-symbols-rounded" style="font-size:0.95rem;">video_library</span> <span data-i18n="filter_on_demand">On Demand</span>
+          </button>
+          <button type="button" class="filter-pill" id="channelSubscribedFilterPill" onclick="toggleChannelSubscribedFilter()" style="display:inline-flex; align-items:center; gap:0.35rem;">
+            <span class="material-symbols-rounded" style="font-size:0.95rem;">bookmark</span> Subscribed (<span id="subscribedChannelsCount">0</span>)
           </button>
         </div>
       </div>
@@ -1636,15 +1644,19 @@
               <label>Category</label>
               <select id="formCategory">
                 <option value="Cartoons & Fun">Cartoons & Fun</option>
-                <option value="Science & Space">Science & Space</option>
                 <option value="Learning & ABCs">Learning & ABCs</option>
                 <option value="Music & Rhymes">Music & Rhymes</option>
-                <option value="Animals &amp; Nature">Animals &amp; Nature</option>
-                <option value="Art &amp; Crafts">Art &amp; Crafts</option>
-                <option value="Video Games &amp; Gaming">Video Games &amp; Gaming</option>
-                <option value="Hobbies &amp; DIY">Hobbies &amp; DIY</option>
-                <option value="Sports &amp; Outdoors">Sports &amp; Outdoors</option>
-                <option value="Cooking &amp; Baking">Cooking &amp; Baking</option>
+                <option value="Animals & Nature">Animals & Nature</option>
+                <option value="Art & Crafts">Art & Crafts</option>
+                <option value="Science & Space">Science & Space</option>
+                <option value="Stories & Reading">Stories & Reading</option>
+                <option value="Math & Coding">Math & Coding</option>
+                <option value="Kids Yoga & Active">Kids Yoga & Active</option>
+                <option value="World & Discovery">World & Discovery</option>
+                <option value="Video Games & Gaming">Video Games & Gaming</option>
+                <option value="Hobbies & DIY">Hobbies & DIY</option>
+                <option value="Sports & Outdoors">Sports & Outdoors</option>
+                <option value="Cooking & Baking">Cooking & Baking</option>
               </select>
             </div>
             <div class="form-group">
@@ -1701,10 +1713,19 @@
           <select id="categoryFilter" onchange="filterVideos()" style="background:var(--surface); border:1px solid var(--border); color:var(--text); padding:0.4rem 0.8rem; border-radius:var(--radius-sm);">
             <option value="">All Categories</option>
             <option value="Cartoons & Fun">Cartoons & Fun</option>
-            <option value="Science & Space">Science & Space</option>
             <option value="Learning & ABCs">Learning & ABCs</option>
             <option value="Music & Rhymes">Music & Rhymes</option>
             <option value="Animals & Nature">Animals & Nature</option>
+            <option value="Art & Crafts">Art & Crafts</option>
+            <option value="Science & Space">Science & Space</option>
+            <option value="Stories & Reading">Stories & Reading</option>
+            <option value="Math & Coding">Math & Coding</option>
+            <option value="Kids Yoga & Active">Kids Yoga & Active</option>
+            <option value="World & Discovery">World & Discovery</option>
+            <option value="Video Games & Gaming">Video Games & Gaming</option>
+            <option value="Hobbies & DIY">Hobbies & DIY</option>
+            <option value="Sports & Outdoors">Sports & Outdoors</option>
+            <option value="Cooking & Baking">Cooking & Baking</option>
           </select>
         </div>
       </div>
@@ -1713,6 +1734,99 @@
 
     <!-- Tab 2: Channels -->
     <div id="tabChannels" style="display:none;">
+
+      <!-- Automated YouTube Channel Curation Tool -->
+      <div class="channel-creator-box" style="margin-bottom:1.5rem; background:linear-gradient(135deg, rgba(255,51,102,0.04), rgba(76,201,240,0.04)); border:1px solid rgba(255,51,102,0.3); border-radius:var(--radius-md);">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.75rem;">
+          <h3 style="font-family:'Fredoka',cursive; font-size:1.25rem; margin:0; display:flex; align-items:center; gap:0.5rem; color:var(--text);">
+            <span class="material-symbols-rounded" style="color:var(--primary); font-size:1.4rem;">youtube_activity</span>
+            Import YouTube Channel into Curated Channels
+          </h3>
+          <span style="font-size:0.78rem; font-weight:700; padding:0.25rem 0.65rem; border-radius:99px; background:rgba(255,51,102,0.12); color:var(--primary);">
+            Automated Safe Curation
+          </span>
+        </div>
+        <p style="font-size:0.86rem; color:var(--text-muted); margin-bottom:1rem; line-height:1.45;">
+          Enter any trusted YouTube channel handle (e.g. <code>@SciShowKids</code>, <code>@Numberblocks</code>, <code>@ArtforKidsHub</code>) or URL. FamiTube will automatically resolve the channel info, import safe videos, and categorize them into curated topics.
+        </p>
+
+        <form id="formYtChannelImport" onsubmit="importYouTubeChannel(event)">
+          <div class="form-row-3" style="margin-bottom:0.75rem;">
+            <div class="form-group" style="flex:1.4;">
+              <label>YouTube Channel Handle / URL</label>
+              <div style="display:flex; gap:0.4rem;">
+                <input type="text" id="ytImportUrl" placeholder="e.g. @SciShowKids or https://youtube.com/@ArtforKidsHub" required style="flex:1;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="previewYouTubeChannel()" id="btnYtPreview" style="white-space:nowrap; padding:0.35rem 0.75rem;">
+                  <span class="material-symbols-rounded" style="font-size:1rem;">search</span> Preview
+                </button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Topic Category</label>
+              <select id="ytImportCategory">
+                <option value="Science & Space">Science & Space</option>
+                <option value="Cartoons & Fun">Cartoons & Fun</option>
+                <option value="Learning & ABCs">Learning & ABCs</option>
+                <option value="Music & Rhymes">Music & Rhymes</option>
+                <option value="Animals & Nature">Animals & Nature</option>
+                <option value="Art & Crafts">Art & Crafts</option>
+                <option value="Stories & Reading">Stories & Reading</option>
+                <option value="Math & Coding">Math & Coding</option>
+                <option value="Kids Yoga & Active">Kids Yoga & Active</option>
+                <option value="World & Discovery">World & Discovery</option>
+                <option value="Video Games & Gaming">Video Games & Gaming</option>
+                <option value="Hobbies & DIY">Hobbies & DIY</option>
+                <option value="Sports & Outdoors">Sports & Outdoors</option>
+                <option value="Cooking & Baking">Cooking & Baking</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Target Age Group</label>
+              <select id="ytImportAge">
+                <option value="ALL">All Ages</option>
+                <option value="TODDLER">Toddlers (2 - 4 yrs)</option>
+                <option value="YOUNG_KIDS" selected>Young Kids (5 - 8 yrs)</option>
+                <option value="OLDER_KIDS">Older Kids (9 - 12 yrs)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row-3" style="margin-bottom:0.85rem;">
+            <div class="form-group">
+              <label>Channel Mode</label>
+              <select id="ytImportType">
+                <option value="ON_DEMAND">On Demand Channel (Watch Anytime)</option>
+                <option value="LIVE_TV">Live TV Channel (24/7)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Videos to Ingest</label>
+              <select id="ytImportMaxVideos">
+                <option value="5">5 Recent Videos</option>
+                <option value="10" selected>10 Recent Videos</option>
+                <option value="15">15 Recent Videos (Full Feed)</option>
+              </select>
+            </div>
+            <div class="form-group" style="display:flex; flex-direction:column; justify-content:center;">
+              <label style="margin-bottom:0.35rem;">Approval</label>
+              <label style="display:flex; align-items:center; gap:0.45rem; font-size:0.85rem; cursor:pointer; font-weight:600; color:var(--text);">
+                <input type="checkbox" id="ytImportAutoApprove" checked style="width:16px; height:16px;">
+                Auto-approve imported videos
+              </label>
+            </div>
+          </div>
+
+          <!-- Preview Area -->
+          <div id="ytImportPreviewBox" style="display:none; margin-bottom:1rem; padding:0.9rem; border-radius:var(--radius-sm); background:var(--surface); border:1px solid var(--border);"></div>
+
+          <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
+            <button type="submit" class="btn btn-primary" id="btnYtImportSubmit">
+              <span class="material-symbols-rounded">cloud_download</span> Import &amp; Curate Channel
+            </button>
+          </div>
+        </form>
+      </div>
+
       <div class="channel-creator-box">
         <h3 style="font-family:'Fredoka',cursive; font-size:1.2rem; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem;">
           <span class="material-symbols-rounded" style="color:var(--accent);">add_to_queue</span>
@@ -1735,10 +1849,19 @@
               <label>Category</label>
               <select id="newChanCat">
                 <option value="Cartoons & Fun">Cartoons & Fun</option>
-                <option value="Science & Space">Science & Space</option>
                 <option value="Learning & ABCs">Learning & ABCs</option>
                 <option value="Music & Rhymes">Music & Rhymes</option>
                 <option value="Animals & Nature">Animals & Nature</option>
+                <option value="Art & Crafts">Art & Crafts</option>
+                <option value="Science & Space">Science & Space</option>
+                <option value="Stories & Reading">Stories & Reading</option>
+                <option value="Math & Coding">Math & Coding</option>
+                <option value="Kids Yoga & Active">Kids Yoga & Active</option>
+                <option value="World & Discovery">World & Discovery</option>
+                <option value="Video Games & Gaming">Video Games & Gaming</option>
+                <option value="Hobbies & DIY">Hobbies & DIY</option>
+                <option value="Sports & Outdoors">Sports & Outdoors</option>
+                <option value="Cooking & Baking">Cooking & Baking</option>
               </select>
             </div>
           </div>
@@ -3409,6 +3532,118 @@
           </div>
         `;
       }).join('');
+    }
+
+    
+    async function previewYouTubeChannel() {
+      const urlInput = document.getElementById('ytImportUrl');
+      const previewBox = document.getElementById('ytImportPreviewBox');
+      const btn = document.getElementById('btnYtPreview');
+      const url = (urlInput?.value || '').trim();
+      if (!url) {
+        alert('Please enter a YouTube channel handle or URL first.');
+        return;
+      }
+      if (btn) btn.disabled = true;
+      if (previewBox) {
+        previewBox.style.display = 'block';
+        previewBox.innerHTML = '<div style="display:flex; align-items:center; gap:0.5rem; color:var(--text-muted); font-size:0.88rem;"><span class="material-symbols-rounded" style="animation:spin 1s linear infinite;">sync</span> Resolving YouTube channel &amp; latest videos...</div>';
+      }
+
+      try {
+        const res = await authFetch('/api/channels/parse-youtube', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+        const json = await res.json();
+        if (json.success && json.data) {
+          const info = json.data;
+          const videos = info.videos || [];
+          previewBox.innerHTML = `
+            <div style="display:flex; align-items:flex-start; gap:0.85rem; margin-bottom:0.75rem;">
+              <img src="${info.avatarUrl}" alt="${info.title}" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid var(--accent); flex-shrink:0;">
+              <div style="flex:1; min-width:0;">
+                <div style="font-weight:700; font-size:1rem; color:var(--text);">${info.title}</div>
+                <div style="font-size:0.78rem; color:var(--text-muted); line-height:1.3; margin-top:0.15rem; max-height:48px; overflow:hidden;">${info.description || 'Safe YouTube creator channel for kids.'}</div>
+                <div style="font-size:0.75rem; font-weight:700; color:var(--accent); margin-top:0.3rem;">${videos.length} videos found ready to ingest</div>
+              </div>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(130px, 1fr)); gap:0.5rem; max-height:160px; overflow-y:auto; padding-right:0.25rem;">
+              ${videos.slice(0, 8).map(v => `
+                <div style="background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; font-size:0.72rem;">
+                  <img src="${v.thumbnailUrl}" alt="${v.title}" style="width:100%; aspect-ratio:16/9; object-fit:cover; display:block;">
+                  <div style="padding:0.3rem 0.4rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${v.title}">${v.title}</div>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        } else {
+          previewBox.innerHTML = `<div style="color:var(--danger); font-size:0.86rem;"><span class="material-symbols-rounded" style="vertical-align:middle; font-size:1.1rem;">error</span> ${json.message || 'Could not resolve channel. Check the handle/URL and try again.'}</div>`;
+        }
+      } catch (err) {
+        previewBox.innerHTML = '<div style="color:var(--danger); font-size:0.86rem;">Network error fetching channel preview.</div>';
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    async function importYouTubeChannel(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnYtImportSubmit');
+      const url = document.getElementById('ytImportUrl')?.value?.trim();
+      const category = document.getElementById('ytImportCategory')?.value;
+      const ageRating = document.getElementById('ytImportAge')?.value;
+      const channelType = document.getElementById('ytImportType')?.value;
+      const maxVideos = Number(document.getElementById('ytImportMaxVideos')?.value) || 10;
+      const autoApproveVideos = document.getElementById('ytImportAutoApprove')?.checked !== false;
+
+      if (!url) {
+        alert('Please enter a YouTube channel handle or URL.');
+        return;
+      }
+
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="material-symbols-rounded" style="animation:spin 1s linear infinite;">sync</span> Ingesting Channel &amp; Videos...';
+      }
+
+      try {
+        const res = await authFetch('/api/channels/import-youtube', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            url,
+            category,
+            ageRating,
+            channelType,
+            maxVideos,
+            autoApproveVideos
+          })
+        });
+        const json = await res.json();
+        if (json.success) {
+          alert(json.message || 'Channel successfully imported and curated!');
+          document.getElementById('formYtChannelImport')?.reset();
+          const previewBox = document.getElementById('ytImportPreviewBox');
+          if (previewBox) {
+            previewBox.style.display = 'none';
+            previewBox.innerHTML = '';
+          }
+          if (typeof loadAdminChannels === 'function') await loadAdminChannels();
+          if (typeof loadChannels === 'function') await loadChannels();
+          if (typeof loadSearchableChannels === 'function') await loadSearchableChannels();
+        } else {
+          alert('Failed to import channel: ' + (json.message || 'Unknown error'));
+        }
+      } catch (err) {
+        alert('Error importing YouTube channel: ' + err.message);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<span class="material-symbols-rounded">cloud_download</span> Import &amp; Curate Channel';
+        }
+      }
     }
 
     async function createChannel(e) {
@@ -5119,6 +5354,7 @@
       }
 
       countEl.textContent = `${videos.length} video${videos.length === 1 ? '' : 's'}`;
+      updateShowcaseSubscribeButton(targetId);
       if (videos.length === 0) {
         grid.innerHTML = '<p style="color:var(--text-muted);">No curated videos in this channel yet.</p>';
         return;
@@ -5153,6 +5389,79 @@
     let activeChannelSearchType = 'ALL';
     let activeChannelSearchAge = 'ALL';
     let channelSearchQuery = '';
+    let kidSubscribedChannelIds = new Set();
+    let channelSearchSubscribedOnly = false;
+
+    async function loadKidSubscribedChannels() {
+      if (!authToken) return;
+      try {
+        const res = await authFetch('/api/kids/channels');
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) {
+          kidSubscribedChannelIds = new Set(json.data.map(c => c.id));
+          updateSubscribedChannelsCountBadge();
+        }
+      } catch {}
+    }
+
+    function updateSubscribedChannelsCountBadge() {
+      const el = document.getElementById('subscribedChannelsCount');
+      if (el) el.textContent = String(kidSubscribedChannelIds.size);
+    }
+
+    function toggleChannelSubscribedFilter() {
+      channelSearchSubscribedOnly = !channelSearchSubscribedOnly;
+      const btn = document.getElementById('channelSubscribedFilterPill');
+      if (btn) btn.classList.toggle('active', channelSearchSubscribedOnly);
+      renderChannelSearchResults();
+    }
+
+    async function toggleKidChannelSubscription(channelId, e) {
+      if (e) e.stopPropagation();
+      if (!authToken) {
+        alert('Please sign in to subscribe to channels.');
+        return;
+      }
+      const isSubbed = kidSubscribedChannelIds.has(channelId);
+      try {
+        const res = await authFetch('/api/kids/channels/' + encodeURIComponent(channelId), {
+          method: isSubbed ? 'DELETE' : 'POST'
+        });
+        const json = await res.json();
+        if (json.success) {
+          if (isSubbed) {
+            kidSubscribedChannelIds.delete(channelId);
+          } else {
+            kidSubscribedChannelIds.add(channelId);
+          }
+          updateSubscribedChannelsCountBadge();
+          renderChannelSearchResults();
+          updateShowcaseSubscribeButton(activeShowcaseChannelId);
+        } else {
+          alert(json.message || 'Failed to update channel subscription');
+        }
+      } catch {
+        alert('Unable to update channel subscription');
+      }
+    }
+
+    function updateShowcaseSubscribeButton(channelId) {
+      const subBtn = document.getElementById('btnShowcaseChannelSubscribe');
+      if (!subBtn) return;
+      if (channelId && authToken) {
+        const isSub = kidSubscribedChannelIds.has(channelId);
+        subBtn.style.display = 'inline-flex';
+        subBtn.className = `btn btn-sm ${isSub ? 'btn-secondary' : 'btn-primary'}`;
+        subBtn.innerHTML = `<span class="material-symbols-rounded" style="font-size:1rem;">${isSub ? 'check' : 'add'}</span> <span>${isSub ? 'Subscribed' : 'Subscribe'}</span>`;
+      } else {
+        subBtn.style.display = 'none';
+      }
+    }
+
+    async function onShowcaseChannelSubscribeClick() {
+      if (!activeShowcaseChannelId) return;
+      await toggleKidChannelSubscription(activeShowcaseChannelId);
+    }
 
     async function loadChannelSearchPage(useKidsFeed = false) {
       const grid = document.getElementById('channelsSearchGrid');
@@ -5165,6 +5474,7 @@
         syncChannelSearchAgePills();
       }
       try {
+        await loadKidSubscribedChannels();
         const [chanRes, catRes] = await Promise.all([
           useKidsFeed && authToken
             ? fetch(apiUrl('/api/kids/feed'), { headers: { Authorization: `Bearer ${authToken}` } })
@@ -5260,6 +5570,8 @@
     }
 
     function clearAllChannelFilters() {
+      channelSearchSubscribedOnly = false;
+      document.getElementById('channelSubscribedFilterPill')?.classList.remove('active');
       activeChannelSearchCategory = 'ALL';
       activeChannelSearchType = 'ALL';
       activeChannelSearchAge = 'ALL';
@@ -5279,6 +5591,7 @@
 
       const q = channelSearchQuery.toLowerCase();
       const filtered = searchableChannels.filter(c => {
+        if (channelSearchSubscribedOnly && !kidSubscribedChannelIds.has(c.id)) return false;
         if (activeChannelSearchCategory !== 'ALL' && c.category !== activeChannelSearchCategory) return false;
         if (activeChannelSearchType !== 'ALL' && c.channelType !== activeChannelSearchType) return false;
         if (activeChannelSearchAge !== 'ALL') {
@@ -5301,10 +5614,10 @@
       if (!filtered.length) {
         grid.innerHTML = `
           <div class="card" style="grid-column:1 / -1; padding:2.25rem; text-align:center;">
-            <span class="material-symbols-rounded" style="font-size:2.4rem; color:var(--text-muted); margin-bottom:0.5rem;">search_off</span>
-            <h3 style="margin-bottom:0.35rem;">No matching channels found</h3>
-            <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1rem;">Try a different search keyword or clear the active category filter.</p>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="clearAllChannelFilters()">Clear Filters</button>
+            <span class="material-symbols-rounded" style="font-size:2.4rem; color:var(--text-muted); margin-bottom:0.5rem;">${channelSearchSubscribedOnly ? 'bookmark_border' : 'search_off'}</span>
+            <h3 style="margin-bottom:0.35rem;">${channelSearchSubscribedOnly ? 'No Subscribed Channels Yet' : 'No matching channels found'}</h3>
+            <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1rem;">${channelSearchSubscribedOnly ? 'Tap "Subscribe" on any curated channel below to add it to your subscribed list!' : 'Try a different search keyword or clear the active category filter.'}</p>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="clearAllChannelFilters()">${channelSearchSubscribedOnly ? 'Show All Curated Channels' : 'Clear Filters'}</button>
           </div>
         `;
         return;
@@ -5313,6 +5626,13 @@
       grid.innerHTML = filtered.map(c => {
         const isLive = c.channelType === 'LIVE_TV';
         const videoCount = c.videoCount ?? (Array.isArray(c.videoIds) ? c.videoIds.length : 0);
+        const isSubscribed = kidSubscribedChannelIds.has(c.id);
+        const subBtnHtml = authToken ? `
+          <button type="button" class="btn btn-sm ${isSubscribed ? 'btn-secondary' : 'btn-primary'}" onclick="toggleKidChannelSubscription('${c.id}', event)" style="padding:0.25rem 0.65rem; font-size:0.75rem; border-radius:99px; gap:0.25rem;">
+            <span class="material-symbols-rounded" style="font-size:0.95rem;">${isSubscribed ? 'check' : 'add'}</span>
+            <span>${isSubscribed ? 'Subscribed' : 'Subscribe'}</span>
+          </button>
+        ` : '';
         return `
           <div class="card channel-search-card" onclick="openChannelFromSearch('${c.id}')">
             <div style="display:flex; align-items:center; gap:0.85rem;">
@@ -5334,9 +5654,12 @@
                 </span>
                 ${formatChannelAgeBadge(c.ageRating)}
               </div>
-              <span style="font-size:0.8rem; font-weight:700; color:var(--primary); display:inline-flex; align-items:center; gap:0.15rem;">
-                Watch <span class="material-symbols-rounded" style="font-size:1rem;">arrow_forward</span>
-              </span>
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                ${subBtnHtml}
+                <span style="font-size:0.8rem; font-weight:700; color:var(--primary); display:inline-flex; align-items:center; gap:0.15rem;">
+                  Watch <span class="material-symbols-rounded" style="font-size:1rem;">arrow_forward</span>
+                </span>
+              </div>
             </div>
           </div>
         `;
