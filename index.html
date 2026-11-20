@@ -1419,6 +1419,83 @@
     <div id="channelsSearchGrid" class="channel-search-grid"></div>
   </div>
 
+  <!-- Dedicated Specific Channel Page -->
+  <div class="container" id="channelDetailPage" style="display:none; padding-bottom:3rem;">
+    <!-- Top Back / Breadcrumb Bar -->
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem; gap:1rem; flex-wrap:wrap;">
+      <button type="button" class="btn btn-secondary btn-sm" onclick="backFromChannelPage()" style="gap:0.4rem; padding:0.45rem 0.9rem;">
+        <span class="material-symbols-rounded" style="font-size:1.15rem;">arrow_back</span>
+        <span id="channelDetailBackLabel">Back to Channels</span>
+      </button>
+      <div id="channelDetailBreadcrumbs" style="font-size:0.86rem; color:var(--text-muted); display:flex; align-items:center; gap:0.35rem;">
+        <span style="cursor:pointer; text-decoration:underline;" onclick="openHome(currentUser?.role === 'CHILD')">Home</span>
+        <span>&rsaquo;</span>
+        <span style="cursor:pointer; text-decoration:underline;" onclick="openChannelsNav()">Channels</span>
+        <span>&rsaquo;</span>
+        <span id="channelBreadcrumbName" style="color:var(--text); font-weight:700;">Channel</span>
+      </div>
+    </div>
+
+    <!-- Channel Profile Card (Header with Title & Description) -->
+    <div class="card" id="channelDetailHeaderCard" style="padding:1.75rem 2rem; margin-bottom:1.75rem; border-radius:18px; position:relative; overflow:hidden; border-color:rgba(76,201,240,0.25);">
+      <div id="channelDetailBannerBg" style="position:absolute; inset:0; background:linear-gradient(135deg, rgba(67,97,238,0.18), rgba(76,201,240,0.12)); pointer-events:none;"></div>
+
+      <div style="position:relative; z-index:1; display:flex; gap:1.5rem; align-items:flex-start; flex-wrap:wrap;">
+        <img id="channelDetailAvatar" src="" alt="" style="width:84px; height:84px; border-radius:50%; object-fit:cover; border:3px solid var(--accent); flex-shrink:0; background:var(--surface);">
+
+        <div style="flex:1; min-width:260px;">
+          <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap; margin-bottom:0.35rem;">
+            <h1 id="channelDetailTitle" style="font-size:1.6rem; font-weight:800; margin:0;"></h1>
+            <span id="channelDetailVerified" class="material-symbols-rounded" style="color:var(--accent); font-size:1.35rem;" title="Verified Safe Channel">verified</span>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:0.55rem; flex-wrap:wrap; margin-bottom:0.75rem;">
+            <span id="channelDetailTypeBadge" class="channel-type-badge ondemand"></span>
+            <span id="channelDetailAgeBadge"></span>
+            <span id="channelDetailCategory" class="tag-chip" style="font-size:0.78rem;"></span>
+            <span id="channelDetailVideoCount" style="font-size:0.82rem; color:var(--text-muted); font-weight:600;"></span>
+            <span id="channelDetailOwner" style="font-size:0.82rem; color:var(--text-muted);"></span>
+          </div>
+
+          <!-- Channel Description -->
+          <p id="channelDetailDescription" style="color:var(--text); font-size:0.92rem; line-height:1.55; margin:0 0 1rem; max-width:850px;"></p>
+
+          <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+            <button type="button" id="channelDetailSubBtn" class="btn btn-primary btn-sm" onclick="toggleActiveChannelPageSubscription(event)" style="gap:0.4rem; border-radius:99px; padding:0.45rem 1.15rem;">
+              <span class="material-symbols-rounded" id="channelDetailSubIcon" style="font-size:1.1rem;">add</span>
+              <span id="channelDetailSubText">Subscribe</span>
+            </button>
+
+            <button type="button" id="channelDetailLiveBtn" class="btn btn-sm" onclick="watchActiveChannelLive()" style="display:none; gap:0.4rem; border-radius:99px; padding:0.45rem 1.15rem; background:#e63946; color:#fff;">
+              <span class="material-symbols-rounded" style="font-size:1.1rem;">live_tv</span>
+              <span>Watch Live TV Broadcast</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Channel Videos Section -->
+    <div style="margin-bottom:1.1rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+      <div>
+        <h2 id="channelVideosHeading" style="font-size:1.35rem; margin:0 0 0.2rem; font-weight:800;">Channel Videos</h2>
+        <p style="font-size:0.84rem; color:var(--text-muted); margin:0;">Videos uploaded &amp; curated for this channel</p>
+      </div>
+      <span id="channelVideosCountBadge" style="font-size:0.84rem; font-weight:700; padding:0.35rem 0.85rem; border-radius:99px; background:var(--surface); border:1px solid var(--border); color:var(--primary);">0 videos</span>
+    </div>
+
+    <!-- Video Grid -->
+    <div id="channelDetailVideoGrid" class="video-grid"></div>
+
+    <!-- Empty Video State -->
+    <div id="channelDetailEmptyState" class="card" style="display:none; padding:3rem 1.5rem; text-align:center; margin-top:1rem;">
+      <span class="material-symbols-rounded" style="font-size:3rem; color:var(--text-muted); margin-bottom:0.5rem;">video_library</span>
+      <h3 style="margin-bottom:0.35rem;">No videos in this channel yet</h3>
+      <p style="color:var(--text-muted); font-size:0.9rem; max-width:400px; margin:0 auto 1.25rem;">There are no videos available for this channel matching the current age filter.</p>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="backFromChannelPage()">Back to Channels</button>
+    </div>
+  </div>
+
   <!-- Auth Gate (Login / Register / Email Verification) -->
   <div id="authGate" style="display:none; min-height:calc(100vh - 80px); align-items:center; justify-content:center; padding:2rem;">
     <div class="card" style="width:100%; max-width:440px; padding:2rem;">
@@ -2528,7 +2605,7 @@
       const parentBtn = document.getElementById('btnModeParent');
       const studioBtn = document.getElementById('btnModeStudio');
       if (homeBtn) homeBtn.className = mode === 'showcase' ? 'nav-link active' : 'nav-link';
-      if (channelsBtn) channelsBtn.className = mode === 'channels' ? 'nav-link active' : 'nav-link';
+      if (channelsBtn) channelsBtn.className = (mode === 'channels' || mode === 'channel_detail') ? 'nav-link active' : 'nav-link';
       if (parentBtn) parentBtn.className = mode === 'parent' ? 'nav-link active' : 'nav-link';
       if (studioBtn) studioBtn.className = mode === 'studio' ? 'nav-link active' : 'nav-link';
     }
@@ -2539,12 +2616,14 @@
         return;
       }
       setModeButtons('showcase');
-      if (window.location.hash === '#channels') {
+      if (window.location.hash === '#channels' || window.location.hash.startsWith('#channel/')) {
         history.replaceState(null, '', window.location.pathname + window.location.search);
       }
       document.getElementById('linkChannelsJson').style.display = 'none';
       document.getElementById('showcaseApp').style.display = 'block';
       document.getElementById('channelsSearchApp').style.display = 'none';
+      const chanPage = document.getElementById('channelDetailPage');
+      if (chanPage) chanPage.style.display = 'none';
       document.getElementById('authGate').style.display = 'none';
       document.getElementById('parentModeApp').style.display = 'none';
       document.getElementById('studioApp').style.display = 'none';
@@ -2582,6 +2661,8 @@
       document.getElementById('linkChannelsJson').style.display = 'none';
       document.getElementById('showcaseApp').style.display = 'none';
       document.getElementById('channelsSearchApp').style.display = 'block';
+      const chanPage = document.getElementById('channelDetailPage');
+      if (chanPage) chanPage.style.display = 'none';
       document.getElementById('authGate').style.display = 'none';
       document.getElementById('parentModeApp').style.display = 'none';
       document.getElementById('studioApp').style.display = 'none';
@@ -2628,6 +2709,8 @@
       setModeButtons('studio');
       document.getElementById('showcaseApp').style.display = 'none';
       document.getElementById('channelsSearchApp').style.display = 'none';
+      const chanPageStudio = document.getElementById('channelDetailPage');
+      if (chanPageStudio) chanPageStudio.style.display = 'none';
       if (!authToken) {
         showAuthGate();
         return;
@@ -2877,6 +2960,8 @@
       document.getElementById('linkChannelsJson').style.display = 'none';
       document.getElementById('showcaseApp').style.display = 'none';
       document.getElementById('channelsSearchApp').style.display = 'none';
+      const chanPageAuth = document.getElementById('channelDetailPage');
+      if (chanPageAuth) chanPageAuth.style.display = 'none';
       document.getElementById('authGate').style.display = 'flex';
       document.getElementById('parentModeApp').style.display = 'none';
       document.getElementById('studioApp').style.display = 'none';
@@ -2889,6 +2974,8 @@
       document.getElementById('linkChannelsJson').style.display = 'none';
       document.getElementById('showcaseApp').style.display = 'none';
       document.getElementById('channelsSearchApp').style.display = 'none';
+      const chanPageStu = document.getElementById('channelDetailPage');
+      if (chanPageStu) chanPageStu.style.display = 'none';
       document.getElementById('authGate').style.display = 'none';
       document.getElementById('parentModeApp').style.display = 'none';
       document.getElementById('studioApp').style.display = 'block';
@@ -4638,6 +4725,8 @@
       document.getElementById('linkChannelsJson').style.display = 'none';
       document.getElementById('showcaseApp').style.display = 'none';
       document.getElementById('channelsSearchApp').style.display = 'none';
+      const chanPageParent = document.getElementById('channelDetailPage');
+      if (chanPageParent) chanPageParent.style.display = 'none';
       document.getElementById('authGate').style.display = 'none';
       document.getElementById('studioApp').style.display = 'none';
       document.getElementById('parentModeApp').style.display = 'block';
@@ -5286,7 +5375,13 @@
                 <div style="margin-top:0.25rem;">${formatChannelAgeBadge(c.ageRating)}</div>
               </div>
             </div>
-            <p style="color:var(--text-muted); font-size:0.82rem; line-height:1.4; margin:0;">${c.description}</p>
+            <p style="color:var(--text-muted); font-size:0.82rem; line-height:1.4; margin:0 0 0.5rem;">${c.description}</p>
+            <div style="display:flex; justify-content:flex-end;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); openChannelPage('${c.id}', 'home')" style="font-size:0.74rem; padding:0.25rem 0.65rem; border-radius:99px; gap:0.25rem;">
+                <span>Channel Page</span>
+                <span class="material-symbols-rounded" style="font-size:0.95rem;">arrow_forward</span>
+              </button>
+            </div>
           </div>
         `;
       }).join('');
@@ -5344,7 +5439,9 @@
       let videos = [];
       if (targetId) {
         const ch = showcaseChannels.find(c => c.id === targetId);
-        heading.textContent = ch ? `${ch.name} — Curated Videos` : 'Channel Videos';
+        heading.innerHTML = ch
+          ? `<div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;"><span>${ch.name} — Curated Videos</span> <button type="button" class="btn btn-secondary btn-sm" onclick="openChannelPage('${ch.id}', 'home')" style="font-size:0.75rem; padding:0.25rem 0.65rem; border-radius:99px; gap:0.25rem; font-weight:700;"><span>Open Channel Page</span><span class="material-symbols-rounded" style="font-size:0.95rem;">arrow_forward</span></button></div>`
+          : 'Curated Videos';
         const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
         const res = await fetch(apiUrl('/api/channels/' + targetId), { headers });
         const json = await res.json();
@@ -5634,7 +5731,7 @@
           </button>
         ` : '';
         return `
-          <div class="card channel-search-card" onclick="openChannelFromSearch('${c.id}')">
+          <div class="card channel-search-card" onclick="openChannelPage('${c.id}', 'channels')">
             <div style="display:flex; align-items:center; gap:0.85rem;">
               <img src="${c.avatarUrl}" alt="${c.name}" style="width:52px; height:52px; border-radius:50%; object-fit:cover; flex-shrink:0; border:2px solid ${isLive ? 'var(--primary)' : 'var(--accent)'};">
               <div style="min-width:0; flex:1;">
@@ -5657,7 +5754,7 @@
               <div style="display:flex; align-items:center; gap:0.5rem;">
                 ${subBtnHtml}
                 <span style="font-size:0.8rem; font-weight:700; color:var(--primary); display:inline-flex; align-items:center; gap:0.15rem;">
-                  Watch <span class="material-symbols-rounded" style="font-size:1rem;">arrow_forward</span>
+                  View Channel <span class="material-symbols-rounded" style="font-size:1rem;">arrow_forward</span>
                 </span>
               </div>
             </div>
@@ -5666,22 +5763,206 @@
       }).join('');
     }
 
-    async function openChannelFromSearch(channelId) {
+    let activeChannelPageData = null;
+    let activeChannelPageVideos = [];
+    let previousViewBeforeChannelPage = 'channels';
+
+    async function openChannelPage(channelId, fromView) {
       if (!channelId) return;
-      activeShowcaseChannelId = channelId;
-      if (currentUser?.role === 'CHILD' || parentPreviewChild) {
-        kidViewingSelectedChannel = true;
-        activeKidTab = 'curated';
+
+      previousViewBeforeChannelPage = fromView || (document.getElementById('channelsSearchApp')?.style.display === 'block' ? 'channels' : 'home');
+
+      // Hide all other top-level views
+      const idsToHide = ['showcaseApp', 'channelsSearchApp', 'authGate', 'parentModeApp', 'studioApp', 'linkChannelsJson'];
+      idsToHide.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+
+      // Show dedicated channel page
+      const channelPageEl = document.getElementById('channelDetailPage');
+      if (channelPageEl) channelPageEl.style.display = 'block';
+
+      // Update nav button styling & URL hash
+      setModeButtons('channel_detail');
+      if (window.location.hash !== `#channel/${channelId}`) {
+        history.pushState(null, '', `#channel/${channelId}`);
       }
-      openHome(currentUser?.role === 'CHILD');
-      if (currentUser?.role === 'CHILD' || parentPreviewChild) {
-        switchKidShowcaseTab('curated', true);
+
+      // Update back button text
+      const backLabel = document.getElementById('channelDetailBackLabel');
+      if (backLabel) backLabel.textContent = previousViewBeforeChannelPage === 'home' ? 'Back to Home' : 'Back to Channels';
+
+      // Reset & set loading state
+      const titleEl = document.getElementById('channelDetailTitle');
+      const breadcrumbEl = document.getElementById('channelBreadcrumbName');
+      const descEl = document.getElementById('channelDetailDescription');
+      const grid = document.getElementById('channelDetailVideoGrid');
+      const emptyState = document.getElementById('channelDetailEmptyState');
+      const countBadge = document.getElementById('channelVideosCountBadge');
+      const headingEl = document.getElementById('channelVideosHeading');
+
+      if (titleEl) titleEl.textContent = 'Loading Channel...';
+      if (breadcrumbEl) breadcrumbEl.textContent = 'Loading...';
+      if (descEl) descEl.textContent = 'Loading channel details and curated videos...';
+      if (grid) grid.innerHTML = '<div style="grid-column:1 / -1; text-align:center; padding:3rem; color:var(--text-muted);"><span class="material-symbols-rounded" style="animation:spin 1s linear infinite; font-size:2.4rem;">sync</span><div style="margin-top:0.6rem; font-weight:600;">Loading channel catalog...</div></div>';
+      if (emptyState) emptyState.style.display = 'none';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      let channel = null;
+      let videos = [];
+
+      try {
+        const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
+        const ageParam = (currentUser?.role === 'CHILD' && currentUser?.ageRating && currentUser.ageRating !== 'ALL')
+          ? `?ageRating=${encodeURIComponent(currentUser.ageRating)}`
+          : (parentPreviewChild && parentPreviewChild.ageRating && parentPreviewChild.ageRating !== 'ALL' ? `?ageRating=${encodeURIComponent(parentPreviewChild.ageRating)}` : '');
+        const res = await fetch(apiUrl(`/api/channels/${channelId}${ageParam}`), { headers });
+        const json = await res.json();
+        if (json.success && json.data) {
+          channel = json.data.channel;
+          videos = json.data.videos || [];
+        }
+      } catch (err) {
+        console.warn('API error fetching channel:', err);
       }
-      await selectShowcaseChannel(channelId);
-      setTimeout(() => {
-        const target = document.getElementById('showcaseCuratedPanel') || document.getElementById('showcaseVideosHeading') || document.getElementById('showcaseVideos');
-        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 120);
+
+      // Fallback if API returned 404 or network was offline
+      if (!channel) {
+        channel = (Array.isArray(searchableChannels) && searchableChannels.find(c => c.id === channelId)) ||
+                  (Array.isArray(showcaseChannels) && showcaseChannels.find(c => c.id === channelId));
+      }
+      if (!videos.length && channel) {
+        if (Array.isArray(kidsFeedVideos) && kidsFeedVideos.length) {
+          videos = kidsFeedVideos.filter(v => v.channelId === channel.id || (v.channelTitle && v.channelTitle.toLowerCase() === channel.name.toLowerCase()));
+        }
+      }
+
+      if (!channel) {
+        if (titleEl) titleEl.textContent = 'Channel Not Found';
+        if (descEl) descEl.textContent = 'This channel could not be found or is not accessible for your current profile.';
+        if (grid) grid.innerHTML = '';
+        if (emptyState) emptyState.style.display = 'block';
+        return;
+      }
+
+      activeChannelPageData = channel;
+      activeChannelPageVideos = videos;
+
+      // Populate Title & Avatar
+      if (titleEl) titleEl.textContent = channel.name;
+      if (breadcrumbEl) breadcrumbEl.textContent = channel.name;
+
+      const avatarEl = document.getElementById('channelDetailAvatar');
+      if (avatarEl) {
+        avatarEl.src = channel.avatarUrl || 'assets/famitube-icon.png';
+        avatarEl.alt = channel.name;
+      }
+
+      const verifiedEl = document.getElementById('channelDetailVerified');
+      if (verifiedEl) verifiedEl.style.display = channel.isVerified ? 'inline-block' : 'none';
+
+      // Type & Age badges
+      const isLive = channel.channelType === 'LIVE_TV';
+      const typeBadge = document.getElementById('channelDetailTypeBadge');
+      if (typeBadge) {
+        typeBadge.className = `channel-type-badge ${isLive ? 'live' : 'ondemand'}`;
+        typeBadge.innerHTML = `<span class="material-symbols-rounded" style="font-size:0.88rem;">${isLive ? 'live_tv' : 'video_library'}</span> ${isLive ? 'LIVE TV' : 'ON DEMAND'}`;
+      }
+
+      const ageBadge = document.getElementById('channelDetailAgeBadge');
+      if (ageBadge) ageBadge.innerHTML = formatChannelAgeBadge(channel.ageRating);
+
+      const catEl = document.getElementById('channelDetailCategory');
+      if (catEl) catEl.textContent = channel.category || 'General';
+
+      const countEl = document.getElementById('channelDetailVideoCount');
+      if (countEl) countEl.textContent = `• ${videos.length} videos`;
+
+      const ownerEl = document.getElementById('channelDetailOwner');
+      if (ownerEl) ownerEl.textContent = `• Curated by ${channel.ownerName || 'Team FamiTube'}`;
+
+      // Description
+      if (descEl) descEl.textContent = channel.description || 'Welcome to ' + channel.name + '. Enjoy safe, age-appropriate educational and entertaining videos curated for your family.';
+
+      // Update subscribe button
+      updateChannelPageSubButton();
+
+      // Live TV button
+      const liveBtn = document.getElementById('channelDetailLiveBtn');
+      if (liveBtn) {
+        liveBtn.style.display = isLive ? 'inline-flex' : 'none';
+      }
+
+      // Videos heading & count badge
+      if (headingEl) headingEl.textContent = `${channel.name}'s Videos`;
+      if (countBadge) countBadge.textContent = `${videos.length} video${videos.length === 1 ? '' : 's'}`;
+
+      // Render Video Grid
+      if (videos.length === 0) {
+        if (grid) grid.innerHTML = '';
+        if (emptyState) emptyState.style.display = 'block';
+      } else {
+        if (emptyState) emptyState.style.display = 'none';
+        if (grid) {
+          grid.innerHTML = videos.map(v => `
+            <div class="video-card">
+              <div class="video-thumb-wrap" onclick='previewVideo(${JSON.stringify(v).replace(/'/g, "&#39;")})'>
+                <img src="${v.thumbnailUrl}" class="video-thumb" alt="${v.title}">
+                <div class="badge-type">${v.sourceType}</div>
+                <div class="badge-age">${v.ageRating}</div>
+                <div class="duration-badge">${formatTime(v.duration || 180)}</div>
+              </div>
+              <div class="video-body">
+                <div class="video-title" title="${v.title}" onclick='previewVideo(${JSON.stringify(v).replace(/'/g, "&#39;")})' style="cursor:pointer;">${v.title}</div>
+                <div class="video-meta">
+                  <img src="${channel.avatarUrl}" class="channel-pic">
+                  <span>${channel.name}</span>
+                  <span>&bull;</span>
+                  <span>${v.category || channel.category}</span>
+                </div>
+                <div class="tag-row">
+                  ${(v.tags || []).slice(0, 3).map(t => `<span class="tag-chip">#${t}</span>`).join('')}
+                </div>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+    }
+
+    function backFromChannelPage() {
+      if (previousViewBeforeChannelPage === 'home') {
+        openHome(currentUser?.role === 'CHILD');
+      } else {
+        openChannelsNav();
+      }
+    }
+
+    function updateChannelPageSubButton() {
+      const btn = document.getElementById('channelDetailSubBtn');
+      const icon = document.getElementById('channelDetailSubIcon');
+      const text = document.getElementById('channelDetailSubText');
+      if (!btn || !activeChannelPageData) return;
+      const isSub = kidSubscribedChannelIds.has(activeChannelPageData.id);
+      btn.className = `btn btn-sm ${isSub ? 'btn-secondary' : 'btn-primary'}`;
+      if (icon) icon.textContent = isSub ? 'check' : 'add';
+      if (text) text.textContent = isSub ? 'Subscribed' : 'Subscribe';
+    }
+
+    async function toggleActiveChannelPageSubscription(event) {
+      if (!activeChannelPageData) return;
+      await toggleKidChannelSubscription(activeChannelPageData.id, event);
+      updateChannelPageSubButton();
+    }
+
+    function watchActiveChannelLive() {
+      if (!activeChannelPageVideos.length) return;
+      previewVideo(activeChannelPageVideos[0]);
+    }
+
+    async function openChannelFromSearch(channelId) {
+      openChannelPage(channelId, 'channels');
     }
 
     function openChannelByVideoMeta(v) {
@@ -5689,7 +5970,7 @@
         (Array.isArray(searchableChannels) && searchableChannels.find(c => c.name && c.name.toLowerCase() === (v?.channelTitle || '').toLowerCase())?.id) ||
         (Array.isArray(showcaseChannels) && showcaseChannels.find(c => c.name && c.name.toLowerCase() === (v?.channelTitle || '').toLowerCase())?.id);
       if (chId) {
-        openChannelFromSearch(chId);
+        openChannelPage(chId, 'home');
       } else {
         openChannelsNav();
       }
@@ -5789,6 +6070,8 @@
       document.getElementById('linkChannelsJson').style.display = 'none';
       document.getElementById('showcaseApp').style.display = 'block';
       document.getElementById('channelsSearchApp').style.display = 'none';
+      const chanPageKid = document.getElementById('channelDetailPage');
+      if (chanPageKid) chanPageKid.style.display = 'none';
       document.getElementById('authGate').style.display = 'none';
       document.getElementById('parentModeApp').style.display = 'none';
       document.getElementById('studioApp').style.display = 'none';
@@ -7437,6 +7720,9 @@
       const modeParam = new URLSearchParams(window.location.search).get('mode');
       if (modeParam === 'studio' && currentUser?.role !== 'CHILD') {
         await openStudio();
+      } else if (window.location.hash.startsWith('#channel/')) {
+        const chId = window.location.hash.replace('#channel/', '');
+        openChannelPage(chId);
       } else if (window.location.hash === '#channels' || modeParam === 'channels') {
         openChannelsNav();
       } else {
@@ -7444,6 +7730,16 @@
       }
       checkInviteQueryParam();
     }
+
+    window.addEventListener('hashchange', () => {
+      if (window.location.hash.startsWith('#channel/')) {
+        const chId = window.location.hash.replace('#channel/', '');
+        openChannelPage(chId);
+      } else if (window.location.hash === '#channels') {
+        openChannelsNav();
+      }
+    });
+
     initApp();
 
     (function initHeroCarousel() {
