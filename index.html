@@ -1416,6 +1416,7 @@
       <div id="channelCategoryFilters" class="channel-category-pills" role="group" aria-label="Filter by category"></div>
     </div>
 
+    <div id="channelsYtSubsSection" style="display:none; margin-bottom:1.5rem;"></div>
     <div id="channelsSearchGrid" class="channel-search-grid"></div>
   </div>
 
@@ -5073,6 +5074,7 @@
               <button type="button" class="filter-pill active" id="pmActTab_watch_${c.id}" onclick="switchChildActivityTab('${c.id}', 'watch')">🎬 Video Viewing (<span id="pmActCount_watch_${c.id}">0</span>)</button>
               <button type="button" class="filter-pill" id="pmActTab_search_${c.id}" onclick="switchChildActivityTab('${c.id}', 'search')">🔍 YouTube Searches (<span id="pmActCount_search_${c.id}">0</span>)</button>
               <button type="button" class="filter-pill" id="pmActTab_requests_${c.id}" onclick="switchChildActivityTab('${c.id}', 'requests')">📩 Video Requests (<span id="pmActCount_requests_${c.id}">0</span>)</button>
+              <button type="button" class="filter-pill" id="pmActTab_subs_${c.id}" onclick="switchChildActivityTab('${c.id}', 'subs')">📺 @YouTube Subscriptions (<span id="pmActCount_subs_${c.id}">0</span>)</button>
             </div>
             <div id="pmActivityList_${c.id}" style="max-height:380px; overflow-y:auto;">
               <p style="color:var(--text-muted); font-size:0.85rem;">Loading activity history...</p>
@@ -5101,9 +5103,11 @@
         const wCount = document.getElementById(`pmActCount_watch_${childId}`);
         const sCount = document.getElementById(`pmActCount_search_${childId}`);
         const rCount = document.getElementById(`pmActCount_requests_${childId}`);
+        const subCount = document.getElementById(`pmActCount_subs_${childId}`);
         if (wCount) wCount.textContent = String((json.data.watchHistory || []).length);
         if (sCount) sCount.textContent = String((json.data.searchHistory || []).length);
         if (rCount) rCount.textContent = String((json.data.videoRequests || []).length);
+        if (subCount) subCount.textContent = String((json.data.youtubeSubscriptions || []).length);
         renderChildActivityTab(childId);
       } catch {
         listEl.innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem;">Unable to load activity history.</p>';
@@ -5112,12 +5116,12 @@
 
     function switchChildActivityTab(childId, tab) {
       childActivityActiveTab[childId] = tab;
-      ['watch', 'search', 'requests'].forEach((t) => {
+      ['watch', 'search', 'requests', 'subs'].forEach((t) => {
         document.getElementById(`pmActTab_${t}_${childId}`)?.classList.toggle('active', t === tab);
       });
       const clearBtn = document.getElementById(`btnClearChildActivity_${childId}`);
       if (clearBtn) {
-        clearBtn.style.display = tab === 'requests' ? 'none' : 'inline-flex';
+        clearBtn.style.display = (tab === 'requests' || tab === 'subs') ? 'none' : 'inline-flex';
       }
       renderChildActivityTab(childId);
     }
@@ -5163,7 +5167,7 @@
             <div style="font-size:0.75rem; color:var(--text-muted); white-space:nowrap;">${s.searchedAt ? new Date(s.searchedAt).toLocaleString() : ''}</div>
           </div>
         `).join('');
-      } else {
+      } else if (tab === 'requests') {
         const items = data.videoRequests || [];
         if (!items.length) {
           listEl.innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem;">No YouTube video requests yet.</p>';
@@ -5191,7 +5195,48 @@
             </div>
           `;
         }).join('');
+      } else {
+        const items = data.youtubeSubscriptions || [];
+        if (!items.length) {
+          listEl.innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem;">No @YouTube channels subscribed yet.</p>';
+          return;
+        }
+        listEl.innerHTML = items.map((sub) => {
+          const trust = sub.trustLevel || 'SUPERVISED';
+          const badgeColor = trust === 'TRUSTED' ? 'var(--success)' : trust === 'BLOCKED' ? 'var(--primary)' : '#f59e0b';
+          const badgeLabel = trust === 'TRUSTED' ? '✓ Trusted (Auto-Approve Videos)' : trust === 'BLOCKED' ? '✕ Blocked' : 'Supervised (Per-Video Approval)';
+          const safeHandle = (sub.handle || '').replace(/'/g, "\\'");
+          return `
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; padding:0.65rem 0; border-bottom:1px solid var(--border); flex-wrap:wrap;">
+              <div style="display:flex; align-items:center; gap:0.75rem; min-width:0; flex:1;">
+                ${sub.avatarUrl ? `<img src="${sub.avatarUrl}" alt="" style="width:42px; height:42px; border-radius:50%; object-fit:cover; flex-shrink:0;">` : ''}
+                <div style="min-width:0;">
+                  <div style="font-weight:800; font-size:0.9rem; color:var(--accent);">${sub.handle}</div>
+                  <div style="font-size:0.76rem; color:var(--text-muted);">
+                    ${sub.title || sub.handle} • <span style="font-weight:800; color:${badgeColor};">${badgeLabel}</span>
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+                <button type="button" class="btn ${trust === 'TRUSTED' ? 'btn-primary' : 'btn-secondary'} btn-sm" onclick="setChildYtSubTrust('${childId}', '${safeHandle}', 'TRUSTED')">Trust</button>
+                <button type="button" class="btn ${trust === 'SUPERVISED' ? 'btn-primary' : 'btn-secondary'} btn-sm" onclick="setChildYtSubTrust('${childId}', '${safeHandle}', 'SUPERVISED')">Supervise</button>
+                <button type="button" class="btn ${trust === 'BLOCKED' ? 'btn-primary' : 'btn-secondary'} btn-sm" onclick="setChildYtSubTrust('${childId}', '${safeHandle}', 'BLOCKED')">Block</button>
+              </div>
+            </div>
+          `;
+        }).join('');
       }
+    }
+
+    async function setChildYtSubTrust(childId, handle, trustLevel) {
+      const res = await authFetch(`/api/parent/children/${encodeURIComponent(childId)}/youtube-subscriptions/${encodeURIComponent(handle)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ trustLevel })
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to update channel trust level');
+      await loadChildActivityHistory(childId);
     }
 
     async function clearChildActivityHistory(childId) {
@@ -5727,7 +5772,10 @@
         syncChannelSearchAgePills();
       }
       try {
-        await loadKidSubscribedChannels();
+        await Promise.all([
+          loadKidSubscribedChannels(),
+          loadKidYouTubeSubscriptions()
+        ]);
         const [chanRes, catRes] = await Promise.all([
           useKidsFeed && authToken
             ? fetch(apiUrl('/api/kids/feed'), { headers: { Authorization: `Bearer ${authToken}` } })
@@ -5837,10 +5885,60 @@
       renderChannelSearchResults();
     }
 
+    function openKidYtChannelFromChannelsPage(handle) {
+      openKidTabFromHeader('search');
+      openKidYouTubeChannelVideos(handle);
+    }
+
     function renderChannelSearchResults() {
       const grid = document.getElementById('channelsSearchGrid');
       const badge = document.getElementById('channelSearchCountBadge');
+      const ytSubsEl = document.getElementById('channelsYtSubsSection');
       if (!grid) return;
+
+      if (ytSubsEl) {
+        const qYt = channelSearchQuery.toLowerCase();
+        const filteredYtSubs = (kidYtSubscribedChannels || []).filter(ch => {
+          if (!qYt) return true;
+          return `${ch.handle || ''} ${ch.title || ''}`.toLowerCase().includes(qYt);
+        });
+        if (authToken && filteredYtSubs.length > 0) {
+          ytSubsEl.style.display = 'block';
+          ytSubsEl.innerHTML = `
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+              <div>
+                <h3 style="margin:0; font-size:1.1rem; color:#ffd166;">My Subscribed YouTube Channels (@)</h3>
+                <p style="margin:0.15rem 0 0; font-size:0.8rem; color:var(--text-muted);">Parent-Trusted @channels play right away; Supervised @channels check parent approval on uncurated videos.</p>
+              </div>
+              <span style="font-size:0.8rem; color:var(--text-muted);">${filteredYtSubs.length} subscribed</span>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:0.8rem;">
+              ${filteredYtSubs.map(ch => {
+                const safeHandle = (ch.handle || '').replace(/'/g, "\\'");
+                const isTrusted = ch.trustLevel === 'TRUSTED';
+                const trustBadge = isTrusted
+                  ? '<span style="font-size:0.7rem; padding:2px 8px; border-radius:99px; background:rgba(6,214,160,0.16); color:var(--success); font-weight:700;">✓ Parent-Trusted</span>'
+                  : '<span style="font-size:0.7rem; padding:2px 8px; border-radius:99px; background:rgba(255,209,102,0.16); color:#ffd166; font-weight:700;">Supervised</span>';
+                return `
+                  <div class="card" onclick="openKidYtChannelFromChannelsPage('${safeHandle}')" style="padding:0.85rem 1rem; display:flex; align-items:center; justify-content:space-between; gap:0.75rem; cursor:pointer;">
+                    <div style="display:flex; align-items:center; gap:0.7rem; min-width:0; flex:1;">
+                      ${ch.avatarUrl ? `<img src="${ch.avatarUrl}" alt="" style="width:42px; height:42px; border-radius:50%; object-fit:cover; flex-shrink:0; border:2px solid ${isTrusted ? 'var(--success)' : 'var(--accent)'};">` : ''}
+                      <div style="min-width:0;">
+                        <div style="font-weight:800; font-size:0.9rem; color:var(--accent); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${ch.handle}</div>
+                        <div style="font-size:0.78rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${ch.title || ch.handle}</div>
+                      </div>
+                    </div>
+                    ${trustBadge}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          `;
+        } else {
+          ytSubsEl.style.display = 'none';
+          ytSubsEl.innerHTML = '';
+        }
+      }
 
       const q = channelSearchQuery.toLowerCase();
       const filtered = searchableChannels.filter(c => {
@@ -7249,7 +7347,12 @@
             <div style="display:flex; align-items:center; gap:0.85rem;">
               <img src="${ch.avatarUrl}" alt="${ch.handle}" style="width:56px; height:56px; border-radius:50%; object-fit:cover; border:2px solid var(--accent);">
               <div>
-                <div style="font-weight:800; font-size:1.1rem;">${ch.title}</div>
+                <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                  <span style="font-weight:800; font-size:1.1rem;">${ch.title}</span>
+                  ${ch.trustLevel === 'TRUSTED'
+                    ? '<span style="font-size:0.72rem; padding:2px 8px; border-radius:99px; background:rgba(6,214,160,0.16); color:var(--success); font-weight:700;">✓ Parent-Trusted</span>'
+                    : '<span style="font-size:0.72rem; padding:2px 8px; border-radius:99px; background:rgba(255,209,102,0.16); color:#ffd166; font-weight:700;">Supervised</span>'}
+                </div>
                 <div style="font-size:0.82rem; color:var(--accent); font-weight:700;">${ch.handle} • ${vids.length} videos</div>
               </div>
             </div>
@@ -7416,10 +7519,12 @@
           <div style="display:flex; gap:0.6rem; overflow-x:auto; padding-bottom:0.5rem; margin-bottom:1.25rem;">
             ${kidYtSubscribedChannels.map((ch) => {
               const safeHandle = (ch.handle || '').replace(/'/g, "\\'");
+              const isTrusted = ch.trustLevel === 'TRUSTED';
               return `
                 <button type="button" class="filter-pill" onclick="openKidYouTubeChannelVideos('${safeHandle}')" style="display:inline-flex; align-items:center; gap:0.5rem; white-space:nowrap;">
                   ${ch.avatarUrl ? `<img src="${ch.avatarUrl}" alt="" style="width:22px; height:22px; border-radius:50%; object-fit:cover;">` : ''}
                   <span style="font-weight:700;">${ch.handle}</span>
+                  ${isTrusted ? '<span style="font-size:0.7rem; color:var(--success); font-weight:800;" title="Parent-Trusted (Auto-Approved)">✓ Trusted</span>' : ''}
                 </button>
               `;
             }).join('')}
