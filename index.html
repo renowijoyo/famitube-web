@@ -7250,6 +7250,8 @@
     let kidSearchChannels = [];
     let kidYtSubscribedChannels = [];
     let activeKidYtChannelDetail = null;
+    let activeKidYtChannelTab = 'videos'; // 'videos' | 'playlists'
+    let activeKidYtPlaylistDetail = null; // { playlistId, title, videos }
 
     async function loadKidYouTubeSubscriptions() {
       if (!authToken) return;
@@ -7304,6 +7306,8 @@
           return;
         }
         activeKidYtChannelDetail = json.data;
+        activeKidYtChannelTab = 'videos';
+        activeKidYtPlaylistDetail = null;
         renderKidYouTubeSearchResults();
       } catch {
         if (resultsEl) resultsEl.innerHTML = '<p style="color:var(--text-muted);">Failed to load YouTube channel videos.</p>';
@@ -7312,16 +7316,55 @@
 
     function closeKidYouTubeChannelVideos() {
       activeKidYtChannelDetail = null;
+      activeKidYtPlaylistDetail = null;
+      activeKidYtChannelTab = 'videos';
+      renderKidYouTubeSearchResults();
+    }
+
+    function setKidYtChannelTab(tab) {
+      activeKidYtChannelTab = tab === 'playlists' ? 'playlists' : 'videos';
+      activeKidYtPlaylistDetail = null;
+      renderKidYouTubeSearchResults();
+    }
+
+    async function openKidYouTubePlaylist(playlistId, handle) {
+      if (!playlistId) return;
+      const resultsEl = document.getElementById('kidYouTubeSearchResults');
+      if (resultsEl) {
+        resultsEl.innerHTML = '<p style="color:var(--text-muted);">Loading playlist videos...</p>';
+      }
+      try {
+        const q = handle ? `?handle=${encodeURIComponent(handle)}` : '';
+        const res = await authFetch('/api/kids/youtube-playlists/' + encodeURIComponent(playlistId) + q);
+        const json = await res.json();
+        if (!json.success || !json.data) {
+          if (resultsEl) resultsEl.innerHTML = `<p style="color:var(--primary);">${json.message || 'Could not load playlist.'}</p>`;
+          return;
+        }
+        activeKidYtPlaylistDetail = json.data;
+        renderKidYouTubeSearchResults();
+      } catch {
+        if (resultsEl) resultsEl.innerHTML = '<p style="color:var(--text-muted);">Failed to load playlist videos.</p>';
+      }
+    }
+
+    function closeKidYouTubePlaylist() {
+      activeKidYtPlaylistDetail = null;
       renderKidYouTubeSearchResults();
     }
 
     async function watchChannelYouTubeVideo(idx) {
-      const v = activeKidYtChannelDetail?.videos?.[idx];
+      const targetList = activeKidYtPlaylistDetail?.videos || activeKidYtChannelDetail?.videos;
+      const v = targetList?.[idx];
       if (!v) return;
       const prev = kidSearchResults;
-      kidSearchResults = activeKidYtChannelDetail.videos;
+      kidSearchResults = targetList;
       await watchSearchedYouTubeVideo(idx);
-      activeKidYtChannelDetail.videos = kidSearchResults;
+      if (activeKidYtPlaylistDetail) {
+        activeKidYtPlaylistDetail.videos = kidSearchResults;
+      } else if (activeKidYtChannelDetail) {
+        activeKidYtChannelDetail.videos = kidSearchResults;
+      }
       kidSearchResults = prev;
       renderKidYouTubeSearchResults();
     }
@@ -7333,37 +7376,16 @@
       if (activeKidYtChannelDetail && activeKidYtChannelDetail.channel) {
         const ch = activeKidYtChannelDetail.channel;
         const vids = activeKidYtChannelDetail.videos || [];
+        const playlists = activeKidYtChannelDetail.playlists || [];
         const safeHandle = ch.handle.replace(/'/g, "\\'");
         const safeTitle = (ch.title || ch.handle).replace(/'/g, "\\'");
         const safeAvatar = (ch.avatarUrl || '').replace(/'/g, "\\'");
         const safeCid = (ch.channelId || '').replace(/'/g, "\\'");
-        resultsEl.innerHTML = `
-          <div style="margin-bottom:1rem;">
-            <button type="button" class="btn btn-secondary btn-sm" onclick="closeKidYouTubeChannelVideos()">
-              <span class="material-symbols-rounded" style="font-size:1rem;">arrow_back</span> Back to Search Results
-            </button>
-          </div>
-          <div class="card" style="padding:1.1rem 1.25rem; margin-bottom:1.25rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
-            <div style="display:flex; align-items:center; gap:0.85rem;">
-              <img src="${ch.avatarUrl}" alt="${ch.handle}" style="width:56px; height:56px; border-radius:50%; object-fit:cover; border:2px solid var(--accent);">
-              <div>
-                <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-                  <span style="font-weight:800; font-size:1.1rem;">${ch.title}</span>
-                  ${ch.trustLevel === 'TRUSTED'
-                    ? '<span style="font-size:0.72rem; padding:2px 8px; border-radius:99px; background:rgba(6,214,160,0.16); color:var(--success); font-weight:700;">✓ Parent-Trusted</span>'
-                    : '<span style="font-size:0.72rem; padding:2px 8px; border-radius:99px; background:rgba(255,209,102,0.16); color:#ffd166; font-weight:700;">Supervised</span>'}
-                </div>
-                <div style="font-size:0.82rem; color:var(--accent); font-weight:700;">${ch.handle} • ${vids.length} videos</div>
-              </div>
-            </div>
-            <button type="button" class="btn ${ch.isSubscribed ? 'btn-secondary' : 'btn-primary'} btn-sm" onclick="toggleKidYouTubeChannelSub('${safeHandle}', '${safeTitle}', '${safeAvatar}', '${safeCid}', event)">
-              <span class="material-symbols-rounded" style="font-size:1rem;">${ch.isSubscribed ? 'check' : 'add'}</span>
-              ${ch.isSubscribed ? 'Subscribed' : 'Subscribe'}
-            </button>
-          </div>
-          ${!vids.length ? '<p style="color:var(--text-muted);">No videos found for this channel.</p>' : `
+        const renderVideoCardsHtml = (videoList) => !videoList.length
+          ? '<p style="color:var(--text-muted);">No videos found.</p>'
+          : `
             <div class="video-grid">
-              ${vids.map((v, idx) => {
+              ${videoList.map((v, idx) => {
                 const badge = v.isCurated
                   ? '<span class="channel-type-badge ondemand">Curated</span>'
                   : v.approvalStatus === 'APPROVED' || v.inHistory
@@ -7395,7 +7417,86 @@
                 `;
               }).join('')}
             </div>
-          `}
+          `;
+
+        const renderPlaylistsHtml = () => !playlists.length
+          ? '<p style="color:var(--text-muted);">No playlists found for this channel.</p>'
+          : `
+            <div class="video-grid">
+              ${playlists.map((pl) => {
+                const safePid = String(pl.playlistId || '').replace(/'/g, "\\'");
+                return `
+                  <div class="card video-card" onclick="openKidYouTubePlaylist('${safePid}', '${safeHandle}')" style="display:flex; flex-direction:column; cursor:pointer;">
+                    <div class="video-thumb">
+                      <img src="${pl.thumbnailUrl}" alt="${pl.title}" loading="lazy">
+                      <div class="duration-badge">${pl.videoCount || 0} videos</div>
+                      <div class="play-overlay"><span class="material-symbols-rounded">playlist_play</span></div>
+                    </div>
+                    <div class="video-info" style="flex:1; display:flex; flex-direction:column; gap:0.4rem;">
+                      <div style="display:flex; justify-content:space-between; align-items:center; gap:0.4rem;">
+                        <span style="font-size:0.76rem; color:var(--text-muted);">${ch.handle}</span>
+                        <span class="channel-type-badge ondemand">Playlist</span>
+                      </div>
+                      <div class="video-title">${pl.title}</div>
+                      <div style="margin-top:auto; padding-top:0.35rem;">
+                        <button type="button" class="btn btn-secondary btn-sm">
+                          Open Playlist (${pl.videoCount || 0})
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          `;
+
+        resultsEl.innerHTML = `
+          <div style="margin-bottom:1rem; display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="closeKidYouTubeChannelVideos()">
+              <span class="material-symbols-rounded" style="font-size:1rem;">arrow_back</span> Back to Search Results
+            </button>
+            ${activeKidYtPlaylistDetail ? `
+              <button type="button" class="btn btn-secondary btn-sm" onclick="closeKidYouTubePlaylist()">
+                <span class="material-symbols-rounded" style="font-size:1rem;">playlist_play</span> Back to ${ch.handle} Playlists
+              </button>
+            ` : ''}
+          </div>
+          <div class="card" style="padding:1.1rem 1.25rem; margin-bottom:1rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:0.85rem;">
+              <img src="${ch.avatarUrl}" alt="${ch.handle}" style="width:56px; height:56px; border-radius:50%; object-fit:cover; border:2px solid var(--accent);">
+              <div>
+                <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                  <span style="font-weight:800; font-size:1.1rem;">${ch.title}</span>
+                  ${ch.trustLevel === 'TRUSTED'
+                    ? '<span style="font-size:0.72rem; padding:2px 8px; border-radius:99px; background:rgba(6,214,160,0.16); color:var(--success); font-weight:700;">✓ Parent-Trusted</span>'
+                    : '<span style="font-size:0.72rem; padding:2px 8px; border-radius:99px; background:rgba(255,209,102,0.16); color:#ffd166; font-weight:700;">Supervised</span>'}
+                </div>
+                <div style="font-size:0.82rem; color:var(--accent); font-weight:700;">${ch.handle} • ${vids.length} videos • ${playlists.length} playlists</div>
+              </div>
+            </div>
+            <button type="button" class="btn ${ch.isSubscribed ? 'btn-secondary' : 'btn-primary'} btn-sm" onclick="toggleKidYouTubeChannelSub('${safeHandle}', '${safeTitle}', '${safeAvatar}', '${safeCid}', event)">
+              <span class="material-symbols-rounded" style="font-size:1rem;">${ch.isSubscribed ? 'check' : 'add'}</span>
+              ${ch.isSubscribed ? 'Subscribed' : 'Subscribe'}
+            </button>
+          </div>
+          <div style="display:flex; gap:0.5rem; margin-bottom:1.1rem; flex-wrap:wrap;">
+            <button type="button" class="btn ${!activeKidYtPlaylistDetail && activeKidYtChannelTab === 'videos' ? 'btn-primary' : 'btn-secondary'} btn-sm" onclick="setKidYtChannelTab('videos')">
+              <span class="material-symbols-rounded" style="font-size:1rem;">video_library</span> Videos (${vids.length})
+            </button>
+            <button type="button" class="btn ${(activeKidYtPlaylistDetail || activeKidYtChannelTab === 'playlists') ? 'btn-primary' : 'btn-secondary'} btn-sm" onclick="setKidYtChannelTab('playlists')">
+              <span class="material-symbols-rounded" style="font-size:1rem;">playlist_play</span> Playlists (${playlists.length})
+            </button>
+          </div>
+          ${activeKidYtPlaylistDetail ? `
+            <div style="margin-bottom:0.85rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+              <h4 style="margin:0; font-size:1.05rem; color:#ffd166;">Playlist: ${activeKidYtPlaylistDetail.title}</h4>
+              <span style="font-size:0.82rem; color:var(--text-muted);">${(activeKidYtPlaylistDetail.videos || []).length} videos</span>
+            </div>
+            ${renderVideoCardsHtml(activeKidYtPlaylistDetail.videos || [])}
+          ` : activeKidYtChannelTab === 'playlists'
+            ? renderPlaylistsHtml()
+            : renderVideoCardsHtml(vids)
+          }
         `;
         return;
       }
