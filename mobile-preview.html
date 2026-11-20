@@ -520,6 +520,7 @@
         <button class="qs-btn" onclick="navigate('parent_dashboard')"><span>🛡️ Parent Mode Dashboard</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('home')"><span>🏠 Home Feed (Child Mode)</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('channels')"><span>📺 Channels</span><span>›</span></button>
+        <button class="qs-btn" onclick="openChannelDetail(state.savedChannelIds[0] || state.channels[0]?.id || 'ch-1')"><span>📺 Channel Page (Detail &amp; Videos)</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('player')"><span>▶️ Video Player + Attention Pause</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('search')"><span>🔍 Dual Search (Curated + YouTube)</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('browser')"><span>🌐 Safe Browser</span><span>›</span></button>
@@ -553,6 +554,8 @@
       isParentLogin: false,
       loginEmail: '',
       savedChannelIds: ['ch-1'],
+      selectedChannelId: 'ch-1',
+      previousScreen: 'channels',
       topicSearchQuery: '',
       selectedAddTopic: null,
       parentTab: 'requests',
@@ -571,10 +574,12 @@
         { id: 'ch-4', name: 'Blocks & Friends Cartoons', category: 'Cartoons & Fun', ageRating: 'YOUNG_KIDS', channelType: 'ON_DEMAND', videoCount: 10, avatarUrl: 'https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=200&h=200&fit=crop', description: 'Colorful animated adventures for young kids.' }
       ],
       videos: [
-        { id: 'v-1', title: 'Egg Drop From Space', channelTitle: 'Engineering & Maker Lab', category: 'Science & Space', sourceType: 'YOUTUBE', youtubeVideoId: 'BYVZh5kqaFg', thumbnailUrl: 'https://img.youtube.com/vi/BYVZh5kqaFg/hqdefault.jpg', duration: 920, ageRating: 'OLDER_KIDS' },
-        { id: 'v-2', title: 'Big Buck Bunny - Blender Open Movie', channelTitle: 'Blender Open Animation', category: 'Cartoons & Fun', sourceType: 'DIRECT', thumbnailUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Big_buck_bunny_poster_big.jpg/640px-Big_buck_bunny_poster_big.jpg', duration: 596, ageRating: 'ALL' },
-        { id: 'v-3', title: 'One | Numberblocks Full Episode', channelTitle: 'Numberblocks', category: 'Learning & ABCs', sourceType: 'YOUTUBE', youtubeVideoId: 'AXXP3HMAP6c', thumbnailUrl: 'https://i.ytimg.com/vi/AXXP3HMAP6c/hqdefault.jpg', duration: 300, ageRating: 'TODDLER' },
-        { id: 'v-4', title: 'Astronaut Training - SciShow Kids', channelTitle: 'SciShow Kids', category: 'Science & Space', sourceType: 'YOUTUBE', youtubeVideoId: '9-3nC2_t2_g', thumbnailUrl: 'https://img.youtube.com/vi/9-3nC2_t2_g/hqdefault.jpg', duration: 265, ageRating: 'YOUNG_KIDS' }
+        { id: 'v-1', channelId: 'ch-1', title: 'Egg Drop From Space', channelTitle: 'TED-Ed & Science Mysteries', category: 'Science & Space', sourceType: 'YOUTUBE', youtubeVideoId: 'BYVZh5kqaFg', thumbnailUrl: 'https://img.youtube.com/vi/BYVZh5kqaFg/hqdefault.jpg', duration: 920, ageRating: 'OLDER_KIDS' },
+        { id: 'v-2', channelId: 'ch-4', title: 'Big Buck Bunny - Blender Open Movie', channelTitle: 'Blocks & Friends Cartoons', category: 'Cartoons & Fun', sourceType: 'DIRECT', thumbnailUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Big_buck_bunny_poster_big.jpg/640px-Big_buck_bunny_poster_big.jpg', duration: 596, ageRating: 'ALL' },
+        { id: 'v-3', channelId: 'ch-3', title: 'One | Numberblocks Full Episode', channelTitle: 'Simple Songs & Fun', category: 'Music & Rhymes', sourceType: 'YOUTUBE', youtubeVideoId: 'AXXP3HMAP6c', thumbnailUrl: 'https://i.ytimg.com/vi/AXXP3HMAP6c/hqdefault.jpg', duration: 300, ageRating: 'TODDLER' },
+        { id: 'v-4', channelId: 'ch-2', title: 'Space Explorers 24H TV - Planets & Orbit Live', channelTitle: 'Space Explorers 24H TV', category: 'Science & Space', sourceType: 'YOUTUBE', youtubeVideoId: 'libKVRa01L8', thumbnailUrl: 'https://i.ytimg.com/vi/libKVRa01L8/hqdefault.jpg', duration: 1800, ageRating: 'OLDER_KIDS' },
+        { id: 'v-5', channelId: 'ch-1', title: 'Why Is The Sky Blue? - Science Mysteries', channelTitle: 'TED-Ed & Science Mysteries', category: 'Science & Space', sourceType: 'YOUTUBE', youtubeVideoId: '9-3nC2_t2_g', thumbnailUrl: 'https://img.youtube.com/vi/9-3nC2_t2_g/hqdefault.jpg', duration: 360, ageRating: 'OLDER_KIDS' },
+        { id: 'v-6', channelId: 'ch-4', title: 'Blocks & Friends - Playground Fun', channelTitle: 'Blocks & Friends Cartoons', category: 'Cartoons & Fun', sourceType: 'YOUTUBE', youtubeVideoId: 'AXXP3HMAP6c', thumbnailUrl: 'https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=400&h=225&fit=crop', duration: 420, ageRating: 'YOUNG_KIDS' }
       ],
       activeVideo: null,
       playlists: [
@@ -690,6 +695,35 @@
       render();
     }
 
+    function openPreviewVideo(videoId) {
+      const v = state.videos.find(x => x.id === videoId);
+      if (v) {
+        navigate('player', { video: v });
+      }
+    }
+
+    function openVideo(videoId) {
+      openPreviewVideo(videoId);
+    }
+
+    function openChannelDetail(channelId) {
+      state.selectedChannelId = channelId;
+      state.previousScreen = state.screen === 'channel_detail' ? (state.previousScreen || 'channels') : state.screen;
+      state.screen = 'channel_detail';
+      render();
+    }
+
+    function openChannelDetailByVideo(videoId) {
+      const v = state.videos.find(x => x.id === videoId);
+      if (!v) return;
+      const ch = (v.channelId && state.channels.find(c => c.id === v.channelId)) ||
+                 state.channels.find(c => c.name.toLowerCase() === (v.channelTitle || '').toLowerCase()) ||
+                 state.channels[0];
+      if (ch) {
+        openChannelDetail(ch.id);
+      }
+    }
+
     function renderBottomBar() {
       const bar = document.getElementById('appBottomBar');
       const simple = state.ageMode === 'TODDLER' || state.ageMode === 'YOUNG_KIDS';
@@ -706,10 +740,10 @@
             { id: 'favorites', icon: 'favorite', label: 'Favorites' },
             { id: 'achievements', icon: 'emoji_events', label: 'Badges' }
           ];
-      const showBottom = tabs.some(t => t.id === state.screen);
+      const showBottom = tabs.some(t => t.id === state.screen) || state.screen === 'channel_detail';
       bar.style.display = showBottom ? 'flex' : 'none';
       bar.innerHTML = tabs.map(t => `
-        <button class="nav-item ${state.screen === t.id ? 'active' : ''}" onclick="navigate('${t.id}')">
+        <button class="nav-item ${(state.screen === t.id || (state.screen === 'channel_detail' && t.id === 'channels')) ? 'active' : ''}" onclick="navigate('${t.id}')">
           <span class="material-symbols-rounded" style="font-size:1.3rem;">${t.icon}</span>
           <span>${t.label}</span>
         </button>
@@ -748,14 +782,14 @@
                 No videos found for this age group and category.
               </div>
             ` : filtered.slice(0, 8).map((v) => `
-              <div class="v-card" onclick="navigate('player', { video: state.videos[${state.videos.indexOf(v)}] })">
+              <div class="v-card" onclick="openPreviewVideo('${v.id}')">
                 <div class="v-thumb">
                   <img src="${v.thumbnailUrl}" alt="">
                   <span class="v-badge">${Math.floor((v.duration||180)/60)}:${String((v.duration||180)%60).padStart(2,'0')}</span>
                 </div>
                 <div class="v-info">
                   <div class="v-title">${v.title}</div>
-                  <div class="v-meta">${v.channelTitle} • ${v.category} • ${formatPreviewAgeLabel(v.ageRating)}</div>
+                  <div class="v-meta"><span style="cursor:pointer; text-decoration:underline;" onclick="event.stopPropagation(); openChannelDetailByVideo('${v.id}')">${v.channelTitle}</span> • ${v.category} • ${formatPreviewAgeLabel(v.ageRating)}</div>
                 </div>
               </div>
             `).join('')}
@@ -776,13 +810,13 @@
               <button class="btn-primary" onclick="state.selectedAddTopic=null; state.topicSearchQuery=''; navigate('add_channel');">Subscribe to a channel</button>
             </div>
           ` : myChannels.map(c => `
-            <div class="card-box" style="display:flex; align-items:center; gap:12px;">
-              <img src="${c.avatarUrl}" style="width:48px; height:48px; border-radius:50%; object-fit:cover; cursor:pointer;" onclick="navigate('home')">
-              <div style="flex:1; min-width:0; cursor:pointer;" onclick="navigate('home')">
+            <div class="card-box" style="display:flex; align-items:center; gap:12px; cursor:pointer;" onclick="openChannelDetail('${c.id}')">
+              <img src="${c.avatarUrl}" style="width:48px; height:48px; border-radius:50%; object-fit:cover;">
+              <div style="flex:1; min-width:0;">
                 <div style="font-weight:800; font-size:0.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.name}</div>
                 <div style="font-size:0.72rem; color:var(--text-muted);">${c.category} • ${c.channelType === 'LIVE_TV' ? '🔴 LIVE TV' : 'On Demand'}</div>
               </div>
-              <button class="btn-outline" style="padding:4px 8px; font-size:0.7rem; color:var(--pink);" onclick="state.savedChannelIds=state.savedChannelIds.filter(id=>id!=='${c.id}'); render();">Unsubscribe</button>
+              <button class="btn-outline" style="padding:4px 8px; font-size:0.7rem; color:var(--pink);" onclick="event.stopPropagation(); state.savedChannelIds=state.savedChannelIds.filter(id=>id!=='${c.id}'); render();">Unsubscribe</button>
             </div>
           `).join('')}
         `;
@@ -820,7 +854,7 @@
             ${topicChannels.map(c => {
               const isAdded = state.savedChannelIds.includes(c.id);
               return `
-                <div class="card-box" style="display:flex; align-items:center; gap:10px;">
+                <div class="card-box" style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="openChannelDetail('${c.id}')">
                   <img src="${c.avatarUrl}" style="width:44px; height:44px; border-radius:50%; object-fit:cover;">
                   <div style="flex:1; min-width:0;">
                     <div style="font-weight:800; font-size:0.86rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.name}</div>
@@ -828,13 +862,116 @@
                   </div>
                   ${isAdded
                     ? `<span style="color:#06D6A0; font-weight:800; font-size:0.76rem;">Subscribed ✓</span>`
-                    : `<button class="btn-primary" style="padding:6px 12px; font-size:0.76rem;" onclick="if(!state.savedChannelIds.includes('${c.id}')) state.savedChannelIds.unshift('${c.id}'); render();">Subscribe</button>`
+                    : `<button class="btn-primary" style="padding:6px 12px; font-size:0.76rem;" onclick="event.stopPropagation(); if(!state.savedChannelIds.includes('${c.id}')) state.savedChannelIds.unshift('${c.id}'); render();">Subscribe</button>`
                   }
                 </div>
               `;
             }).join('')}
           `}
         `;
+      } else if (state.screen === 'channel_detail') {
+        const ch = state.channels.find(c => c.id === state.selectedChannelId) || state.channels[0];
+        if (!ch) {
+          body.innerHTML = `
+            <button class="btn-outline" onclick="navigate('channels')" style="margin-bottom:12px;">← Back to Channels</button>
+            <div class="card-box" style="text-align:center; padding:20px;">
+              <div style="font-weight:700;">Channel not found</div>
+            </div>
+          `;
+        } else {
+          const isSubscribed = state.savedChannelIds.includes(ch.id);
+          const channelVideos = state.videos.filter(v =>
+            v.channelId === ch.id ||
+            (v.channelTitle && v.channelTitle.toLowerCase() === ch.name.toLowerCase()) ||
+            (ch.videoIds && ch.videoIds.includes(v.id))
+          );
+          const filteredVideos = channelVideos.filter(v => matchesPreviewAge(v.ageRating));
+          const isLive = ch.channelType === 'LIVE_TV';
+
+          body.innerHTML = `
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+              <button class="btn-outline" style="padding:5px 10px; font-size:0.76rem;" onclick="navigate(state.previousScreen || 'channels')">← Back</button>
+              <span style="font-weight:800; font-size:0.88rem; max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${ch.name}</span>
+            </div>
+
+            <!-- Channel Profile Header -->
+            <div class="card-box" style="margin-bottom:14px; background:var(--surface);">
+              <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+                <img src="${ch.avatarUrl}" style="width:58px; height:58px; border-radius:50%; object-fit:cover; border:2px solid ${isLive ? 'var(--pink)' : '#4CC9F0'};">
+                <div style="flex:1; min-width:0;">
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <div style="font-weight:800; font-size:0.95rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${ch.name}</div>
+                    ${ch.isVerified ? '<span style="color:#4CC9F0; font-size:0.85rem;" title="Verified Safe">✓</span>' : ''}
+                  </div>
+                  <div style="font-size:0.74rem; color:var(--pink); font-weight:700; margin-top:2px;">
+                    ${ch.category} • ${formatPreviewAgeLabel(ch.ageRating)} • ${filteredVideos.length} videos
+                  </div>
+                  <div style="font-size:0.7rem; color:var(--text-muted); margin-top:1px;">
+                    Curated by ${ch.ownerName || 'Team FamiTube'}
+                  </div>
+                </div>
+              </div>
+
+              ${ch.description ? `
+                <div style="font-size:0.76rem; color:var(--text-muted); line-height:1.4; margin-bottom:10px;">
+                  ${ch.description}
+                </div>
+              ` : ''}
+
+              <div style="display:flex; gap:8px; align-items:center;">
+                <button class="${isSubscribed ? 'btn-outline' : 'btn-primary'}" style="flex:1; padding:7px 12px; font-size:0.78rem;" onclick="
+                  if (state.savedChannelIds.includes('${ch.id}')) {
+                    state.savedChannelIds = state.savedChannelIds.filter(id => id !== '${ch.id}');
+                  } else {
+                    state.savedChannelIds.unshift('${ch.id}');
+                  }
+                  render();
+                ">
+                  ${isSubscribed ? 'Subscribed ✓' : '+ Subscribe to Channel'}
+                </button>
+
+                ${isLive ? `
+                  <button class="btn-primary" style="background:#e63946; padding:7px 12px; font-size:0.78rem;" onclick="
+                    const liveVid = filteredVideos[0] || state.videos[0];
+                    if (liveVid) openPreviewVideo(liveVid.id);
+                  ">
+                    🔴 Watch Live
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+
+            <!-- Channel Videos Header -->
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+              <h4 style="font-size:0.92rem; font-weight:800; margin:0;">Channel Videos (${filteredVideos.length})</h4>
+              <span style="font-size:0.72rem; color:var(--text-muted);">${formatPreviewAgeLabel(state.ageMode)}</span>
+            </div>
+
+            <!-- Channel Videos List -->
+            ${filteredVideos.length === 0 ? `
+              <div class="card-box" style="text-align:center; padding:20px 14px;">
+                <div style="font-size:1.6rem; margin-bottom:6px;">🎬</div>
+                <div style="font-weight:700; font-size:0.86rem; margin-bottom:4px;">No videos found for this channel</div>
+                <div style="font-size:0.72rem; color:var(--text-muted);">Try switching age filter or check back later.</div>
+              </div>
+            ` : `
+              <div style="display:flex; flex-direction:column; gap:10px;">
+                ${filteredVideos.map(v => `
+                  <div class="card-box" style="display:flex; gap:10px; padding:8px; cursor:pointer;" onclick="openPreviewVideo('${v.id}')">
+                    <div style="position:relative; width:104px; aspect-ratio:16/9; border-radius:8px; overflow:hidden; background:#000; flex-shrink:0;">
+                      <img src="${v.thumbnailUrl}" style="width:100%; height:100%; object-fit:cover;">
+                      <span class="pill" style="position:absolute; bottom:3px; right:3px; font-size:0.6rem; padding:1px 4px; background:rgba(0,0,0,0.85);">${Math.floor((v.duration||180)/60)}:${String((v.duration||180)%60).padStart(2,'0')}</span>
+                    </div>
+                    <div style="flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center;">
+                      <div style="font-weight:700; font-size:0.82rem; line-height:1.25; margin-bottom:4px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${v.title}</div>
+                      <div style="font-size:0.68rem; color:var(--text-muted);">${v.category} • ${formatPreviewAgeLabel(v.ageRating)}</div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            `}
+          `;
+        }
       } else if (state.screen === 'player') {
         const v = state.activeVideo || state.videos[0];
         body.innerHTML = `
@@ -855,7 +992,10 @@
           </div>
           <div class="card-box">
             <div style="font-weight:800; font-size:0.96rem; margin-bottom:4px;">${v.title}</div>
-            <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:12px;">${v.channelTitle} • ${v.category}</div>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; cursor:pointer;" onclick="openChannelDetailByVideo('${v.id}')">
+              <span style="font-size:0.78rem; color:var(--pink); font-weight:700; text-decoration:underline;">${v.channelTitle}</span>
+              <span style="font-size:0.72rem; color:var(--text-muted);">${v.category} • View Channel ›</span>
+            </div>
             <button class="btn-outline" style="width:100%;" onclick="state.isAttentionPaused=!state.isAttentionPaused; render();">
               ${state.isAttentionPaused ? '▶ Resume From Paused Position' : '📷 Simulate Attention Tracker Pause'}
             </button>
@@ -927,11 +1067,11 @@
           <div style="font-weight:800; font-size:0.86rem; margin-bottom:8px;">Curated Safe Videos (${curatedMatches.length})</div>
           ${curatedMatches.length
             ? curatedMatches.slice(0, 3).map(v => `
-              <div class="card-box" style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="openVideo('${v.id}')">
+              <div class="card-box" style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="openPreviewVideo('${v.id}')">
                 <img src="${v.thumbnailUrl}" style="width:76px; height:48px; border-radius:8px; object-fit:cover;">
                 <div style="flex:1; min-width:0;">
                   <div style="font-weight:700; font-size:0.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${v.title}</div>
-                  <div style="font-size:0.72rem; color:var(--text-muted);">${v.channelTitle} • ${v.category}</div>
+                  <div style="font-size:0.72rem; color:var(--text-muted);"><span style="text-decoration:underline;" onclick="event.stopPropagation(); openChannelDetailByVideo('${v.id}')">${v.channelTitle}</span> • ${v.category}</div>
                 </div>
               </div>
             `).join('')

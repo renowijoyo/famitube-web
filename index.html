@@ -4292,10 +4292,10 @@
           </div>
           <div class="video-info">
             <div class="video-title" title="${v.title}">${v.title}</div>
-            <div class="video-channel">
+            <div class="video-channel" style="cursor:pointer;" onclick='event.stopPropagation(); openChannelByVideoMeta(${JSON.stringify({ channelId: v.channelId, channelTitle: v.channelTitle }).replace(/'/g, "&#39;")})' title="View ${v.channelTitle} channel videos">
               <img src="${v.channelAvatar}" class="channel-pic">
-              <span>${v.channelTitle}</span>
-              <span>â€¢</span>
+              <span style="text-decoration:underline;">${v.channelTitle}</span>
+              <span>•</span>
               <span>${v.views || 0} views</span>
             </div>
             <div class="video-tags">
@@ -5369,9 +5369,9 @@
           </div>
           <div class="video-body">
             <div class="video-title" title="${v.title}">${v.title}</div>
-            <div class="video-meta">
+            <div class="video-meta" style="cursor:pointer;" onclick='event.stopPropagation(); openChannelByVideoMeta(${JSON.stringify({ channelId: v.channelId, channelTitle: v.channelTitle }).replace(/'/g, "&#39;")})' title="View ${v.channelTitle} channel videos">
               <img src="${v.channelAvatar}" class="channel-pic">
-              <span>${v.channelTitle}</span>
+              <span style="text-decoration:underline;">${v.channelTitle}</span>
               <span>&bull;</span>
               <span>${v.category}</span>
             </div>
@@ -5667,6 +5667,7 @@
     }
 
     async function openChannelFromSearch(channelId) {
+      if (!channelId) return;
       activeShowcaseChannelId = channelId;
       if (currentUser?.role === 'CHILD' || parentPreviewChild) {
         kidViewingSelectedChannel = true;
@@ -5676,7 +5677,22 @@
       if (currentUser?.role === 'CHILD' || parentPreviewChild) {
         switchKidShowcaseTab('curated', true);
       }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      await selectShowcaseChannel(channelId);
+      setTimeout(() => {
+        const target = document.getElementById('showcaseCuratedPanel') || document.getElementById('showcaseVideosHeading') || document.getElementById('showcaseVideos');
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 120);
+    }
+
+    function openChannelByVideoMeta(v) {
+      const chId = v?.channelId ||
+        (Array.isArray(searchableChannels) && searchableChannels.find(c => c.name && c.name.toLowerCase() === (v?.channelTitle || '').toLowerCase())?.id) ||
+        (Array.isArray(showcaseChannels) && showcaseChannels.find(c => c.name && c.name.toLowerCase() === (v?.channelTitle || '').toLowerCase())?.id);
+      if (chId) {
+        openChannelFromSearch(chId);
+      } else {
+        openChannelsNav();
+      }
     }
 
     let kidSearchResults = [];
