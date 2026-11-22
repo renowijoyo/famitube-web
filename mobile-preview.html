@@ -1071,15 +1071,13 @@
       const tabs = simple
         ? [
             { id: 'home', icon: 'home', label: 'Topics' },
-            { id: 'favorites', icon: 'favorite', label: 'Favorites' },
-            { id: 'achievements', icon: 'emoji_events', label: 'Badges' }
+            { id: 'favorites', icon: 'favorite', label: 'Favorites' }
           ]
         : [
             { id: 'home', icon: 'home', label: 'Explore' },
             { id: 'channels', icon: 'tv', label: 'Channels' },
             { id: 'playlists', icon: 'video_library', label: 'Playlists' },
-            { id: 'favorites', icon: 'favorite', label: 'Favorites' },
-            { id: 'achievements', icon: 'emoji_events', label: 'Badges' }
+            { id: 'favorites', icon: 'favorite', label: 'Favorites' }
           ];
       const isChannelView = state.screen === 'channel_detail' || state.screen === 'yt_channel_detail';
       const showBottom = tabs.some(t => t.id === state.screen) || isChannelView;
