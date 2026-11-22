@@ -963,8 +963,10 @@
       <button id="btnModeStudio" class="nav-link" style="display:none;" onclick="openStudio()">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">admin_panel_settings</span> <span data-i18n="nav_studio">Curator Studio</span>
       </button>
-      <a id="navAppPreview" href="mobile-preview.html" class="nav-link" title="Interactive Android App Preview">
-        <span class="material-symbols-rounded" style="font-size:1.05rem;">smartphone</span> <span>App Preview</span>
+      <a id="navAppPreview" href="mobile-preview.html" class="nav-link" title="Interactive Android App Preview (Dev Stage)">
+        <span class="material-symbols-rounded" style="font-size:1.05rem;">smartphone</span>
+        <span>App Preview</span>
+        <span class="dev-badge" style="font-size:0.6rem; font-weight:800; padding:1px 5px; border-radius:4px; background:rgba(255,46,147,0.18); color:var(--primary); border:1px solid rgba(255,46,147,0.35); margin-left:3px; letter-spacing:0.5px;">DEV</span>
       </a>
       <a id="navFamilyPass" href="learn-more.html#plans" class="nav-link" title="Compare Free & Family Pass">
         <span class="material-symbols-rounded" style="font-size:1.05rem; color:var(--primary);">workspace_premium</span> <span data-i18n="nav_plans">Family Pass</span>
@@ -1007,6 +1009,11 @@
           <button onclick="document.getElementById('guestProfileDropdown').style.display='none'; showAuthGate('CHILD');" style="width:100%; display:flex; align-items:center; gap:0.55rem; padding:0.7rem 1rem; background:none; border:none; border-top:1px solid var(--border); color:var(--text); font-family:inherit; font-size:0.86rem; font-weight:600; cursor:pointer; text-align:left;" onmouseover="this.style.background='var(--surface-light)'" onmouseout="this.style.background='none'">
             <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--secondary);">child_care</span> <span data-i18n="kids_sign_in">Kids Sign In</span>
           </button>
+          <a href="mobile-preview.html" style="width:100%; display:flex; align-items:center; gap:0.55rem; padding:0.7rem 1rem; background:none; border:none; border-top:1px solid var(--border); color:var(--text); font-family:inherit; font-size:0.86rem; font-weight:600; text-decoration:none;" onmouseover="this.style.background='var(--surface-light)'" onmouseout="this.style.background='none'">
+            <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--primary);">smartphone</span>
+            <span>Android App Preview</span>
+            <span style="margin-left:auto; font-size:0.6rem; font-weight:800; padding:1px 5px; border-radius:4px; background:rgba(255,46,147,0.18); color:var(--primary); border:1px solid rgba(255,46,147,0.35);">DEV</span>
+          </a>
           <div class="dropdown-prefs" onclick="event.stopPropagation()">
             <label class="dropdown-pref-row">
               <span data-i18n="language_label">Language</span>
@@ -1101,6 +1108,11 @@
             <button id="profileParentalBtn" onclick="document.getElementById('profileDropdownMenu').style.display='none'; openKidParentalPinGate();" style="display:none; width:100%; align-items:center; gap:0.55rem; padding:0.75rem 1rem; background:none; border:none; border-top:1px solid var(--border); color:var(--text); font-family:inherit; font-size:0.88rem; font-weight:600; cursor:pointer; text-align:left;" onmouseover="this.style.background='var(--surface-light)'" onmouseout="this.style.background='none'">
               <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--primary);">lock</span> <span>Parental Controls (PIN)</span>
             </button>
+            <a href="mobile-preview.html" style="display:flex; align-items:center; gap:0.55rem; padding:0.75rem 1rem; border-top:1px solid var(--border); color:var(--text); font-family:inherit; font-size:0.88rem; font-weight:600; text-decoration:none;" onmouseover="this.style.background='var(--surface-light)'" onmouseout="this.style.background='none'">
+              <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--primary);">smartphone</span>
+              <span>Android App Preview</span>
+              <span style="margin-left:auto; font-size:0.6rem; font-weight:800; padding:1px 5px; border-radius:4px; background:rgba(255,46,147,0.18); color:var(--primary); border:1px solid rgba(255,46,147,0.35);">DEV</span>
+            </a>
             <button id="logoutMenuBtn" onclick="handleLogout()" style="width:100%; display:flex; align-items:center; gap:0.55rem; padding:0.75rem 1rem; background:none; border:none; border-top:1px solid var(--border); color:#FF809D; font-family:inherit; font-size:0.88rem; font-weight:600; cursor:pointer; text-align:left;" onmouseover="this.style.background='rgba(255,51,102,0.1)'" onmouseout="this.style.background='none'">
               <span class="material-symbols-rounded" style="font-size:1.1rem;">logout</span> <span id="logoutMenuBtnLabel" data-i18n="logout">Logout</span>
             </button>
@@ -2566,6 +2578,9 @@
     const apiUrl = (path) => `${API_BASE}${path}`;
     document.getElementById('linkChannelsJson').href = apiUrl('/api/channels');
 
+    // Development stage flag: keep App Preview menu always enabled across all modes
+    const IS_DEV_STAGE = true;
+
     const AUTH_TOKEN_KEY = 'FamiTube_auth_token';
     const AUTH_USER_KEY = 'FamiTube_auth_user';
     let authToken = localStorage.getItem(AUTH_TOKEN_KEY) || '';
@@ -2912,7 +2927,7 @@
         document.getElementById('btnModeStudio').style.display = 'none';
         const appPreviewEl = document.getElementById('navAppPreview');
         const familyPassEl = document.getElementById('navFamilyPass');
-        if (appPreviewEl) appPreviewEl.style.display = 'none';
+        if (appPreviewEl) appPreviewEl.style.display = IS_DEV_STAGE ? 'inline-flex' : 'none';
         if (familyPassEl) familyPassEl.style.display = 'none';
         document.getElementById('profileMenuMeta').textContent = `${user.email} • Kid Mode`;
       } else {
@@ -6303,6 +6318,10 @@
 
       updateKidTimePill();
       updateKidSearchQuotaBadge(user);
+      if (IS_DEV_STAGE) {
+        const appPreviewEl = document.getElementById('navAppPreview');
+        if (appPreviewEl) appPreviewEl.style.display = 'inline-flex';
+      }
       loadKidAchievements();
       switchKidShowcaseTab(activeKidTab || 'curated');
     }
