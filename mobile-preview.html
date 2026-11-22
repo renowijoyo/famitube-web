@@ -402,6 +402,51 @@
       background: rgba(255, 46, 147, 0.12);
       color: var(--pink);
     }
+    .badge-trusted {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(6, 214, 160, 0.16); color: #06D6A0;
+      border: 1px solid rgba(6, 214, 160, 0.35);
+      border-radius: 99px; padding: 2px 8px; font-size: 0.68rem; font-weight: 800;
+    }
+    .badge-supervised {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(245, 158, 11, 0.16); color: #F59E0B;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: 99px; padding: 2px 8px; font-size: 0.68rem; font-weight: 800;
+    }
+    .badge-blocked {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(239, 68, 68, 0.16); color: #EF4444;
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-radius: 99px; padding: 2px 8px; font-size: 0.68rem; font-weight: 800;
+    }
+    .subtabs {
+      display: flex;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 12px;
+    }
+    .subtab-btn {
+      flex: 1;
+      padding: 8px 10px;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-align: center;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .subtab-btn.active {
+      color: var(--pink);
+      border-bottom-color: var(--pink);
+    }
 
     /* Side Inspector Panel */
     .inspector {
@@ -518,11 +563,13 @@
       <div class="quick-screens">
         <button class="qs-btn" onclick="navigate('login')"><span>🔐 Login (Child / Parent)</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('parent_dashboard')"><span>🛡️ Parent Mode Dashboard</span><span>›</span></button>
+        <button class="qs-btn" onclick="state.parentTab='activity'; navigate('parent_dashboard');"><span>📊 Child Activity &amp; @Trust Tiers</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('home')"><span>🏠 Home Feed (Child Mode)</span><span>›</span></button>
-        <button class="qs-btn" onclick="navigate('channels')"><span>📺 Channels</span><span>›</span></button>
-        <button class="qs-btn" onclick="openChannelDetail(state.savedChannelIds[0] || state.channels[0]?.id || 'ch-1')"><span>📺 Channel Page (Detail &amp; Videos)</span><span>›</span></button>
+        <button class="qs-btn" onclick="navigate('channels')"><span>📺 Channels (Curated + @YouTube)</span><span>›</span></button>
+        <button class="qs-btn" onclick="openYtChannelDetail('@SciShowKids')"><span>📺 @YouTube Channel View (SciShow)</span><span>›</span></button>
+        <button class="qs-btn" onclick="openChannelDetail(state.savedChannelIds[0] || state.channels[0]?.id || 'ch-1')"><span>📺 Curated Channel Page</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('player')"><span>▶️ Video Player + Attention Pause</span><span>›</span></button>
-        <button class="qs-btn" onclick="navigate('search')"><span>🔍 Dual Search (Curated + YouTube)</span><span>›</span></button>
+        <button class="qs-btn" onclick="navigate('search')"><span>🔍 Dual Search (Curated + @YouTube)</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('browser')"><span>🌐 Safe Browser</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('notifications')"><span>🔔 Notifications</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('achievements')"><span>🏆 Badges &amp; Stars</span><span>›</span></button>
@@ -558,6 +605,69 @@
       previousScreen: 'channels',
       topicSearchQuery: '',
       selectedAddTopic: null,
+      ytSubscribedChannels: [
+        { id: 'yt-1', handle: '@SciShowKids', title: 'SciShow Kids', avatarUrl: 'https://images.unsplash.com/photo-1507668077129-56e32842fceb?w=200&h=200&fit=crop', description: 'Fun science questions answered for curious kids!', trustLevel: 'TRUSTED', videoCount: 24, playlistCount: 4 },
+        { id: 'yt-2', handle: '@ArtforKidsHub', title: 'Art for Kids Hub', avatarUrl: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=200&h=200&fit=crop', description: 'Fun art lessons for kids and parents!', trustLevel: 'SUPERVISED', videoCount: 30, playlistCount: 6 }
+      ],
+      selectedYtChannelHandle: '@SciShowKids',
+      ytChannelTab: 'videos',
+      selectedYtPlaylistId: null,
+      ytSearchChannels: [
+        { handle: '@SciShowKids', title: 'SciShow Kids', avatarUrl: 'https://images.unsplash.com/photo-1507668077129-56e32842fceb?w=200&h=200&fit=crop', subscriberCount: '1.2M subscribers', trustLevel: 'TRUSTED' },
+        { handle: '@ArtforKidsHub', title: 'Art for Kids Hub', avatarUrl: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=200&h=200&fit=crop', subscriberCount: '7.8M subscribers', trustLevel: 'SUPERVISED' },
+        { handle: '@NatGeoKids', title: 'National Geographic Kids', avatarUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=200&h=200&fit=crop', subscriberCount: '950K subscribers', trustLevel: 'SUPERVISED' }
+      ],
+      ytSampleVideos: {
+        '@SciShowKids': [
+          { id: 'yt-ssk-1', title: 'Why Do We Hiccup? | SciShow Kids', duration: 254, thumbnailUrl: 'https://img.youtube.com/vi/BYVZh5kqaFg/hqdefault.jpg', channelTitle: 'SciShow Kids', handle: '@SciShowKids' },
+          { id: 'yt-ssk-2', title: 'How Do Airplanes Fly? | SciShow Kids', duration: 310, thumbnailUrl: 'https://img.youtube.com/vi/9-3nC2_t2_g/hqdefault.jpg', channelTitle: 'SciShow Kids', handle: '@SciShowKids' },
+          { id: 'yt-ssk-3', title: 'The Water Cycle! | SciShow Kids', duration: 280, thumbnailUrl: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=400&h=225&fit=crop', channelTitle: 'SciShow Kids', handle: '@SciShowKids' }
+        ],
+        '@ArtforKidsHub': [
+          { id: 'yt-afk-1', title: 'How To Draw A Cute Baby Yoda', duration: 612, thumbnailUrl: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=400&h=225&fit=crop', channelTitle: 'Art for Kids Hub', handle: '@ArtforKidsHub' },
+          { id: 'yt-afk-2', title: 'How To Draw A Funny Pizza', duration: 495, thumbnailUrl: 'https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=400&h=225&fit=crop', channelTitle: 'Art for Kids Hub', handle: '@ArtforKidsHub' }
+        ],
+        '@NatGeoKids': [
+          { id: 'yt-ngk-1', title: 'Cheetahs: Speed Champions of the Wild', duration: 420, thumbnailUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&h=225&fit=crop', channelTitle: 'National Geographic Kids', handle: '@NatGeoKids' }
+        ]
+      },
+      ytSamplePlaylists: {
+        '@SciShowKids': [
+          { id: 'pl-ssk-space', title: 'Awesome Space Adventures', videoCount: 8, thumbnailUrl: 'https://img.youtube.com/vi/BYVZh5kqaFg/hqdefault.jpg' },
+          { id: 'pl-ssk-animals', title: 'Fascinating Animals & Habitats', videoCount: 12, thumbnailUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&h=225&fit=crop' }
+        ],
+        '@ArtforKidsHub': [
+          { id: 'pl-afk-animals', title: 'Drawing Animals Step-by-Step', videoCount: 15, thumbnailUrl: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=400&h=225&fit=crop' },
+          { id: 'pl-afk-cartoon', title: 'Drawing Cartoon Characters', videoCount: 10, thumbnailUrl: 'https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=400&h=225&fit=crop' }
+        ]
+      },
+      ytPlaylistVideos: {
+        'pl-ssk-space': [
+          { id: 'yt-plv-1', title: 'Journey to the Moon | SciShow Kids', duration: 320, thumbnailUrl: 'https://img.youtube.com/vi/BYVZh5kqaFg/hqdefault.jpg', channelTitle: 'SciShow Kids', handle: '@SciShowKids' },
+          { id: 'yt-plv-2', title: 'Why Is Mars Red? | SciShow Kids', duration: 290, thumbnailUrl: 'https://img.youtube.com/vi/libKVRa01L8/hqdefault.jpg', channelTitle: 'SciShow Kids', handle: '@SciShowKids' }
+        ],
+        'pl-ssk-animals': [
+          { id: 'yt-plv-3', title: 'Why Do Chameleons Change Color?', duration: 275, thumbnailUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&h=225&fit=crop', channelTitle: 'SciShow Kids', handle: '@SciShowKids' }
+        ],
+        'pl-afk-animals': [
+          { id: 'yt-plv-4', title: 'How To Draw A Baby Penguin', duration: 530, thumbnailUrl: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=400&h=225&fit=crop', channelTitle: 'Art for Kids Hub', handle: '@ArtforKidsHub' }
+        ],
+        'pl-afk-cartoon': [
+          { id: 'yt-plv-5', title: 'How To Draw A Friendly Robot', duration: 460, thumbnailUrl: 'https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=400&h=225&fit=crop', channelTitle: 'Art for Kids Hub', handle: '@ArtforKidsHub' }
+        ]
+      },
+      childActivityHistory: {
+        watched: [
+          { id: 'act-w1', title: 'Egg Drop From Space', channel: 'TED-Ed & Science Mysteries', time: '10m ago', duration: '15m watched' },
+          { id: 'act-w2', title: 'Why Do We Hiccup?', channel: '@SciShowKids', time: '1h ago', duration: '4m watched' }
+        ],
+        searches: [
+          { id: 'act-s1', query: '@SciShowKids', time: '1h ago', resultsCount: 24 },
+          { id: 'act-s2', query: 'drawing dinosaurs', time: '3h ago', resultsCount: 8 }
+        ]
+      },
+      activityHistoryTab: 'channels',
+      selectedActivityKid: 'Leo',
       parentTab: 'requests',
       parentChildren: [
         { id: 'c-1', name: 'Maya', email: 'maya@famitube.demo', ageRating: 'YOUNG_KIDS', dailyLimitMinutes: null },
@@ -640,8 +750,14 @@
           if (achRes?.success && achRes.data) {
             state.stars = achRes.data.stars ?? state.stars;
           }
+          const ytRes = await fetch(`${API_BASE}/api/kids/youtube-subscriptions`, {
+            headers: { Authorization: `Bearer ${authToken}` }
+          }).then(r => r.json()).catch(() => null);
+          if (ytRes?.success && Array.isArray(ytRes.data) && ytRes.data.length) {
+            state.ytSubscribedChannels = ytRes.data;
+          }
         }
-        if (noteEl) noteEl.textContent = `Synced live with ${API_BASE} (${state.videos.length} videos, ${state.channels.length} channels).`;
+        if (noteEl) noteEl.textContent = `Synced live with ${API_BASE} (${state.videos.length} videos, ${state.channels.length} curated, ${state.ytSubscribedChannels.length} @YouTube).`;
       } catch {
         if (noteEl) noteEl.textContent = 'Using built-in offline sample catalog (API unreachable).';
       }
@@ -713,6 +829,80 @@
       render();
     }
 
+    function openYtChannelDetail(handle) {
+      state.selectedYtChannelHandle = handle;
+      state.ytChannelTab = 'videos';
+      state.selectedYtPlaylistId = null;
+      state.previousScreen = (state.screen === 'yt_channel_detail' || state.screen === 'channel_detail') ? (state.previousScreen || 'channels') : state.screen;
+      state.screen = 'yt_channel_detail';
+      render();
+    }
+
+    function toggleYtSubscription(ch) {
+      const idx = state.ytSubscribedChannels.findIndex(c => c.handle.toLowerCase() === ch.handle.toLowerCase());
+      if (idx >= 0) {
+        state.ytSubscribedChannels.splice(idx, 1);
+      } else {
+        state.ytSubscribedChannels.unshift({
+          id: 'yt-' + Date.now(),
+          handle: ch.handle,
+          title: ch.title || ch.handle.replace('@', ''),
+          avatarUrl: ch.avatarUrl || 'https://images.unsplash.com/photo-1507668077129-56e32842fceb?w=200&h=200&fit=crop',
+          description: ch.description || 'Subscribed YouTube Channel',
+          trustLevel: ch.trustLevel || 'SUPERVISED',
+          videoCount: ch.videoCount || 10,
+          playlistCount: ch.playlistCount || 2
+        });
+      }
+      render();
+    }
+
+    function setYtChannelTrustLevel(handle, newLevel) {
+      const sub = state.ytSubscribedChannels.find(c => c.handle.toLowerCase() === handle.toLowerCase());
+      if (sub) {
+        sub.trustLevel = newLevel;
+      }
+      const searchItem = state.ytSearchChannels.find(c => c.handle.toLowerCase() === handle.toLowerCase());
+      if (searchItem) {
+        searchItem.trustLevel = newLevel;
+      }
+      alert(`Updated ${handle} trust level to ${newLevel}.`);
+      render();
+    }
+
+    function playYtVideo(video, channelHandle) {
+      const sub = state.ytSubscribedChannels.find(c => c.handle.toLowerCase() === (channelHandle || video.handle || '').toLowerCase());
+      const trust = sub ? sub.trustLevel : 'SUPERVISED';
+      if (trust === 'BLOCKED') {
+        alert(`🚫 Access Blocked: ${channelHandle || 'This channel'} has been blocked by your parent.`);
+        return;
+      }
+      if (trust === 'SUPERVISED') {
+        const exists = state.parentRequests.some(r => r.title === video.title);
+        if (!exists) {
+          state.parentRequests.unshift({
+            id: 'req-' + Date.now(),
+            title: video.title,
+            channelTitle: channelHandle || video.channelTitle,
+            kidName: state.selectedActivityKid || 'Leo',
+            thumbnailUrl: video.thumbnailUrl,
+            status: 'PENDING'
+          });
+        }
+        alert(`👁️ Video Supervised!\n\nA watch request for "${video.title}" has been sent to your parent's dashboard.`);
+        return;
+      }
+      navigate('player', { video: {
+        id: video.id,
+        title: video.title,
+        channelTitle: channelHandle || video.channelTitle,
+        category: 'YouTube Channel',
+        thumbnailUrl: video.thumbnailUrl,
+        duration: video.duration || 300,
+        ageRating: state.ageMode
+      }});
+    }
+
     function openChannelDetailByVideo(videoId) {
       const v = state.videos.find(x => x.id === videoId);
       if (!v) return;
@@ -740,10 +930,11 @@
             { id: 'favorites', icon: 'favorite', label: 'Favorites' },
             { id: 'achievements', icon: 'emoji_events', label: 'Badges' }
           ];
-      const showBottom = tabs.some(t => t.id === state.screen) || state.screen === 'channel_detail';
+      const isChannelView = state.screen === 'channel_detail' || state.screen === 'yt_channel_detail';
+      const showBottom = tabs.some(t => t.id === state.screen) || isChannelView;
       bar.style.display = showBottom ? 'flex' : 'none';
       bar.innerHTML = tabs.map(t => `
-        <button class="nav-item ${(state.screen === t.id || (state.screen === 'channel_detail' && t.id === 'channels')) ? 'active' : ''}" onclick="navigate('${t.id}')">
+        <button class="nav-item ${(state.screen === t.id || (isChannelView && t.id === 'channels')) ? 'active' : ''}" onclick="navigate('${t.id}')">
           <span class="material-symbols-rounded" style="font-size:1.3rem;">${t.icon}</span>
           <span>${t.label}</span>
         </button>
@@ -798,25 +989,65 @@
       } else if (state.screen === 'channels') {
         const myChannels = ageChannels.filter(c => state.savedChannelIds.includes(c.id));
         body.innerHTML = `
-          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
-            <h3 style="font-size:1.05rem;">My Channels (${myChannels.length})</h3>
-            <button class="btn-primary" style="padding:6px 12px; font-size:0.78rem;" onclick="state.selectedAddTopic=null; state.topicSearchQuery=''; navigate('add_channel');">Subscribe to a channel</button>
+          <!-- YouTube Subscriptions Section -->
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span style="font-size:1.1rem;">⭐</span>
+              <h3 style="font-size:0.95rem; font-weight:800;">My @YouTube Channels (${state.ytSubscribedChannels.length})</h3>
+            </div>
+            <button class="btn-outline" style="padding:4px 8px; font-size:0.7rem; color:var(--blue);" onclick="navigate('search')">+ Find @Channel</button>
           </div>
+
+          ${state.ytSubscribedChannels.length === 0 ? `
+            <div class="card-box" style="text-align:center; padding:16px 12px; margin-bottom:14px;">
+              <div style="font-size:1.6rem; margin-bottom:4px;">📺</div>
+              <div style="font-weight:800; font-size:0.86rem; margin-bottom:2px;">No @YouTube Channels Yet</div>
+              <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:8px;">Search channels with '@' to subscribe.</div>
+              <button class="btn-primary" style="padding:6px 12px; font-size:0.74rem;" onclick="navigate('search')">Search YouTube Channels</button>
+            </div>
+          ` : state.ytSubscribedChannels.map(c => `
+            <div class="card-box" style="display:flex; align-items:center; gap:12px; cursor:pointer; margin-bottom:8px; border-left:3px solid ${c.trustLevel==='TRUSTED'?'#06D6A0':c.trustLevel==='BLOCKED'?'#EF4444':'#F59E0B'};" onclick="openYtChannelDetail('${c.handle}')">
+              <img src="${c.avatarUrl}" style="width:46px; height:46px; border-radius:50%; object-fit:cover; border:1.5px solid var(--border);">
+              <div style="flex:1; min-width:0;">
+                <div style="font-weight:800; font-size:0.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.title}</div>
+                <div style="font-size:0.72rem; color:var(--blue); font-weight:700;">${c.handle}</div>
+                <div style="margin-top:3px;">
+                  ${c.trustLevel === 'TRUSTED' ? `<span class="badge-trusted">✓ TRUSTED (Auto)</span>` :
+                    c.trustLevel === 'BLOCKED' ? `<span class="badge-blocked">🚫 BLOCKED</span>` :
+                    `<span class="badge-supervised">👁️ SUPERVISED</span>`}
+                </div>
+              </div>
+              <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+                <button class="btn-outline" style="padding:3px 7px; font-size:0.66rem; color:var(--pink);" onclick="event.stopPropagation(); toggleYtSubscription({handle:'${c.handle}'});">Unsub</button>
+                <span style="font-size:0.72rem; font-weight:700; color:var(--text-muted);">View ›</span>
+              </div>
+            </div>
+          `).join('')}
+
+          <!-- Curated Channels Section -->
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-top:16px; margin-bottom:8px;">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span style="font-size:1.1rem;">🛡️</span>
+              <h3 style="font-size:0.95rem; font-weight:800;">Curated Channels (${myChannels.length})</h3>
+            </div>
+            <button class="btn-primary" style="padding:5px 10px; font-size:0.72rem;" onclick="state.selectedAddTopic=null; state.topicSearchQuery=''; navigate('add_channel');">+ Subscribe</button>
+          </div>
+
           ${myChannels.length === 0 ? `
-            <div class="card-box" style="text-align:center; padding:22px 14px;">
-              <div style="font-size:2rem; margin-bottom:6px;">📺</div>
-              <div style="font-weight:800; font-size:0.95rem; margin-bottom:4px;">No Subscribed Channels Yet</div>
-              <div style="font-size:0.76rem; color:var(--text-muted); margin-bottom:12px;">Pick a topic and subscribe to your favorite channels.</div>
+            <div class="card-box" style="text-align:center; padding:18px 14px;">
+              <div style="font-size:1.8rem; margin-bottom:4px;">✨</div>
+              <div style="font-weight:800; font-size:0.88rem; margin-bottom:3px;">No Curated Channels Yet</div>
+              <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:10px;">Pick a topic and subscribe to curated channels.</div>
               <button class="btn-primary" onclick="state.selectedAddTopic=null; state.topicSearchQuery=''; navigate('add_channel');">Subscribe to a channel</button>
             </div>
           ` : myChannels.map(c => `
-            <div class="card-box" style="display:flex; align-items:center; gap:12px; cursor:pointer;" onclick="openChannelDetail('${c.id}')">
-              <img src="${c.avatarUrl}" style="width:48px; height:48px; border-radius:50%; object-fit:cover;">
+            <div class="card-box" style="display:flex; align-items:center; gap:12px; cursor:pointer; margin-bottom:8px;" onclick="openChannelDetail('${c.id}')">
+              <img src="${c.avatarUrl}" style="width:46px; height:46px; border-radius:50%; object-fit:cover;">
               <div style="flex:1; min-width:0;">
                 <div style="font-weight:800; font-size:0.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.name}</div>
                 <div style="font-size:0.72rem; color:var(--text-muted);">${c.category} • ${c.channelType === 'LIVE_TV' ? '🔴 LIVE TV' : 'On Demand'}</div>
               </div>
-              <button class="btn-outline" style="padding:4px 8px; font-size:0.7rem; color:var(--pink);" onclick="event.stopPropagation(); state.savedChannelIds=state.savedChannelIds.filter(id=>id!=='${c.id}'); render();">Unsubscribe</button>
+              <button class="btn-outline" style="padding:4px 8px; font-size:0.68rem; color:var(--pink);" onclick="event.stopPropagation(); state.savedChannelIds=state.savedChannelIds.filter(id=>id!=='${c.id}'); render();">Unsub</button>
             </div>
           `).join('')}
         `;
@@ -972,6 +1203,128 @@
             `}
           `;
         }
+      } else if (state.screen === 'yt_channel_detail') {
+        const handle = state.selectedYtChannelHandle || '@SciShowKids';
+        const sub = state.ytSubscribedChannels.find(c => c.handle.toLowerCase() === handle.toLowerCase()) ||
+                    state.ytSearchChannels.find(c => c.handle.toLowerCase() === handle.toLowerCase()) ||
+                    { handle: handle, title: handle.replace('@', ''), trustLevel: 'SUPERVISED', avatarUrl: 'https://images.unsplash.com/photo-1507668077129-56e32842fceb?w=200&h=200&fit=crop' };
+        const isSubscribed = state.ytSubscribedChannels.some(c => c.handle.toLowerCase() === handle.toLowerCase());
+        const videos = state.ytSampleVideos[handle] || state.ytSampleVideos['@SciShowKids'] || [];
+        const playlists = state.ytSamplePlaylists[handle] || state.ytSamplePlaylists['@SciShowKids'] || [];
+        const trust = sub.trustLevel || 'SUPERVISED';
+
+        body.innerHTML = `
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+            <button class="btn-outline" style="padding:5px 10px; font-size:0.76rem;" onclick="navigate(state.previousScreen || 'channels')">← Back</button>
+            <span style="font-weight:800; font-size:0.88rem; color:var(--blue);">${handle}</span>
+          </div>
+
+          <!-- Channel Header Card -->
+          <div class="card-box" style="margin-bottom:12px;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+              <img src="${sub.avatarUrl || 'https://images.unsplash.com/photo-1507668077129-56e32842fceb?w=200&h=200&fit=crop'}" style="width:56px; height:56px; border-radius:50%; object-fit:cover; border:2px solid var(--blue);">
+              <div style="flex:1; min-width:0;">
+                <div style="font-weight:800; font-size:0.96rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${sub.title || handle}</div>
+                <div style="font-size:0.74rem; color:var(--blue); font-weight:700;">${handle}</div>
+                <div style="margin-top:3px;">
+                  ${trust === 'TRUSTED' ? `<span class="badge-trusted">✓ TRUSTED (Auto-Approved)</span>` :
+                    trust === 'BLOCKED' ? `<span class="badge-blocked">🚫 BLOCKED</span>` :
+                    `<span class="badge-supervised">👁️ SUPERVISED (Needs Approval)</span>`}
+                </div>
+              </div>
+            </div>
+
+            <div style="font-size:0.72rem; color:var(--text-muted); line-height:1.4; margin-bottom:10px; background:var(--surface-var); padding:8px 10px; border-radius:10px;">
+              ${trust === 'TRUSTED' ? '✅ <strong>Parent Trusted:</strong> Videos from this channel play immediately without parent approval requests.' :
+                trust === 'BLOCKED' ? '🚫 <strong>Blocked:</strong> Parent has blocked this channel. Videos cannot be watched.' :
+                '👁️ <strong>Parent Supervised:</strong> Videos require a one-tap parent approval before playing.'}
+            </div>
+
+            <button class="${isSubscribed ? 'btn-outline' : 'btn-primary'}" style="width:100%; padding:8px 12px; font-size:0.8rem;" onclick="toggleYtSubscription({handle:'${handle}', title:'${(sub.title||'').replace(/'/g, "\\'")}', avatarUrl:'${sub.avatarUrl||''}', trustLevel:'${trust}'});">
+              ${isSubscribed ? 'Subscribed ✓' : '+ Subscribe to @YouTube Channel'}
+            </button>
+          </div>
+
+          <!-- Dual Tabs: Videos | Playlists -->
+          <div class="subtabs">
+            <button class="subtab-btn ${state.ytChannelTab==='videos'?'active':''}" onclick="state.ytChannelTab='videos'; state.selectedYtPlaylistId=null; render();">
+              <span class="material-symbols-rounded" style="font-size:1.1rem;">movie</span> Videos (${videos.length})
+            </button>
+            <button class="subtab-btn ${state.ytChannelTab==='playlists'?'active':''}" onclick="state.ytChannelTab='playlists'; state.selectedYtPlaylistId=null; render();">
+              <span class="material-symbols-rounded" style="font-size:1.1rem;">playlist_play</span> Playlists (${playlists.length})
+            </button>
+          </div>
+
+          ${state.ytChannelTab === 'videos' ? `
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              ${videos.map(v => `
+                <div class="card-box" style="display:flex; gap:10px; padding:8px; cursor:pointer;" onclick="playYtVideo({id:'${v.id}', title:'${v.title.replace(/'/g, "\\'")}', thumbnailUrl:'${v.thumbnailUrl}', duration:${v.duration||200}}, '${handle}')">
+                  <div style="position:relative; width:100px; aspect-ratio:16/9; border-radius:8px; overflow:hidden; background:#000; flex-shrink:0;">
+                    <img src="${v.thumbnailUrl}" style="width:100%; height:100%; object-fit:cover;">
+                    <span style="position:absolute; bottom:3px; right:3px; font-size:0.6rem; font-weight:800; padding:1px 4px; border-radius:4px; background:rgba(0,0,0,0.85); color:#fff;">${Math.floor((v.duration||180)/60)}:${String((v.duration||180)%60).padStart(2,'0')}</span>
+                  </div>
+                  <div style="flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center;">
+                    <div style="font-weight:700; font-size:0.82rem; line-height:1.25; margin-bottom:4px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${v.title}</div>
+                    <div style="font-size:0.68rem; color:var(--blue); font-weight:700;">${handle} • ${trust === 'TRUSTED' ? '▶ Instant Play' : '👁️ Needs Approval'}</div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          ` : `
+            ${!state.selectedYtPlaylistId ? `
+              <!-- Playlist Cards -->
+              <div style="display:flex; flex-direction:column; gap:10px;">
+                ${playlists.map(p => `
+                  <div class="card-box" style="display:flex; gap:12px; padding:10px; cursor:pointer;" onclick="state.selectedYtPlaylistId='${p.id}'; render();">
+                    <div style="position:relative; width:90px; aspect-ratio:16/9; border-radius:8px; overflow:hidden; background:#1e293b; flex-shrink:0;">
+                      <img src="${p.thumbnailUrl}" style="width:100%; height:100%; object-fit:cover;">
+                      <div style="position:absolute; inset:0; background:rgba(0,0,0,0.45); display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.72rem; font-weight:800;">
+                        📁 ${p.videoCount}
+                      </div>
+                    </div>
+                    <div style="flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center;">
+                      <div style="font-weight:800; font-size:0.86rem; margin-bottom:2px;">${p.title}</div>
+                      <div style="font-size:0.72rem; color:var(--text-muted);">${p.videoCount} videos in playlist</div>
+                      <div style="font-size:0.72rem; color:var(--pink); font-weight:700; margin-top:3px;">Open Playlist ›</div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            ` : `
+              <!-- Inside Playlist -->
+              <div>
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+                  <button class="btn-outline" style="padding:4px 8px; font-size:0.74rem;" onclick="state.selectedYtPlaylistId=null; render();">← All Playlists</button>
+                  <span style="font-weight:800; font-size:0.8rem; color:var(--pink);">Playlist Detail</span>
+                </div>
+                ${(() => {
+                  const pl = playlists.find(x => x.id === state.selectedYtPlaylistId) || { title: 'Playlist', id: state.selectedYtPlaylistId };
+                  const plVideos = state.ytPlaylistVideos[state.selectedYtPlaylistId] || videos;
+                  return `
+                    <div class="card-box" style="margin-bottom:10px; background:var(--surface-var);">
+                      <div style="font-weight:800; font-size:0.9rem; margin-bottom:2px;">📁 ${pl.title}</div>
+                      <div style="font-size:0.72rem; color:var(--text-muted);">${plVideos.length} videos • Tap to play</div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                      ${plVideos.map(v => `
+                        <div class="card-box" style="display:flex; gap:10px; padding:8px; cursor:pointer;" onclick="playYtVideo({id:'${v.id}', title:'${v.title.replace(/'/g, "\\'")}', thumbnailUrl:'${v.thumbnailUrl}', duration:${v.duration||200}}, '${handle}')">
+                          <div style="position:relative; width:90px; aspect-ratio:16/9; border-radius:8px; overflow:hidden; background:#000; flex-shrink:0;">
+                            <img src="${v.thumbnailUrl}" style="width:100%; height:100%; object-fit:cover;">
+                            <span style="position:absolute; bottom:2px; right:2px; font-size:0.58rem; font-weight:800; padding:1px 3px; border-radius:3px; background:rgba(0,0,0,0.85); color:#fff;">${Math.floor((v.duration||180)/60)}:${String((v.duration||180)%60).padStart(2,'0')}</span>
+                          </div>
+                          <div style="flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center;">
+                            <div style="font-weight:700; font-size:0.8rem; line-height:1.25; margin-bottom:2px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${v.title}</div>
+                            <div style="font-size:0.68rem; color:var(--blue); font-weight:700;">${handle}</div>
+                          </div>
+                        </div>
+                      `).join('')}
+                    </div>
+                  `;
+                })()}
+              </div>
+            `}
+          `}
+        `;
       } else if (state.screen === 'player') {
         const v = state.activeVideo || state.videos[0];
         body.innerHTML = `
@@ -1057,17 +1410,61 @@
               (v.channelTitle || '').toLowerCase().includes(q) ||
               (v.category || '').toLowerCase().includes(q)
             )
-          : ageVideos.slice(0, 3);
+          : ageVideos.slice(0, 2);
+
+        const ytChannelMatches = state.ytSearchChannels.filter(c =>
+          !q || c.handle.toLowerCase().includes(q) || c.title.toLowerCase().includes(q)
+        );
+
         body.innerHTML = `
           <form onsubmit="event.preventDefault(); render();" style="display:flex; gap:8px; margin-bottom:12px;">
-            <input type="text" placeholder="Search curated or YouTube videos..." value="${state.searchQuery}" oninput="state.searchQuery=this.value;" style="flex:1; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text);">
+            <input type="text" placeholder="Search curated or @YouTube channels..." value="${state.searchQuery}" oninput="state.searchQuery=this.value;" style="flex:1; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:0.84rem;">
             <button type="submit" class="btn-primary" style="padding:10px 14px;">Go</button>
           </form>
 
-          <div style="font-weight:800; font-size:0.86rem; margin-bottom:8px;">Curated Safe Videos (${curatedMatches.length})</div>
+          <!-- Quick Channel Chips when query is blank -->
+          ${!q ? `
+            <div style="margin-bottom:12px;">
+              <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); margin-bottom:6px;">POPULAR @CHANNELS:</div>
+              <div class="chips-row">
+                ${state.ytSearchChannels.map(c => `
+                  <button class="chip" onclick="openYtChannelDetail('${c.handle}')">
+                    <span style="color:var(--blue); font-weight:800;">${c.handle}</span>
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- YouTube Channels Section -->
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+            <div style="font-weight:800; font-size:0.86rem; color:var(--blue);">YouTube Channels (@) (${ytChannelMatches.length})</div>
+            <span style="font-size:0.68rem; color:var(--text-muted);">Children Can Subscribe</span>
+          </div>
+
+          ${ytChannelMatches.length === 0 ? `
+            <div class="card-box" style="font-size:0.76rem; color:var(--text-muted); padding:10px;">No YouTube channels matching "${state.searchQuery}".</div>
+          ` : ytChannelMatches.map(c => {
+            const isSub = state.ytSubscribedChannels.some(s => s.handle.toLowerCase() === c.handle.toLowerCase());
+            return `
+              <div class="card-box" style="display:flex; align-items:center; gap:10px; margin-bottom:8px; cursor:pointer;" onclick="openYtChannelDetail('${c.handle}')">
+                <img src="${c.avatarUrl}" style="width:44px; height:44px; border-radius:50%; object-fit:cover; border:1.5px solid var(--border);">
+                <div style="flex:1; min-width:0;">
+                  <div style="font-weight:800; font-size:0.86rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.title}</div>
+                  <div style="font-size:0.72rem; color:var(--blue); font-weight:700;">${c.handle} • ${c.subscriberCount}</div>
+                </div>
+                <button class="${isSub ? 'btn-outline' : 'btn-primary'}" style="padding:5px 10px; font-size:0.72rem;" onclick="event.stopPropagation(); toggleYtSubscription({handle:'${c.handle}', title:'${c.title.replace(/'/g, "\\'")}', avatarUrl:'${c.avatarUrl}'});">
+                  ${isSub ? 'Subscribed ✓' : 'Subscribe'}
+                </button>
+              </div>
+            `;
+          }).join('')}
+
+          <!-- Curated Videos Section -->
+          <div style="font-weight:800; font-size:0.86rem; margin:14px 0 8px;">Curated Safe Videos (${curatedMatches.length})</div>
           ${curatedMatches.length
-            ? curatedMatches.slice(0, 3).map(v => `
-              <div class="card-box" style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="openPreviewVideo('${v.id}')">
+            ? curatedMatches.map(v => `
+              <div class="card-box" style="display:flex; align-items:center; gap:10px; cursor:pointer; margin-bottom:8px;" onclick="openPreviewVideo('${v.id}')">
                 <img src="${v.thumbnailUrl}" style="width:76px; height:48px; border-radius:8px; object-fit:cover;">
                 <div style="flex:1; min-width:0;">
                   <div style="font-weight:700; font-size:0.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${v.title}</div>
@@ -1078,11 +1475,12 @@
             : `<div class="card-box" style="font-size:0.78rem; color:var(--text-muted);">No curated videos match "${state.searchQuery}".</div>`
           }
 
-          <div style="font-weight:800; font-size:0.86rem; margin:12px 0 8px;">YouTube Search (Parent Supervised)</div>
-          <div class="card-box" style="font-size:0.78rem; color:var(--text-muted);">
+          <!-- YouTube Supervised Videos Notice -->
+          <div style="font-weight:800; font-size:0.86rem; margin:14px 0 6px;">YouTube Videos (Parent Supervised)</div>
+          <div class="card-box" style="font-size:0.76rem; color:var(--text-muted); line-height:1.4;">
             ${q
-              ? `YouTube results for "<strong>${state.searchQuery}</strong>": tapping a new video sends a parent approval email with thumbnail + Give/Deny buttons.`
-              : 'Type a topic above and tap Go to search both curated safe videos and parent-supervised YouTube results.'}
+              ? `Showing results for "<strong>${state.searchQuery}</strong>". Videos from <strong>TRUSTED</strong> channels play right away. Videos from <strong>SUPERVISED</strong> channels send an instant approval request to the parent.`
+              : 'Search for any educational topic. Supervised results notify parents for quick approval.'}
           </div>
         `;
       } else if (state.screen === 'achievements') {
@@ -1187,9 +1585,10 @@
             </div>
             <button class="btn-outline" style="padding:4px 9px; font-size:0.72rem;" onclick="state.isParentLogin=false; navigate('login');">Sign Out</button>
           </div>
-          <div style="display:flex; gap:6px; margin-bottom:12px;">
+          <div style="display:flex; gap:6px; margin-bottom:12px; overflow-x:auto;">
             <button class="chip ${state.parentTab==='requests'?'active':''}" onclick="state.parentTab='requests'; render();">Requests${pendingCount ? ' (' + pendingCount + ')' : ''}</button>
             <button class="chip ${state.parentTab==='kids'?'active':''}" onclick="state.parentTab='kids'; render();">My Kids (${state.parentChildren.length})</button>
+            <button class="chip ${state.parentTab==='activity'?'active':''}" onclick="state.parentTab='activity'; render();">Activity &amp; @Channels</button>
             <button class="chip ${state.parentTab==='controls'?'active':''}" onclick="state.parentTab='controls'; render();">Controls</button>
           </div>
           ${state.parentTab === 'requests' ? `
@@ -1225,6 +1624,7 @@
                     <div style="font-size:0.68rem; font-weight:700; margin-top:2px; color:${isOverridden ? 'var(--pink)' : '#06D6A0'};">${isOverridden ? 'Custom Kid Override' : 'Using Global Controls'}</div>
                   </div>
                   <div style="display:flex; flex-direction:column; gap:4px;">
+                    <button class="btn-outline" style="padding:4px 8px; font-size:0.68rem;" onclick="state.selectedActivityKid='${c.name}'; state.parentTab='activity'; state.activityHistoryTab='channels'; render();">Activity &amp; @</button>
                     <button class="btn-outline" style="padding:4px 8px; font-size:0.68rem;" onclick="const v=prompt('Override daily limit (min) for ${c.name}, or leave blank for Global:', '${isOverridden ? c.dailyLimitMinutes : ''}'); if(v!==null){ c_val=v.trim(); state.parentChildren=state.parentChildren.map(x=>x.id==='${c.id}'?{...x, dailyLimitMinutes: c_val===''?null:Number(c_val)}:x); render(); }">Override</button>
                     <button class="btn-outline" style="padding:4px 8px; font-size:0.68rem; color:var(--pink);" onclick="state.parentChildren=state.parentChildren.filter(x=>x.id!=='${c.id}'); render();">Remove</button>
                   </div>
@@ -1233,6 +1633,87 @@
               `;
             }).join('')}
             <button class="btn-primary" style="width:100%;" onclick="const n=prompt('Child Name:'); if(n){ state.parentChildren.push({id:'c-'+Date.now(), name:n, email:n.toLowerCase().replace(/\\s+/g,'')+'@famitube.demo', ageRating:'YOUNG_KIDS', dailyLimitMinutes:null}); render(); }">+ Add Child Account</button>
+          ` : state.parentTab === 'activity' ? `
+            <div style="margin-bottom:10px;">
+              <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); margin-bottom:4px;">SELECT CHILD:</div>
+              <div class="chips-row">
+                ${state.parentChildren.map(c => `
+                  <button class="chip ${state.selectedActivityKid===c.name?'active':''}" onclick="state.selectedActivityKid='${c.name}'; render();">${c.name}</button>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- 4 Subtabs: Watched, Searches, Requests, @Channels -->
+            <div class="subtabs">
+              <button class="subtab-btn ${state.activityHistoryTab==='watched'?'active':''}" onclick="state.activityHistoryTab='watched'; render();">Watched</button>
+              <button class="subtab-btn ${state.activityHistoryTab==='searches'?'active':''}" onclick="state.activityHistoryTab='searches'; render();">Searches</button>
+              <button class="subtab-btn ${state.activityHistoryTab==='requests'?'active':''}" onclick="state.activityHistoryTab='requests'; render();">Requests</button>
+              <button class="subtab-btn ${state.activityHistoryTab==='channels'?'active':''}" onclick="state.activityHistoryTab='channels'; render();">@Channels (${state.ytSubscribedChannels.length})</button>
+            </div>
+
+            ${state.activityHistoryTab === 'watched' ? `
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                ${state.childActivityHistory.watched.map(w => `
+                  <div class="card-box" style="display:flex; justify-content:space-between; align-items:center; padding:10px;">
+                    <div>
+                      <div style="font-weight:800; font-size:0.84rem;">${w.title}</div>
+                      <div style="font-size:0.7rem; color:var(--text-muted);">${w.channel} • ${w.duration}</div>
+                    </div>
+                    <span style="font-size:0.68rem; color:var(--blue);">${w.time}</span>
+                  </div>
+                `).join('')}
+              </div>
+            ` : state.activityHistoryTab === 'searches' ? `
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                ${state.childActivityHistory.searches.map(s => `
+                  <div class="card-box" style="display:flex; justify-content:space-between; align-items:center; padding:10px;">
+                    <div>
+                      <div style="font-weight:800; font-size:0.84rem;">🔍 "${s.query}"</div>
+                      <div style="font-size:0.7rem; color:var(--text-muted);">${s.resultsCount} results found</div>
+                    </div>
+                    <span style="font-size:0.68rem; color:var(--blue);">${s.time}</span>
+                  </div>
+                `).join('')}
+              </div>
+            ` : state.activityHistoryTab === 'requests' ? `
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                ${state.parentRequests.map(r => `
+                  <div class="card-box" style="padding:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                      <div style="font-weight:800; font-size:0.84rem; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${r.title}</div>
+                      <span style="font-size:0.66rem; font-weight:800; padding:2px 6px; border-radius:6px; background:${r.status==='APPROVED'?'rgba(6,214,160,0.16)':r.status==='REJECTED'?'rgba(255,46,147,0.16)':'rgba(245,158,11,0.18)'}; color:${r.status==='APPROVED'?'#06D6A0':r.status==='REJECTED'?'#FF2E93':'#D97706'};">${r.status}</span>
+                    </div>
+                    <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">${r.channelTitle} • Requested by ${r.kidName}</div>
+                  </div>
+                `).join('')}
+              </div>
+            ` : `
+              <!-- @Channels Trust Tier Management -->
+              <div style="font-size:0.74rem; color:var(--text-muted); margin-bottom:8px;">
+                Manage YouTube channel trust tiers for <strong>${state.selectedActivityKid}</strong>:
+              </div>
+              <div style="display:flex; flex-direction:column; gap:10px;">
+                ${state.ytSubscribedChannels.map(c => `
+                  <div class="card-box" style="padding:10px; border-left:3px solid ${c.trustLevel==='TRUSTED'?'#06D6A0':c.trustLevel==='BLOCKED'?'#EF4444':'#F59E0B'};">
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                      <img src="${c.avatarUrl}" style="width:38px; height:38px; border-radius:50%; object-fit:cover;">
+                      <div style="flex:1; min-width:0;">
+                        <div style="font-weight:800; font-size:0.86rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.title}</div>
+                        <div style="font-size:0.72rem; color:var(--blue); font-weight:700;">${c.handle}</div>
+                      </div>
+                      ${c.trustLevel === 'TRUSTED' ? `<span class="badge-trusted">TRUSTED</span>` :
+                        c.trustLevel === 'BLOCKED' ? `<span class="badge-blocked">BLOCKED</span>` :
+                        `<span class="badge-supervised">SUPERVISED</span>`}
+                    </div>
+                    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px;">
+                      <button class="btn-outline" style="padding:4px 6px; font-size:0.68rem; font-weight:800; color:${c.trustLevel==='TRUSTED'?'#06D6A0':'var(--text)'}; border-color:${c.trustLevel==='TRUSTED'?'#06D6A0':'var(--border)'};" onclick="setYtChannelTrustLevel('${c.handle}', 'TRUSTED');">✓ Trust (Auto)</button>
+                      <button class="btn-outline" style="padding:4px 6px; font-size:0.68rem; font-weight:800; color:${c.trustLevel==='SUPERVISED'?'#F59E0B':'var(--text)'}; border-color:${c.trustLevel==='SUPERVISED'?'#F59E0B':'var(--border)'};" onclick="setYtChannelTrustLevel('${c.handle}', 'SUPERVISED');">👁️ Supervise</button>
+                      <button class="btn-outline" style="padding:4px 6px; font-size:0.68rem; font-weight:800; color:${c.trustLevel==='BLOCKED'?'#EF4444':'var(--text)'}; border-color:${c.trustLevel==='BLOCKED'?'#EF4444':'var(--border)'};" onclick="setYtChannelTrustLevel('${c.handle}', 'BLOCKED');">🚫 Block</button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            `}
           ` : `
             <div class="card-box">
               <div style="font-weight:800; font-size:0.9rem; margin-bottom:4px;">Global Parental Controls (All Kids)</div>
