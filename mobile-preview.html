@@ -1079,7 +1079,8 @@
             { id: 'profile', icon: 'person', label: 'Profile' }
           ];
       const isChannelView = state.screen === 'channel_detail' || state.screen === 'yt_channel_detail';
-      const showBottom = tabs.some(t => t.id === state.screen) || isChannelView;
+      // Keep bottom bar always visible at all times (except login screen)
+      const showBottom = state.screen !== 'login';
       bar.style.display = showBottom ? 'flex' : 'none';
       bar.innerHTML = tabs.map(t => `
         <button class="nav-item ${(state.screen === t.id || (isChannelView && t.id === 'channels')) ? 'active' : ''}" onclick="navigate('${t.id}')">
