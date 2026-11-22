@@ -448,6 +448,109 @@
       border-bottom-color: var(--pink);
     }
 
+    /* Destination Tiles & Grids matching Android Jetpack Compose */
+    .dest-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .dest-tile {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 10px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .dest-tile:hover {
+      transform: translateY(-2px);
+      border-color: var(--pink);
+    }
+    .dest-icon-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .dest-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .ch-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .ch-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 12px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .ch-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--blue);
+    }
+    .ch-close-btn {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+    .ch-close-btn:hover {
+      color: var(--pink);
+      background: rgba(255,46,147,0.12);
+    }
+    .simple-topics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .simple-topic-tile {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 18px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      text-align: center;
+      transition: transform 0.15s ease;
+    }
+    .simple-topic-tile:hover {
+      transform: scale(1.03);
+    }
+
     /* Side Inspector Panel */
     .inspector {
       width: 310px;
@@ -529,24 +632,22 @@
 
         <div class="app-topbar" id="appTopBar">
           <div class="app-topbar-left">
-            <div class="app-logo">F</div>
+            <div class="app-logo" style="overflow:hidden; padding:0; background:none; border-radius:10px;"><img src="assets/famitube-icon.png" style="width:100%; height:100%; object-fit:cover;"></div>
             <span class="app-title">FamiTube</span>
           </div>
           <div class="app-topbar-actions">
-            <button class="pill-stars" onclick="navigate('achievements')">⭐ <span id="topStars">10000</span></button>
-            <span class="pill-time" id="topTimeLeft">45m left</span>
             <button class="icon-btn" id="btnTopNotif" onclick="navigate('notifications')" title="Notifications" style="position:relative;">
-              <span class="material-symbols-rounded" style="font-size:1.2rem;">notifications</span>
+              <span class="material-symbols-rounded" style="font-size:1.25rem;">notifications</span>
               <span id="topNotifBadge" style="position:absolute; top:2px; right:2px; min-width:14px; height:14px; border-radius:99px; background:var(--pink); color:#fff; font-size:0.58rem; font-weight:800; display:flex; align-items:center; justify-content:center; padding:0 3px;">2</span>
             </button>
             <button class="icon-btn" id="btnTopBrowser" onclick="navigate('browser')" title="Safe Browser">
-              <span class="material-symbols-rounded" style="font-size:1.2rem;">public</span>
+              <span class="material-symbols-rounded" style="font-size:1.25rem;">public</span>
             </button>
             <button class="icon-btn" id="btnTopSearch" onclick="navigate('search')" title="Search">
               <span class="material-symbols-rounded" style="font-size:1.25rem;">search</span>
             </button>
-            <button class="icon-btn" onclick="navigate('profile')" title="Profile">
-              <span class="material-symbols-rounded" style="font-size:1.25rem;">account_circle</span>
+            <button class="icon-btn" onclick="navigate('profile')" title="My Profile">
+              <span class="material-symbols-rounded" style="font-size:1.35rem;">account_circle</span>
             </button>
           </div>
         </div>
@@ -589,9 +690,9 @@
     let state = {
       screen: 'home',
       appVersion: '1.0.0',
-      theme: 'LIGHT',
+      theme: 'DARK',
       ageMode: 'OLDER_KIDS',
-      selectedCategory: 'All',
+      selectedCategory: null,
       searchQuery: '',
       isAttentionPaused: false,
       pinInput: '',
@@ -782,12 +883,31 @@
 
     function setAgeMode(mode) {
       state.ageMode = mode;
-      state.selectedCategory = 'All';
+      state.selectedCategory = null;
       document.getElementById('btnAgeAll').classList.toggle('active', mode === 'ALL');
       document.getElementById('btnAgeToddler').classList.toggle('active', mode === 'TODDLER');
       document.getElementById('btnAgeYoung').classList.toggle('active', mode === 'YOUNG_KIDS');
       document.getElementById('btnAgeOlder').classList.toggle('active', mode === 'OLDER_KIDS');
       render();
+    }
+
+    function topicEmoji(name) {
+      const lower = String(name || '').toLowerCase();
+      if (lower.includes('animal') || lower.includes('nature')) return '🦁';
+      if (lower.includes('cartoon') || lower.includes('fun')) return '🎨';
+      if (lower.includes('craft') || lower.includes('art')) return '✂️';
+      if (lower.includes('discovery') || lower.includes('world')) return '🌍';
+      if (lower.includes('yoga') || lower.includes('active')) return '🤸';
+      if (lower.includes('learn') || lower.includes('abc')) return '📚';
+      if (lower.includes('music') || lower.includes('rhyme')) return '🎵';
+      if (lower.includes('science') || lower.includes('space')) return '🚀';
+      if (lower.includes('math') || lower.includes('coding')) return '🔢';
+      if (lower.includes('stor') || lower.includes('read')) return '📖';
+      if (lower.includes('game') || lower.includes('gaming')) return '🎮';
+      if (lower.includes('hobb') || lower.includes('diy')) return '🛠️';
+      if (lower.includes('sport') || lower.includes('outdoor')) return '⚽';
+      if (lower.includes('cook') || lower.includes('bak')) return '🧁';
+      return '🎬';
     }
 
     function matchesPreviewAge(rating) {
@@ -958,98 +1078,192 @@
 
       const body = document.getElementById('appBody');
       if (state.screen === 'home') {
-        const cats = ['All', ...new Set(ageVideos.map(v => v.category).filter(Boolean))];
-        if (!cats.includes(state.selectedCategory)) state.selectedCategory = 'All';
-        const filtered = state.selectedCategory === 'All'
-          ? ageVideos
-          : ageVideos.filter(v => v.category === state.selectedCategory);
-        body.innerHTML = `
-          <div class="chips-row">
-            ${cats.map(c => `<button class="chip ${state.selectedCategory === c ? 'active' : ''}" onclick="state.selectedCategory='${c}'; render();">${c}</button>`).join('')}
-          </div>
-          <div class="video-list">
-            ${filtered.length === 0 ? `
-              <div class="card-box" style="text-align:center; color:var(--text-muted); font-size:0.84rem;">
-                No videos found for this age group and category.
+        const isSimple = state.ageMode === 'TODDLER' || state.ageMode === 'YOUNG_KIDS';
+        const cats = [...new Set(ageVideos.map(v => v.category).filter(Boolean))];
+
+        if (isSimple) {
+          const isToddler = state.ageMode === 'TODDLER';
+          const selectedVideos = state.selectedCategory ? ageVideos.filter(v => v.category === state.selectedCategory) : [];
+          body.innerHTML = `
+            ${!state.selectedCategory ? `
+              <div style="margin-bottom:8px;">
+                <div style="font-weight:800; font-size:1.1rem;">${isToddler ? 'Pick a Picture!' : 'Pick a Topic!'}</div>
+                <div style="font-size:0.76rem; color:var(--text-muted); margin-top:2px;">Tap a topic below to see safe videos.</div>
               </div>
-            ` : filtered.slice(0, 8).map((v) => `
-              <div class="v-card" onclick="openPreviewVideo('${v.id}')">
-                <div class="v-thumb">
-                  <img src="${v.thumbnailUrl}" alt="">
-                  <span class="v-badge">${Math.floor((v.duration||180)/60)}:${String((v.duration||180)%60).padStart(2,'0')}</span>
-                </div>
-                <div class="v-info">
-                  <div class="v-title">${v.title}</div>
-                  <div class="v-meta"><span style="cursor:pointer; text-decoration:underline;" onclick="event.stopPropagation(); openChannelDetailByVideo('${v.id}')">${v.channelTitle}</span> • ${v.category} • ${formatPreviewAgeLabel(v.ageRating)}</div>
-                </div>
+              <div class="simple-topics-grid">
+                ${cats.map((c, i) => {
+                  const borderColors = ['#FF2E93', '#00B4D8', '#06D6A0', '#FFD166', '#4361EE'];
+                  const borderColor = borderColors[i % borderColors.length];
+                  return `
+                    <div class="simple-topic-tile" style="border-color:${borderColor};" onclick="state.selectedCategory='${c.replace(/'/g, "\\'")}'; render();">
+                      <div style="font-size:2.4rem; margin-bottom:6px;">${topicEmoji(c)}</div>
+                      <div style="font-weight:800; font-size:0.88rem;">${c}</div>
+                    </div>
+                  `;
+                }).join('')}
               </div>
-            `).join('')}
-          </div>
-        `;
+            ` : `
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                <button class="btn-outline" style="padding:5px 10px; font-size:0.76rem;" onclick="state.selectedCategory=null; render();">← All Topics</button>
+                <span style="font-weight:800; font-size:0.92rem;">${topicEmoji(state.selectedCategory)} ${state.selectedCategory}</span>
+              </div>
+              <div class="video-list">
+                ${selectedVideos.map(v => `
+                  <div class="v-card" onclick="openPreviewVideo('${v.id}')">
+                    <div class="v-thumb">
+                      <img src="${v.thumbnailUrl}" alt="">
+                      <span class="v-badge">${Math.floor((v.duration||180)/60)}:${String((v.duration||180)%60).padStart(2,'0')}</span>
+                    </div>
+                    <div class="v-info">
+                      <div class="v-title">${v.title}</div>
+                      <div class="v-meta"><span style="cursor:pointer; text-decoration:underline;" onclick="event.stopPropagation(); openChannelDetailByVideo('${v.id}')">${v.channelTitle}</span></div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            `}
+          `;
+        } else {
+          // Standard Intentional Mode (Matching HomeScreen.kt of Android APK)
+          const topicVideos = state.selectedCategory ? ageVideos.filter(v => v.category === state.selectedCategory) : [];
+          body.innerHTML = `
+            <!-- 1. Intentional Search-First Prompt Card -->
+            <div style="background:var(--surface); border:1px solid rgba(76,201,240,0.45); border-radius:20px; padding:16px; margin-bottom:12px;">
+              <div style="font-weight:800; font-size:1.05rem; margin-bottom:4px;">What do you want to watch?</div>
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:12px; line-height:1.4;">Search for a topic, pick a channel, or open one of your playlists.</div>
+              <div style="display:flex; align-items:center; gap:8px; background:var(--surface-var); border-radius:12px; padding:10px 12px; cursor:pointer;" onclick="navigate('search')">
+                <span class="material-symbols-rounded" style="color:var(--blue); font-size:1.15rem;">search</span>
+                <span style="font-size:0.78rem; color:var(--text-muted);">Search safe videos or request with ⭐...</span>
+              </div>
+            </div>
+
+            <!-- 2. Quick Intentional Destinations -->
+            <div class="dest-grid">
+              <div class="dest-tile" onclick="navigate('channels')">
+                <div class="dest-icon-box" style="background:rgba(76,201,240,0.16); color:#4CC9F0;">
+                  <span class="material-symbols-rounded" style="font-size:1.2rem;">tv</span>
+                </div>
+                <span class="dest-label">Channels</span>
+              </div>
+              <div class="dest-tile" onclick="navigate('playlists')">
+                <div class="dest-icon-box" style="background:rgba(255,46,147,0.16); color:var(--pink);">
+                  <span class="material-symbols-rounded" style="font-size:1.2rem;">video_library</span>
+                </div>
+                <span class="dest-label">Playlists</span>
+              </div>
+              <div class="dest-tile" onclick="navigate('favorites')">
+                <div class="dest-icon-box" style="background:rgba(6,214,160,0.16); color:#06D6A0;">
+                  <span class="material-symbols-rounded" style="font-size:1.2rem;">favorite</span>
+                </div>
+                <span class="dest-label">Favorites</span>
+              </div>
+              <div class="dest-tile" onclick="navigate('achievements')">
+                <div class="dest-icon-box" style="background:rgba(255,209,102,0.18); color:#FFD166;">
+                  <span class="material-symbols-rounded" style="font-size:1.2rem;">emoji_events</span>
+                </div>
+                <span class="dest-label">Badges</span>
+              </div>
+            </div>
+
+            <!-- 3. Deliberate Topic Picker -->
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+              <span style="font-weight:800; font-size:0.9rem;">Pick a Topic</span>
+              ${state.selectedCategory ? `<button class="btn-outline" style="padding:2px 8px; font-size:0.68rem; color:var(--pink);" onclick="state.selectedCategory=null; render();">Clear</button>` : ''}
+            </div>
+            <div class="chips-row">
+              ${cats.map(c => `<button class="chip ${state.selectedCategory === c ? 'active' : ''}" onclick="state.selectedCategory = (state.selectedCategory === '${c.replace(/'/g, "\\'")}' ? null : '${c.replace(/'/g, "\\'")}'); render();">${c}</button>`).join('')}
+            </div>
+
+            <!-- 4. Only show videos if child intentionally chose a topic (No endless feed!) -->
+            ${!state.selectedCategory ? `
+              <div class="card-box" style="text-align:center; padding:24px 16px; margin-top:6px;">
+                <div style="font-size:2.2rem; margin-bottom:6px;">🎯</div>
+                <div style="font-weight:800; font-size:0.98rem; margin-bottom:4px;">No endless feed here!</div>
+                <div style="font-size:0.75rem; color:var(--text-muted); line-height:1.4;">Use Search or pick a Topic above when you know what you want to watch.</div>
+              </div>
+            ` : topicVideos.length === 0 ? `
+              <div class="card-box" style="text-align:center; padding:20px 14px;">
+                <div style="font-size:0.8rem; color:var(--text-muted);">No videos in ${state.selectedCategory} right now.</div>
+              </div>
+            ` : `
+              <div style="font-weight:800; font-size:0.9rem; margin:10px 0 8px;">${state.selectedCategory} (${topicVideos.length})</div>
+              <div class="video-list">
+                ${topicVideos.map(v => `
+                  <div class="v-card" onclick="openPreviewVideo('${v.id}')">
+                    <div class="v-thumb">
+                      <img src="${v.thumbnailUrl}" alt="">
+                      <span class="v-badge">${Math.floor((v.duration||180)/60)}:${String((v.duration||180)%60).padStart(2,'0')}</span>
+                    </div>
+                    <div class="v-info">
+                      <div class="v-title">${v.title}</div>
+                      <div class="v-meta"><span style="cursor:pointer; text-decoration:underline;" onclick="event.stopPropagation(); openChannelDetailByVideo('${v.id}')">${v.channelTitle}</span> • ${v.category}</div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            `}
+          `;
+        }
       } else if (state.screen === 'channels') {
         const myChannels = ageChannels.filter(c => state.savedChannelIds.includes(c.id));
+        const isEmpty = state.ytSubscribedChannels.length === 0 && myChannels.length === 0;
+
         body.innerHTML = `
-          <!-- YouTube Subscriptions Section -->
-          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
-            <div style="display:flex; align-items:center; gap:6px;">
-              <span style="font-size:1.1rem;">⭐</span>
-              <h3 style="font-size:0.95rem; font-weight:800;">My @YouTube Channels (${state.ytSubscribedChannels.length})</h3>
-            </div>
-            <button class="btn-outline" style="padding:4px 8px; font-size:0.7rem; color:var(--blue);" onclick="navigate('search')">+ Find @Channel</button>
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+            <h3 style="font-size:1.05rem; font-weight:800;">My Channels</h3>
+            <button class="btn-primary" style="padding:6px 12px; font-size:0.76rem;" onclick="state.selectedAddTopic=null; state.topicSearchQuery=''; navigate('add_channel');">
+              <span class="material-symbols-rounded" style="font-size:1rem;">add</span> Subscribe
+            </button>
           </div>
 
-          ${state.ytSubscribedChannels.length === 0 ? `
-            <div class="card-box" style="text-align:center; padding:16px 12px; margin-bottom:14px;">
-              <div style="font-size:1.6rem; margin-bottom:4px;">📺</div>
-              <div style="font-weight:800; font-size:0.86rem; margin-bottom:2px;">No @YouTube Channels Yet</div>
-              <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:8px;">Search channels with '@' to subscribe.</div>
-              <button class="btn-primary" style="padding:6px 12px; font-size:0.74rem;" onclick="navigate('search')">Search YouTube Channels</button>
-            </div>
-          ` : state.ytSubscribedChannels.map(c => `
-            <div class="card-box" style="display:flex; align-items:center; gap:12px; cursor:pointer; margin-bottom:8px; border-left:3px solid ${c.trustLevel==='TRUSTED'?'#06D6A0':c.trustLevel==='BLOCKED'?'#EF4444':'#F59E0B'};" onclick="openYtChannelDetail('${c.handle}')">
-              <img src="${c.avatarUrl}" style="width:46px; height:46px; border-radius:50%; object-fit:cover; border:1.5px solid var(--border);">
-              <div style="flex:1; min-width:0;">
-                <div style="font-weight:800; font-size:0.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.title}</div>
-                <div style="font-size:0.72rem; color:var(--blue); font-weight:700;">${c.handle}</div>
-                <div style="margin-top:3px;">
-                  ${c.trustLevel === 'TRUSTED' ? `<span class="badge-trusted">✓ TRUSTED (Auto)</span>` :
-                    c.trustLevel === 'BLOCKED' ? `<span class="badge-blocked">🚫 BLOCKED</span>` :
-                    `<span class="badge-supervised">👁️ SUPERVISED</span>`}
-                </div>
-              </div>
-              <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
-                <button class="btn-outline" style="padding:3px 7px; font-size:0.66rem; color:var(--pink);" onclick="event.stopPropagation(); toggleYtSubscription({handle:'${c.handle}'});">Unsub</button>
-                <span style="font-size:0.72rem; font-weight:700; color:var(--text-muted);">View ›</span>
-              </div>
-            </div>
-          `).join('')}
-
-          <!-- Curated Channels Section -->
-          <div style="display:flex; align-items:center; justify-content:space-between; margin-top:16px; margin-bottom:8px;">
-            <div style="display:flex; align-items:center; gap:6px;">
-              <span style="font-size:1.1rem;">🛡️</span>
-              <h3 style="font-size:0.95rem; font-weight:800;">Curated Channels (${myChannels.length})</h3>
-            </div>
-            <button class="btn-primary" style="padding:5px 10px; font-size:0.72rem;" onclick="state.selectedAddTopic=null; state.topicSearchQuery=''; navigate('add_channel');">+ Subscribe</button>
-          </div>
-
-          ${myChannels.length === 0 ? `
-            <div class="card-box" style="text-align:center; padding:18px 14px;">
-              <div style="font-size:1.8rem; margin-bottom:4px;">✨</div>
-              <div style="font-weight:800; font-size:0.88rem; margin-bottom:3px;">No Curated Channels Yet</div>
-              <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:10px;">Pick a topic and subscribe to curated channels.</div>
+          ${isEmpty ? `
+            <div class="card-box" style="text-align:center; padding:28px 16px;">
+              <div style="font-size:2.4rem; margin-bottom:8px;">📺</div>
+              <div style="font-weight:800; font-size:1rem; margin-bottom:4px;">No Subscribed Channels Yet</div>
+              <div style="font-size:0.76rem; color:var(--text-muted); line-height:1.4; margin-bottom:16px;">Pick a topic and subscribe to your favorite safe channels, or subscribe to @YouTube channels from Search.</div>
               <button class="btn-primary" onclick="state.selectedAddTopic=null; state.topicSearchQuery=''; navigate('add_channel');">Subscribe to a channel</button>
             </div>
-          ` : myChannels.map(c => `
-            <div class="card-box" style="display:flex; align-items:center; gap:12px; cursor:pointer; margin-bottom:8px;" onclick="openChannelDetail('${c.id}')">
-              <img src="${c.avatarUrl}" style="width:46px; height:46px; border-radius:50%; object-fit:cover;">
-              <div style="flex:1; min-width:0;">
-                <div style="font-weight:800; font-size:0.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.name}</div>
-                <div style="font-size:0.72rem; color:var(--text-muted);">${c.category} • ${c.channelType === 'LIVE_TV' ? '🔴 LIVE TV' : 'On Demand'}</div>
+          ` : `
+            <!-- YouTube Subscriptions Grid -->
+            ${state.ytSubscribedChannels.length > 0 ? `
+              <div style="margin-bottom:8px;">
+                <div style="font-size:0.86rem; font-weight:800; color:#FFD166;">My @YouTube Subscriptions (${state.ytSubscribedChannels.length})</div>
+                <div style="font-size:0.68rem; color:var(--text-muted); margin-top:1px;">Parent-Trusted @channels play immediately; Supervised @channels check parent approval.</div>
               </div>
-              <button class="btn-outline" style="padding:4px 8px; font-size:0.68rem; color:var(--pink);" onclick="event.stopPropagation(); state.savedChannelIds=state.savedChannelIds.filter(id=>id!=='${c.id}'); render();">Unsub</button>
-            </div>
-          `).join('')}
+              <div class="ch-grid" style="margin-bottom:16px;">
+                ${state.ytSubscribedChannels.map(c => `
+                  <div class="ch-card" onclick="openYtChannelDetail('${c.handle}')">
+                    <button class="ch-close-btn" onclick="event.stopPropagation(); toggleYtSubscription({handle:'${c.handle}'});" title="Unsubscribe">✕</button>
+                    <div style="margin-bottom:8px;">
+                      ${c.trustLevel === 'TRUSTED' ? `<span class="badge-trusted" style="font-size:0.6rem; padding:1px 6px;">✓ TRUSTED</span>` :
+                        c.trustLevel === 'BLOCKED' ? `<span class="badge-blocked" style="font-size:0.6rem; padding:1px 6px;">BLOCKED</span>` :
+                        `<span class="badge-supervised" style="font-size:0.6rem; padding:1px 6px;">SUPERVISED</span>`}
+                    </div>
+                    <img src="${c.avatarUrl}" style="width:58px; height:58px; border-radius:50%; object-fit:cover; margin-bottom:8px; border:2px solid var(--border);">
+                    <div style="font-weight:800; font-size:0.84rem; color:var(--blue); max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.handle}</div>
+                    <div style="font-size:0.72rem; color:var(--text-muted); max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.title}</div>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+
+            <!-- Curated Channels Grid -->
+            ${myChannels.length > 0 ? `
+              <div style="margin-bottom:8px;">
+                <div style="font-size:0.86rem; font-weight:800;">Curated Channels (${myChannels.length})</div>
+              </div>
+              <div class="ch-grid">
+                ${myChannels.map(c => `
+                  <div class="ch-card" onclick="openChannelDetail('${c.id}')">
+                    <button class="ch-close-btn" onclick="event.stopPropagation(); state.savedChannelIds=state.savedChannelIds.filter(id=>id!=='${c.id}'); render();" title="Unsubscribe">✕</button>
+                    <img src="${c.avatarUrl}" style="width:58px; height:58px; border-radius:50%; object-fit:cover; margin-bottom:8px; border:2px solid var(--border);">
+                    <div style="font-weight:800; font-size:0.84rem; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.name}</div>
+                    <div style="font-size:0.7rem; color:var(--text-muted);">${c.category} • ${c.videoCount} videos</div>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+          `}
         `;
       } else if (state.screen === 'add_channel') {
         const allTopics = [...new Set(ageChannels.map(c => c.category).filter(Boolean))];
