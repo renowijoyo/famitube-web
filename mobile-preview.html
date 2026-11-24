@@ -671,9 +671,6 @@
               <span class="material-symbols-rounded" style="font-size:1.25rem;">notifications</span>
               <span id="topNotifBadge" style="position:absolute; top:2px; right:2px; min-width:14px; height:14px; border-radius:99px; background:var(--pink); color:#fff; font-size:0.58rem; font-weight:800; display:flex; align-items:center; justify-content:center; padding:0 3px;">2</span>
             </button>
-            <button class="icon-btn" id="btnTopBrowser" onclick="navigate('browser')" title="Safe Browser">
-              <span class="material-symbols-rounded" style="font-size:1.25rem;">public</span>
-            </button>
             <button class="icon-btn" id="btnTopSearch" onclick="navigate('search')" title="Search">
               <span class="material-symbols-rounded" style="font-size:1.25rem;">search</span>
             </button>
@@ -699,7 +696,6 @@
         <button class="qs-btn" onclick="openChannelDetail(state.savedChannelIds[0] || state.channels[0]?.id || 'ch-1')"><span>📺 Curated Channel Page</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('player')"><span>▶️ Video Player + Attention Pause</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('search')"><span>🔍 Dual Search (Curated + @YouTube)</span><span>›</span></button>
-        <button class="qs-btn" onclick="navigate('browser')"><span>🌐 Safe Browser</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('notifications')"><span>🔔 Notifications</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('achievements')"><span>🏆 Badges &amp; Stars</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('profile')"><span>👤 Profile &amp; Theme Switcher</span><span>›</span></button>
@@ -1599,35 +1595,6 @@
               ${state.isAttentionPaused ? '▶ Resume From Paused Position' : '📷 Simulate Attention Tracker Pause'}
             </button>
           </div>
-        `;
-      } else if (state.screen === 'browser') {
-        const sites = [
-          { name: "NASA Kids' Club", domain: 'nasa.gov', icon: '🚀' },
-          { name: 'National Geographic Kids', domain: 'kids.nationalgeographic.com', icon: '🦁' },
-          { name: 'PBS KIDS', domain: 'pbskids.org', icon: '🎨' },
-          { name: 'Khan Academy Kids', domain: 'khanacademy.org', icon: '📚' }
-        ];
-        body.innerHTML = `
-          <button class="btn-outline" onclick="navigate('home')" style="margin-bottom:10px;">← Back</button>
-          <div class="card-box">
-            <div style="font-weight:800; font-size:0.98rem; margin-bottom:4px;">🌐 Embedded Safe Browser</div>
-            <div style="font-size:0.74rem; color:var(--text-muted); margin-bottom:10px;">Only parent-approved educational domains are allowed. Every visit is logged for parent monitoring.</div>
-            <div style="display:flex; gap:6px;">
-              <input type="text" id="previewBrowserUrl" value="https://kids.nationalgeographic.com" style="flex:1; padding:8px 10px; border-radius:10px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); font-size:0.78rem;">
-              <button class="btn-primary" style="padding:8px 12px;" onclick="const u=document.getElementById('previewBrowserUrl').value; const ok=['nasa.gov','nationalgeographic.com','pbskids.org','khanacademy.org'].some(d=>u.includes(d)); alert(ok ? 'Opening safe site in embedded browser!' : 'Blocked by FamiTube Safe Browser: domain not approved by parent.');">Go</button>
-            </div>
-          </div>
-          <div style="font-weight:800; font-size:0.84rem; margin-bottom:8px;">Parent-Approved Websites</div>
-          ${sites.map(s => `
-            <div class="card-box" style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="document.getElementById('previewBrowserUrl').value='https://${s.domain}'; alert('Loaded ${s.name} safely!');">
-              <div style="font-size:1.5rem;">${s.icon}</div>
-              <div style="flex:1;">
-                <div style="font-weight:800; font-size:0.86rem;">${s.name}</div>
-                <div style="font-size:0.72rem; color:var(--text-muted);">${s.domain}</div>
-              </div>
-              <span style="font-size:0.72rem; font-weight:700; color:var(--blue);">Open ›</span>
-            </div>
-          `).join('')}
         `;
       } else if (state.screen === 'notifications') {
         const notifs = [
