@@ -1310,7 +1310,7 @@
           <span id="kidSearchQuotaBadge" style="font-size:0.8rem; font-weight:700; padding:0.3rem 0.75rem; border-radius:99px; background:rgba(76,201,240,0.14); color:var(--accent);"></span>
         </div>
         <form onsubmit="runKidYouTubeSearch(event)" style="display:flex; gap:0.6rem; flex-wrap:wrap;">
-          <input type="text" id="kidYouTubeSearchInput" placeholder="Search curated or YouTube videos..." style="flex:1 1 260px; padding:0.7rem 1rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit; font-size:0.95rem;" required>
+          <input type="text" id="kidYouTubeSearchInput" placeholder="Search curated or YouTube videos..." oninput="if(!this.value.trim()){ kidCuratedSearchResults=[]; kidSearchResults=[]; kidSearchChannels=[]; renderKidYouTubeSearchResults(); }" style="flex:1 1 260px; padding:0.7rem 1rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit; font-size:0.95rem;" required>
           <button type="submit" class="btn btn-primary" id="kidYouTubeSearchBtn">
             <span class="material-symbols-rounded" style="font-size:1.05rem;">search</span> Search
           </button>
@@ -1318,14 +1318,6 @@
         <div id="kidSearchStatusBanner" style="display:none; margin-top:0.85rem; padding:0.75rem 1rem; border-radius:var(--radius-sm); font-size:0.86rem;"></div>
       </div>
       <div id="kidYouTubeSearchResults"></div>
-      <div id="kidHistorySection" style="margin-top:2rem;">
-        <div style="margin-bottom:1rem;">
-          <h3 style="font-size:1.2rem;">My Watch History &amp; Approved Videos</h3>
-          <p style="color:var(--text-muted); font-size:0.86rem;">Videos approved by your parent can be watched anytime without asking again and added to your favorites.</p>
-        </div>
-        <div id="kidHistoryGrid" class="video-grid"></div>
-        <div id="kidHistoryMore" style="margin-top:0.85rem;"></div>
-      </div>
     </div>
 
     <div id="kidAchievementsPanel" style="display:none; margin-bottom:2rem;">
@@ -1347,6 +1339,14 @@
       <div id="kidFavoritesLists" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center; margin-bottom:1rem;"></div>
       <div id="kidFavoritesListHeader" style="display:none; align-items:center; justify-content:space-between; gap:0.75rem; margin-bottom:0.85rem;"></div>
       <div id="kidFavoritesGrid" class="video-grid"></div>
+      <div id="kidHistorySection" style="margin-top:2rem;">
+        <div style="margin-bottom:1rem;">
+          <h3 style="font-size:1.2rem;">My Watch History &amp; Approved Videos</h3>
+          <p style="color:var(--text-muted); font-size:0.86rem;">Videos approved by your parent can be watched anytime without asking again and added to your favorites.</p>
+        </div>
+        <div id="kidHistoryGrid" class="video-grid"></div>
+        <div id="kidHistoryMore" style="margin-top:0.85rem;"></div>
+      </div>
     </div>
 
 
@@ -6394,11 +6394,18 @@
 
       if (activeKidTab === 'curated' && isChild) renderKidHomeHub(currentUser);
       if (activeKidTab === 'search') {
-        loadKidHistory();
-        loadKidYouTubeSubscriptions().then(() => renderKidYouTubeSearchResults());
+        loadKidYouTubeSubscriptions();
+        const input = document.getElementById('kidYouTubeSearchInput');
+        const q = (input?.value || '').trim();
+        if (q || activeKidYtChannelDetail) {
+          renderKidYouTubeSearchResults();
+        } else {
+          const resultsEl = document.getElementById('kidYouTubeSearchResults');
+          if (resultsEl) resultsEl.innerHTML = '';
+        }
       }
       if (activeKidTab === 'achievements') loadKidAchievements();
-      if (activeKidTab === 'favorites') { renderKidFavorites(); loadKidPlaylists(); }
+      if (activeKidTab === 'favorites') { renderKidFavorites(); loadKidPlaylists(); loadKidHistory(); }
     }
 
         function famibuxIconHtml(size = 18) {
@@ -6615,27 +6622,6 @@
             <span class="material-symbols-rounded" style="color:var(--secondary);">search</span>
             <span>Search safe videos or request with ⭐...</span>
           </div>
-        </div>
-
-        <div style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:0.75rem; margin-bottom:1.35rem;">
-          <button type="button" onclick="openChannelsNav()" class="card" style="cursor:pointer; padding:0.95rem 0.5rem; display:flex; flex-direction:column; align-items:center; gap:0.45rem; border-radius:16px;">
-            <span style="width:40px; height:40px; border-radius:50%; background:rgba(76,201,240,0.16); color:var(--accent); display:inline-flex; align-items:center; justify-content:center;">
-              <span class="material-symbols-rounded">tv</span>
-            </span>
-            <span style="font-size:0.82rem; font-weight:700; color:var(--text);">Channels</span>
-          </button>
-          <button type="button" onclick="switchKidShowcaseTab('favorites')" class="card" style="cursor:pointer; padding:0.95rem 0.5rem; display:flex; flex-direction:column; align-items:center; gap:0.45rem; border-radius:16px;">
-            <span style="width:40px; height:40px; border-radius:50%; background:rgba(6,214,160,0.16); color:#06d6a0; display:inline-flex; align-items:center; justify-content:center;">
-              <span class="material-symbols-rounded">favorite</span>
-            </span>
-            <span style="font-size:0.82rem; font-weight:700; color:var(--text);">Favorites</span>
-          </button>
-          <button type="button" onclick="switchKidShowcaseTab('achievements')" class="card" style="cursor:pointer; padding:0.95rem 0.5rem; display:flex; flex-direction:column; align-items:center; gap:0.45rem; border-radius:16px;">
-            <span style="width:40px; height:40px; border-radius:50%; background:rgba(255,209,102,0.16); color:#ffd166; display:inline-flex; align-items:center; justify-content:center;">
-              <span class="material-symbols-rounded">emoji_events</span>
-            </span>
-            <span style="font-size:0.82rem; font-weight:700; color:var(--text);">Badges</span>
-          </button>
         </div>
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
@@ -7390,6 +7376,13 @@
     function renderKidYouTubeSearchResults(ytErrorMsg = null) {
       const resultsEl = document.getElementById('kidYouTubeSearchResults');
       if (!resultsEl) return;
+
+      const input = document.getElementById('kidYouTubeSearchInput');
+      const q = (input?.value || '').trim();
+      if (!activeKidYtChannelDetail && !q) {
+        resultsEl.innerHTML = '';
+        return;
+      }
 
       if (activeKidYtChannelDetail && activeKidYtChannelDetail.channel) {
         const ch = activeKidYtChannelDetail.channel;

@@ -1558,78 +1558,66 @@
               (v.channelTitle || '').toLowerCase().includes(q) ||
               (v.category || '').toLowerCase().includes(q)
             )
-          : ageVideos.slice(0, 2);
+          : [];
 
-        const ytChannelMatches = state.ytSearchChannels.filter(c =>
-          !q || c.handle.toLowerCase().includes(q) || c.title.toLowerCase().includes(q)
-        );
+        const ytChannelMatches = q
+          ? state.ytSearchChannels.filter(c =>
+              c.handle.toLowerCase().includes(q) || c.title.toLowerCase().includes(q)
+            )
+          : [];
 
         body.innerHTML = `
           <form onsubmit="event.preventDefault(); render();" style="display:flex; gap:8px; margin-bottom:12px;">
-            <input type="text" placeholder="Search curated or @YouTube channels..." value="${state.searchQuery}" oninput="state.searchQuery=this.value;" style="flex:1; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:0.84rem;">
+            <input type="text" placeholder="Search curated or @YouTube channels..." value="${state.searchQuery}" oninput="state.searchQuery=this.value; if (!this.value.trim()) render();" style="flex:1; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:0.84rem;">
             <button type="submit" class="btn-primary" style="padding:10px 14px;">Go</button>
           </form>
 
-          <!-- Quick Channel Chips when query is blank -->
-          ${!q ? `
-            <div style="margin-bottom:12px;">
-              <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); margin-bottom:6px;">POPULAR @CHANNELS:</div>
-              <div class="chips-row">
-                ${state.ytSearchChannels.map(c => `
-                  <button class="chip" onclick="openYtChannelDetail('${c.handle}')">
-                    <span style="color:var(--blue); font-weight:800;">${c.handle}</span>
-                  </button>
-                `).join('')}
-              </div>
+          ${!q ? '' : `
+            <!-- YouTube Channels Section -->
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+              <div style="font-weight:800; font-size:0.86rem; color:var(--blue);">YouTube Channels (@) (${ytChannelMatches.length})</div>
+              <span style="font-size:0.68rem; color:var(--text-muted);">Children Can Subscribe</span>
             </div>
-          ` : ''}
 
-          <!-- YouTube Channels Section -->
-          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
-            <div style="font-weight:800; font-size:0.86rem; color:var(--blue);">YouTube Channels (@) (${ytChannelMatches.length})</div>
-            <span style="font-size:0.68rem; color:var(--text-muted);">Children Can Subscribe</span>
-          </div>
-
-          ${ytChannelMatches.length === 0 ? `
-            <div class="card-box" style="font-size:0.76rem; color:var(--text-muted); padding:10px;">No YouTube channels matching "${state.searchQuery}".</div>
-          ` : ytChannelMatches.map(c => {
-            const isSub = state.ytSubscribedChannels.some(s => s.handle.toLowerCase() === c.handle.toLowerCase());
-            return `
-              <div class="card-box" style="display:flex; align-items:center; gap:10px; margin-bottom:8px; cursor:pointer;" onclick="openYtChannelDetail('${c.handle}')">
-                <img src="${c.avatarUrl}" style="width:44px; height:44px; border-radius:50%; object-fit:cover; border:1.5px solid var(--border);">
-                <div style="flex:1; min-width:0;">
-                  <div style="font-weight:800; font-size:0.86rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.title}</div>
-                  <div style="font-size:0.72rem; color:var(--blue); font-weight:700;">${c.handle} • ${c.subscriberCount}</div>
+            ${ytChannelMatches.length === 0 ? `
+              <div class="card-box" style="font-size:0.76rem; color:var(--text-muted); padding:10px;">No YouTube channels matching "${state.searchQuery}".</div>
+            ` : ytChannelMatches.map(c => {
+              const isSub = state.ytSubscribedChannels.some(s => s.handle.toLowerCase() === c.handle.toLowerCase());
+              return `
+                <div class="card-box" style="display:flex; align-items:center; gap:10px; margin-bottom:8px; cursor:pointer;" onclick="openYtChannelDetail('${c.handle}')">
+                  <img src="${c.avatarUrl}" style="width:44px; height:44px; border-radius:50%; object-fit:cover; border:1.5px solid var(--border);">
+                  <div style="flex:1; min-width:0;">
+                    <div style="font-weight:800; font-size:0.86rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.title}</div>
+                    <div style="font-size:0.72rem; color:var(--blue); font-weight:700;">${c.handle} • ${c.subscriberCount}</div>
+                  </div>
+                  <button class="${isSub ? 'btn-outline' : 'btn-primary'}" style="padding:5px 10px; font-size:0.72rem;" onclick="event.stopPropagation(); toggleYtSubscription({handle:'${c.handle}', title:'${c.title.replace(/'/g, "\\'")}', avatarUrl:'${c.avatarUrl}'});">
+                    ${isSub ? 'Subscribed ✓' : 'Subscribe'}
+                  </button>
                 </div>
-                <button class="${isSub ? 'btn-outline' : 'btn-primary'}" style="padding:5px 10px; font-size:0.72rem;" onclick="event.stopPropagation(); toggleYtSubscription({handle:'${c.handle}', title:'${c.title.replace(/'/g, "\\'")}', avatarUrl:'${c.avatarUrl}'});">
-                  ${isSub ? 'Subscribed ✓' : 'Subscribe'}
-                </button>
-              </div>
-            `;
-          }).join('')}
+              `;
+            }).join('')}
 
-          <!-- Curated Videos Section -->
-          <div style="font-weight:800; font-size:0.86rem; margin:14px 0 8px;">Curated Safe Videos (${curatedMatches.length})</div>
-          ${curatedMatches.length
-            ? curatedMatches.map(v => `
-              <div class="card-box" style="display:flex; align-items:center; gap:10px; cursor:pointer; margin-bottom:8px;" onclick="openPreviewVideo('${v.id}')">
-                <img src="${v.thumbnailUrl}" style="width:76px; height:48px; border-radius:8px; object-fit:cover;">
-                <div style="flex:1; min-width:0;">
-                  <div style="font-weight:700; font-size:0.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${v.title}</div>
-                  <div style="font-size:0.72rem; color:var(--text-muted);"><span style="text-decoration:underline;" onclick="event.stopPropagation(); openChannelDetailByVideo('${v.id}')">${v.channelTitle}</span> • ${v.category}</div>
+            <!-- Curated Videos Section -->
+            <div style="font-weight:800; font-size:0.86rem; margin:14px 0 8px;">Curated Safe Videos (${curatedMatches.length})</div>
+            ${curatedMatches.length
+              ? curatedMatches.map(v => `
+                <div class="card-box" style="display:flex; align-items:center; gap:10px; cursor:pointer; margin-bottom:8px;" onclick="openPreviewVideo('${v.id}')">
+                  <img src="${v.thumbnailUrl}" style="width:76px; height:48px; border-radius:8px; object-fit:cover;">
+                  <div style="flex:1; min-width:0;">
+                    <div style="font-weight:700; font-size:0.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${v.title}</div>
+                    <div style="font-size:0.72rem; color:var(--text-muted);"><span style="text-decoration:underline;" onclick="event.stopPropagation(); openChannelDetailByVideo('${v.id}')">${v.channelTitle}</span> • ${v.category}</div>
+                  </div>
                 </div>
-              </div>
-            `).join('')
-            : `<div class="card-box" style="font-size:0.78rem; color:var(--text-muted);">No curated videos match "${state.searchQuery}".</div>`
-          }
+              `).join('')
+              : `<div class="card-box" style="font-size:0.78rem; color:var(--text-muted);">No curated videos match "${state.searchQuery}".</div>`
+            }
 
-          <!-- YouTube Supervised Videos Notice -->
-          <div style="font-weight:800; font-size:0.86rem; margin:14px 0 6px;">YouTube Videos (Parent Supervised)</div>
-          <div class="card-box" style="font-size:0.76rem; color:var(--text-muted); line-height:1.4;">
-            ${q
-              ? `Showing results for "<strong>${state.searchQuery}</strong>". Videos from <strong>TRUSTED</strong> channels play right away. Videos from <strong>SUPERVISED</strong> channels send an instant approval request to the parent.`
-              : 'Search for any educational topic. Supervised results notify parents for quick approval.'}
-          </div>
+            <!-- YouTube Supervised Videos Notice -->
+            <div style="font-weight:800; font-size:0.86rem; margin:14px 0 6px;">YouTube Videos (Parent Supervised)</div>
+            <div class="card-box" style="font-size:0.76rem; color:var(--text-muted); line-height:1.4;">
+              Showing results for "<strong>${state.searchQuery}</strong>". Videos from <strong>TRUSTED</strong> channels play right away. Videos from <strong>SUPERVISED</strong> channels send an instant approval request to the parent.
+            </div>
+          `}
         `;
       } else if (state.screen === 'achievements') {
         body.innerHTML = `
