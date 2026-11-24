@@ -448,6 +448,53 @@
       border-bottom-color: var(--pink);
     }
 
+    /* YouTube Style Tabs (Screenshot Reference) */
+    .yt-tab-bar {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 0 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      white-space: nowrap;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .yt-tab-bar::-webkit-scrollbar {
+      display: none;
+    }
+    .yt-tab-item {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px 0 0 0;
+      cursor: pointer;
+      font-size: 0.94rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: color 0.15s ease;
+      background: none;
+      border: none;
+      outline: none;
+      font-family: inherit;
+    }
+    .yt-tab-item.active {
+      font-weight: 800;
+      color: var(--text);
+    }
+    .yt-tab-indicator {
+      height: 3px;
+      width: 100%;
+      border-radius: 2px 2px 0 0;
+      background: transparent;
+      margin-top: 8px;
+      transition: background 0.15s ease;
+    }
+    .yt-tab-item.active .yt-tab-indicator {
+      background: var(--pink);
+    }
+
     .ch-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -796,6 +843,21 @@
         }
       ],
       selectedCustomPlaylistId: null,
+      homeNavTab: 'home',
+      selectedVideosCategory: null,
+      activeGameTab: 0,
+      triviaIndex: 0,
+      triviaSelected: null,
+      triviaAnswered: false,
+      mathA: 6,
+      mathB: 7,
+      mathSelected: null,
+      mathAnswered: false,
+      memoryFlipped: [],
+      memoryMatched: [],
+      wordIndex: 0,
+      wordSelected: null,
+      wordAnswered: false,
       playlists: [
         { id: 'pl-1', title: 'Space & Rockets', description: 'Curated space adventures', count: 6 },
         { id: 'pl-2', title: 'Bedtime Rhymes', description: 'Calm songs for evening', count: 8 }
@@ -1181,11 +1243,274 @@
       if (state.screen === 'home') {
         const isSimple = state.ageMode === 'TODDLER' || state.ageMode === 'YOUNG_KIDS';
         const cats = [...new Set(ageVideos.map(v => v.category).filter(Boolean))];
+        const currentNavTab = state.homeNavTab || 'home';
 
-        if (isSimple) {
+        // 1. YouTube Style Tabs Bar (Reference Screenshot)
+        const ytTabsHtml = `
+          <div class="yt-tab-bar" style="margin:-14px -14px 14px -14px;">
+            <button class="yt-tab-item ${currentNavTab === 'home' ? 'active' : ''}" onclick="state.homeNavTab='home'; render();">
+              <span>Home</span>
+              <div class="yt-tab-indicator"></div>
+            </button>
+            <button class="yt-tab-item ${currentNavTab === 'videos' ? 'active' : ''}" onclick="state.homeNavTab='videos'; render();">
+              <span>Videos</span>
+              <div class="yt-tab-indicator"></div>
+            </button>
+            <button class="yt-tab-item ${currentNavTab === 'channels' ? 'active' : ''}" onclick="state.homeNavTab='channels'; render();">
+              <span>Channels</span>
+              <div class="yt-tab-indicator"></div>
+            </button>
+            <button class="yt-tab-item ${currentNavTab === 'games' ? 'active' : ''}" onclick="state.homeNavTab='games'; render();">
+              <span>Games</span>
+              <div class="yt-tab-indicator"></div>
+            </button>
+          </div>
+        `;
+
+        if (currentNavTab === 'videos') {
+          // Curated Videos Tab
+          const catFilter = state.selectedVideosCategory;
+          const filteredVideos = catFilter ? ageVideos.filter(v => v.category === catFilter) : ageVideos;
+
+          body.innerHTML = `
+            ${ytTabsHtml}
+            <div class="chips-row" style="margin-bottom:12px;">
+              <button class="chip ${!catFilter ? 'active' : ''}" onclick="state.selectedVideosCategory=null; render();">All Videos</button>
+              ${cats.map(c => `
+                <button class="chip ${catFilter === c ? 'active' : ''}" onclick="state.selectedVideosCategory=(state.selectedVideosCategory === '${c.replace(/'/g, "\\'")}' ? null : '${c.replace(/'/g, "\\'")}'); render();">${c}</button>
+              `).join('')}
+            </div>
+            <div style="font-weight:800; font-size:0.88rem; margin-bottom:10px; color:var(--text-muted);">
+              ${catFilter ? `${catFilter} (${filteredVideos.length})` : `All Safe Videos (${filteredVideos.length})`}
+            </div>
+            ${filteredVideos.length === 0 ? `
+              <div class="card-box" style="text-align:center; padding:20px 14px; font-size:0.8rem; color:var(--text-muted);">
+                No videos found in this topic.
+              </div>
+            ` : `
+              <div class="video-list">
+                ${filteredVideos.map(v => `
+                  <div class="v-card" onclick="openPreviewVideo('${v.id}')">
+                    <div class="v-thumb" style="position:relative;">
+                      <img src="${v.thumbnailUrl}" alt="">
+                      <span class="v-badge" style="left:4px; right:auto;">${Math.floor((v.duration||180)/60)}:${String((v.duration||180)%60).padStart(2,'0')}</span>
+                      ${isPreviewFavorite(v.id) ? `<span style="position:absolute; bottom:4px; right:4px; width:22px; height:22px; border-radius:50%; background:rgba(255,46,147,0.92); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; box-shadow:0 2px 4px rgba(0,0,0,0.5);">❤️</span>` : ''}
+                    </div>
+                    <div class="v-info">
+                      <div class="v-title">${v.title}</div>
+                      <div class="v-meta"><span style="cursor:pointer; text-decoration:underline;" onclick="event.stopPropagation(); openChannelDetailByVideo('${v.id}')">${v.channelTitle}</span> • ${v.category}</div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            `}
+          `;
+        } else if (currentNavTab === 'channels') {
+          // Channels Tab
+          const myChannels = ageChannels.filter(c => state.savedChannelIds.includes(c.id));
+          const isEmpty = state.ytSubscribedChannels.length === 0 && myChannels.length === 0;
+
+          body.innerHTML = `
+            ${ytTabsHtml}
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+              <h3 style="font-size:1.02rem; font-weight:800; margin:0;">My Subscribed Channels</h3>
+              <button class="btn-primary" style="padding:6px 12px; font-size:0.76rem;" onclick="state.selectedAddTopic=null; state.topicSearchQuery=''; navigate('add_channel');">
+                <span class="material-symbols-rounded" style="font-size:1rem;">add</span> Subscribe
+              </button>
+            </div>
+
+            ${isEmpty ? `
+              <div class="card-box" style="text-align:center; padding:28px 16px;">
+                <div style="font-size:2.4rem; margin-bottom:8px;">📺</div>
+                <div style="font-weight:800; font-size:1rem; margin-bottom:4px;">No Subscribed Channels Yet</div>
+                <div style="font-size:0.76rem; color:var(--text-muted); line-height:1.4; margin-bottom:16px;">Pick a topic and subscribe to safe channels, or subscribe to @YouTube channels from Search.</div>
+                <button class="btn-primary" onclick="state.selectedAddTopic=null; state.topicSearchQuery=''; navigate('add_channel');">Subscribe to a channel</button>
+              </div>
+            ` : `
+              ${state.ytSubscribedChannels.length > 0 ? `
+                <div style="margin-bottom:8px;">
+                  <div style="font-size:0.86rem; font-weight:800; color:#FFD166;">My @YouTube Subscriptions (${state.ytSubscribedChannels.length})</div>
+                  <div style="font-size:0.68rem; color:var(--text-muted); margin-top:1px;">Parent-Trusted @channels play immediately; Supervised @channels check parent approval.</div>
+                </div>
+                <div class="ch-grid" style="margin-bottom:16px;">
+                  ${state.ytSubscribedChannels.map(c => `
+                    <div class="ch-card" onclick="openYtChannelDetail('${c.handle}')">
+                      <button class="ch-close-btn" onclick="event.stopPropagation(); toggleYtSubscription({handle:'${c.handle}'});" title="Unsubscribe">✕</button>
+                      <div style="margin-bottom:8px;">
+                        ${c.trustLevel === 'TRUSTED' ? `<span class="badge-trusted" style="font-size:0.6rem; padding:1px 6px;">✓ TRUSTED</span>` :
+                          c.trustLevel === 'BLOCKED' ? `<span class="badge-blocked" style="font-size:0.6rem; padding:1px 6px;">BLOCKED</span>` :
+                          `<span class="badge-supervised" style="font-size:0.6rem; padding:1px 6px;">SUPERVISED</span>`}
+                      </div>
+                      <img src="${c.avatarUrl}" style="width:58px; height:58px; border-radius:50%; object-fit:cover; margin-bottom:8px; border:2px solid var(--border);">
+                      <div style="font-weight:800; font-size:0.84rem; color:var(--blue); max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.handle}</div>
+                      <div style="font-size:0.72rem; color:var(--text-muted); max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.title}</div>
+                    </div>
+                  `).join('')}
+                </div>
+              ` : ''}
+
+              ${myChannels.length > 0 ? `
+                <div style="margin-bottom:8px;">
+                  <div style="font-size:0.86rem; font-weight:800;">Curated Channels (${myChannels.length})</div>
+                </div>
+                <div class="ch-grid">
+                  ${myChannels.map(c => `
+                    <div class="ch-card" onclick="openChannelDetail('${c.id}')">
+                      <button class="ch-close-btn" onclick="event.stopPropagation(); state.savedChannelIds=state.savedChannelIds.filter(id=>id!=='${c.id}'); render();" title="Unsubscribe">✕</button>
+                      <img src="${c.avatarUrl}" style="width:58px; height:58px; border-radius:50%; object-fit:cover; margin-bottom:8px; border:2px solid var(--border);">
+                      <div style="font-weight:800; font-size:0.84rem; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.name}</div>
+                      <div style="font-size:0.7rem; color:var(--text-muted);">${c.category} • ${c.videoCount} videos</div>
+                    </div>
+                  `).join('')}
+                </div>
+              ` : ''}
+            `}
+          `;
+        } else if (currentNavTab === 'games') {
+          // Games & Brain Quests Tab
+          const triviaQuestions = [
+            { q: "Which planet has giant colorful rings around it?", opts: ["Mars", "Saturn", "Jupiter", "Venus"], ans: "Saturn", fact: "Saturn's rings are made of billions of pieces of ice and rock!" },
+            { q: "What is the fastest land animal in the world?", opts: ["Lion", "Horse", "Cheetah", "Kangaroo"], ans: "Cheetah", fact: "Cheetahs can run up to 70 miles per hour!" },
+            { q: "What sweet food do bees produce?", opts: ["Chocolate", "Honey", "Jam", "Juice"], ans: "Honey", fact: "Bees pollinate millions of flowers every year!" },
+            { q: "Which is the largest ocean on Earth?", opts: ["Atlantic", "Pacific", "Indian", "Arctic"], ans: "Pacific", fact: "The Pacific Ocean covers more than 30% of Earth!" }
+          ];
+          const curTrivia = triviaQuestions[state.triviaIndex % triviaQuestions.length];
+          const mathCorrect = state.mathA + state.mathB;
+          const mathOpts = [mathCorrect, mathCorrect - 2, mathCorrect + 3, mathCorrect + 1];
+
+          body.innerHTML = `
+            ${ytTabsHtml}
+            <!-- Hero Star Rewards Card -->
+            <div class="card-box" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; background:linear-gradient(135deg, rgba(67,97,238,0.15), rgba(255,46,147,0.15)); border-color:rgba(255,209,102,0.35);">
+              <div>
+                <div style="font-weight:800; font-size:0.96rem;">Brain Quests &amp; Games 🎮</div>
+                <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">Solve puzzles to earn ⭐ stars for video requests!</div>
+              </div>
+              <div style="padding:4px 10px; border-radius:99px; background:rgba(255,209,102,0.15); border:1px solid #ffd166; font-weight:800; font-size:0.84rem; color:#ffd166;">
+                ⭐ ${state.starPoints || 45} Stars
+              </div>
+            </div>
+
+            <!-- Games Sub-tabs -->
+            <div style="display:flex; gap:6px; margin-bottom:14px; overflow-x:auto;">
+              ${["🧠 Trivia", "⚡ Math Sprint", "🃏 Memory Match"].map((g, idx) => `
+                <button class="${state.activeGameTab === idx ? 'btn-primary' : 'btn-outline'}" style="padding:6px 12px; font-size:0.75rem; white-space:nowrap;" onclick="state.activeGameTab=${idx}; render();">${g}</button>
+              `).join('')}
+            </div>
+
+            ${state.activeGameTab === 0 ? `
+              <!-- Trivia Quest -->
+              <div class="card-box" style="padding:16px;">
+                <div style="font-size:0.72rem; font-weight:800; color:var(--blue); margin-bottom:4px;">Question ${(state.triviaIndex % triviaQuestions.length) + 1} of ${triviaQuestions.length}</div>
+                <div style="font-weight:800; font-size:0.96rem; margin-bottom:12px;">${curTrivia.q}</div>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                  ${curTrivia.opts.map(opt => {
+                    const isCorrect = opt === curTrivia.ans;
+                    const isSelected = state.triviaSelected === opt;
+                    let style = 'background:var(--surface-var); color:var(--text);';
+                    if (state.triviaAnswered) {
+                      if (isCorrect) style = 'background:#06D6A0; color:#fff; font-weight:800;';
+                      else if (isSelected) style = 'background:#EF476F; color:#fff; font-weight:800;';
+                    }
+                    return `
+                      <button style="width:100%; padding:10px 14px; border-radius:12px; border:none; text-align:left; cursor:pointer; font-size:0.84rem; ${style}" onclick="if(!state.triviaAnswered){ state.triviaSelected='${opt.replace(/'/g, "\\'")}'; state.triviaAnswered=true; if('${opt}'==='${curTrivia.ans}'){ state.starPoints=(state.starPoints||45)+10; } render(); }">
+                        ${opt}
+                      </button>
+                    `;
+                  }).join('')}
+                </div>
+                ${state.triviaAnswered ? `
+                  <div style="margin-top:12px;">
+                    <div style="font-weight:800; font-size:0.86rem; color:${state.triviaSelected === curTrivia.ans ? '#06D6A0' : '#EF476F'};">
+                      ${state.triviaSelected === curTrivia.ans ? '🎉 Correct! +10 ⭐ Stars added!' : `Almost! The answer is ${curTrivia.ans}.`}
+                    </div>
+                    <div style="font-size:0.74rem; color:var(--text-muted); margin-top:2px;">💡 ${curTrivia.fact}</div>
+                    <button class="btn-primary" style="margin-top:10px; width:100%;" onclick="state.triviaIndex++; state.triviaAnswered=false; state.triviaSelected=null; render();">Next Question →</button>
+                  </div>
+                ` : ''}
+              </div>
+            ` : state.activeGameTab === 1 ? `
+              <!-- Math Sprint -->
+              <div class="card-box" style="padding:16px;">
+                <div style="font-size:0.72rem; font-weight:800; color:#ffd166; margin-bottom:8px;">⚡ Mental Math Challenge</div>
+                <div style="background:#1e293b; border-radius:14px; padding:18px; text-align:center; font-size:1.8rem; font-weight:800; color:#fff; margin-bottom:12px;">
+                  ${state.mathA} + ${state.mathB} = ?
+                </div>
+                <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;">
+                  ${mathOpts.map(opt => {
+                    const isCorrect = opt === mathCorrect;
+                    const isSelected = state.mathSelected === opt;
+                    let style = 'background:var(--surface-var); color:var(--text);';
+                    if (state.mathAnswered) {
+                      if (isCorrect) style = 'background:#06D6A0; color:#fff; font-weight:800;';
+                      else if (isSelected) style = 'background:#EF476F; color:#fff; font-weight:800;';
+                    }
+                    return `
+                      <button style="padding:12px; border-radius:12px; border:none; text-align:center; cursor:pointer; font-size:1rem; font-weight:800; ${style}" onclick="if(!state.mathAnswered){ state.mathSelected=${opt}; state.mathAnswered=true; if(${opt}===${mathCorrect}){ state.starPoints=(state.starPoints||45)+10; } render(); }">
+                        ${opt}
+                      </button>
+                    `;
+                  }).join('')}
+                </div>
+                ${state.mathAnswered ? `
+                  <div style="margin-top:12px;">
+                    <div style="font-weight:800; font-size:0.86rem; color:${state.mathSelected === mathCorrect ? '#06D6A0' : '#EF476F'};">
+                      ${state.mathSelected === mathCorrect ? '⭐ Brilliant! +10 Stars added!' : `Keep practicing! ${state.mathA} + ${state.mathB} = ${mathCorrect}.`}
+                    </div>
+                    <button class="btn-primary" style="margin-top:10px; width:100%;" onclick="state.mathA=Math.floor(Math.random()*10)+3; state.mathB=Math.floor(Math.random()*12)+4; state.mathAnswered=false; state.mathSelected=null; render();">Next Math Puzzle →</button>
+                  </div>
+                ` : ''}
+              </div>
+            ` : `
+              <!-- Memory Match -->
+              <div class="card-box" style="padding:16px;">
+                <div style="font-size:0.72rem; font-weight:800; color:var(--blue); margin-bottom:8px;">🃏 Match 3 Pairs of Cards</div>
+                <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;">
+                  ${["🚀","🦁","🐬","🚀","🦁","🐬"].map((emoji, idx) => {
+                    const isFlipped = (state.memoryFlipped || []).includes(idx) || (state.memoryMatched || []).includes(idx);
+                    const isMatched = (state.memoryMatched || []).includes(idx);
+                    return `
+                      <div style="aspect-ratio:1; border-radius:12px; background:${isMatched ? 'rgba(6,214,160,0.3)' : isFlipped ? '#202636' : 'var(--surface-var)'}; border:1.5px solid ${isMatched ? '#06D6A0' : 'var(--border)'}; display:flex; align-items:center; justify-content:center; font-size:1.6rem; cursor:pointer;" onclick="
+                        if (!state.memoryFlipped) state.memoryFlipped = [];
+                        if (!state.memoryMatched) state.memoryMatched = [];
+                        if (state.memoryFlipped.includes(${idx}) || state.memoryMatched.includes(${idx})) return;
+                        if (state.memoryFlipped.length === 0) {
+                          state.memoryFlipped = [${idx}];
+                        } else if (state.memoryFlipped.length === 1) {
+                          const prev = state.memoryFlipped[0];
+                          state.memoryFlipped.push(${idx});
+                          const icons = ['🚀','🦁','🐬','🚀','🦁','🐬'];
+                          if (icons[prev] === icons[${idx}]) {
+                            state.memoryMatched.push(prev, ${idx});
+                            state.memoryFlipped = [];
+                            if (state.memoryMatched.length === 6) {
+                              state.starPoints = (state.starPoints || 45) + 20;
+                            }
+                          } else {
+                            setTimeout(() => { state.memoryFlipped = []; render(); }, 800);
+                          }
+                        }
+                        render();
+                      ">
+                        ${isFlipped ? emoji : '❓'}
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+                ${(state.memoryMatched || []).length === 6 ? `
+                  <div style="margin-top:14px; text-align:center;">
+                    <div style="font-weight:800; font-size:0.92rem; color:#06D6A0;">🎉 You found all pairs! +20 ⭐ Stars awarded!</div>
+                    <button class="btn-primary" style="margin-top:8px;" onclick="state.memoryFlipped=[]; state.memoryMatched=[]; render();">Play Again</button>
+                  </div>
+                ` : ''}
+              </div>
+            `}
+          `;
+        } else if (isSimple) {
           const isToddler = state.ageMode === 'TODDLER';
           const selectedVideos = state.selectedCategory ? ageVideos.filter(v => v.category === state.selectedCategory) : [];
           body.innerHTML = `
+            ${ytTabsHtml}
             ${!state.selectedCategory ? `
               <div style="margin-bottom:8px;">
                 <div style="font-weight:800; font-size:1.1rem;">${isToddler ? 'Pick a Picture!' : 'Pick a Topic!'}</div>
@@ -1229,10 +1554,11 @@
           // Standard Intentional Mode (Matching HomeScreen.kt of Android APK)
           const topicVideos = state.selectedCategory ? ageVideos.filter(v => v.category === state.selectedCategory) : [];
           body.innerHTML = `
+            ${ytTabsHtml}
             <!-- 1. Intentional Search-First Prompt Card -->
             <div style="background:var(--surface); border:1px solid rgba(76,201,240,0.45); border-radius:20px; padding:16px; margin-bottom:12px;">
               <div style="font-weight:800; font-size:1.05rem; margin-bottom:4px;">What do you want to watch?</div>
-              <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:12px; line-height:1.4;">Search for a topic, pick a channel, or open one of your playlists.</div>
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:12px; line-height:1.4;">Search for a topic, pick a channel, or explore your library.</div>
               <div style="display:flex; align-items:center; gap:8px; background:var(--surface-var); border-radius:12px; padding:10px 12px; cursor:pointer;" onclick="navigate('search')">
                 <span class="material-symbols-rounded" style="color:var(--blue); font-size:1.15rem;">search</span>
                 <span style="font-size:0.78rem; color:var(--text-muted);">Search safe videos or request with ⭐...</span>
