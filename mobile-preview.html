@@ -765,9 +765,20 @@
         ],
         '@NatGeoKids': [
           { id: 'yt-ngk-1', title: 'Cheetahs: Speed Champions of the Wild', duration: 420, thumbnailUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&h=225&fit=crop', channelTitle: 'National Geographic Kids', handle: '@NatGeoKids' }
+        ],
+        '@Coffeezilla': [
+          { id: 'W4PIkmjwGsQ', title: 'Investigating The President', duration: 1045, thumbnailUrl: 'https://img.youtube.com/vi/W4PIkmjwGsQ/hqdefault.jpg', channelTitle: 'Coffeezilla', handle: '@Coffeezilla' },
+          { id: '9eWJISlh0fw', title: 'I Investigated $100 Billion in Healthcare Fraud', duration: 1240, thumbnailUrl: 'https://img.youtube.com/vi/9eWJISlh0fw/hqdefault.jpg', channelTitle: 'Coffeezilla', handle: '@Coffeezilla' },
+          { id: 'OBJZw3bF0dg', title: 'UFC Fighter Accidentally Exposes a Huge Scam', duration: 875, thumbnailUrl: 'https://img.youtube.com/vi/OBJZw3bF0dg/hqdefault.jpg', channelTitle: 'Coffeezilla', handle: '@Coffeezilla' },
+          { id: 'VKfQkRbd15k', title: 'I Found The $200,000 Missing Lego', duration: 920, thumbnailUrl: 'https://img.youtube.com/vi/VKfQkRbd15k/hqdefault.jpg', channelTitle: 'Coffeezilla', handle: '@Coffeezilla' },
+          { id: '04FRAsU0za0', title: 'Exposing a $300,000,000 Scam', duration: 1350, thumbnailUrl: 'https://img.youtube.com/vi/04FRAsU0za0/hqdefault.jpg', channelTitle: 'Coffeezilla', handle: '@Coffeezilla' }
         ]
       },
       ytSamplePlaylists: {
+        '@Coffeezilla': [
+          { id: 'pl-cz-investigations', title: 'Major Fraud Investigations', videoCount: 15, thumbnailUrl: 'https://img.youtube.com/vi/W4PIkmjwGsQ/hqdefault.jpg' },
+          { id: 'pl-cz-crypto', title: 'Scams & Fake Guru Busts', videoCount: 22, thumbnailUrl: 'https://img.youtube.com/vi/04FRAsU0za0/hqdefault.jpg' }
+        ],
         '@SciShowKids': [
           { id: 'pl-ssk-space', title: 'Awesome Space Adventures', videoCount: 8, thumbnailUrl: 'https://img.youtube.com/vi/BYVZh5kqaFg/hqdefault.jpg' },
           { id: 'pl-ssk-animals', title: 'Fascinating Animals & Habitats', videoCount: 12, thumbnailUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&h=225&fit=crop' }
@@ -2594,8 +2605,12 @@
                     state.ytSearchChannels.find(c => c.handle.toLowerCase() === handle.toLowerCase()) ||
                     { handle: handle, title: handle.replace('@', ''), trustLevel: 'SUPERVISED', avatarUrl: 'https://images.unsplash.com/photo-1507668077129-56e32842fceb?w=200&h=200&fit=crop' };
         const isSubscribed = state.ytSubscribedChannels.some(c => c.handle.toLowerCase() === handle.toLowerCase());
-        const videos = state.ytSampleVideos[handle] || state.ytSampleVideos['@SciShowKids'] || [];
-        const playlists = state.ytSamplePlaylists[handle] || state.ytSamplePlaylists['@SciShowKids'] || [];
+        const videos = state.ytSampleVideos[handle] || 
+                       (handle.toLowerCase().includes('coffee') ? state.ytSampleVideos['@Coffeezilla'] : 
+                       (state.ytSampleVideos['@SciShowKids'] || []));
+        const playlists = state.ytSamplePlaylists[handle] || 
+                         (handle.toLowerCase().includes('coffee') ? state.ytSamplePlaylists['@Coffeezilla'] : 
+                         (state.ytSamplePlaylists['@SciShowKids'] || []));
         const trust = sub.trustLevel || 'SUPERVISED';
 
         body.innerHTML = `
@@ -2606,7 +2621,7 @@
 
           <!-- Channel Header Card -->
           <div class="card-box" style="margin-bottom:12px;">
-            <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
               <img src="${sub.avatarUrl || 'https://images.unsplash.com/photo-1507668077129-56e32842fceb?w=200&h=200&fit=crop'}" style="width:56px; height:56px; border-radius:50%; object-fit:cover; border:2px solid var(--blue);">
               <div style="flex:1; min-width:0;">
                 <div style="font-weight:800; font-size:0.96rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${sub.title || handle}</div>
@@ -2617,12 +2632,6 @@
                     `<span class="badge-supervised">👁️ SUPERVISED (Needs Approval)</span>`}
                 </div>
               </div>
-            </div>
-
-            <div style="font-size:0.72rem; color:var(--text-muted); line-height:1.4; margin-bottom:10px; background:var(--surface-var); padding:8px 10px; border-radius:10px;">
-              ${trust === 'TRUSTED' ? '✅ <strong>Parent Trusted:</strong> Videos from this channel play immediately without parent approval requests.' :
-                trust === 'BLOCKED' ? '🚫 <strong>Blocked:</strong> Parent has blocked this channel. Videos cannot be watched.' :
-                '👁️ <strong>Parent Supervised:</strong> Videos require a one-tap parent approval before playing.'}
             </div>
 
             <button class="${isSubscribed ? 'btn-outline' : 'btn-primary'}" style="width:100%; padding:8px 12px; font-size:0.8rem;" onclick="toggleYtSubscription({handle:'${handle}', title:'${(sub.title||'').replace(/'/g, "\\'")}', avatarUrl:'${sub.avatarUrl||''}', trustLevel:'${trust}'});">
