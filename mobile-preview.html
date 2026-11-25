@@ -1387,8 +1387,14 @@
             `}
           `;
         } else if (currentNavTab === 'games') {
-          // Games & Brain Quests Tab (Age Grouped)
-          const gameAge = state.gameAgeGroup || 'OLDER_KIDS';
+          // Games & Brain Quests Tab (Locked to Child's Profile Age Mode set by Parent)
+          const gameAge = (state.ageMode === 'TODDLER' || state.ageMode === 'YOUNG_KIDS') ? state.ageMode : 'OLDER_KIDS';
+          const ageLabels = {
+            'TODDLER': { label: '🧸 Toddlers', range: 'Ages 2–4' },
+            'YOUNG_KIDS': { label: '🎒 Young Kids', range: 'Ages 5–8' },
+            'OLDER_KIDS': { label: '🚀 Older Kids', range: 'Ages 9–12' }
+          };
+          const curAgeInfo = ageLabels[gameAge];
           const gameTab = state.activeGameTab || 0;
 
           // Game data
@@ -1449,32 +1455,18 @@
 
           body.innerHTML = `
             ${ytTabsHtml}
-            <!-- Hero Star Rewards Card -->
+            <!-- Hero Star Rewards Card (Locked to child's assigned age tier) -->
             <div class="card-box" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; background:linear-gradient(135deg, rgba(67,97,238,0.15), rgba(255,46,147,0.15)); border-color:rgba(255,209,102,0.35);">
               <div>
-                <div style="font-weight:800; font-size:0.96rem;">Learning Games &amp; Quests 🎮</div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-weight:800; font-size:0.96rem;">Learning Quests 🎮</span>
+                  <span style="padding:2px 8px; border-radius:8px; background:rgba(255,46,147,0.15); color:var(--pink); font-size:0.7rem; font-weight:800;">${curAgeInfo.label} (${curAgeInfo.range})</span>
+                </div>
                 <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">Play free educational games, solve puzzles &amp; earn ⭐ stars!</div>
               </div>
               <div style="padding:4px 10px; border-radius:99px; background:rgba(255,209,102,0.15); border:1px solid #ffd166; font-weight:800; font-size:0.84rem; color:#ffd166; white-space:nowrap;">
                 ⭐ ${state.starPoints || 45}
               </div>
-            </div>
-
-            <!-- Age Group Selector Chips -->
-            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; margin-bottom:12px;">
-              ${[
-                { id: 'TODDLER', label: '🧸 Toddlers', sub: 'Ages 2–4' },
-                { id: 'YOUNG_KIDS', label: '🎒 Young Kids', sub: 'Ages 5–8' },
-                { id: 'OLDER_KIDS', label: '🚀 Older Kids', sub: 'Ages 9–12' }
-              ].map(ag => {
-                const isSelected = gameAge === ag.id;
-                return `
-                  <button style="padding:8px 4px; border-radius:12px; border:1.5px solid ${isSelected ? 'var(--pink)' : 'var(--border)'}; background:${isSelected ? 'rgba(255,46,147,0.15)' : 'var(--surface-var)'}; cursor:pointer; text-align:center;" onclick="state.gameAgeGroup='${ag.id}'; state.activeGameTab=0; render();">
-                    <div style="font-weight:800; font-size:0.75rem; color:${isSelected ? 'var(--pink)' : 'var(--text)'};">${ag.label}</div>
-                    <div style="font-size:0.65rem; color:var(--text-muted); margin-top:2px;">${ag.sub}</div>
-                  </button>
-                `;
-              }).join('')}
             </div>
 
             <!-- Games Sub-tabs -->
