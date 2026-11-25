@@ -594,6 +594,148 @@
     }
     .qs-btn:hover { border-color: var(--pink); color: var(--pink); }
 
+    /* Side-by-Side Parent Mode Toggle & Dual Device Stage */
+    .sbs-toggle-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--ctrl-bg);
+      border: 1px solid var(--ctrl-border);
+      color: var(--ctrl-text);
+      padding: 0.34rem 0.8rem;
+      border-radius: 99px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+    .sbs-toggle-pill:hover {
+      border-color: var(--pink);
+      color: var(--page-text);
+    }
+    .sbs-toggle-pill.active {
+      background: linear-gradient(135deg, rgba(255,46,147,0.16), rgba(67,97,238,0.22));
+      border-color: var(--pink);
+      color: var(--page-text);
+      box-shadow: 0 0 14px rgba(255,46,147,0.22);
+    }
+    .sbs-toggle-pill input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+      pointer-events: none;
+    }
+    .sbs-switch-track {
+      width: 34px;
+      height: 18px;
+      border-radius: 99px;
+      background: var(--ctrl-border);
+      position: relative;
+      transition: background 0.2s ease;
+      flex-shrink: 0;
+    }
+    .sbs-switch-thumb {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.35);
+      transition: transform 0.2s ease;
+    }
+    .sbs-toggle-pill input:checked + .sbs-switch-track {
+      background: linear-gradient(135deg, var(--pink), #4361EE);
+    }
+    .sbs-toggle-pill input:checked + .sbs-switch-track .sbs-switch-thumb {
+      transform: translateX(16px);
+    }
+
+    .devices-stage {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .device-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.65rem;
+    }
+    .device-role-badge {
+      display: none;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.35rem 0.9rem;
+      border-radius: 99px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      border: 1px solid var(--ctrl-border);
+      background: var(--panel-bg);
+      color: var(--page-text);
+    }
+    .workspace.sbs-active .device-role-badge {
+      display: inline-flex;
+    }
+    .device-role-badge.child {
+      border-color: rgba(255,46,147,0.45);
+      background: rgba(255,46,147,0.12);
+    }
+    .device-role-badge.parent {
+      border-color: rgba(67,97,238,0.55);
+      background: rgba(67,97,238,0.14);
+    }
+    .live-sync-dot {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.28rem;
+      font-size: 0.68rem;
+      font-weight: 800;
+      color: #06D6A0;
+      padding-left: 0.35rem;
+      border-left: 1px solid rgba(148,163,184,0.3);
+    }
+    .live-sync-dot::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #06D6A0;
+      box-shadow: 0 0 8px #06D6A0;
+    }
+    .device-shell.parent-shell {
+      background: linear-gradient(145deg, #312e81, #0f172a);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.65), inset 0 0 0 2px rgba(99, 102, 241, 0.25);
+    }
+    .device-toast {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 68px;
+      z-index: 60;
+      background: rgba(15, 23, 42, 0.94);
+      color: #F8FAFC;
+      border: 1px solid rgba(255, 46, 147, 0.45);
+      border-radius: 12px;
+      padding: 8px 12px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      line-height: 1.35;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.45);
+      pointer-events: none;
+      animation: fadeToast 0.18s ease-out;
+    }
+    @keyframes fadeToast {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     @media (max-width: 520px) {
       .topbar {
         padding: 0.6rem 0.8rem;
@@ -608,6 +750,11 @@
       .workspace {
         padding: 0.75rem 0.5rem 1.5rem;
         gap: 1.25rem;
+      }
+      .devices-stage,
+      .device-column {
+        width: 100%;
+        max-width: 390px;
       }
       .device-shell {
         width: 100%;
@@ -656,40 +803,92 @@
         <button class="ctrl-btn active" id="btnAgeOlder" onclick="setAgeMode('OLDER_KIDS')">Older Kids (9–12)</button>
       </div>
 
+      <label class="sbs-toggle-pill" id="sbsTogglePill" for="toggleSideBySide" title="Show Child & Parent Mode side-by-side">
+        <input type="checkbox" id="toggleSideBySide" onchange="toggleSideBySideMode(this.checked)" />
+        <span class="sbs-switch-track"><span class="sbs-switch-thumb"></span></span>
+        <span class="material-symbols-rounded" style="font-size:1rem;">splitscreen</span>
+        <span>Parent Side-by-Side</span>
+      </label>
+
       <a href="index.html" class="back-link">
         <span class="material-symbols-rounded" style="font-size:1rem;">arrow_back</span> Back to Web Portal
       </a>
     </div>
   </header>
 
-  <main class="workspace">
-    <div class="device-shell" id="deviceShell">
-      <div class="device-screen dark" id="deviceScreen">
-        <div class="android-status">
-          <span>11:42</span>
-          <span class="camera-dot" title="Front Camera Attention Tracker"></span>
-          <span>5G • 94%</span>
+  <main class="workspace" id="previewWorkspace">
+    <div class="devices-stage" id="devicesStage">
+      <div class="device-column" id="childDeviceColumn">
+        <div class="device-role-badge child">
+          <span>👶 Child Mode</span>
+          <span style="color:var(--page-muted); font-weight:600;">•</span>
+          <span id="childRoleAgeLabel" style="color:var(--pink);">Ages 9-12</span>
         </div>
+        <div class="device-shell" id="deviceShell">
+          <div class="device-screen dark" id="deviceScreen">
+            <div class="android-status">
+              <span>11:42</span>
+              <span class="camera-dot" title="Front Camera Attention Tracker"></span>
+              <span>5G • 94%</span>
+            </div>
 
-        <div class="app-topbar" id="appTopBar">
-          <div class="app-topbar-left">
-            <div class="app-logo" style="overflow:hidden; padding:0; background:none; border-radius:10px;"><img src="assets/famitube-icon.png" style="width:100%; height:100%; object-fit:cover;"></div>
-            <span class="app-title">FamiTube</span>
-          </div>
-          <div class="app-topbar-actions">
-            <button class="icon-btn" id="btnTopNotif" onclick="navigate('notifications')" title="Notifications" style="position:relative;">
-              <span class="material-symbols-rounded" style="font-size:1.25rem;">notifications</span>
-              <span id="topNotifBadge" style="position:absolute; top:2px; right:2px; min-width:14px; height:14px; border-radius:99px; background:var(--pink); color:#fff; font-size:0.58rem; font-weight:800; display:flex; align-items:center; justify-content:center; padding:0 3px;">2</span>
-            </button>
-            <button class="icon-btn" id="btnTopSearch" onclick="navigate('search')" title="Search">
-              <span class="material-symbols-rounded" style="font-size:1.25rem;">search</span>
-            </button>
+            <div class="app-topbar" id="appTopBar">
+              <div class="app-topbar-left">
+                <div class="app-logo" style="overflow:hidden; padding:0; background:none; border-radius:10px;"><img src="assets/famitube-icon.png" style="width:100%; height:100%; object-fit:cover;"></div>
+                <span class="app-title">FamiTube</span>
+              </div>
+              <div class="app-topbar-actions">
+                <button class="icon-btn" id="btnTopNotif" onclick="navigate('notifications')" title="Notifications" style="position:relative;">
+                  <span class="material-symbols-rounded" style="font-size:1.25rem;">notifications</span>
+                  <span id="topNotifBadge" style="position:absolute; top:2px; right:2px; min-width:14px; height:14px; border-radius:99px; background:var(--pink); color:#fff; font-size:0.58rem; font-weight:800; display:flex; align-items:center; justify-content:center; padding:0 3px;">2</span>
+                </button>
+                <button class="icon-btn" id="btnTopSearch" onclick="navigate('search')" title="Search">
+                  <span class="material-symbols-rounded" style="font-size:1.25rem;">search</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="app-body" id="appBody"></div>
+
+            <nav class="app-bottombar" id="appBottomBar"></nav>
           </div>
         </div>
+      </div>
 
-        <div class="app-body" id="appBody"></div>
+      <div class="device-column" id="parentDeviceColumn" style="display:none;">
+        <div class="device-role-badge parent">
+          <span>🛡️ Parent Mode</span>
+          <span style="color:var(--page-muted); font-weight:600;">• Family Studio</span>
+          <span class="live-sync-dot">Live Sync</span>
+        </div>
+        <div class="device-shell parent-shell" id="parentDeviceShell">
+          <div class="device-screen dark" id="parentDeviceScreen">
+            <div class="android-status">
+              <span>11:42</span>
+              <span class="camera-dot" title="Parent Companion Device"></span>
+              <span>5G • 98%</span>
+            </div>
 
-        <nav class="app-bottombar" id="appBottomBar"></nav>
+            <div class="app-topbar" id="parentTopBar">
+              <div class="app-topbar-left">
+                <div class="app-logo" style="background:linear-gradient(135deg, #4361EE, #3A0CA3); color:#fff;">
+                  <span class="material-symbols-rounded" style="font-size:1.15rem;">family_restroom</span>
+                </div>
+                <div>
+                  <div class="app-title" style="font-size:0.95rem; line-height:1.15;">Family Studio</div>
+                  <div style="font-size:0.64rem; color:var(--text-muted); font-weight:700;">Parent Companion</div>
+                </div>
+              </div>
+              <div class="app-topbar-actions">
+                <span id="parentTopPendingBadge" style="background:rgba(245,158,11,0.18); color:#F59E0B; font-size:0.64rem; font-weight:800; padding:3px 7px; border-radius:99px; border:1px solid rgba(245,158,11,0.35);">1 pending</span>
+              </div>
+            </div>
+
+            <div class="app-body" id="parentAppBody"></div>
+
+            <nav class="app-bottombar" id="parentBottomBar"></nav>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -697,6 +896,7 @@
       <h3>Interactive APK Simulator</h3>
       <p id="dataSourceNote">Connecting to FamiTube API to load live curated channels and videos...</p>
       <div class="quick-screens">
+        <button class="qs-btn" id="qsSideBySideBtn" onclick="toggleSideBySideMode(!state.sideBySideParent)" style="border-color:rgba(67,97,238,0.5);"><span>👥 Child + Parent Side-by-Side</span><span id="qsSideBySideStatus" style="font-size:0.72rem; font-weight:800; padding:2px 7px; border-radius:99px; background:rgba(148,163,184,0.2); color:var(--page-muted);">OFF</span></button>
         <button class="qs-btn" onclick="navigate('login')"><span>🔐 Login (Child / Parent)</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('parent_dashboard')"><span>🛡️ Parent Mode Dashboard</span><span>›</span></button>
         <button class="qs-btn" onclick="state.parentTab='activity'; navigate('parent_dashboard');"><span>📊 Child Activity &amp; @Trust Tiers</span><span>›</span></button>
@@ -723,6 +923,9 @@
 
     let state = {
       screen: 'home',
+      deviceMode: 'phone',
+      sideBySideParent: new URLSearchParams(window.location.search).get('sbs') === '1',
+      parentScreen: 'parent_dashboard',
       appVersion: '1.0.0',
       theme: 'DARK',
       ageMode: 'OLDER_KIDS',
@@ -982,8 +1185,11 @@
     }
 
     function setDevice(mode) {
+      state.deviceMode = mode;
       const shell = document.getElementById('deviceShell');
-      shell.classList.toggle('tablet', mode === 'tablet');
+      const parentShell = document.getElementById('parentDeviceShell');
+      if (shell) shell.classList.toggle('tablet', mode === 'tablet');
+      if (parentShell) parentShell.classList.toggle('tablet', mode === 'tablet');
       document.getElementById('btnPhone').classList.toggle('active', mode === 'phone');
       document.getElementById('btnTablet').classList.toggle('active', mode === 'tablet');
     }
@@ -992,9 +1198,53 @@
       state.theme = theme;
       document.documentElement.setAttribute('data-theme', theme === 'DARK' ? 'dark' : 'light');
       document.getElementById('deviceScreen').classList.toggle('dark', theme === 'DARK');
+      const parentScreen = document.getElementById('parentDeviceScreen');
+      if (parentScreen) parentScreen.classList.toggle('dark', theme === 'DARK');
       document.getElementById('btnThemeLight').classList.toggle('active', theme === 'LIGHT');
       document.getElementById('btnThemeDark').classList.toggle('active', theme === 'DARK');
       render();
+    }
+
+    function toggleSideBySideMode(enabled) {
+      state.sideBySideParent = Boolean(enabled);
+      const toggle = document.getElementById('toggleSideBySide');
+      const pill = document.getElementById('sbsTogglePill');
+      const workspace = document.getElementById('previewWorkspace');
+      const parentCol = document.getElementById('parentDeviceColumn');
+      const qsStatus = document.getElementById('qsSideBySideStatus');
+
+      if (toggle) toggle.checked = state.sideBySideParent;
+      if (pill) pill.classList.toggle('active', state.sideBySideParent);
+      if (workspace) workspace.classList.toggle('sbs-active', state.sideBySideParent);
+      if (parentCol) parentCol.style.display = state.sideBySideParent ? 'flex' : 'none';
+      if (qsStatus) {
+        qsStatus.textContent = state.sideBySideParent ? 'ON' : 'OFF';
+        qsStatus.style.background = state.sideBySideParent ? 'rgba(6,214,160,0.2)' : 'rgba(148,163,184,0.2)';
+        qsStatus.style.color = state.sideBySideParent ? '#06D6A0' : 'var(--page-muted)';
+      }
+
+      if (state.sideBySideParent) {
+        if (['parent_dashboard', 'parental_gate', 'parental_settings'].includes(state.screen) || (state.screen === 'login' && state.isParentLogin)) {
+          state.screen = 'home';
+          state.isParentLogin = false;
+        }
+        state.parentScreen = 'parent_dashboard';
+      }
+      render();
+    }
+
+    function showDeviceToast(screenId, message) {
+      const screenEl = document.getElementById(screenId);
+      if (!screenEl) return;
+      const existing = screenEl.querySelector('.device-toast');
+      if (existing) existing.remove();
+      const toast = document.createElement('div');
+      toast.className = 'device-toast';
+      toast.textContent = message;
+      screenEl.appendChild(toast);
+      setTimeout(() => {
+        if (toast.parentNode) toast.remove();
+      }, 3200);
     }
 
     function setAgeMode(mode) {
@@ -1041,11 +1291,31 @@
     }
 
     function navigate(screen, extra) {
+      if (state.sideBySideParent && (screen === 'parent_dashboard' || screen === 'parental_settings')) {
+        state.parentScreen = screen;
+        render();
+        return;
+      }
       state.screen = screen;
       if (screen === 'library' || screen === 'playlists') {
         state.selectedCustomPlaylistId = null;
       }
-      if (extra?.video) state.activeVideo = extra.video;
+      if (extra?.video) {
+        state.activeVideo = extra.video;
+        if (screen === 'player') {
+          const watchedList = state.childActivityHistory?.watched || [];
+          if (!watchedList.length || watchedList[0].title !== extra.video.title) {
+            watchedList.unshift({
+              id: 'act-w-' + Date.now(),
+              title: extra.video.title,
+              channel: extra.video.channelTitle || 'FamiTube',
+              time: 'Just now',
+              duration: `${Math.max(1, Math.round((extra.video.duration || 180) / 60))}m`
+            });
+            state.childActivityHistory.watched = watchedList.slice(0, 12);
+          }
+        }
+      }
       if (screen !== 'player') state.isAttentionPaused = false;
       render();
     }
@@ -1212,6 +1482,11 @@
       if (searchItem) {
         searchItem.trustLevel = newLevel;
       }
+      if (state.sideBySideParent) {
+        render();
+        showDeviceToast('parentDeviceScreen', `Updated ${handle} to ${newLevel}`);
+        return;
+      }
       alert(`Updated ${handle} trust level to ${newLevel}.`);
       render();
     }
@@ -1220,12 +1495,28 @@
       const sub = state.ytSubscribedChannels.find(c => c.handle.toLowerCase() === (channelHandle || video.handle || '').toLowerCase());
       const trust = sub ? sub.trustLevel : 'SUPERVISED';
       if (trust === 'BLOCKED') {
+        if (state.sideBySideParent) {
+          showDeviceToast('deviceScreen', `🚫 Blocked: ${channelHandle || 'This channel'} is blocked by parent.`);
+          return;
+        }
         alert(`🚫 Access Blocked: ${channelHandle || 'This channel'} has been blocked by your parent.`);
         return;
       }
       if (trust === 'SUPERVISED') {
-        const exists = state.parentRequests.some(r => r.title === video.title);
-        if (!exists) {
+        const existingReq = state.parentRequests.find(r => r.title === video.title);
+        if (existingReq && existingReq.status === 'APPROVED') {
+          navigate('player', { video: {
+            id: video.id,
+            title: video.title,
+            channelTitle: channelHandle || video.channelTitle,
+            category: 'YouTube Channel',
+            thumbnailUrl: video.thumbnailUrl,
+            duration: video.duration || 300,
+            ageRating: state.ageMode
+          }});
+          return;
+        }
+        if (!existingReq) {
           const ytId = video.youtubeVideoId || video.id || (video.thumbnailUrl ? (video.thumbnailUrl.match(/vi\/([^\/]+)/) || [])[1] : '') || '';
           state.parentRequests.unshift({
             id: 'req-' + Date.now(),
@@ -1236,6 +1527,16 @@
             youtubeVideoId: ytId,
             status: 'PENDING'
           });
+        } else if (existingReq.status === 'REJECTED') {
+          existingReq.status = 'PENDING';
+        }
+        if (state.sideBySideParent) {
+          state.parentScreen = 'parent_dashboard';
+          state.parentTab = 'requests';
+          render();
+          showDeviceToast('deviceScreen', `👁️ Sent request for "${video.title}" to Parent!`);
+          showDeviceToast('parentDeviceScreen', `📩 New request from ${state.selectedActivityKid || 'Leo'}`);
+          return;
         }
         alert(`👁️ Video Supervised!\n\nA watch request for "${video.title}" has been sent to your parent's dashboard.`);
         return;
@@ -1300,6 +1601,295 @@
       }).join('');
     }
 
+    function buildParentDashboardHtml(isSideBySide = false) {
+      const pendingCount = state.parentRequests.filter(r => r.status === 'PENDING').length;
+      const showPreviewModal = state.parentPreviewRequest && (!state.sideBySideParent || isSideBySide);
+      return `
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span style="background:var(--pink); color:#fff; font-size:0.62rem; font-weight:800; padding:3px 7px; border-radius:6px;">PARENT MODE</span>
+              <span style="font-weight:800; font-size:0.92rem;">Family Studio</span>
+            </div>
+            ${isSideBySide
+              ? `<button class="btn-outline" style="padding:4px 9px; font-size:0.72rem;" onclick="toggleSideBySideMode(false);">Close Split</button>`
+              : `<button class="btn-outline" style="padding:4px 9px; font-size:0.72rem;" onclick="state.isParentLogin=false; navigate('login');">Sign Out</button>`
+            }
+          </div>
+          <div style="display:flex; gap:6px; margin-bottom:12px; overflow-x:auto;">
+            <button class="chip ${state.parentTab==='requests'?'active':''}" onclick="state.parentTab='requests'; render();">Requests${pendingCount ? ' (' + pendingCount + ')' : ''}</button>
+            <button class="chip ${state.parentTab==='kids'?'active':''}" onclick="state.parentTab='kids'; render();">My Kids (${state.parentChildren.length})</button>
+            <button class="chip ${state.parentTab==='activity'?'active':''}" onclick="state.parentTab='activity'; render();">Activity &amp; @Channels</button>
+            <button class="chip ${state.parentTab==='controls'?'active':''}" onclick="state.parentTab='controls'; render();">Controls</button>
+          </div>
+          ${state.parentTab === 'requests' ? `
+            ${state.parentRequests.length === 0 ? `
+              <div class="card-box" style="text-align:center; padding:30px 16px;">
+                <div style="font-size:2rem; margin-bottom:8px;">✅</div>
+                <div style="font-weight:800; font-size:0.95rem;">No Video Requests Yet</div>
+                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">When your child requests a supervised video, it will appear here for you to preview and approve.</div>
+              </div>
+            ` : state.parentRequests.map(r => `
+              <div class="card-box">
+                <div style="display:flex; gap:10px; align-items:center;">
+                  <div style="position:relative; width:88px; height:54px; border-radius:8px; overflow:hidden; flex-shrink:0; cursor:pointer;" onclick="previewParentVideo('${r.id}')" title="Tap to preview video">
+                    <img src="${r.thumbnailUrl}" style="width:100%; height:100%; object-fit:cover;">
+                    <div style="position:absolute; inset:0; background:rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center;">
+                      <span style="color:#fff; font-size:1.1rem; line-height:1;">▶</span>
+                    </div>
+                  </div>
+                  <div style="flex:1; min-width:0;">
+                    <div style="font-weight:800; font-size:0.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${r.title}</div>
+                    <div style="font-size:0.7rem; color:var(--text-muted);">${r.channelTitle} • ${r.kidName}</div>
+                    <div style="display:flex; gap:6px; align-items:center; margin-top:4px;">
+                      <span style="display:inline-block; font-size:0.66rem; font-weight:800; padding:2px 6px; border-radius:6px; background:${r.status==='APPROVED'?'rgba(6,214,160,0.16)':r.status==='REJECTED'?'rgba(255,46,147,0.16)':'rgba(245,158,11,0.18)'}; color:${r.status==='APPROVED'?'#06D6A0':r.status==='REJECTED'?'#FF2E93':'#D97706'};">${r.status}</span>
+                      <button class="btn-outline" style="padding:2px 7px; font-size:0.66rem; border-color:var(--blue); color:var(--blue); font-weight:700;" onclick="previewParentVideo('${r.id}')">▶ Preview</button>
+                    </div>
+                  </div>
+                </div>
+                ${r.status === 'PENDING' ? `
+                  <div style="display:flex; gap:8px; margin-top:10px;">
+                    <button class="btn-outline" style="flex:1; padding:6px 10px;" onclick="previewParentVideo('${r.id}')">▶ Preview Video</button>
+                    <button class="btn-outline" style="flex:1; padding:6px 10px;" onclick="state.parentRequests=state.parentRequests.map(x=>x.id==='${r.id}'?{...x,status:'REJECTED'}:x); render();">Decline</button>
+                    <button class="btn-primary" style="flex:1; padding:6px 10px; background:#06D6A0; color:#0B1120;" onclick="state.parentRequests=state.parentRequests.map(x=>x.id==='${r.id}'?{...x,status:'APPROVED'}:x); render();">Approve</button>
+                  </div>
+                ` : `
+                  <div style="display:flex; gap:8px; margin-top:8px;">
+                    <button class="btn-outline" style="width:100%; padding:5px 8px; font-size:0.72rem;" onclick="previewParentVideo('${r.id}')">▶ Preview Video Again</button>
+                  </div>
+                `}
+              </div>
+            `).join('')}
+          ` : state.parentTab === 'kids' ? `
+            ${state.parentChildren.map(c => {
+              const effectiveLimit = c.dailyLimitMinutes !== null && c.dailyLimitMinutes !== undefined ? c.dailyLimitMinutes : state.dailyLimit;
+              const isOverridden = c.dailyLimitMinutes !== null && c.dailyLimitMinutes !== undefined;
+              return `
+              <div class="card-box">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                  <div>
+                    <div style="font-weight:800; font-size:0.88rem;">${c.name}</div>
+                    <div style="font-size:0.72rem; color:var(--text-muted);">${c.email}</div>
+                    <div style="font-size:0.7rem; color:var(--blue); margin-top:2px;">Age: ${c.ageRating} • Limit: ${effectiveLimit}m/day</div>
+                    <div style="font-size:0.68rem; font-weight:700; margin-top:2px; color:${isOverridden ? 'var(--pink)' : '#06D6A0'};">${isOverridden ? 'Custom Kid Override' : 'Using Global Controls'}</div>
+                  </div>
+                  <div style="display:flex; flex-direction:column; gap:4px;">
+                    <button class="btn-outline" style="padding:4px 8px; font-size:0.68rem;" onclick="state.selectedActivityKid='${c.name}'; state.parentTab='activity'; state.activityHistoryTab='channels'; render();">Activity &amp; @</button>
+                    <button class="btn-outline" style="padding:4px 8px; font-size:0.68rem;" onclick="const v=prompt('Override daily limit (min) for ${c.name}, or leave blank for Global:', '${isOverridden ? c.dailyLimitMinutes : ''}'); if(v!==null){ c_val=v.trim(); state.parentChildren=state.parentChildren.map(x=>x.id==='${c.id}'?{...x, dailyLimitMinutes: c_val===''?null:Number(c_val)}:x); render(); }">Override</button>
+                    <button class="btn-outline" style="padding:4px 8px; font-size:0.68rem; color:var(--pink);" onclick="state.parentChildren=state.parentChildren.filter(x=>x.id!=='${c.id}'); render();">Remove</button>
+                  </div>
+                </div>
+              </div>
+              `;
+            }).join('')}
+            <button class="btn-primary" style="width:100%;" onclick="const n=prompt('Child Name:'); if(n){ state.parentChildren.push({id:'c-'+Date.now(), name:n, email:n.toLowerCase().replace(/\\s+/g,'')+'@famitube.demo', ageRating:'YOUNG_KIDS', dailyLimitMinutes:null}); render(); }">+ Add Child Account</button>
+          ` : state.parentTab === 'activity' ? `
+            <div style="margin-bottom:10px;">
+              <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); margin-bottom:4px;">SELECT CHILD:</div>
+              <div class="chips-row">
+                ${state.parentChildren.map(c => `
+                  <button class="chip ${state.selectedActivityKid===c.name?'active':''}" onclick="state.selectedActivityKid='${c.name}'; render();">${c.name}</button>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- 4 Subtabs: Watched, Searches, Requests, @Channels -->
+            <div class="subtabs">
+              <button class="subtab-btn ${state.activityHistoryTab==='watched'?'active':''}" onclick="state.activityHistoryTab='watched'; render();">Watched</button>
+              <button class="subtab-btn ${state.activityHistoryTab==='searches'?'active':''}" onclick="state.activityHistoryTab='searches'; render();">Searches</button>
+              <button class="subtab-btn ${state.activityHistoryTab==='requests'?'active':''}" onclick="state.activityHistoryTab='requests'; render();">Requests</button>
+              <button class="subtab-btn ${state.activityHistoryTab==='channels'?'active':''}" onclick="state.activityHistoryTab='channels'; render();">@Channels (${state.ytSubscribedChannels.length})</button>
+            </div>
+
+            ${state.activityHistoryTab === 'watched' ? `
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                ${state.childActivityHistory.watched.map(w => `
+                  <div class="card-box" style="display:flex; justify-content:space-between; align-items:center; padding:10px;">
+                    <div>
+                      <div style="font-weight:800; font-size:0.84rem;">${w.title}</div>
+                      <div style="font-size:0.7rem; color:var(--text-muted);">${w.channel} • ${w.duration}</div>
+                    </div>
+                    <span style="font-size:0.68rem; color:var(--blue);">${w.time}</span>
+                  </div>
+                `).join('')}
+              </div>
+            ` : state.activityHistoryTab === 'searches' ? `
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                ${state.childActivityHistory.searches.map(s => `
+                  <div class="card-box" style="display:flex; justify-content:space-between; align-items:center; padding:10px;">
+                    <div>
+                      <div style="font-weight:800; font-size:0.84rem;">🔍 "${s.query}"</div>
+                      <div style="font-size:0.7rem; color:var(--text-muted);">${s.resultsCount} results found</div>
+                    </div>
+                    <span style="font-size:0.68rem; color:var(--blue);">${s.time}</span>
+                  </div>
+                `).join('')}
+              </div>
+            ` : state.activityHistoryTab === 'requests' ? `
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                ${state.parentRequests.map(r => `
+                  <div class="card-box" style="padding:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                      <div style="font-weight:800; font-size:0.84rem; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${r.title}</div>
+                      <span style="font-size:0.66rem; font-weight:800; padding:2px 6px; border-radius:6px; background:${r.status==='APPROVED'?'rgba(6,214,160,0.16)':r.status==='REJECTED'?'rgba(255,46,147,0.16)':'rgba(245,158,11,0.18)'}; color:${r.status==='APPROVED'?'#06D6A0':r.status==='REJECTED'?'#FF2E93':'#D97706'};">${r.status}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+                      <div style="font-size:0.7rem; color:var(--text-muted);">${r.channelTitle} • Requested by ${r.kidName}</div>
+                      <button class="btn-outline" style="padding:2px 7px; font-size:0.66rem; border-color:var(--blue); color:var(--blue); font-weight:700;" onclick="previewParentVideo('${r.id}')">▶ Preview</button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            ` : `
+              <!-- @Channels Trust Tier Management -->
+              <div style="font-size:0.74rem; color:var(--text-muted); margin-bottom:8px;">
+                Manage YouTube channel trust tiers for <strong>${state.selectedActivityKid}</strong>:
+              </div>
+              <div style="display:flex; flex-direction:column; gap:10px;">
+                ${state.ytSubscribedChannels.map(c => `
+                  <div class="card-box" style="padding:10px; border-left:3px solid ${c.trustLevel==='TRUSTED'?'#06D6A0':c.trustLevel==='BLOCKED'?'#EF4444':'#F59E0B'};">
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                      <img src="${c.avatarUrl}" style="width:38px; height:38px; border-radius:50%; object-fit:cover;">
+                      <div style="flex:1; min-width:0;">
+                        <div style="font-weight:800; font-size:0.86rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.title}</div>
+                        <div style="font-size:0.72rem; color:var(--blue); font-weight:700;">${c.handle}</div>
+                      </div>
+                      ${c.trustLevel === 'TRUSTED' ? `<span class="badge-trusted">TRUSTED</span>` :
+                        c.trustLevel === 'BLOCKED' ? `<span class="badge-blocked">BLOCKED</span>` :
+                        `<span class="badge-supervised">SUPERVISED</span>`}
+                    </div>
+                    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px;">
+                      <button class="btn-outline" style="padding:4px 6px; font-size:0.68rem; font-weight:800; color:${c.trustLevel==='TRUSTED'?'#06D6A0':'var(--text)'}; border-color:${c.trustLevel==='TRUSTED'?'#06D6A0':'var(--border)'};" onclick="setYtChannelTrustLevel('${c.handle}', 'TRUSTED');">✓ Trust (Auto)</button>
+                      <button class="btn-outline" style="padding:4px 6px; font-size:0.68rem; font-weight:800; color:${c.trustLevel==='SUPERVISED'?'#F59E0B':'var(--text)'}; border-color:${c.trustLevel==='SUPERVISED'?'#F59E0B':'var(--border)'};" onclick="setYtChannelTrustLevel('${c.handle}', 'SUPERVISED');">👁️ Supervise</button>
+                      <button class="btn-outline" style="padding:4px 6px; font-size:0.68rem; font-weight:800; color:${c.trustLevel==='BLOCKED'?'#EF4444':'var(--text)'}; border-color:${c.trustLevel==='BLOCKED'?'#EF4444':'var(--border)'};" onclick="setYtChannelTrustLevel('${c.handle}', 'BLOCKED');">🚫 Block</button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            `}
+          ` : `
+            <div class="card-box">
+              <div style="font-weight:800; font-size:0.9rem; margin-bottom:4px;">Global Parental Controls (All Kids)</div>
+              <div style="font-size:0.74rem; color:var(--text-muted); margin-bottom:10px;">Default for all kids unless overridden per child.</div>
+              <div style="font-size:0.76rem; margin-bottom:8px;">Global Daily Limit: <strong>${state.dailyLimit}m</strong> • Age: <strong>${state.ageMode}</strong></div>
+              <button class="btn-primary" style="width:100%; margin-bottom:8px;" onclick="${isSideBySide ? "state.parentScreen='parental_settings'; render();" : "navigate('parental_settings')"}">Edit Global Controls</button>
+              ${isSideBySide
+                ? `<div style="font-size:0.72rem; color:#06D6A0; font-weight:700; text-align:center; padding:4px 0;">● Changes sync live to Child Mode on the left</div>`
+                : `<button class="btn-outline" style="width:100%;" onclick="navigate('home')">Preview Child Mode</button>`
+              }
+            </div>
+          `}
+          ${showPreviewModal ? `
+            <div style="position:fixed; inset:0; background:rgba(0,0,0,0.85); display:flex; align-items:center; justify-content:center; z-index:9999; padding:16px;" onclick="if(event.target===this){state.parentPreviewRequest=null;render();}">
+              <div style="background:var(--surface); border:1px solid var(--border); border-radius:18px; width:100%; max-width:440px; max-height:92vh; overflow-y:auto; padding:16px; box-shadow:0 12px 36px rgba(0,0,0,0.7);">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="font-size:1.1rem;">👁️</span>
+                    <span style="font-weight:800; font-size:0.95rem;">Parent Preview • Video Request</span>
+                  </div>
+                  <button class="btn-outline" style="padding:2px 8px; border-radius:50%; font-size:0.9rem; cursor:pointer;" onclick="state.parentPreviewRequest=null; render();">✕</button>
+                </div>
+
+                <div style="position:relative; width:100%; aspect-ratio:16/9; background:#000; border-radius:12px; overflow:hidden; margin-bottom:12px;">
+                  ${state.parentPreviewRequest.youtubeVideoId ? `
+                    <iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/${state.parentPreviewRequest.youtubeVideoId}?autoplay=1&enablejsapi=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border:none; width:100%; height:100%;"></iframe>
+                  ` : `
+                    <img src="${state.parentPreviewRequest.thumbnailUrl}" style="width:100%; height:100%; object-fit:cover;">
+                    <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.35);">
+                      <span style="color:#fff; font-size:2.2rem;">▶</span>
+                    </div>
+                  `}
+                </div>
+
+                <div style="font-weight:800; font-size:0.92rem; margin-bottom:4px; line-height:1.3;">${state.parentPreviewRequest.title}</div>
+                <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:14px;">
+                  <strong>${state.parentPreviewRequest.channelTitle}</strong> • Requested by <strong>${state.parentPreviewRequest.kidName}</strong>
+                </div>
+
+                ${state.parentPreviewRequest.status === 'PENDING' ? `
+                  <div style="display:flex; gap:10px;">
+                    <button class="btn-outline" style="flex:1; border-color:var(--pink); color:var(--pink); padding:8px;" onclick="state.parentRequests=state.parentRequests.map(x=>x.id==='${state.parentPreviewRequest.id}'?{...x,status:'REJECTED'}:x); state.parentPreviewRequest=null; render();">✕ Decline</button>
+                    <button class="btn-primary" style="flex:1; background:#06D6A0; color:#0B1120; padding:8px;" onclick="state.parentRequests=state.parentRequests.map(x=>x.id==='${state.parentPreviewRequest.id}'?{...x,status:'APPROVED'}:x); state.parentPreviewRequest=null; render();">✓ Approve Video</button>
+                  </div>
+                ` : `
+                  <div style="display:flex; align-items:center; justify-content:space-between;">
+                    <span style="font-size:0.75rem; font-weight:800; padding:4px 8px; border-radius:6px; background:${state.parentPreviewRequest.status==='APPROVED'?'rgba(6,214,160,0.16)':'rgba(255,46,147,0.16)'}; color:${state.parentPreviewRequest.status==='APPROVED'?'#06D6A0':'#FF2E93'};">Status: ${state.parentPreviewRequest.status}</span>
+                    <button class="btn-outline" onclick="state.parentPreviewRequest=null; render();">Close Preview</button>
+                  </div>
+                `}
+              </div>
+            </div>
+          ` : ''}
+      `;
+    }
+
+    function buildParentalSettingsHtml(isSideBySide = false) {
+      return `
+          <button class="btn-outline" onclick="${isSideBySide ? "state.parentScreen='parent_dashboard'; render();" : "navigate('home')"}" style="margin-bottom:10px;">← Done</button>
+          <div class="card-box">
+            <div style="font-weight:800; font-size:0.95rem; margin-bottom:8px;">Kid Age Group</div>
+            <div class="chips-row">
+              ${[
+                { id: 'ALL', label: 'All Ages' },
+                { id: 'TODDLER', label: 'Toddler (2–4)' },
+                { id: 'YOUNG_KIDS', label: 'Young Kids (5–8)' },
+                { id: 'OLDER_KIDS', label: 'Older Kids (9–12)' }
+              ].map(a => `<button class="chip ${state.ageMode===a.id?'active':''}" onclick="setAgeMode('${a.id}');">${a.label}</button>`).join('')}
+            </div>
+          </div>
+          <div class="card-box">
+            <div style="font-weight:800; font-size:0.95rem; margin-bottom:8px;">Daily Watch Time Limit</div>
+            <div class="chips-row">
+              ${[15,30,45,60,90,120].map(m => `<button class="chip ${state.dailyLimit===m?'active':''}" onclick="state.dailyLimit=${m}; render();">${m}m</button>`).join('')}
+            </div>
+          </div>
+          <div class="card-box">
+            <div style="font-weight:800; font-size:0.95rem; margin-bottom:6px;">Camera Attention Check</div>
+            <label style="display:flex; align-items:center; gap:8px; font-size:0.82rem; cursor:pointer;">
+              <input type="checkbox" ${state.attentionEnabled?'checked':''} onchange="state.attentionEnabled=this.checked; render();">
+              Auto-pause when viewer looks away
+            </label>
+          </div>
+      `;
+    }
+
+    function renderParentPhone() {
+      const parentBody = document.getElementById('parentAppBody');
+      const parentBar = document.getElementById('parentBottomBar');
+      const pendingBadge = document.getElementById('parentTopPendingBadge');
+      if (!parentBody || !parentBar) return;
+
+      const pendingCount = state.parentRequests.filter(r => r.status === 'PENDING').length;
+      if (pendingBadge) {
+        pendingBadge.textContent = pendingCount ? `${pendingCount} pending` : 'All caught up';
+        pendingBadge.style.background = pendingCount ? 'rgba(245,158,11,0.18)' : 'rgba(6,214,160,0.18)';
+        pendingBadge.style.color = pendingCount ? '#F59E0B' : '#06D6A0';
+        pendingBadge.style.borderColor = pendingCount ? 'rgba(245,158,11,0.35)' : 'rgba(6,214,160,0.35)';
+      }
+
+      parentBody.innerHTML = state.parentScreen === 'parental_settings'
+        ? buildParentalSettingsHtml(true)
+        : buildParentDashboardHtml(true);
+
+      const parentTabs = [
+        { id: 'requests', icon: 'inbox', label: pendingCount ? `Requests (${pendingCount})` : 'Requests' },
+        { id: 'kids', icon: 'group', label: 'Kids' },
+        { id: 'activity', icon: 'monitoring', label: 'Activity' },
+        { id: 'controls', icon: 'tune', label: 'Controls' }
+      ];
+      parentBar.style.display = 'flex';
+      parentBar.innerHTML = parentTabs.map(t => {
+        const isActive = state.parentScreen === 'parental_settings'
+          ? t.id === 'controls'
+          : state.parentTab === t.id;
+        return `
+          <button class="nav-item ${isActive ? 'active' : ''}" onclick="state.parentScreen='parent_dashboard'; state.parentTab='${t.id}'; render();">
+            <span class="material-symbols-rounded" style="font-size:1.3rem;">${t.icon}</span>
+            <span>${t.label}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
     function render() {
       const simple = state.ageMode === 'TODDLER';
       const btnSearch = document.getElementById('btnTopSearch');
@@ -1308,7 +1898,15 @@
       if (starsEl) starsEl.textContent = state.stars;
       const timeLeftEl = document.getElementById('topTimeLeft');
       if (timeLeftEl) timeLeftEl.textContent = `${state.dailyLimit}m left`;
+      const childRoleAgeEl = document.getElementById('childRoleAgeLabel');
+      if (childRoleAgeEl) childRoleAgeEl.textContent = formatPreviewAgeLabel(state.ageMode);
+      const approvedCount = state.parentRequests.filter(r => r.status === 'APPROVED').length;
+      const topNotifBadgeEl = document.getElementById('topNotifBadge');
+      if (topNotifBadgeEl) topNotifBadgeEl.textContent = String(1 + approvedCount);
       renderBottomBar();
+      if (state.sideBySideParent) {
+        renderParentPhone();
+      }
 
       const ageVideos = state.videos
         .filter(v => matchesPreviewAge(v.ageRating))
@@ -2661,7 +3259,20 @@
 
           ${state.ytChannelTab === 'videos' ? `
             <div style="display:flex; flex-direction:column; gap:10px;">
-              ${videos.map(v => `
+              ${videos.map(v => {
+                const req = state.parentRequests.find(r => r.title === v.title);
+                const statusLabel = trust === 'BLOCKED'
+                  ? '🚫 Blocked by Parent'
+                  : trust === 'TRUSTED'
+                    ? '▶ Instant Play'
+                    : req?.status === 'APPROVED'
+                      ? '✓ Parent Approved • Play'
+                      : req?.status === 'PENDING'
+                        ? '⏳ Requested • Waiting'
+                        : req?.status === 'REJECTED'
+                          ? '✕ Declined • Tap to Re-ask'
+                          : '👁️ Needs Approval';
+                return `
                 <div class="card-box" style="display:flex; gap:10px; padding:8px; cursor:pointer;" onclick="playYtVideo({id:'${v.id}', title:'${v.title.replace(/'/g, "\\'")}', thumbnailUrl:'${v.thumbnailUrl}', duration:${v.duration||200}}, '${handle}')">
                   <div style="position:relative; width:100px; aspect-ratio:16/9; border-radius:8px; overflow:hidden; background:#000; flex-shrink:0;">
                     <img src="${v.thumbnailUrl}" style="width:100%; height:100%; object-fit:cover;">
@@ -2670,10 +3281,10 @@
                   </div>
                   <div style="flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center;">
                     <div style="font-weight:700; font-size:0.82rem; line-height:1.25; margin-bottom:4px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${v.title}</div>
-                    <div style="font-size:0.68rem; color:var(--blue); font-weight:700;">${handle} • ${trust === 'TRUSTED' ? '▶ Instant Play' : '👁️ Needs Approval'}</div>
+                    <div style="font-size:0.68rem; color:${req?.status === 'APPROVED' ? '#06D6A0' : 'var(--blue)'}; font-weight:700;">${handle} • ${statusLabel}</div>
                   </div>
                 </div>
-              `).join('')}
+              `;}).join('')}
             </div>
           ` : `
             ${!state.selectedYtPlaylistId ? `
@@ -2771,8 +3382,16 @@
           </div>
         `;
       } else if (state.screen === 'notifications') {
+        const approvedNotifs = state.parentRequests
+          .filter(r => r.status === 'APPROVED')
+          .map(r => ({
+            title: 'Video Approved!',
+            desc: `"${r.title}" was approved by your parent.`,
+            time: 'Just now',
+            icon: '✅'
+          }));
         const notifs = [
-          { title: 'Video Approved!', desc: '"How Do Rockets Fly?" was approved by your parent.', time: '5m ago', icon: '✅' },
+          ...approvedNotifs,
           { title: 'New Badge Unlocked!', desc: 'You earned Quiz Starter (+35 ⭐)', time: '1h ago', icon: '🏆' }
         ];
         body.innerHTML = `
@@ -2806,7 +3425,7 @@
           : [];
 
         body.innerHTML = `
-          <form onsubmit="event.preventDefault(); render();" style="display:flex; gap:8px; margin-bottom:12px;">
+          <form onsubmit="event.preventDefault(); const qVal=(state.searchQuery||'').trim(); if(qVal){ const sl=state.childActivityHistory.searches||[]; if(!sl.length||sl[0].query!==qVal){ sl.unshift({id:'act-s-'+Date.now(), query:qVal, time:'Just now', resultsCount:${curatedMatches.length + ytChannelMatches.length}}); state.childActivityHistory.searches=sl.slice(0,12); } } render();" style="display:flex; gap:8px; margin-bottom:12px;">
             <input type="text" placeholder="Search curated or @YouTube channels..." value="${state.searchQuery}" oninput="state.searchQuery=this.value; if (!this.value.trim()) render();" style="flex:1; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:0.84rem;">
             <button type="submit" class="btn-primary" style="padding:10px 14px;">Go</button>
           </form>
@@ -2994,217 +3613,7 @@
           </div>
         `;
       } else if (state.screen === 'parent_dashboard') {
-        const pendingCount = state.parentRequests.filter(r => r.status === 'PENDING').length;
-        body.innerHTML = `
-          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
-            <div style="display:flex; align-items:center; gap:6px;">
-              <span style="background:var(--pink); color:#fff; font-size:0.62rem; font-weight:800; padding:3px 7px; border-radius:6px;">PARENT MODE</span>
-              <span style="font-weight:800; font-size:0.92rem;">Family Studio</span>
-            </div>
-            <button class="btn-outline" style="padding:4px 9px; font-size:0.72rem;" onclick="state.isParentLogin=false; navigate('login');">Sign Out</button>
-          </div>
-          <div style="display:flex; gap:6px; margin-bottom:12px; overflow-x:auto;">
-            <button class="chip ${state.parentTab==='requests'?'active':''}" onclick="state.parentTab='requests'; render();">Requests${pendingCount ? ' (' + pendingCount + ')' : ''}</button>
-            <button class="chip ${state.parentTab==='kids'?'active':''}" onclick="state.parentTab='kids'; render();">My Kids (${state.parentChildren.length})</button>
-            <button class="chip ${state.parentTab==='activity'?'active':''}" onclick="state.parentTab='activity'; render();">Activity &amp; @Channels</button>
-            <button class="chip ${state.parentTab==='controls'?'active':''}" onclick="state.parentTab='controls'; render();">Controls</button>
-          </div>
-          ${state.parentTab === 'requests' ? `
-            ${state.parentRequests.length === 0 ? `
-              <div class="card-box" style="text-align:center; padding:30px 16px;">
-                <div style="font-size:2rem; margin-bottom:8px;">✅</div>
-                <div style="font-weight:800; font-size:0.95rem;">No Video Requests Yet</div>
-                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">When your child requests a supervised video, it will appear here for you to preview and approve.</div>
-              </div>
-            ` : state.parentRequests.map(r => `
-              <div class="card-box">
-                <div style="display:flex; gap:10px; align-items:center;">
-                  <div style="position:relative; width:88px; height:54px; border-radius:8px; overflow:hidden; flex-shrink:0; cursor:pointer;" onclick="previewParentVideo('${r.id}')" title="Tap to preview video">
-                    <img src="${r.thumbnailUrl}" style="width:100%; height:100%; object-fit:cover;">
-                    <div style="position:absolute; inset:0; background:rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center;">
-                      <span style="color:#fff; font-size:1.1rem; line-height:1;">▶</span>
-                    </div>
-                  </div>
-                  <div style="flex:1; min-width:0;">
-                    <div style="font-weight:800; font-size:0.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${r.title}</div>
-                    <div style="font-size:0.7rem; color:var(--text-muted);">${r.channelTitle} • ${r.kidName}</div>
-                    <div style="display:flex; gap:6px; align-items:center; margin-top:4px;">
-                      <span style="display:inline-block; font-size:0.66rem; font-weight:800; padding:2px 6px; border-radius:6px; background:${r.status==='APPROVED'?'rgba(6,214,160,0.16)':r.status==='REJECTED'?'rgba(255,46,147,0.16)':'rgba(245,158,11,0.18)'}; color:${r.status==='APPROVED'?'#06D6A0':r.status==='REJECTED'?'#FF2E93':'#D97706'};">${r.status}</span>
-                      <button class="btn-outline" style="padding:2px 7px; font-size:0.66rem; border-color:var(--blue); color:var(--blue); font-weight:700;" onclick="previewParentVideo('${r.id}')">▶ Preview</button>
-                    </div>
-                  </div>
-                </div>
-                ${r.status === 'PENDING' ? `
-                  <div style="display:flex; gap:8px; margin-top:10px;">
-                    <button class="btn-outline" style="flex:1; padding:6px 10px;" onclick="previewParentVideo('${r.id}')">▶ Preview Video</button>
-                    <button class="btn-outline" style="flex:1; padding:6px 10px;" onclick="state.parentRequests=state.parentRequests.map(x=>x.id==='${r.id}'?{...x,status:'REJECTED'}:x); render();">Decline</button>
-                    <button class="btn-primary" style="flex:1; padding:6px 10px; background:#06D6A0; color:#0B1120;" onclick="state.parentRequests=state.parentRequests.map(x=>x.id==='${r.id}'?{...x,status:'APPROVED'}:x); render();">Approve</button>
-                  </div>
-                ` : `
-                  <div style="display:flex; gap:8px; margin-top:8px;">
-                    <button class="btn-outline" style="width:100%; padding:5px 8px; font-size:0.72rem;" onclick="previewParentVideo('${r.id}')">▶ Preview Video Again</button>
-                  </div>
-                `}
-              </div>
-            `).join('')}
-          ` : state.parentTab === 'kids' ? `
-            ${state.parentChildren.map(c => {
-              const effectiveLimit = c.dailyLimitMinutes !== null && c.dailyLimitMinutes !== undefined ? c.dailyLimitMinutes : state.dailyLimit;
-              const isOverridden = c.dailyLimitMinutes !== null && c.dailyLimitMinutes !== undefined;
-              return `
-              <div class="card-box">
-                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
-                  <div>
-                    <div style="font-weight:800; font-size:0.88rem;">${c.name}</div>
-                    <div style="font-size:0.72rem; color:var(--text-muted);">${c.email}</div>
-                    <div style="font-size:0.7rem; color:var(--blue); margin-top:2px;">Age: ${c.ageRating} • Limit: ${effectiveLimit}m/day</div>
-                    <div style="font-size:0.68rem; font-weight:700; margin-top:2px; color:${isOverridden ? 'var(--pink)' : '#06D6A0'};">${isOverridden ? 'Custom Kid Override' : 'Using Global Controls'}</div>
-                  </div>
-                  <div style="display:flex; flex-direction:column; gap:4px;">
-                    <button class="btn-outline" style="padding:4px 8px; font-size:0.68rem;" onclick="state.selectedActivityKid='${c.name}'; state.parentTab='activity'; state.activityHistoryTab='channels'; render();">Activity &amp; @</button>
-                    <button class="btn-outline" style="padding:4px 8px; font-size:0.68rem;" onclick="const v=prompt('Override daily limit (min) for ${c.name}, or leave blank for Global:', '${isOverridden ? c.dailyLimitMinutes : ''}'); if(v!==null){ c_val=v.trim(); state.parentChildren=state.parentChildren.map(x=>x.id==='${c.id}'?{...x, dailyLimitMinutes: c_val===''?null:Number(c_val)}:x); render(); }">Override</button>
-                    <button class="btn-outline" style="padding:4px 8px; font-size:0.68rem; color:var(--pink);" onclick="state.parentChildren=state.parentChildren.filter(x=>x.id!=='${c.id}'); render();">Remove</button>
-                  </div>
-                </div>
-              </div>
-              `;
-            }).join('')}
-            <button class="btn-primary" style="width:100%;" onclick="const n=prompt('Child Name:'); if(n){ state.parentChildren.push({id:'c-'+Date.now(), name:n, email:n.toLowerCase().replace(/\\s+/g,'')+'@famitube.demo', ageRating:'YOUNG_KIDS', dailyLimitMinutes:null}); render(); }">+ Add Child Account</button>
-          ` : state.parentTab === 'activity' ? `
-            <div style="margin-bottom:10px;">
-              <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); margin-bottom:4px;">SELECT CHILD:</div>
-              <div class="chips-row">
-                ${state.parentChildren.map(c => `
-                  <button class="chip ${state.selectedActivityKid===c.name?'active':''}" onclick="state.selectedActivityKid='${c.name}'; render();">${c.name}</button>
-                `).join('')}
-              </div>
-            </div>
-
-            <!-- 4 Subtabs: Watched, Searches, Requests, @Channels -->
-            <div class="subtabs">
-              <button class="subtab-btn ${state.activityHistoryTab==='watched'?'active':''}" onclick="state.activityHistoryTab='watched'; render();">Watched</button>
-              <button class="subtab-btn ${state.activityHistoryTab==='searches'?'active':''}" onclick="state.activityHistoryTab='searches'; render();">Searches</button>
-              <button class="subtab-btn ${state.activityHistoryTab==='requests'?'active':''}" onclick="state.activityHistoryTab='requests'; render();">Requests</button>
-              <button class="subtab-btn ${state.activityHistoryTab==='channels'?'active':''}" onclick="state.activityHistoryTab='channels'; render();">@Channels (${state.ytSubscribedChannels.length})</button>
-            </div>
-
-            ${state.activityHistoryTab === 'watched' ? `
-              <div style="display:flex; flex-direction:column; gap:8px;">
-                ${state.childActivityHistory.watched.map(w => `
-                  <div class="card-box" style="display:flex; justify-content:space-between; align-items:center; padding:10px;">
-                    <div>
-                      <div style="font-weight:800; font-size:0.84rem;">${w.title}</div>
-                      <div style="font-size:0.7rem; color:var(--text-muted);">${w.channel} • ${w.duration}</div>
-                    </div>
-                    <span style="font-size:0.68rem; color:var(--blue);">${w.time}</span>
-                  </div>
-                `).join('')}
-              </div>
-            ` : state.activityHistoryTab === 'searches' ? `
-              <div style="display:flex; flex-direction:column; gap:8px;">
-                ${state.childActivityHistory.searches.map(s => `
-                  <div class="card-box" style="display:flex; justify-content:space-between; align-items:center; padding:10px;">
-                    <div>
-                      <div style="font-weight:800; font-size:0.84rem;">🔍 "${s.query}"</div>
-                      <div style="font-size:0.7rem; color:var(--text-muted);">${s.resultsCount} results found</div>
-                    </div>
-                    <span style="font-size:0.68rem; color:var(--blue);">${s.time}</span>
-                  </div>
-                `).join('')}
-              </div>
-            ` : state.activityHistoryTab === 'requests' ? `
-              <div style="display:flex; flex-direction:column; gap:8px;">
-                ${state.parentRequests.map(r => `
-                  <div class="card-box" style="padding:10px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                      <div style="font-weight:800; font-size:0.84rem; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${r.title}</div>
-                      <span style="font-size:0.66rem; font-weight:800; padding:2px 6px; border-radius:6px; background:${r.status==='APPROVED'?'rgba(6,214,160,0.16)':r.status==='REJECTED'?'rgba(255,46,147,0.16)':'rgba(245,158,11,0.18)'}; color:${r.status==='APPROVED'?'#06D6A0':r.status==='REJECTED'?'#FF2E93':'#D97706'};">${r.status}</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
-                      <div style="font-size:0.7rem; color:var(--text-muted);">${r.channelTitle} • Requested by ${r.kidName}</div>
-                      <button class="btn-outline" style="padding:2px 7px; font-size:0.66rem; border-color:var(--blue); color:var(--blue); font-weight:700;" onclick="previewParentVideo('${r.id}')">▶ Preview</button>
-                    </div>
-                  </div>
-                `).join('')}
-              </div>
-            ` : `
-              <!-- @Channels Trust Tier Management -->
-              <div style="font-size:0.74rem; color:var(--text-muted); margin-bottom:8px;">
-                Manage YouTube channel trust tiers for <strong>${state.selectedActivityKid}</strong>:
-              </div>
-              <div style="display:flex; flex-direction:column; gap:10px;">
-                ${state.ytSubscribedChannels.map(c => `
-                  <div class="card-box" style="padding:10px; border-left:3px solid ${c.trustLevel==='TRUSTED'?'#06D6A0':c.trustLevel==='BLOCKED'?'#EF4444':'#F59E0B'};">
-                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
-                      <img src="${c.avatarUrl}" style="width:38px; height:38px; border-radius:50%; object-fit:cover;">
-                      <div style="flex:1; min-width:0;">
-                        <div style="font-weight:800; font-size:0.86rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.title}</div>
-                        <div style="font-size:0.72rem; color:var(--blue); font-weight:700;">${c.handle}</div>
-                      </div>
-                      ${c.trustLevel === 'TRUSTED' ? `<span class="badge-trusted">TRUSTED</span>` :
-                        c.trustLevel === 'BLOCKED' ? `<span class="badge-blocked">BLOCKED</span>` :
-                        `<span class="badge-supervised">SUPERVISED</span>`}
-                    </div>
-                    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px;">
-                      <button class="btn-outline" style="padding:4px 6px; font-size:0.68rem; font-weight:800; color:${c.trustLevel==='TRUSTED'?'#06D6A0':'var(--text)'}; border-color:${c.trustLevel==='TRUSTED'?'#06D6A0':'var(--border)'};" onclick="setYtChannelTrustLevel('${c.handle}', 'TRUSTED');">✓ Trust (Auto)</button>
-                      <button class="btn-outline" style="padding:4px 6px; font-size:0.68rem; font-weight:800; color:${c.trustLevel==='SUPERVISED'?'#F59E0B':'var(--text)'}; border-color:${c.trustLevel==='SUPERVISED'?'#F59E0B':'var(--border)'};" onclick="setYtChannelTrustLevel('${c.handle}', 'SUPERVISED');">👁️ Supervise</button>
-                      <button class="btn-outline" style="padding:4px 6px; font-size:0.68rem; font-weight:800; color:${c.trustLevel==='BLOCKED'?'#EF4444':'var(--text)'}; border-color:${c.trustLevel==='BLOCKED'?'#EF4444':'var(--border)'};" onclick="setYtChannelTrustLevel('${c.handle}', 'BLOCKED');">🚫 Block</button>
-                    </div>
-                  </div>
-                `).join('')}
-              </div>
-            `}
-          ` : `
-            <div class="card-box">
-              <div style="font-weight:800; font-size:0.9rem; margin-bottom:4px;">Global Parental Controls (All Kids)</div>
-              <div style="font-size:0.74rem; color:var(--text-muted); margin-bottom:10px;">Default for all kids unless overridden per child.</div>
-              <div style="font-size:0.76rem; margin-bottom:8px;">Global Daily Limit: <strong>${state.dailyLimit}m</strong> • Age: <strong>${state.ageMode}</strong></div>
-              <button class="btn-primary" style="width:100%; margin-bottom:8px;" onclick="navigate('parental_settings')">Edit Global Controls</button>
-              <button class="btn-outline" style="width:100%;" onclick="navigate('home')">Preview Child Mode</button>
-            </div>
-          `}
-          ${state.parentPreviewRequest ? `
-            <div style="position:fixed; inset:0; background:rgba(0,0,0,0.85); display:flex; align-items:center; justify-content:center; z-index:9999; padding:16px;" onclick="if(event.target===this){state.parentPreviewRequest=null;render();}">
-              <div style="background:var(--surface); border:1px solid var(--border); border-radius:18px; width:100%; max-width:440px; max-height:92vh; overflow-y:auto; padding:16px; box-shadow:0 12px 36px rgba(0,0,0,0.7);">
-                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-                  <div style="display:flex; align-items:center; gap:6px;">
-                    <span style="font-size:1.1rem;">👁️</span>
-                    <span style="font-weight:800; font-size:0.95rem;">Parent Preview • Video Request</span>
-                  </div>
-                  <button class="btn-outline" style="padding:2px 8px; border-radius:50%; font-size:0.9rem; cursor:pointer;" onclick="state.parentPreviewRequest=null; render();">✕</button>
-                </div>
-
-                <div style="position:relative; width:100%; aspect-ratio:16/9; background:#000; border-radius:12px; overflow:hidden; margin-bottom:12px;">
-                  ${state.parentPreviewRequest.youtubeVideoId ? `
-                    <iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/${state.parentPreviewRequest.youtubeVideoId}?autoplay=1&enablejsapi=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border:none; width:100%; height:100%;"></iframe>
-                  ` : `
-                    <img src="${state.parentPreviewRequest.thumbnailUrl}" style="width:100%; height:100%; object-fit:cover;">
-                    <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.35);">
-                      <span style="color:#fff; font-size:2.2rem;">▶</span>
-                    </div>
-                  `}
-                </div>
-
-                <div style="font-weight:800; font-size:0.92rem; margin-bottom:4px; line-height:1.3;">${state.parentPreviewRequest.title}</div>
-                <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:14px;">
-                  <strong>${state.parentPreviewRequest.channelTitle}</strong> • Requested by <strong>${state.parentPreviewRequest.kidName}</strong>
-                </div>
-
-                ${state.parentPreviewRequest.status === 'PENDING' ? `
-                  <div style="display:flex; gap:10px;">
-                    <button class="btn-outline" style="flex:1; border-color:var(--pink); color:var(--pink); padding:8px;" onclick="state.parentRequests=state.parentRequests.map(x=>x.id==='${state.parentPreviewRequest.id}'?{...x,status:'REJECTED'}:x); state.parentPreviewRequest=null; render();">✕ Decline</button>
-                    <button class="btn-primary" style="flex:1; background:#06D6A0; color:#0B1120; padding:8px;" onclick="state.parentRequests=state.parentRequests.map(x=>x.id==='${state.parentPreviewRequest.id}'?{...x,status:'APPROVED'}:x); state.parentPreviewRequest=null; render();">✓ Approve Video</button>
-                  </div>
-                ` : `
-                  <div style="display:flex; align-items:center; justify-content:space-between;">
-                    <span style="font-size:0.75rem; font-weight:800; padding:4px 8px; border-radius:6px; background:${state.parentPreviewRequest.status==='APPROVED'?'rgba(6,214,160,0.16)':'rgba(255,46,147,0.16)'}; color:${state.parentPreviewRequest.status==='APPROVED'?'#06D6A0':'#FF2E93'};">Status: ${state.parentPreviewRequest.status}</span>
-                    <button class="btn-outline" onclick="state.parentPreviewRequest=null; render();">Close Preview</button>
-                  </div>
-                `}
-              </div>
-            </div>
-          ` : ''}
-        `;
+        body.innerHTML = buildParentDashboardHtml(false);
       } else if (state.screen === 'parental_gate') {
         body.innerHTML = `
           <button class="btn-outline" onclick="navigate('home')" style="margin-bottom:12px;">← Back</button>
@@ -3219,33 +3628,7 @@
           </div>
         `;
       } else if (state.screen === 'parental_settings') {
-        body.innerHTML = `
-          <button class="btn-outline" onclick="navigate('home')" style="margin-bottom:10px;">← Done</button>
-          <div class="card-box">
-            <div style="font-weight:800; font-size:0.95rem; margin-bottom:8px;">Kid Age Group</div>
-            <div class="chips-row">
-              ${[
-                { id: 'ALL', label: 'All Ages' },
-                { id: 'TODDLER', label: 'Toddler (2–4)' },
-                { id: 'YOUNG_KIDS', label: 'Young Kids (5–8)' },
-                { id: 'OLDER_KIDS', label: 'Older Kids (9–12)' }
-              ].map(a => `<button class="chip ${state.ageMode===a.id?'active':''}" onclick="setAgeMode('${a.id}');">${a.label}</button>`).join('')}
-            </div>
-          </div>
-          <div class="card-box">
-            <div style="font-weight:800; font-size:0.95rem; margin-bottom:8px;">Daily Watch Time Limit</div>
-            <div class="chips-row">
-              ${[15,30,45,60,90,120].map(m => `<button class="chip ${state.dailyLimit===m?'active':''}" onclick="state.dailyLimit=${m}; render();">${m}m</button>`).join('')}
-            </div>
-          </div>
-          <div class="card-box">
-            <div style="font-weight:800; font-size:0.95rem; margin-bottom:6px;">Camera Attention Check</div>
-            <label style="display:flex; align-items:center; gap:8px; font-size:0.82rem; cursor:pointer;">
-              <input type="checkbox" ${state.attentionEnabled?'checked':''} onchange="state.attentionEnabled=this.checked; render();">
-              Auto-pause when viewer looks away
-            </label>
-          </div>
-        `;
+        body.innerHTML = buildParentalSettingsHtml(false);
       } else {
         // Library (Child Custom Playlists)
         const selectedPl = state.customPlaylists.find(p => p.id === state.selectedCustomPlaylistId);
@@ -3321,9 +3704,9 @@
     }
 
     setAppTheme(state.theme || 'DARK');
+    toggleSideBySideMode(state.sideBySideParent);
     syncAndroidVersionFromRepo();
     loadLiveBackendData();
-    render();
   </script>
 </body>
 </html>
