@@ -821,9 +821,10 @@
         { id: 'c-2', name: 'Leo', email: 'leo@famitube.demo', ageRating: 'OLDER_KIDS', dailyLimitMinutes: 60 }
       ],
       parentRequests: [
-        { id: 'req-1', title: 'How Rockets Reach Orbit - NASA Kids', channelTitle: 'NASA Space Place', kidName: 'Leo', thumbnailUrl: 'https://img.youtube.com/vi/BYVZh5kqaFg/hqdefault.jpg', status: 'PENDING' },
-        { id: 'req-2', title: 'Counting by Twos Song', channelTitle: 'Numberblocks', kidName: 'Maya', thumbnailUrl: 'https://i.ytimg.com/vi/AXXP3HMAP6c/hqdefault.jpg', status: 'APPROVED' }
+        { id: 'req-1', title: 'How Rockets Reach Orbit - NASA Kids', channelTitle: 'NASA Space Place', kidName: 'Leo', youtubeVideoId: 'BYVZh5kqaFg', thumbnailUrl: 'https://img.youtube.com/vi/BYVZh5kqaFg/hqdefault.jpg', status: 'PENDING' },
+        { id: 'req-2', title: 'Counting by Twos Song', channelTitle: 'Numberblocks', kidName: 'Maya', youtubeVideoId: 'AXXP3HMAP6c', thumbnailUrl: 'https://i.ytimg.com/vi/AXXP3HMAP6c/hqdefault.jpg', status: 'APPROVED' }
       ],
+      parentPreviewRequest: null,
       channels: [
         { id: 'ch-1', name: 'TED-Ed & Science Mysteries', category: 'Science & Space', ageRating: 'OLDER_KIDS', channelType: 'ON_DEMAND', videoCount: 10, avatarUrl: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=200&h=200&fit=crop', description: 'Mind-bending science and space mysteries for older kids.' },
         { id: 'ch-2', name: 'Space Explorers 24H TV', category: 'Science & Space', ageRating: 'OLDER_KIDS', channelType: 'LIVE_TV', videoCount: 9, avatarUrl: 'https://i.ytimg.com/vi/libKVRa01L8/hqdefault.jpg', description: 'Non-stop planets, stars, and astronomy.' },
@@ -1225,12 +1226,14 @@
       if (trust === 'SUPERVISED') {
         const exists = state.parentRequests.some(r => r.title === video.title);
         if (!exists) {
+          const ytId = video.youtubeVideoId || video.id || (video.thumbnailUrl ? (video.thumbnailUrl.match(/vi\/([^\/]+)/) || [])[1] : '') || '';
           state.parentRequests.unshift({
             id: 'req-' + Date.now(),
             title: video.title,
             channelTitle: channelHandle || video.channelTitle,
             kidName: state.selectedActivityKid || 'Leo',
             thumbnailUrl: video.thumbnailUrl,
+            youtubeVideoId: ytId,
             status: 'PENDING'
           });
         }
@@ -1246,6 +1249,13 @@
         duration: video.duration || 300,
         ageRating: state.ageMode
       }});
+    }
+
+    function previewParentVideo(reqId) {
+      const req = state.parentRequests.find(r => r.id === reqId);
+      if (!req) return;
+      state.parentPreviewRequest = req;
+      render();
     }
 
     function openChannelDetailByVideo(videoId) {
@@ -3000,22 +3010,41 @@
             <button class="chip ${state.parentTab==='controls'?'active':''}" onclick="state.parentTab='controls'; render();">Controls</button>
           </div>
           ${state.parentTab === 'requests' ? `
-            ${state.parentRequests.map(r => `
+            ${state.parentRequests.length === 0 ? `
+              <div class="card-box" style="text-align:center; padding:30px 16px;">
+                <div style="font-size:2rem; margin-bottom:8px;">✅</div>
+                <div style="font-weight:800; font-size:0.95rem;">No Video Requests Yet</div>
+                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">When your child requests a supervised video, it will appear here for you to preview and approve.</div>
+              </div>
+            ` : state.parentRequests.map(r => `
               <div class="card-box">
                 <div style="display:flex; gap:10px; align-items:center;">
-                  <img src="${r.thumbnailUrl}" style="width:78px; height:48px; border-radius:8px; object-fit:cover;">
+                  <div style="position:relative; width:88px; height:54px; border-radius:8px; overflow:hidden; flex-shrink:0; cursor:pointer;" onclick="previewParentVideo('${r.id}')" title="Tap to preview video">
+                    <img src="${r.thumbnailUrl}" style="width:100%; height:100%; object-fit:cover;">
+                    <div style="position:absolute; inset:0; background:rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center;">
+                      <span style="color:#fff; font-size:1.1rem; line-height:1;">▶</span>
+                    </div>
+                  </div>
                   <div style="flex:1; min-width:0;">
-                    <div style="font-weight:800; font-size:0.8rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${r.title}</div>
+                    <div style="font-weight:800; font-size:0.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${r.title}</div>
                     <div style="font-size:0.7rem; color:var(--text-muted);">${r.channelTitle} • ${r.kidName}</div>
-                    <span style="display:inline-block; margin-top:4px; font-size:0.66rem; font-weight:800; padding:2px 6px; border-radius:6px; background:${r.status==='APPROVED'?'rgba(6,214,160,0.16)':r.status==='REJECTED'?'rgba(255,46,147,0.16)':'rgba(245,158,11,0.18)'}; color:${r.status==='APPROVED'?'#06D6A0':r.status==='REJECTED'?'#FF2E93':'#D97706'};">${r.status}</span>
+                    <div style="display:flex; gap:6px; align-items:center; margin-top:4px;">
+                      <span style="display:inline-block; font-size:0.66rem; font-weight:800; padding:2px 6px; border-radius:6px; background:${r.status==='APPROVED'?'rgba(6,214,160,0.16)':r.status==='REJECTED'?'rgba(255,46,147,0.16)':'rgba(245,158,11,0.18)'}; color:${r.status==='APPROVED'?'#06D6A0':r.status==='REJECTED'?'#FF2E93':'#D97706'};">${r.status}</span>
+                      <button class="btn-outline" style="padding:2px 7px; font-size:0.66rem; border-color:var(--blue); color:var(--blue); font-weight:700;" onclick="previewParentVideo('${r.id}')">▶ Preview</button>
+                    </div>
                   </div>
                 </div>
                 ${r.status === 'PENDING' ? `
                   <div style="display:flex; gap:8px; margin-top:10px;">
-                    <button class="btn-outline" style="flex:1;" onclick="state.parentRequests=state.parentRequests.map(x=>x.id==='${r.id}'?{...x,status:'REJECTED'}:x); render();">Decline</button>
-                    <button class="btn-primary" style="flex:1; background:#06D6A0; color:#0B1120;" onclick="state.parentRequests=state.parentRequests.map(x=>x.id==='${r.id}'?{...x,status:'APPROVED'}:x); render();">Approve</button>
+                    <button class="btn-outline" style="flex:1; padding:6px 10px;" onclick="previewParentVideo('${r.id}')">▶ Preview Video</button>
+                    <button class="btn-outline" style="flex:1; padding:6px 10px;" onclick="state.parentRequests=state.parentRequests.map(x=>x.id==='${r.id}'?{...x,status:'REJECTED'}:x); render();">Decline</button>
+                    <button class="btn-primary" style="flex:1; padding:6px 10px; background:#06D6A0; color:#0B1120;" onclick="state.parentRequests=state.parentRequests.map(x=>x.id==='${r.id}'?{...x,status:'APPROVED'}:x); render();">Approve</button>
                   </div>
-                ` : ''}
+                ` : `
+                  <div style="display:flex; gap:8px; margin-top:8px;">
+                    <button class="btn-outline" style="width:100%; padding:5px 8px; font-size:0.72rem;" onclick="previewParentVideo('${r.id}')">▶ Preview Video Again</button>
+                  </div>
+                `}
               </div>
             `).join('')}
           ` : state.parentTab === 'kids' ? `
@@ -3091,7 +3120,10 @@
                       <div style="font-weight:800; font-size:0.84rem; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${r.title}</div>
                       <span style="font-size:0.66rem; font-weight:800; padding:2px 6px; border-radius:6px; background:${r.status==='APPROVED'?'rgba(6,214,160,0.16)':r.status==='REJECTED'?'rgba(255,46,147,0.16)':'rgba(245,158,11,0.18)'}; color:${r.status==='APPROVED'?'#06D6A0':r.status==='REJECTED'?'#FF2E93':'#D97706'};">${r.status}</span>
                     </div>
-                    <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">${r.channelTitle} • Requested by ${r.kidName}</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+                      <div style="font-size:0.7rem; color:var(--text-muted);">${r.channelTitle} • Requested by ${r.kidName}</div>
+                      <button class="btn-outline" style="padding:2px 7px; font-size:0.66rem; border-color:var(--blue); color:var(--blue); font-weight:700;" onclick="previewParentVideo('${r.id}')">▶ Preview</button>
+                    </div>
                   </div>
                 `).join('')}
               </div>
@@ -3131,6 +3163,47 @@
               <button class="btn-outline" style="width:100%;" onclick="navigate('home')">Preview Child Mode</button>
             </div>
           `}
+          ${state.parentPreviewRequest ? `
+            <div style="position:fixed; inset:0; background:rgba(0,0,0,0.85); display:flex; align-items:center; justify-content:center; z-index:9999; padding:16px;" onclick="if(event.target===this){state.parentPreviewRequest=null;render();}">
+              <div style="background:var(--surface); border:1px solid var(--border); border-radius:18px; width:100%; max-width:440px; max-height:92vh; overflow-y:auto; padding:16px; box-shadow:0 12px 36px rgba(0,0,0,0.7);">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="font-size:1.1rem;">👁️</span>
+                    <span style="font-weight:800; font-size:0.95rem;">Parent Preview • Video Request</span>
+                  </div>
+                  <button class="btn-outline" style="padding:2px 8px; border-radius:50%; font-size:0.9rem; cursor:pointer;" onclick="state.parentPreviewRequest=null; render();">✕</button>
+                </div>
+
+                <div style="position:relative; width:100%; aspect-ratio:16/9; background:#000; border-radius:12px; overflow:hidden; margin-bottom:12px;">
+                  ${state.parentPreviewRequest.youtubeVideoId ? `
+                    <iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/${state.parentPreviewRequest.youtubeVideoId}?autoplay=1&enablejsapi=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border:none; width:100%; height:100%;"></iframe>
+                  ` : `
+                    <img src="${state.parentPreviewRequest.thumbnailUrl}" style="width:100%; height:100%; object-fit:cover;">
+                    <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.35);">
+                      <span style="color:#fff; font-size:2.2rem;">▶</span>
+                    </div>
+                  `}
+                </div>
+
+                <div style="font-weight:800; font-size:0.92rem; margin-bottom:4px; line-height:1.3;">${state.parentPreviewRequest.title}</div>
+                <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:14px;">
+                  <strong>${state.parentPreviewRequest.channelTitle}</strong> • Requested by <strong>${state.parentPreviewRequest.kidName}</strong>
+                </div>
+
+                ${state.parentPreviewRequest.status === 'PENDING' ? `
+                  <div style="display:flex; gap:10px;">
+                    <button class="btn-outline" style="flex:1; border-color:var(--pink); color:var(--pink); padding:8px;" onclick="state.parentRequests=state.parentRequests.map(x=>x.id==='${state.parentPreviewRequest.id}'?{...x,status:'REJECTED'}:x); state.parentPreviewRequest=null; render();">✕ Decline</button>
+                    <button class="btn-primary" style="flex:1; background:#06D6A0; color:#0B1120; padding:8px;" onclick="state.parentRequests=state.parentRequests.map(x=>x.id==='${state.parentPreviewRequest.id}'?{...x,status:'APPROVED'}:x); state.parentPreviewRequest=null; render();">✓ Approve Video</button>
+                  </div>
+                ` : `
+                  <div style="display:flex; align-items:center; justify-content:space-between;">
+                    <span style="font-size:0.75rem; font-weight:800; padding:4px 8px; border-radius:6px; background:${state.parentPreviewRequest.status==='APPROVED'?'rgba(6,214,160,0.16)':'rgba(255,46,147,0.16)'}; color:${state.parentPreviewRequest.status==='APPROVED'?'#06D6A0':'#FF2E93'};">Status: ${state.parentPreviewRequest.status}</span>
+                    <button class="btn-outline" onclick="state.parentPreviewRequest=null; render();">Close Preview</button>
+                  </div>
+                `}
+              </div>
+            </div>
+          ` : ''}
         `;
       } else if (state.screen === 'parental_gate') {
         body.innerHTML = `
