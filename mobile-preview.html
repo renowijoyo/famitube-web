@@ -1371,18 +1371,20 @@
                   <div style="font-size:0.86rem; font-weight:800; color:#FFD166;">My @YouTube Subscriptions (${state.ytSubscribedChannels.length})</div>
                   <div style="font-size:0.68rem; color:var(--text-muted); margin-top:1px;">Parent-Trusted @channels play immediately; Supervised @channels check parent approval.</div>
                 </div>
-                <div class="ch-grid" style="margin-bottom:16px;">
+                <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
                   ${state.ytSubscribedChannels.map(c => `
-                    <div class="ch-card" onclick="openYtChannelDetail('${c.handle}')">
-                      <button class="ch-close-btn" onclick="event.stopPropagation(); toggleYtSubscription({handle:'${c.handle}'});" title="Unsubscribe">✕</button>
-                      <div style="margin-bottom:8px;">
-                        ${c.trustLevel === 'TRUSTED' ? `<span class="badge-trusted" style="font-size:0.6rem; padding:1px 6px;">✓ TRUSTED</span>` :
-                          c.trustLevel === 'BLOCKED' ? `<span class="badge-blocked" style="font-size:0.6rem; padding:1px 6px;">BLOCKED</span>` :
-                          `<span class="badge-supervised" style="font-size:0.6rem; padding:1px 6px;">SUPERVISED</span>`}
+                    <div class="card-box" style="display:flex; align-items:center; gap:12px; padding:10px 12px; cursor:pointer;" onclick="openYtChannelDetail('${c.handle}')">
+                      <img src="${c.avatarUrl}" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:1.5px solid var(--border); flex-shrink:0;">
+                      <div style="flex:1; min-width:0;">
+                        <div style="display:flex; align-items:center; gap:6px;">
+                          <span style="font-weight:800; font-size:0.88rem; color:var(--blue); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.handle}</span>
+                          ${c.trustLevel === 'TRUSTED' ? `<span class="badge-trusted" style="font-size:0.6rem; padding:1px 6px;">✓ TRUSTED</span>` :
+                            c.trustLevel === 'BLOCKED' ? `<span class="badge-blocked" style="font-size:0.6rem; padding:1px 6px;">BLOCKED</span>` :
+                            `<span class="badge-supervised" style="font-size:0.6rem; padding:1px 6px;">SUPERVISED</span>`}
+                        </div>
+                        <div style="font-size:0.72rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">${c.title}</div>
                       </div>
-                      <img src="${c.avatarUrl}" style="width:58px; height:58px; border-radius:50%; object-fit:cover; margin-bottom:8px; border:2px solid var(--border);">
-                      <div style="font-weight:800; font-size:0.84rem; color:var(--blue); max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.handle}</div>
-                      <div style="font-size:0.72rem; color:var(--text-muted); max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.title}</div>
+                      <button class="ch-close-btn" style="position:static; margin-left:auto; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;" onclick="event.stopPropagation(); toggleYtSubscription({handle:'${c.handle}'});" title="Unsubscribe">✕</button>
                     </div>
                   `).join('')}
                 </div>
@@ -1392,13 +1394,15 @@
                 <div style="margin-bottom:8px;">
                   <div style="font-size:0.86rem; font-weight:800;">Curated Channels (${myChannels.length})</div>
                 </div>
-                <div class="ch-grid">
+                <div style="display:flex; flex-direction:column; gap:8px;">
                   ${myChannels.map(c => `
-                    <div class="ch-card" onclick="openChannelDetail('${c.id}')">
-                      <button class="ch-close-btn" onclick="event.stopPropagation(); state.savedChannelIds=state.savedChannelIds.filter(id=>id!=='${c.id}'); render();" title="Unsubscribe">✕</button>
-                      <img src="${c.avatarUrl}" style="width:58px; height:58px; border-radius:50%; object-fit:cover; margin-bottom:8px; border:2px solid var(--border);">
-                      <div style="font-weight:800; font-size:0.84rem; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.name}</div>
-                      <div style="font-size:0.7rem; color:var(--text-muted);">${c.category} • ${c.videoCount} videos</div>
+                    <div class="card-box" style="display:flex; align-items:center; gap:12px; padding:10px 12px; cursor:pointer;" onclick="openChannelDetail('${c.id}')">
+                      <img src="${c.avatarUrl}" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:1.5px solid var(--border); flex-shrink:0;">
+                      <div style="flex:1; min-width:0;">
+                        <div style="font-weight:800; font-size:0.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.name}</div>
+                        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">${c.category} • ${c.videoCount} videos</div>
+                      </div>
+                      <button class="ch-close-btn" style="position:static; margin-left:auto; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;" onclick="event.stopPropagation(); state.savedChannelIds=state.savedChannelIds.filter(id=>id!=='${c.id}'); render();" title="Unsubscribe">✕</button>
                     </div>
                   `).join('')}
                 </div>
@@ -2367,41 +2371,45 @@
               <button class="btn-primary" onclick="state.selectedAddTopic=null; state.topicSearchQuery=''; navigate('add_channel');">Subscribe to a channel</button>
             </div>
           ` : `
-            <!-- YouTube Subscriptions Grid -->
+            <!-- YouTube Subscriptions (One Row per Channel) -->
             ${state.ytSubscribedChannels.length > 0 ? `
               <div style="margin-bottom:8px;">
                 <div style="font-size:0.86rem; font-weight:800; color:#FFD166;">My @YouTube Subscriptions (${state.ytSubscribedChannels.length})</div>
                 <div style="font-size:0.68rem; color:var(--text-muted); margin-top:1px;">Parent-Trusted @channels play immediately; Supervised @channels check parent approval.</div>
               </div>
-              <div class="ch-grid" style="margin-bottom:16px;">
+              <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
                 ${state.ytSubscribedChannels.map(c => `
-                  <div class="ch-card" onclick="openYtChannelDetail('${c.handle}')">
-                    <button class="ch-close-btn" onclick="event.stopPropagation(); toggleYtSubscription({handle:'${c.handle}'});" title="Unsubscribe">✕</button>
-                    <div style="margin-bottom:8px;">
-                      ${c.trustLevel === 'TRUSTED' ? `<span class="badge-trusted" style="font-size:0.6rem; padding:1px 6px;">✓ TRUSTED</span>` :
-                        c.trustLevel === 'BLOCKED' ? `<span class="badge-blocked" style="font-size:0.6rem; padding:1px 6px;">BLOCKED</span>` :
-                        `<span class="badge-supervised" style="font-size:0.6rem; padding:1px 6px;">SUPERVISED</span>`}
+                  <div class="card-box" style="display:flex; align-items:center; gap:12px; padding:10px 12px; cursor:pointer;" onclick="openYtChannelDetail('${c.handle}')">
+                    <img src="${c.avatarUrl}" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:1.5px solid var(--border); flex-shrink:0;">
+                    <div style="flex:1; min-width:0;">
+                      <div style="display:flex; align-items:center; gap:6px;">
+                        <span style="font-weight:800; font-size:0.88rem; color:var(--blue); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.handle}</span>
+                        ${c.trustLevel === 'TRUSTED' ? `<span class="badge-trusted" style="font-size:0.6rem; padding:1px 6px;">✓ TRUSTED</span>` :
+                          c.trustLevel === 'BLOCKED' ? `<span class="badge-blocked" style="font-size:0.6rem; padding:1px 6px;">BLOCKED</span>` :
+                          `<span class="badge-supervised" style="font-size:0.6rem; padding:1px 6px;">SUPERVISED</span>`}
+                      </div>
+                      <div style="font-size:0.72rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">${c.title}</div>
                     </div>
-                    <img src="${c.avatarUrl}" style="width:58px; height:58px; border-radius:50%; object-fit:cover; margin-bottom:8px; border:2px solid var(--border);">
-                    <div style="font-weight:800; font-size:0.84rem; color:var(--blue); max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.handle}</div>
-                    <div style="font-size:0.72rem; color:var(--text-muted); max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.title}</div>
+                    <button class="ch-close-btn" style="position:static; margin-left:auto; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;" onclick="event.stopPropagation(); toggleYtSubscription({handle:'${c.handle}'});" title="Unsubscribe">✕</button>
                   </div>
                 `).join('')}
               </div>
             ` : ''}
 
-            <!-- Curated Channels Grid -->
+            <!-- Curated Channels (One Row per Channel) -->
             ${myChannels.length > 0 ? `
               <div style="margin-bottom:8px;">
                 <div style="font-size:0.86rem; font-weight:800;">Curated Channels (${myChannels.length})</div>
               </div>
-              <div class="ch-grid">
+              <div style="display:flex; flex-direction:column; gap:8px;">
                 ${myChannels.map(c => `
-                  <div class="ch-card" onclick="openChannelDetail('${c.id}')">
-                    <button class="ch-close-btn" onclick="event.stopPropagation(); state.savedChannelIds=state.savedChannelIds.filter(id=>id!=='${c.id}'); render();" title="Unsubscribe">✕</button>
-                    <img src="${c.avatarUrl}" style="width:58px; height:58px; border-radius:50%; object-fit:cover; margin-bottom:8px; border:2px solid var(--border);">
-                    <div style="font-weight:800; font-size:0.84rem; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.name}</div>
-                    <div style="font-size:0.7rem; color:var(--text-muted);">${c.category} • ${c.videoCount} videos</div>
+                  <div class="card-box" style="display:flex; align-items:center; gap:12px; padding:10px 12px; cursor:pointer;" onclick="openChannelDetail('${c.id}')">
+                    <img src="${c.avatarUrl}" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:1.5px solid var(--border); flex-shrink:0;">
+                    <div style="flex:1; min-width:0;">
+                      <div style="font-weight:800; font-size:0.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.name}</div>
+                      <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">${c.category} • ${c.videoCount} videos</div>
+                    </div>
+                    <button class="ch-close-btn" style="position:static; margin-left:auto; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;" onclick="event.stopPropagation(); state.savedChannelIds=state.savedChannelIds.filter(id=>id!=='${c.id}'); render();" title="Unsubscribe">✕</button>
                   </div>
                 `).join('')}
               </div>
