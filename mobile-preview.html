@@ -845,19 +845,39 @@
       selectedCustomPlaylistId: null,
       homeNavTab: 'home',
       selectedVideosCategory: null,
+      gameAgeGroup: 'OLDER_KIDS',
       activeGameTab: 0,
-      triviaIndex: 0,
-      triviaSelected: null,
-      triviaAnswered: false,
-      mathA: 6,
-      mathB: 7,
+      toddlerAnimalIdx: 0,
+      toddlerAnimalAnswered: false,
+      toddlerAnimalSelected: null,
+      toddlerBalloonPopped: [],
+      toddlerBalloonTarget: 1,
+      toddlerShapeIdx: 0,
+      toddlerShapeAnswered: false,
+      toddlerShapeSelected: null,
+      mathA: 7,
+      mathB: 5,
+      mathPlus: true,
       mathSelected: null,
       mathAnswered: false,
       memoryFlipped: [],
       memoryMatched: [],
-      wordIndex: 0,
-      wordSelected: null,
-      wordAnswered: false,
+      spellingWordIdx: 0,
+      spellingLetters: [],
+      spellingSuccess: false,
+      triviaIndex: 0,
+      triviaSelected: null,
+      triviaAnswered: false,
+      geoIdx: 0,
+      geoSelected: null,
+      geoAnswered: false,
+      orbitVelocity: 7.8,
+      orbitLaunched: false,
+      orbitOutcome: null,
+      orbitSuccess: false,
+      logicSwitchA: false,
+      logicSwitchB: true,
+      logicGate: 'AND',
       playlists: [
         { id: 'pl-1', title: 'Space & Rockets', description: 'Curated space adventures', count: 6 },
         { id: 'pl-2', title: 'Bedtime Rhymes', description: 'Calm songs for evening', count: 8 }
@@ -1367,144 +1387,508 @@
             `}
           `;
         } else if (currentNavTab === 'games') {
-          // Games & Brain Quests Tab
-          const triviaQuestions = [
-            { q: "Which planet has giant colorful rings around it?", opts: ["Mars", "Saturn", "Jupiter", "Venus"], ans: "Saturn", fact: "Saturn's rings are made of billions of pieces of ice and rock!" },
-            { q: "What is the fastest land animal in the world?", opts: ["Lion", "Horse", "Cheetah", "Kangaroo"], ans: "Cheetah", fact: "Cheetahs can run up to 70 miles per hour!" },
-            { q: "What sweet food do bees produce?", opts: ["Chocolate", "Honey", "Jam", "Juice"], ans: "Honey", fact: "Bees pollinate millions of flowers every year!" },
-            { q: "Which is the largest ocean on Earth?", opts: ["Atlantic", "Pacific", "Indian", "Arctic"], ans: "Pacific", fact: "The Pacific Ocean covers more than 30% of Earth!" }
+          // Games & Brain Quests Tab (Age Grouped)
+          const gameAge = state.gameAgeGroup || 'OLDER_KIDS';
+          const gameTab = state.activeGameTab || 0;
+
+          // Game data
+          const toddlerAnimals = [
+            { name: "Lion", emoji: "🦁", sound: "ROOOAR!", fact: "Lions live in family groups called prides!" },
+            { name: "Cow", emoji: "🐮", sound: "MOOOOO!", fact: "Cows eat grass and make healthy milk!" },
+            { name: "Duck", emoji: "🦆", sound: "QUACK QUACK!", fact: "Ducks have waterproof feathers to swim!" },
+            { name: "Frog", emoji: "🐸", sound: "RIBBIT RIBBIT!", fact: "Frogs can jump up to 20 times their body length!" },
+            { name: "Elephant", emoji: "🐘", sound: "PAWOOO!", fact: "Elephants have long trunks to drink and play!" },
+            { name: "Dog", emoji: "🐶", sound: "WOOF WOOF!", fact: "Dogs are loyal and love playing fetch!" }
           ];
-          const curTrivia = triviaQuestions[state.triviaIndex % triviaQuestions.length];
-          const mathCorrect = state.mathA + state.mathB;
-          const mathOpts = [mathCorrect, mathCorrect - 2, mathCorrect + 3, mathCorrect + 1];
+          const curToddlerAnimal = toddlerAnimals[(state.toddlerAnimalIdx || 0) % toddlerAnimals.length];
+
+          const toddlerShapes = [
+            { name: "Red Circle", emoji: "🔴", shape: "Circle", color: "Red" },
+            { name: "Blue Square", emoji: "🟦", shape: "Square", color: "Blue" },
+            { name: "Green Triangle", emoji: "🔺", shape: "Triangle", color: "Green" },
+            { name: "Yellow Star", emoji: "⭐", shape: "Star", color: "Yellow" },
+            { name: "Orange Diamond", emoji: "🔶", shape: "Diamond", color: "Orange" }
+          ];
+          const curToddlerShape = toddlerShapes[(state.toddlerShapeIdx || 0) % toddlerShapes.length];
+
+          const spellingWords = [
+            { word: "STAR", missing: "T", display: "S _ A R", opts: ["T", "P", "B", "M"], hint: "Shines bright in the night sky! ⭐" },
+            { word: "MOON", missing: "O", display: "M _ O N", opts: ["O", "E", "A", "U"], hint: "Orbits around our planet Earth! 🌙" },
+            { word: "LION", missing: "I", display: "L _ O N", opts: ["I", "E", "O", "A"], hint: "King of the jungle! 🦁" },
+            { word: "FISH", missing: "S", display: "F I _ H", opts: ["S", "T", "R", "L"], hint: "Swims in rivers and oceans! 🐟" }
+          ];
+          const curSpelling = spellingWords[(state.spellingWordIdx || 0) % spellingWords.length];
+
+          const scienceTrivia = [
+            { q: "Which planet has giant colorful rings around it?", opts: ["Mars", "Saturn", "Jupiter", "Venus"], ans: "Saturn", fact: "Saturn's rings are made of billions of pieces of ice and rock!" },
+            { q: "What is the closest star to planet Earth?", opts: ["Proxima Centauri", "Polaris", "The Sun", "Sirius"], ans: "The Sun", fact: "Sunlight takes about 8 minutes and 20 seconds to reach Earth!" },
+            { q: "What gas do plants absorb from the air to make food?", opts: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Helium"], ans: "Carbon Dioxide", fact: "Through photosynthesis, plants release fresh oxygen for us to breathe!" },
+            { q: "What force pulls objects toward the center of the Earth?", opts: ["Magnetism", "Friction", "Gravity", "Electricity"], ans: "Gravity", fact: "Gravity keeps the Moon in orbit around Earth and Earth around the Sun!" },
+            { q: "What sweet substance do bees create from flower nectar?", opts: ["Syrup", "Honey", "Caramel", "Nectar Jam"], ans: "Honey", fact: "Honey never spoils! Archaeologists found edible honey thousands of years old!" }
+          ];
+          const curTrivia = scienceTrivia[(state.triviaIndex || 0) % scienceTrivia.length];
+
+          const worldGeo = [
+            { q: "Which country is home to the ancient Great Pyramids of Giza?", opts: ["Egypt", "Mexico", "Greece", "Peru"], ans: "Egypt", flag: "🇪🇬", fact: "The Great Pyramid of Giza was the tallest man-made structure for over 3,800 years!" },
+            { q: "Which is the largest and deepest ocean on Earth?", opts: ["Atlantic", "Pacific", "Indian", "Arctic"], ans: "Pacific", flag: "🌊", fact: "The Pacific Ocean covers more than 30% of the entire Earth's surface!" },
+            { q: "What is the capital city of Japan?", opts: ["Kyoto", "Seoul", "Tokyo", "Osaka"], ans: "Tokyo", flag: "🇯🇵", fact: "Tokyo is the world's most populous metropolitan area, with incredible bullet trains!" },
+            { q: "Which famous river runs through the rainforest of South America?", opts: ["Nile", "Amazon", "Mississippi", "Danube"], ans: "Amazon", flag: "🇧🇷", fact: "The Amazon is the largest river by water discharge in the world!" }
+          ];
+          const curGeo = worldGeo[(state.geoIdx || 0) % worldGeo.length];
+
+          const mathCorrect = (state.mathPlus !== false) ? ((state.mathA || 7) + (state.mathB || 5)) : Math.max(1, (state.mathA || 7) - (state.mathB || 5));
+          const mathOpts = [mathCorrect, mathCorrect - 2, mathCorrect + 3, mathCorrect + 1].sort(() => Math.random() - 0.5);
+
+          // Subtabs for age groups
+          const tabsForAge = {
+            'TODDLER': ["🦁 Animal Sounds", "🎈 Balloon Pop", "🎨 Shape Sorter"],
+            'YOUNG_KIDS': ["⚡ Math Sprint", "🃏 Memory Match", "🔤 Spelling Quest"],
+            'OLDER_KIDS': ["🧠 Science Trivia", "🌍 World Explorer", "🌌 Orbit Physics", "💡 Logic Lab"]
+          };
+          const currentSubtabs = tabsForAge[gameAge] || tabsForAge['OLDER_KIDS'];
 
           body.innerHTML = `
             ${ytTabsHtml}
             <!-- Hero Star Rewards Card -->
             <div class="card-box" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; background:linear-gradient(135deg, rgba(67,97,238,0.15), rgba(255,46,147,0.15)); border-color:rgba(255,209,102,0.35);">
               <div>
-                <div style="font-weight:800; font-size:0.96rem;">Brain Quests &amp; Games 🎮</div>
-                <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">Solve puzzles to earn ⭐ stars for video requests!</div>
+                <div style="font-weight:800; font-size:0.96rem;">Learning Games &amp; Quests 🎮</div>
+                <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">Play free educational games, solve puzzles &amp; earn ⭐ stars!</div>
               </div>
-              <div style="padding:4px 10px; border-radius:99px; background:rgba(255,209,102,0.15); border:1px solid #ffd166; font-weight:800; font-size:0.84rem; color:#ffd166;">
-                ⭐ ${state.starPoints || 45} Stars
+              <div style="padding:4px 10px; border-radius:99px; background:rgba(255,209,102,0.15); border:1px solid #ffd166; font-weight:800; font-size:0.84rem; color:#ffd166; white-space:nowrap;">
+                ⭐ ${state.starPoints || 45}
               </div>
+            </div>
+
+            <!-- Age Group Selector Chips -->
+            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; margin-bottom:12px;">
+              ${[
+                { id: 'TODDLER', label: '🧸 Toddlers', sub: 'Ages 2–4' },
+                { id: 'YOUNG_KIDS', label: '🎒 Young Kids', sub: 'Ages 5–8' },
+                { id: 'OLDER_KIDS', label: '🚀 Older Kids', sub: 'Ages 9–12' }
+              ].map(ag => {
+                const isSelected = gameAge === ag.id;
+                return `
+                  <button style="padding:8px 4px; border-radius:12px; border:1.5px solid ${isSelected ? 'var(--pink)' : 'var(--border)'}; background:${isSelected ? 'rgba(255,46,147,0.15)' : 'var(--surface-var)'}; cursor:pointer; text-align:center;" onclick="state.gameAgeGroup='${ag.id}'; state.activeGameTab=0; render();">
+                    <div style="font-weight:800; font-size:0.75rem; color:${isSelected ? 'var(--pink)' : 'var(--text)'};">${ag.label}</div>
+                    <div style="font-size:0.65rem; color:var(--text-muted); margin-top:2px;">${ag.sub}</div>
+                  </button>
+                `;
+              }).join('')}
             </div>
 
             <!-- Games Sub-tabs -->
-            <div style="display:flex; gap:6px; margin-bottom:14px; overflow-x:auto;">
-              ${["🧠 Trivia", "⚡ Math Sprint", "🃏 Memory Match"].map((g, idx) => `
-                <button class="${state.activeGameTab === idx ? 'btn-primary' : 'btn-outline'}" style="padding:6px 12px; font-size:0.75rem; white-space:nowrap;" onclick="state.activeGameTab=${idx}; render();">${g}</button>
+            <div style="display:flex; gap:6px; margin-bottom:14px; overflow-x:auto; padding-bottom:4px;">
+              ${currentSubtabs.map((tabLabel, idx) => `
+                <button class="${gameTab === idx ? 'btn-primary' : 'btn-outline'}" style="padding:6px 12px; font-size:0.75rem; white-space:nowrap;" onclick="state.activeGameTab=${idx}; render();">${tabLabel}</button>
               `).join('')}
             </div>
 
-            ${state.activeGameTab === 0 ? `
-              <!-- Trivia Quest -->
-              <div class="card-box" style="padding:16px;">
-                <div style="font-size:0.72rem; font-weight:800; color:var(--blue); margin-bottom:4px;">Question ${(state.triviaIndex % triviaQuestions.length) + 1} of ${triviaQuestions.length}</div>
-                <div style="font-weight:800; font-size:0.96rem; margin-bottom:12px;">${curTrivia.q}</div>
-                <div style="display:flex; flex-direction:column; gap:8px;">
-                  ${curTrivia.opts.map(opt => {
-                    const isCorrect = opt === curTrivia.ans;
-                    const isSelected = state.triviaSelected === opt;
-                    let style = 'background:var(--surface-var); color:var(--text);';
-                    if (state.triviaAnswered) {
-                      if (isCorrect) style = 'background:#06D6A0; color:#fff; font-weight:800;';
-                      else if (isSelected) style = 'background:#EF476F; color:#fff; font-weight:800;';
-                    }
-                    return `
-                      <button style="width:100%; padding:10px 14px; border-radius:12px; border:none; text-align:left; cursor:pointer; font-size:0.84rem; ${style}" onclick="if(!state.triviaAnswered){ state.triviaSelected='${opt.replace(/'/g, "\\'")}'; state.triviaAnswered=true; if('${opt}'==='${curTrivia.ans}'){ state.starPoints=(state.starPoints||45)+10; } render(); }">
-                        ${opt}
-                      </button>
-                    `;
-                  }).join('')}
-                </div>
-                ${state.triviaAnswered ? `
-                  <div style="margin-top:12px;">
-                    <div style="font-weight:800; font-size:0.86rem; color:${state.triviaSelected === curTrivia.ans ? '#06D6A0' : '#EF476F'};">
-                      ${state.triviaSelected === curTrivia.ans ? '🎉 Correct! +10 ⭐ Stars added!' : `Almost! The answer is ${curTrivia.ans}.`}
-                    </div>
-                    <div style="font-size:0.74rem; color:var(--text-muted); margin-top:2px;">💡 ${curTrivia.fact}</div>
-                    <button class="btn-primary" style="margin-top:10px; width:100%;" onclick="state.triviaIndex++; state.triviaAnswered=false; state.triviaSelected=null; render();">Next Question →</button>
+            <!-- Active Game Container -->
+            ${gameAge === 'TODDLER' ? `
+              ${gameTab === 0 ? `
+                <!-- Toddler Animal Sounds Match -->
+                <div class="card-box" style="padding:16px; text-align:center;">
+                  <div style="font-size:0.72rem; font-weight:800; color:var(--pink); margin-bottom:4px;">Animal Sounds Match 🦁</div>
+                  <div style="font-size:1.1rem; font-weight:800; margin-bottom:8px;">Who makes this sound?</div>
+                  <div style="background:#1e293b; border-radius:14px; padding:16px; font-size:1.4rem; font-weight:800; color:#ffd166; margin-bottom:14px;">
+                    "${curToddlerAnimal.sound}"
                   </div>
-                ` : ''}
-              </div>
-            ` : state.activeGameTab === 1 ? `
-              <!-- Math Sprint -->
-              <div class="card-box" style="padding:16px;">
-                <div style="font-size:0.72rem; font-weight:800; color:#ffd166; margin-bottom:8px;">⚡ Mental Math Challenge</div>
-                <div style="background:#1e293b; border-radius:14px; padding:18px; text-align:center; font-size:1.8rem; font-weight:800; color:#fff; margin-bottom:12px;">
-                  ${state.mathA} + ${state.mathB} = ?
-                </div>
-                <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;">
-                  ${mathOpts.map(opt => {
-                    const isCorrect = opt === mathCorrect;
-                    const isSelected = state.mathSelected === opt;
-                    let style = 'background:var(--surface-var); color:var(--text);';
-                    if (state.mathAnswered) {
-                      if (isCorrect) style = 'background:#06D6A0; color:#fff; font-weight:800;';
-                      else if (isSelected) style = 'background:#EF476F; color:#fff; font-weight:800;';
-                    }
-                    return `
-                      <button style="padding:12px; border-radius:12px; border:none; text-align:center; cursor:pointer; font-size:1rem; font-weight:800; ${style}" onclick="if(!state.mathAnswered){ state.mathSelected=${opt}; state.mathAnswered=true; if(${opt}===${mathCorrect}){ state.starPoints=(state.starPoints||45)+10; } render(); }">
-                        ${opt}
-                      </button>
-                    `;
-                  }).join('')}
-                </div>
-                ${state.mathAnswered ? `
-                  <div style="margin-top:12px;">
-                    <div style="font-weight:800; font-size:0.86rem; color:${state.mathSelected === mathCorrect ? '#06D6A0' : '#EF476F'};">
-                      ${state.mathSelected === mathCorrect ? '⭐ Brilliant! +10 Stars added!' : `Keep practicing! ${state.mathA} + ${state.mathB} = ${mathCorrect}.`}
-                    </div>
-                    <button class="btn-primary" style="margin-top:10px; width:100%;" onclick="state.mathA=Math.floor(Math.random()*10)+3; state.mathB=Math.floor(Math.random()*12)+4; state.mathAnswered=false; state.mathSelected=null; render();">Next Math Puzzle →</button>
-                  </div>
-                ` : ''}
-              </div>
-            ` : `
-              <!-- Memory Match -->
-              <div class="card-box" style="padding:16px;">
-                <div style="font-size:0.72rem; font-weight:800; color:var(--blue); margin-bottom:8px;">🃏 Match 3 Pairs of Cards</div>
-                <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;">
-                  ${["🚀","🦁","🐬","🚀","🦁","🐬"].map((emoji, idx) => {
-                    const isFlipped = (state.memoryFlipped || []).includes(idx) || (state.memoryMatched || []).includes(idx);
-                    const isMatched = (state.memoryMatched || []).includes(idx);
-                    return `
-                      <div style="aspect-ratio:1; border-radius:12px; background:${isMatched ? 'rgba(6,214,160,0.3)' : isFlipped ? '#202636' : 'var(--surface-var)'}; border:1.5px solid ${isMatched ? '#06D6A0' : 'var(--border)'}; display:flex; align-items:center; justify-content:center; font-size:1.6rem; cursor:pointer;" onclick="
-                        if (!state.memoryFlipped) state.memoryFlipped = [];
-                        if (!state.memoryMatched) state.memoryMatched = [];
-                        if (state.memoryFlipped.includes(${idx}) || state.memoryMatched.includes(${idx})) return;
-                        if (state.memoryFlipped.length === 0) {
-                          state.memoryFlipped = [${idx}];
-                        } else if (state.memoryFlipped.length === 1) {
-                          const prev = state.memoryFlipped[0];
-                          state.memoryFlipped.push(${idx});
-                          const icons = ['🚀','🦁','🐬','🚀','🦁','🐬'];
-                          if (icons[prev] === icons[${idx}]) {
-                            state.memoryMatched.push(prev, ${idx});
-                            state.memoryFlipped = [];
-                            if (state.memoryMatched.length === 6) {
-                              state.starPoints = (state.starPoints || 45) + 20;
+                  <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;">
+                    ${[
+                      curToddlerAnimal,
+                      toddlerAnimals[(state.toddlerAnimalIdx + 1) % toddlerAnimals.length],
+                      toddlerAnimals[(state.toddlerAnimalIdx + 2) % toddlerAnimals.length]
+                    ].sort(() => Math.sin(state.toddlerAnimalIdx || 1)).map(animal => {
+                      const isCorrect = animal.name === curToddlerAnimal.name;
+                      const isSelected = state.toddlerAnimalSelected === animal.name;
+                      let bg = 'var(--surface-var)';
+                      if (state.toddlerAnimalAnswered) {
+                        if (isCorrect) bg = 'rgba(6,214,160,0.3); border-color:#06D6A0;';
+                        else if (isSelected) bg = 'rgba(239,71,111,0.3); border-color:#EF476F;';
+                      }
+                      return `
+                        <button style="padding:16px 8px; border-radius:14px; border:1.5px solid var(--border); background:${bg}; cursor:pointer;" onclick="
+                          if (!state.toddlerAnimalAnswered) {
+                            state.toddlerAnimalSelected = '${animal.name}';
+                            state.toddlerAnimalAnswered = true;
+                            if ('${animal.name}' === '${curToddlerAnimal.name}') {
+                              state.starPoints = (state.starPoints || 45) + 5;
                             }
-                          } else {
-                            setTimeout(() => { state.memoryFlipped = []; render(); }, 800);
+                            render();
                           }
-                        }
-                        render();
-                      ">
-                        ${isFlipped ? emoji : '❓'}
-                      </div>
-                    `;
-                  }).join('')}
-                </div>
-                ${(state.memoryMatched || []).length === 6 ? `
-                  <div style="margin-top:14px; text-align:center;">
-                    <div style="font-weight:800; font-size:0.92rem; color:#06D6A0;">🎉 You found all pairs! +20 ⭐ Stars awarded!</div>
-                    <button class="btn-primary" style="margin-top:8px;" onclick="state.memoryFlipped=[]; state.memoryMatched=[]; render();">Play Again</button>
+                        ">
+                          <div style="font-size:2.4rem;">${animal.emoji}</div>
+                          <div style="font-weight:800; font-size:0.85rem; margin-top:6px; color:var(--text);">${animal.name}</div>
+                        </button>
+                      `;
+                    }).join('')}
                   </div>
-                ` : ''}
-              </div>
+                  ${state.toddlerAnimalAnswered ? `
+                    <div style="margin-top:14px; text-align:center;">
+                      <div style="font-weight:800; font-size:0.95rem; color:${state.toddlerAnimalSelected === curToddlerAnimal.name ? '#06D6A0' : '#EF476F'};">
+                        ${state.toddlerAnimalSelected === curToddlerAnimal.name ? `🎉 Yay! It's the ${curToddlerAnimal.name}! +5 ⭐` : `Almost! That was the ${curToddlerAnimal.name}!`}
+                      </div>
+                      <div style="font-size:0.75rem; color:var(--text-muted); margin-top:3px;">💡 ${curToddlerAnimal.fact}</div>
+                      <button class="btn-primary" style="margin-top:10px; width:100%;" onclick="state.toddlerAnimalIdx = (state.toddlerAnimalIdx || 0) + 1; state.toddlerAnimalAnswered = false; state.toddlerAnimalSelected = null; render();">Next Animal 🐾 →</button>
+                    </div>
+                  ` : ''}
+                </div>
+              ` : gameTab === 1 ? `
+                <!-- Toddler Balloon Pop Counting -->
+                <div class="card-box" style="padding:16px; text-align:center;">
+                  <div style="font-size:0.72rem; font-weight:800; color:var(--blue); margin-bottom:4px;">Balloon Pop Counting 🎈</div>
+                  <div style="font-size:1.05rem; font-weight:800; margin-bottom:4px;">Pop in order: 1 → 2 → 3 → 4 → 5!</div>
+                  <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:14px;">Next number to pop: <span style="font-weight:800; color:#ffd166; font-size:1rem;">${state.toddlerBalloonTarget || 1}</span></div>
+                  <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
+                    ${[1, 2, 3, 4, 5].map(num => {
+                      const isPopped = (state.toddlerBalloonPopped || []).includes(num);
+                      const balloonColors = ['#EF476F', '#4361EE', '#06D6A0', '#FFD166', '#7209B7'];
+                      return `
+                        <div style="width:56px; height:70px; border-radius:50% 50% 50% 50% / 40% 40% 60% 60%; background:${isPopped ? 'rgba(255,255,255,0.05)' : balloonColors[num-1]}; border:2px dashed ${isPopped ? 'var(--border)' : 'transparent'}; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:1.3rem; color:${isPopped ? 'var(--text-muted)' : '#fff'}; cursor:pointer; box-shadow:${isPopped ? 'none' : '0 4px 10px rgba(0,0,0,0.3)'};" onclick="
+                          if (!state.toddlerBalloonPopped) state.toddlerBalloonPopped = [];
+                          const target = state.toddlerBalloonTarget || 1;
+                          if (${num} === target && !state.toddlerBalloonPopped.includes(${num})) {
+                            state.toddlerBalloonPopped.push(${num});
+                            state.toddlerBalloonTarget = target + 1;
+                            if (state.toddlerBalloonPopped.length === 5) {
+                              state.starPoints = (state.starPoints || 45) + 10;
+                            }
+                            render();
+                          }
+                        ">
+                          ${isPopped ? '💥' : num}
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>
+                  ${(state.toddlerBalloonPopped || []).length === 5 ? `
+                    <div style="margin-top:12px;">
+                      <div style="font-weight:800; font-size:0.95rem; color:#06D6A0;">🎉 Fantastic Counting! +10 ⭐ Stars added!</div>
+                      <button class="btn-primary" style="margin-top:10px;" onclick="state.toddlerBalloonPopped = []; state.toddlerBalloonTarget = 1; render();">Play Again 🎈</button>
+                    </div>
+                  ` : ''}
+                </div>
+              ` : `
+                <!-- Toddler Shape Sorter -->
+                <div class="card-box" style="padding:16px; text-align:center;">
+                  <div style="font-size:0.72rem; font-weight:800; color:#ffd166; margin-bottom:4px;">Shape &amp; Color Match 🎨</div>
+                  <div style="font-size:1.05rem; font-weight:800; margin-bottom:8px;">Find the shape:</div>
+                  <div style="background:#1e293b; border-radius:14px; padding:14px; font-size:1.2rem; font-weight:800; color:#fff; margin-bottom:14px;">
+                    ${curToddlerShape.color} ${curToddlerShape.shape}
+                  </div>
+                  <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;">
+                    ${toddlerShapes.slice(0, 3).map(sh => {
+                      const isCorrect = sh.name === curToddlerShape.name;
+                      const isSelected = state.toddlerShapeSelected === sh.name;
+                      let bg = 'var(--surface-var)';
+                      if (state.toddlerShapeAnswered) {
+                        if (isCorrect) bg = 'rgba(6,214,160,0.3); border-color:#06D6A0;';
+                        else if (isSelected) bg = 'rgba(239,71,111,0.3); border-color:#EF476F;';
+                      }
+                      return `
+                        <button style="padding:14px 6px; border-radius:14px; border:1.5px solid var(--border); background:${bg}; cursor:pointer;" onclick="
+                          if (!state.toddlerShapeAnswered) {
+                            state.toddlerShapeSelected = '${sh.name}';
+                            state.toddlerShapeAnswered = true;
+                            if ('${sh.name}' === '${curToddlerShape.name}') {
+                              state.starPoints = (state.starPoints || 45) + 5;
+                            }
+                            render();
+                          }
+                        ">
+                          <div style="font-size:2.2rem;">${sh.emoji}</div>
+                          <div style="font-weight:700; font-size:0.72rem; margin-top:4px; color:var(--text);">${sh.shape}</div>
+                        </button>
+                      `;
+                    }).join('')}
+                  </div>
+                  ${state.toddlerShapeAnswered ? `
+                    <div style="margin-top:14px;">
+                      <div style="font-weight:800; font-size:0.92rem; color:${state.toddlerShapeSelected === curToddlerShape.name ? '#06D6A0' : '#EF476F'};">
+                        ${state.toddlerShapeSelected === curToddlerShape.name ? `⭐ Wonderful! That's the ${curToddlerShape.name}! +5 ⭐` : `Nice try! That was the ${curToddlerShape.name}.`}
+                      </div>
+                      <button class="btn-primary" style="margin-top:10px; width:100%;" onclick="state.toddlerShapeIdx = ((state.toddlerShapeIdx || 0) + 1) % 5; state.toddlerShapeAnswered = false; state.toddlerShapeSelected = null; render();">Next Shape 🎨 →</button>
+                    </div>
+                  ` : ''}
+                </div>
+              `}
+            ` : gameAge === 'YOUNG_KIDS' ? `
+              ${gameTab === 0 ? `
+                <!-- Young Kids Math Sprint -->
+                <div class="card-box" style="padding:16px;">
+                  <div style="font-size:0.72rem; font-weight:800; color:#ffd166; margin-bottom:8px;">⚡ Mental Math Sprint (+ / -)</div>
+                  <div style="background:#1e293b; border-radius:14px; padding:18px; text-align:center; font-size:1.8rem; font-weight:800; color:#fff; margin-bottom:12px;">
+                    ${state.mathA || 7} ${state.mathPlus !== false ? '+' : '-'} ${state.mathB || 5} = ?
+                  </div>
+                  <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;">
+                    ${mathOpts.map(opt => {
+                      const isCorrect = opt === mathCorrect;
+                      const isSelected = state.mathSelected === opt;
+                      let style = 'background:var(--surface-var); color:var(--text);';
+                      if (state.mathAnswered) {
+                        if (isCorrect) style = 'background:#06D6A0; color:#fff; font-weight:800;';
+                        else if (isSelected) style = 'background:#EF476F; color:#fff; font-weight:800;';
+                      }
+                      return `
+                        <button style="padding:12px; border-radius:12px; border:none; text-align:center; cursor:pointer; font-size:1rem; font-weight:800; ${style}" onclick="if(!state.mathAnswered){ state.mathSelected=${opt}; state.mathAnswered=true; if(${opt}===${mathCorrect}){ state.starPoints=(state.starPoints||45)+10; } render(); }">
+                          ${opt}
+                        </button>
+                      `;
+                    }).join('')}
+                  </div>
+                  ${state.mathAnswered ? `
+                    <div style="margin-top:12px;">
+                      <div style="font-weight:800; font-size:0.86rem; color:${state.mathSelected === mathCorrect ? '#06D6A0' : '#EF476F'};">
+                        ${state.mathSelected === mathCorrect ? '⭐ Brilliant! +10 Stars added!' : `Keep practicing! ${state.mathA || 7} ${state.mathPlus !== false ? '+' : '-'} ${state.mathB || 5} = ${mathCorrect}.`}
+                      </div>
+                      <button class="btn-primary" style="margin-top:10px; width:100%;" onclick="state.mathA=Math.floor(Math.random()*12)+3; state.mathB=Math.floor(Math.random()*10)+2; state.mathPlus=Math.random() > 0.4; state.mathAnswered=false; state.mathSelected=null; render();">Next Math Problem →</button>
+                    </div>
+                  ` : ''}
+                </div>
+              ` : gameTab === 1 ? `
+                <!-- Young Kids Memory Match (4 Pairs) -->
+                <div class="card-box" style="padding:16px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <div style="font-size:0.72rem; font-weight:800; color:var(--blue);">🃏 Memory Match (4 Pairs)</div>
+                    <div style="font-size:0.72rem; color:var(--text-muted);">${(state.memoryMatched || []).length / 2} / 4 Pairs</div>
+                  </div>
+                  <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:6px;">
+                    ${["🚀","🦁","🐬","🎨","🚀","🦁","🐬","🎨"].map((emoji, idx) => {
+                      const isFlipped = (state.memoryFlipped || []).includes(idx) || (state.memoryMatched || []).includes(idx);
+                      const isMatched = (state.memoryMatched || []).includes(idx);
+                      return `
+                        <div style="aspect-ratio:1; border-radius:10px; background:${isMatched ? 'rgba(6,214,160,0.3)' : isFlipped ? '#202636' : 'var(--surface-var)'}; border:1.5px solid ${isMatched ? '#06D6A0' : 'var(--border)'}; display:flex; align-items:center; justify-content:center; font-size:1.4rem; cursor:pointer;" onclick="
+                          if (!state.memoryFlipped) state.memoryFlipped = [];
+                          if (!state.memoryMatched) state.memoryMatched = [];
+                          if (state.memoryFlipped.includes(${idx}) || state.memoryMatched.includes(${idx})) return;
+                          if (state.memoryFlipped.length === 0) {
+                            state.memoryFlipped = [${idx}];
+                          } else if (state.memoryFlipped.length === 1) {
+                            const prev = state.memoryFlipped[0];
+                            state.memoryFlipped.push(${idx});
+                            const icons = ['🚀','🦁','🐬','🎨','🚀','🦁','🐬','🎨'];
+                            if (icons[prev] === icons[${idx}]) {
+                              state.memoryMatched.push(prev, ${idx});
+                              state.memoryFlipped = [];
+                              if (state.memoryMatched.length === 8) {
+                                state.starPoints = (state.starPoints || 45) + 15;
+                              }
+                            } else {
+                              setTimeout(() => { state.memoryFlipped = []; render(); }, 800);
+                            }
+                          }
+                          render();
+                        ">
+                          ${isFlipped ? emoji : '❓'}
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>
+                  ${(state.memoryMatched || []).length === 8 ? `
+                    <div style="margin-top:14px; text-align:center;">
+                      <div style="font-weight:800; font-size:0.92rem; color:#06D6A0;">🎉 Memory Master! +15 ⭐ Stars awarded!</div>
+                      <button class="btn-primary" style="margin-top:8px;" onclick="state.memoryFlipped=[]; state.memoryMatched=[]; render();">Play Again</button>
+                    </div>
+                  ` : ''}
+                </div>
+              ` : `
+                <!-- Young Kids Spelling Quest -->
+                <div class="card-box" style="padding:16px; text-align:center;">
+                  <div style="font-size:0.72rem; font-weight:800; color:var(--pink); margin-bottom:4px;">🔤 Phonics &amp; Spelling Quest</div>
+                  <div style="font-size:1.05rem; font-weight:800; margin-bottom:8px;">Fill in the missing letter:</div>
+                  <div style="background:#1e293b; border-radius:14px; padding:16px; font-size:1.6rem; letter-spacing:4px; font-weight:900; color:#06D6A0; margin-bottom:8px;">
+                    ${state.spellingSuccess ? curSpelling.word : curSpelling.display}
+                  </div>
+                  <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:14px;">Hint: ${curSpelling.hint}</div>
+                  <div style="display:flex; justify-content:center; gap:8px;">
+                    ${curSpelling.opts.map(l => {
+                      const isCorrect = l === curSpelling.missing;
+                      return `
+                        <button style="width:48px; height:48px; border-radius:12px; border:1.5px solid var(--border); background:var(--surface-var); font-size:1.2rem; font-weight:800; color:var(--text); cursor:pointer;" onclick="
+                          if (!state.spellingSuccess) {
+                            if ('${l}' === '${curSpelling.missing}') {
+                              state.spellingSuccess = true;
+                              state.starPoints = (state.starPoints || 45) + 10;
+                            }
+                            render();
+                          }
+                        ">${l}</button>
+                      `;
+                    }).join('')}
+                  </div>
+                  ${state.spellingSuccess ? `
+                    <div style="margin-top:14px;">
+                      <div style="font-weight:800; font-size:0.92rem; color:#06D6A0;">⭐ Correct! You spelled ${curSpelling.word}! +10 ⭐</div>
+                      <button class="btn-primary" style="margin-top:10px;" onclick="state.spellingWordIdx = ((state.spellingWordIdx || 0) + 1) % 4; state.spellingSuccess = false; render();">Next Word 🔤 →</button>
+                    </div>
+                  ` : ''}
+                </div>
+              `}
+            ` : `
+              <!-- OLDER KIDS (Ages 9-12) -->
+              ${gameTab === 0 ? `
+                <!-- Science & Space Trivia -->
+                <div class="card-box" style="padding:16px;">
+                  <div style="font-size:0.72rem; font-weight:800; color:var(--blue); margin-bottom:4px;">Science &amp; Space Trivia (${((state.triviaIndex || 0) % scienceTrivia.length) + 1} of ${scienceTrivia.length})</div>
+                  <div style="font-weight:800; font-size:0.96rem; margin-bottom:12px;">${curTrivia.q}</div>
+                  <div style="display:flex; flex-direction:column; gap:8px;">
+                    ${curTrivia.opts.map(opt => {
+                      const isCorrect = opt === curTrivia.ans;
+                      const isSelected = state.triviaSelected === opt;
+                      let style = 'background:var(--surface-var); color:var(--text);';
+                      if (state.triviaAnswered) {
+                        if (isCorrect) style = 'background:#06D6A0; color:#fff; font-weight:800;';
+                        else if (isSelected) style = 'background:#EF476F; color:#fff; font-weight:800;';
+                      }
+                      return `
+                        <button style="width:100%; padding:10px 14px; border-radius:12px; border:none; text-align:left; cursor:pointer; font-size:0.84rem; ${style}" onclick="if(!state.triviaAnswered){ state.triviaSelected='${opt.replace(/'/g, "\\'")}'; state.triviaAnswered=true; if('${opt}'==='${curTrivia.ans}'){ state.starPoints=(state.starPoints||45)+10; } render(); }">
+                          ${opt}
+                        </button>
+                      `;
+                    }).join('')}
+                  </div>
+                  ${state.triviaAnswered ? `
+                    <div style="margin-top:12px;">
+                      <div style="font-weight:800; font-size:0.86rem; color:${state.triviaSelected === curTrivia.ans ? '#06D6A0' : '#EF476F'};">
+                        ${state.triviaSelected === curTrivia.ans ? '🎉 Correct! +10 ⭐ Stars added!' : `Almost! The answer is ${curTrivia.ans}.`}
+                      </div>
+                      <div style="font-size:0.74rem; color:var(--text-muted); margin-top:2px;">💡 ${curTrivia.fact}</div>
+                      <button class="btn-primary" style="margin-top:10px; width:100%;" onclick="state.triviaIndex=(state.triviaIndex||0)+1; state.triviaAnswered=false; state.triviaSelected=null; render();">Next Question →</button>
+                    </div>
+                  ` : ''}
+                </div>
+              ` : gameTab === 1 ? `
+                <!-- World Explorer & Geography -->
+                <div class="card-box" style="padding:16px;">
+                  <div style="font-size:0.72rem; font-weight:800; color:var(--pink); margin-bottom:4px;">🌍 World Geography Quest (${((state.geoIdx || 0) % worldGeo.length) + 1} of ${worldGeo.length})</div>
+                  <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+                    <div style="font-size:2rem;">${curGeo.flag}</div>
+                    <div style="font-weight:800; font-size:0.96rem;">${curGeo.q}</div>
+                  </div>
+                  <div style="display:flex; flex-direction:column; gap:8px;">
+                    ${curGeo.opts.map(opt => {
+                      const isCorrect = opt === curGeo.ans;
+                      const isSelected = state.geoSelected === opt;
+                      let style = 'background:var(--surface-var); color:var(--text);';
+                      if (state.geoAnswered) {
+                        if (isCorrect) style = 'background:#06D6A0; color:#fff; font-weight:800;';
+                        else if (isSelected) style = 'background:#EF476F; color:#fff; font-weight:800;';
+                      }
+                      return `
+                        <button style="width:100%; padding:10px 14px; border-radius:12px; border:none; text-align:left; cursor:pointer; font-size:0.84rem; ${style}" onclick="if(!state.geoAnswered){ state.geoSelected='${opt.replace(/'/g, "\\'")}'; state.geoAnswered=true; if('${opt}'==='${curGeo.ans}'){ state.starPoints=(state.starPoints||45)+10; } render(); }">
+                          ${opt}
+                        </button>
+                      `;
+                    }).join('')}
+                  </div>
+                  ${state.geoAnswered ? `
+                    <div style="margin-top:12px;">
+                      <div style="font-weight:800; font-size:0.86rem; color:${state.geoSelected === curGeo.ans ? '#06D6A0' : '#EF476F'};">
+                        ${state.geoSelected === curGeo.ans ? '🌟 Excellent! +10 ⭐ Stars added!' : `Good try! The answer is ${curGeo.ans}.`}
+                      </div>
+                      <div style="font-size:0.74rem; color:var(--text-muted); margin-top:2px;">💡 ${curGeo.fact}</div>
+                      <button class="btn-primary" style="margin-top:10px; width:100%;" onclick="state.geoIdx=(state.geoIdx||0)+1; state.geoAnswered=false; state.geoSelected=null; render();">Next Geography Quest →</button>
+                    </div>
+                  ` : ''}
+                </div>
+              ` : gameTab === 2 ? `
+                <!-- Orbit Mechanics Physics Lab -->
+                <div class="card-box" style="padding:16px;">
+                  <div style="font-size:0.72rem; font-weight:800; color:var(--blue); margin-bottom:4px;">🌌 Orbit Mechanics Physics Lab</div>
+                  <div style="font-size:0.88rem; font-weight:700; margin-bottom:6px;">Target: Achieve Stable Low Earth Orbit!</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:12px;">Adjust rocket launch velocity. Too low crashes, too high escapes into deep space!</div>
+                  <div style="background:#0b132b; border-radius:14px; padding:18px; text-align:center; margin-bottom:12px; border:1px solid #1c2541;">
+                    <div style="font-size:2rem; margin-bottom:6px;">🌍 ${state.orbitOutcome === 'success' ? '🛰️ ✨' : state.orbitOutcome === 'crash' ? '💥' : state.orbitOutcome === 'escape' ? '🚀 🌌' : '🚀'}</div>
+                    <div style="font-size:1.1rem; font-weight:800; color:#ffd166;">Speed: ${(state.orbitVelocity || 7.8).toFixed(1)} km/s</div>
+                    <input type="range" min="5.0" max="12.0" step="0.1" value="${state.orbitVelocity || 7.8}" style="width:85%; margin-top:10px;" oninput="state.orbitVelocity = parseFloat(this.value); state.orbitLaunched=false; state.orbitOutcome=null; render();">
+                    <div style="display:flex; justify-content:space-between; font-size:0.68rem; color:var(--text-muted); width:85%; margin:4px auto 0 auto;">
+                      <span>5.0 km/s</span>
+                      <span>Target: ~7.8 km/s</span>
+                      <span>12.0 km/s</span>
+                    </div>
+                  </div>
+                  <button class="btn-primary" style="width:100%;" onclick="
+                    const v = state.orbitVelocity || 7.8;
+                    state.orbitLaunched = true;
+                    if (v >= 7.5 && v <= 8.2) {
+                      state.orbitOutcome = 'success';
+                      if (!state.orbitSuccess) {
+                        state.starPoints = (state.starPoints || 45) + 15;
+                        state.orbitSuccess = true;
+                      }
+                    } else if (v < 7.5) {
+                      state.orbitOutcome = 'crash';
+                    } else {
+                      state.orbitOutcome = 'escape';
+                    }
+                    render();
+                  ">🚀 Launch Satellite!</button>
+                  ${state.orbitOutcome ? `
+                    <div style="margin-top:12px; text-align:center;">
+                      <div style="font-weight:800; font-size:0.9rem; color:${state.orbitOutcome === 'success' ? '#06D6A0' : '#EF476F'};">
+                        ${state.orbitOutcome === 'success' ? '🎉 Perfect Orbit Achieved! +15 ⭐ Stars!' : state.orbitOutcome === 'crash' ? '⚠️ Velocity too low (<7.5 km/s)! Satellite crashed back to Earth.' : '⚠️ Velocity too high (>8.2 km/s)! Satellite escaped Earth orbit.'}
+                      </div>
+                    </div>
+                  ` : ''}
+                </div>
+              ` : `
+                <!-- Logic Circuit Lab -->
+                <div class="card-box" style="padding:16px;">
+                  <div style="font-size:0.72rem; font-weight:800; color:#ffd166; margin-bottom:4px;">💡 Logic Circuit Lab</div>
+                  <div style="font-size:0.88rem; font-weight:700; margin-bottom:6px;">Can you light up the bulb?</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:12px;">Toggle switches and choose the logic gate to send power to the lightbulb.</div>
+                  <div style="background:#1e293b; border-radius:14px; padding:16px; margin-bottom:12px;">
+                    <div style="display:flex; justify-content:space-around; align-items:center; margin-bottom:14px;">
+                      <button style="padding:8px 14px; border-radius:10px; border:none; background:${state.logicSwitchA ? '#06D6A0' : '#334155'}; color:#fff; font-weight:800; cursor:pointer;" onclick="state.logicSwitchA = !state.logicSwitchA; render();">
+                        Switch A: ${state.logicSwitchA ? 'ON (1)' : 'OFF (0)'}
+                      </button>
+                      <button style="padding:8px 14px; border-radius:10px; border:none; background:${state.logicSwitchB ? '#06D6A0' : '#334155'}; color:#fff; font-weight:800; cursor:pointer;" onclick="state.logicSwitchB = !state.logicSwitchB; render();">
+                        Switch B: ${state.logicSwitchB ? 'ON (1)' : 'OFF (0)'}
+                      </button>
+                    </div>
+                    <div style="display:flex; justify-content:center; gap:8px; margin-bottom:14px;">
+                      ${['AND', 'OR', 'XOR'].map(gate => `
+                        <button style="padding:6px 12px; border-radius:8px; border:1px solid ${state.logicGate === gate ? 'var(--blue)' : 'var(--border)'}; background:${state.logicGate === gate ? 'rgba(67,97,238,0.3)' : 'transparent'}; color:var(--text); font-weight:800; font-size:0.78rem; cursor:pointer;" onclick="state.logicGate='${gate}'; render();">${gate} Gate</button>
+                      `).join('')}
+                    </div>
+                    ${(() => {
+                      const a = !!state.logicSwitchA;
+                      const b = !!state.logicSwitchB;
+                      const gate = state.logicGate || 'AND';
+                      let out = false;
+                      if (gate === 'AND') out = a && b;
+                      else if (gate === 'OR') out = a || b;
+                      else if (gate === 'XOR') out = a !== b;
+                      return `
+                        <div style="text-align:center; padding:10px; border-radius:10px; background:rgba(0,0,0,0.25);">
+                          <div style="font-size:2.2rem;">${out ? '💡' : '🌑'}</div>
+                          <div style="font-weight:800; font-size:0.9rem; margin-top:4px; color:${out ? '#ffd166' : 'var(--text-muted)'};">
+                            Output: ${out ? 'LIGHT ON! ⚡ (True)' : 'LIGHT OFF (False)'}
+                          </div>
+                        </div>
+                      `;
+                    })()}
+                  </div>
+                  <div style="text-align:center;">
+                    <button class="btn-primary" style="width:100%;" onclick="
+                      const a = !!state.logicSwitchA;
+                      const b = !!state.logicSwitchB;
+                      const gate = state.logicGate || 'AND';
+                      const out = gate === 'AND' ? (a && b) : gate === 'OR' ? (a || b) : (a !== b);
+                      if (out) {
+                        state.starPoints = (state.starPoints || 45) + 15;
+                        alert('Awesome logic skills! Bulb powered successfully! +15 ⭐');
+                      } else {
+                        alert('Bulb is still off. Check your switches and gate logic!');
+                      }
+                      render();
+                    ">⚡ Test Circuit</button>
+                  </div>
+                </div>
+              `}
             `}
+          `;
           `;
         } else if (isSimple) {
           const isToddler = state.ageMode === 'TODDLER';
