@@ -1151,6 +1151,25 @@
       state.previousScreen = (state.screen === 'yt_channel_detail' || state.screen === 'channel_detail') ? (state.previousScreen || 'channels') : state.screen;
       state.screen = 'yt_channel_detail';
       render();
+
+      // Auto-refresh latest videos from API / RSS when opening channel
+      if (typeof API_BASE !== 'undefined' && API_BASE) {
+        const cleanHandle = handle.startsWith('@') ? handle : `@${handle}`;
+        fetch(`${API_BASE}/api/kids/youtube-channels/${encodeURIComponent(cleanHandle)}`)
+          .then(r => r.json())
+          .then(res => {
+            if (res.success && res.data && res.data.videos && res.data.videos.length > 0) {
+              state.ytSampleVideos[handle] = res.data.videos.map(v => ({
+                id: v.youtubeVideoId,
+                title: v.title,
+                thumbnailUrl: v.thumbnailUrl,
+                duration: 240
+              }));
+              render();
+            }
+          })
+          .catch(() => {});
+      }
     }
 
     function toggleYtSubscription(ch) {
@@ -2606,24 +2625,9 @@
                 '👁️ <strong>Parent Supervised:</strong> Videos require a one-tap parent approval before playing.'}
             </div>
 
-            <div style="display:flex; gap:8px;">
-              <button class="${isSubscribed ? 'btn-outline' : 'btn-primary'}" style="flex:1; padding:8px 12px; font-size:0.8rem;" onclick="toggleYtSubscription({handle:'${handle}', title:'${(sub.title||'').replace(/'/g, "\\'")}', avatarUrl:'${sub.avatarUrl||''}', trustLevel:'${trust}'});">
-                ${isSubscribed ? 'Subscribed ✓' : '+ Subscribe to @YouTube Channel'}
-              </button>
-              <button class="btn-outline" style="padding:8px 12px; font-size:0.8rem;" onclick="
-                this.textContent = 'Syncing...';
-                setTimeout(() => {
-                  state.ytChannelLastRefreshed = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                  render();
-                }, 350);
-              ">
-                🔄 Check for New Uploads
-              </button>
-            </div>
-            <div style="font-size:0.68rem; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
-              <span>📡 Zero-cost RSS Sync</span>
-              <span>Updated: ${state.ytChannelLastRefreshed || 'Just now'}</span>
-            </div>
+            <button class="${isSubscribed ? 'btn-outline' : 'btn-primary'}" style="width:100%; padding:8px 12px; font-size:0.8rem;" onclick="toggleYtSubscription({handle:'${handle}', title:'${(sub.title||'').replace(/'/g, "\\'")}', avatarUrl:'${sub.avatarUrl||''}', trustLevel:'${trust}'});">
+              ${isSubscribed ? 'Subscribed ✓' : '+ Subscribe to @YouTube Channel'}
+            </button>
           </div>
 
           <!-- Dual Tabs: Videos | Playlists -->
