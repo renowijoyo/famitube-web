@@ -971,6 +971,9 @@
       <a id="navFamilyPass" href="learn-more.html#plans" class="nav-link" title="Compare Free & Family Pass">
         <span class="material-symbols-rounded" style="font-size:1.05rem; color:var(--primary);">workspace_premium</span> <span data-i18n="nav_plans">Family Pass</span>
       </a>
+      <a id="navFaq" href="faq.html" class="nav-link" title="Frequently Asked Questions">
+        <span class="material-symbols-rounded" style="font-size:1.05rem;">help</span> <span data-i18n="nav_faq">FAQ</span>
+      </a>
       <button type="button" class="nav-link active" id="kidTabBtnCurated" style="display:none;" onclick="openKidTabFromHeader('curated')">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">home</span> Explore
       </button>
@@ -1013,6 +1016,10 @@
             <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--primary);">smartphone</span>
             <span>Android App Preview</span>
             <span style="margin-left:auto; font-size:0.6rem; font-weight:800; padding:1px 5px; border-radius:4px; background:rgba(255,46,147,0.18); color:var(--primary); border:1px solid rgba(255,46,147,0.35);">DEV</span>
+          </a>
+          <a href="faq.html" style="width:100%; display:flex; align-items:center; gap:0.55rem; padding:0.7rem 1rem; background:none; border:none; border-top:1px solid var(--border); color:var(--text); font-family:inherit; font-size:0.86rem; font-weight:600; text-decoration:none;" onmouseover="this.style.background='var(--surface-light)'" onmouseout="this.style.background='none'">
+            <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--secondary);">help</span>
+            <span data-i18n="nav_faq">FAQ</span>
           </a>
           <div class="dropdown-prefs" onclick="event.stopPropagation()">
             <label class="dropdown-pref-row">
@@ -2937,8 +2944,10 @@
         document.getElementById('btnModeStudio').style.display = 'none';
         const appPreviewEl = document.getElementById('navAppPreview');
         const familyPassEl = document.getElementById('navFamilyPass');
+        const faqEl = document.getElementById('navFaq');
         if (appPreviewEl) appPreviewEl.style.display = IS_DEV_STAGE ? 'inline-flex' : 'none';
         if (familyPassEl) familyPassEl.style.display = 'none';
+        if (faqEl) faqEl.style.display = 'none';
         document.getElementById('profileMenuMeta').textContent = `${user.email} • Kid Mode`;
       } else {
         document.getElementById('btnNavHome').style.display = 'none';
@@ -2947,8 +2956,10 @@
         document.getElementById('btnModeStudio').style.display = 'inline-flex';
         const appPreviewEl = document.getElementById('navAppPreview');
         const familyPassEl = document.getElementById('navFamilyPass');
+        const faqEl = document.getElementById('navFaq');
         if (appPreviewEl) appPreviewEl.style.display = 'inline-flex';
         if (familyPassEl) familyPassEl.style.display = 'inline-flex';
+        if (faqEl) faqEl.style.display = 'inline-flex';
         document.getElementById('profileMenuMeta').textContent = `${user?.email || ''} • Parent`;
       }
       const logoutLabel = document.getElementById('logoutMenuBtnLabel');
@@ -3057,8 +3068,10 @@
       document.getElementById('btnModeStudio').style.display = 'none';
       const appPreviewEl = document.getElementById('navAppPreview');
       const familyPassEl = document.getElementById('navFamilyPass');
+      const faqEl = document.getElementById('navFaq');
       if (appPreviewEl) appPreviewEl.style.display = 'inline-flex';
       if (familyPassEl) familyPassEl.style.display = 'inline-flex';
+      if (faqEl) faqEl.style.display = 'inline-flex';
       document.getElementById('parentModeApp').style.display = 'none';
       if (wasChild) {
         openHome(false);
@@ -6265,7 +6278,7 @@
     let kidViewingSelectedChannel = false;
 
     function isSimpleKidUser(user) {
-      return user?.role === 'CHILD' && (user.ageRating === 'TODDLER' || user.ageRating === 'YOUNG_KIDS');
+      return user?.role === 'CHILD' && user.ageRating === 'TODDLER';
     }
 
     function updateKidToolsVisibility(user) {
@@ -6367,6 +6380,9 @@
 
     function switchKidShowcaseTab(tab, keepSelectedChannel = false) {
       if (tab === 'history') tab = 'search';
+      if (tab === 'search' && currentUser?.role === 'CHILD' && currentUser?.ageRating === 'TODDLER') {
+        tab = 'curated';
+      }
       activeKidTab = tab || 'curated';
       if (!keepSelectedChannel) {
         kidViewingSelectedChannel = false;
@@ -6578,6 +6594,52 @@
       return '🎬';
     }
 
+    const TODDLER_ALLOWED_TOPICS = new Set([
+      'cartoons & fun',
+      'learning & abcs',
+      'music & rhymes',
+      'animals & nature',
+      'art & crafts',
+      'stories & reading',
+      'kids yoga & active'
+    ]);
+
+    function isToddlerTopic(name) {
+      return TODDLER_ALLOWED_TOPICS.has(String(name || '').trim().toLowerCase());
+    }
+
+    function kidDisplayTopicTitle(name, isToddler) {
+      if (!isToddler) return name;
+      const lower = String(name || '').trim().toLowerCase();
+      if (lower === 'music & rhymes') return 'Songs & Rhymes';
+      if (lower === 'animals & nature') return 'Cute Animals';
+      if (lower === 'cartoons & fun') return 'Cartoons & Fun';
+      if (lower === 'learning & abcs') return 'ABCs & Colors';
+      if (lower === 'stories & reading') return 'Bedtime Stories';
+      if (lower === 'art & crafts') return 'Colors & Play';
+      if (lower === 'kids yoga & active') return 'Sing & Dance';
+      return name;
+    }
+
+    function kidTopicImage(name) {
+      const lower = String(name || '').toLowerCase();
+      if (lower.includes('animal') || lower.includes('nature')) return 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&h=400&fit=crop';
+      if (lower.includes('cartoon') || lower.includes('fun')) return 'https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=600&h=400&fit=crop';
+      if (lower.includes('craft') || lower.includes('art')) return 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600&h=400&fit=crop';
+      if (lower.includes('discovery') || lower.includes('world')) return 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&h=400&fit=crop';
+      if (lower.includes('yoga') || lower.includes('active')) return 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&h=400&fit=crop';
+      if (lower.includes('learn') || lower.includes('abc')) return 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&h=400&fit=crop';
+      if (lower.includes('music') || lower.includes('rhyme')) return 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&h=400&fit=crop';
+      if (lower.includes('science') || lower.includes('space')) return 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&h=400&fit=crop';
+      if (lower.includes('math') || lower.includes('coding')) return 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=600&h=400&fit=crop';
+      if (lower.includes('stor') || lower.includes('read')) return 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&h=400&fit=crop';
+      if (lower.includes('game') || lower.includes('gaming')) return 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&h=400&fit=crop';
+      if (lower.includes('hobb') || lower.includes('diy')) return 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&h=400&fit=crop';
+      if (lower.includes('sport') || lower.includes('outdoor')) return 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&h=400&fit=crop';
+      if (lower.includes('cook') || lower.includes('bak')) return 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=600&h=400&fit=crop';
+      return 'https://images.unsplash.com/photo-1579202673506-ca3ce28943ef?w=600&h=400&fit=crop';
+    }
+
     async function renderKidHomeHub(user) {
       const hub = document.getElementById('kidHomeHub');
       if (!hub || user?.role !== 'CHILD') return;
@@ -6592,77 +6654,53 @@
         } catch {}
       }
 
-      const simpleMode = isSimpleKidUser(user);
       const isToddler = user.ageRating === 'TODDLER';
-
-      if (simpleMode) {
-        if (!kidHomeSelectedTopic) {
-          hub.innerHTML = `
-            <div style="margin-bottom:1rem;">
-              <h2 style="font-family:'Fredoka',cursive; font-size:1.55rem; margin:0 0 0.25rem 0;">${isToddler ? 'Pick a Picture!' : 'Pick a Topic!'}</h2>
-              <p style="color:var(--text-muted); font-size:0.9rem; margin:0;">Tap a topic below to see safe videos.</p>
-            </div>
-            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(175px, 1fr)); gap:0.95rem;">
-              ${kidHomeCategoriesCache.map(c => `
-                <button type="button" onclick="selectKidHubTopic('${c.name.replace(/'/g, "\\'")}')" style="cursor:pointer; background:var(--surface); border:2px solid var(--border); border-radius:20px; padding:${isToddler ? '1.6rem 1rem' : '1.25rem 1rem'}; display:flex; flex-direction:column; align-items:center; gap:0.6rem; color:var(--text); font-family:inherit; transition:transform 0.15s ease, border-color 0.15s ease;" onmouseover="this.style.borderColor='var(--primary)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='none'">
-                  <span style="font-size:${isToddler ? '2.6rem' : '2.15rem'}; line-height:1;">${kidTopicEmoji(c.name)}</span>
-                  <span style="font-weight:800; font-size:0.96rem; text-align:center;">${c.name}</span>
-                </button>
-              `).join('')}
-            </div>
-          `;
-        } else {
-          hub.innerHTML = `
-            <div style="display:flex; align-items:center; gap:0.85rem; margin-bottom:1rem; flex-wrap:wrap;">
-              <button type="button" class="btn btn-secondary btn-sm" onclick="selectKidHubTopic(null)">
-                <span class="material-symbols-rounded" style="font-size:1rem;">arrow_back</span> All Topics
-              </button>
-              <h2 style="font-family:'Fredoka',cursive; font-size:1.35rem; margin:0;">${kidTopicEmoji(kidHomeSelectedTopic)} ${kidHomeSelectedTopic}</h2>
-            </div>
-            <div id="kidHubTopicVideos" class="video-grid"><p style="color:var(--text-muted);">Loading safe videos...</p></div>
-          `;
-          loadKidHubTopicVideos(kidHomeSelectedTopic, user.ageRating || 'ALL');
-        }
-        return;
+      const canSearch = !isToddler && user.youtubeSearchEnabled !== false;
+      const visibleCategories = isToddler
+        ? kidHomeCategoriesCache.filter(c => isToddlerTopic(c.name))
+        : kidHomeCategoriesCache;
+      if (isToddler && kidHomeSelectedTopic && !isToddlerTopic(kidHomeSelectedTopic)) {
+        kidHomeSelectedTopic = null;
       }
 
-      // Older Kids / All Ages: Search-first intentional hub
-      hub.innerHTML = `
-        <div class="card" style="padding:1.4rem 1.6rem; margin-bottom:1.15rem; border-color:rgba(76,201,240,0.35);">
-          <h2 style="font-family:'Fredoka',cursive; font-size:1.45rem; margin:0 0 0.35rem 0;">What do you want to watch?</h2>
-          <p style="color:var(--text-muted); font-size:0.9rem; margin:0 0 1rem 0;">Search for a topic, pick a channel, or open your favorites.</p>
-          <div onclick="switchKidShowcaseTab('search'); setTimeout(() => document.getElementById('kidYouTubeSearchInput')?.focus(), 50);" style="cursor:pointer; display:flex; align-items:center; gap:0.65rem; padding:0.8rem 1rem; border-radius:var(--radius-sm); background:var(--surface-light); border:1px solid var(--border); color:var(--text-muted); font-size:0.94rem;">
-            <span class="material-symbols-rounded" style="color:var(--secondary);">search</span>
-            <span>Search safe videos or request with ⭐...</span>
+      if (!kidHomeSelectedTopic) {
+        hub.innerHTML = `
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
+            <div>
+              <h2 style="font-family:'Fredoka',cursive; font-size:1.55rem; margin:0 0 0.25rem 0;">${isToddler ? 'Pick a Picture!' : 'Pick a Topic'}</h2>
+              <p style="color:var(--text-muted); font-size:0.9rem; margin:0;">${isToddler ? 'Tap a picture below to see safe videos.' : 'Tap a picture topic or search safe videos.'}</p>
+            </div>
+            ${canSearch ? `
+              <button type="button" class="btn btn-secondary" onclick="switchKidShowcaseTab('search'); setTimeout(() => document.getElementById('kidYouTubeSearchInput')?.focus(), 50);" style="display:inline-flex; align-items:center; gap:0.45rem; border-radius:99px;">
+                <span class="material-symbols-rounded" style="font-size:1.05rem; color:var(--secondary);">search</span>
+                <span>Search Videos</span>
+              </button>
+            ` : ''}
           </div>
-        </div>
-
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
-          <h3 style="font-size:1.05rem; margin:0;">Pick a Topic</h3>
-          ${kidHomeSelectedTopic ? `<button type="button" class="btn btn-secondary btn-sm" onclick="selectKidHubTopic(null)">Clear</button>` : ''}
-        </div>
-        <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.25rem;">
-          ${kidHomeCategoriesCache.map(c => `
-            <button type="button" class="filter-pill ${kidHomeSelectedTopic === c.name ? 'active' : ''}" onclick="selectKidHubTopic('${c.name.replace(/'/g, "\\'")}')">
-              ${kidTopicEmoji(c.name)} ${c.name}
+          <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(185px, 1fr)); gap:0.95rem;">
+            ${visibleCategories.map(c => {
+              const displayLabel = kidDisplayTopicTitle(c.name, isToddler);
+              return `
+              <button type="button" onclick="selectKidHubTopic('${c.name.replace(/'/g, "\\'")}')" style="position:relative; height:${isToddler ? '160px' : '142px'}; cursor:pointer; background:var(--surface); border:2px solid var(--border); border-radius:20px; overflow:hidden; padding:0; text-align:left; color:#fff; font-family:inherit; transition:transform 0.15s ease, border-color 0.15s ease;" onmouseover="this.style.borderColor='var(--primary)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='none'">
+                <img src="${kidTopicImage(c.name)}" alt="${displayLabel}" loading="lazy" style="width:100%; height:100%; object-fit:cover; display:block;">
+                <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.38) 50%, rgba(0,0,0,0.88) 100%);"></div>
+                <span style="position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.58); border-radius:10px; padding:3px 8px; font-size:${isToddler ? '1.35rem' : '1.1rem'}; line-height:1.2;">${kidTopicEmoji(c.name)}</span>
+                <span style="position:absolute; left:12px; right:12px; bottom:10px; font-weight:800; font-size:0.95rem; line-height:1.2; text-shadow:0 1px 4px rgba(0,0,0,0.8);">${displayLabel}</span>
+              </button>
+            `;}).join('')}
+          </div>
+        `;
+      } else {
+        hub.innerHTML = `
+          <div style="display:flex; align-items:center; gap:0.85rem; margin-bottom:1rem; flex-wrap:wrap;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="selectKidHubTopic(null)">
+              <span class="material-symbols-rounded" style="font-size:1rem;">arrow_back</span> All Topics
             </button>
-          `).join('')}
-        </div>
-
-        ${!kidHomeSelectedTopic ? `
-          <div class="card" style="padding:2rem 1.5rem; text-align:center;">
-            <div style="font-size:2rem; margin-bottom:0.4rem;">🎯</div>
-            <div style="font-weight:800; font-size:1.05rem; margin-bottom:0.25rem;">No endless feed here!</div>
-            <p style="color:var(--text-muted); font-size:0.88rem; margin:0;">Use Search or pick a Topic above when you know what you want to watch.</p>
+            <h2 style="font-family:'Fredoka',cursive; font-size:1.35rem; margin:0;">${kidTopicEmoji(kidHomeSelectedTopic)} ${kidDisplayTopicTitle(kidHomeSelectedTopic, isToddler)}</h2>
           </div>
-        ` : `
-          <h3 style="font-size:1.1rem; margin:0 0 0.85rem 0;">${kidHomeSelectedTopic}</h3>
           <div id="kidHubTopicVideos" class="video-grid"><p style="color:var(--text-muted);">Loading safe videos...</p></div>
-        `}
-      `;
-
-      if (kidHomeSelectedTopic) {
-        const effectiveAge = !user.ageRating || user.ageRating === 'ALL' ? 'OLDER_KIDS' : user.ageRating;
+        `;
+        const effectiveAge = isToddler ? 'TODDLER' : (!user.ageRating || user.ageRating === 'ALL' ? 'OLDER_KIDS' : user.ageRating);
         loadKidHubTopicVideos(kidHomeSelectedTopic, effectiveAge);
       }
     }
@@ -7680,6 +7718,17 @@
       const v = kidSearchResults[idx];
       if (!v) return;
       const statusEl = document.getElementById('kidSearchStatusBanner');
+      if (currentUser?.role === 'CHILD' && currentUser?.ageRating === 'TODDLER' && !(v.isCurated || v.approvalStatus === 'APPROVED' || v.inHistory)) {
+        if (statusEl) {
+          statusEl.style.display = 'block';
+          statusEl.style.background = 'rgba(255, 51, 102, 0.14)';
+          statusEl.style.border = '1px solid rgba(255, 51, 102, 0.35)';
+          statusEl.textContent = 'Toddlers cannot request video approvals.';
+        } else {
+          alert('Toddlers cannot request video approvals.');
+        }
+        return;
+      }
       try {
         const res = await authFetch('/api/kids/youtube-search/watch', {
           method: 'POST',
@@ -8112,6 +8161,7 @@
         hero_safety_narration: "Discover how FamiTube protects your children from inappropriate content — it's the YouTube every parent wishes for.",
         hero_learn_more: 'Learn More >',
         nav_plans: 'Family Pass',
+        nav_faq: 'FAQ',
         hero_compare_plans: 'Free vs. Family Pass >',
         hero_s1_badge: '100% Parent-Curated',
         hero_s1_title: 'Safe Video Without the Rabbit Hole',
@@ -8171,6 +8221,7 @@
         hero_safety_narration: 'Pelajari bagaimana FamiTube melindungi anak Anda dari konten tidak pantas — YouTube impian setiap orang tua.',
         hero_learn_more: 'Pelajari Lebih Lanjut >',
         nav_plans: 'Family Pass',
+        nav_faq: 'FAQ',
         hero_compare_plans: 'Gratis vs. Family Pass >',
         hero_s1_badge: '100% Terkurasi Orang Tua',
         hero_s1_title: 'Tontonan Aman Tanpa Jebakan Algoritma',

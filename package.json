@@ -4,7 +4,9 @@
   "description": "Web Curation Studio for FamiTube",
   "scripts": {
     "dev": "npx serve . -p 3000",
-    "start": "npx serve . -p 3000"
+    "start": "npx serve . -p 3000",
+    "faq:check": "node scripts/check-faq-sync.mjs --validate",
+    "prepare": "git config core.hooksPath .githooks"
   },
   "keywords": ["famitube", "web", "curation-studio"],
   "license": "MIT"

@@ -560,6 +560,66 @@
     .simple-topic-tile:hover {
       transform: scale(1.03);
     }
+    .pic-topics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .pic-topic-card {
+      position: relative;
+      height: 128px;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .pic-topic-card.toddler {
+      height: 146px;
+    }
+    .pic-topic-card:hover {
+      transform: scale(1.025);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    }
+    .pic-topic-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .pic-topic-scrim {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.38) 50%, rgba(0,0,0,0.88) 100%);
+    }
+    .pic-topic-emoji {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(0,0,0,0.58);
+      backdrop-filter: blur(4px);
+      border-radius: 10px;
+      padding: 3px 7px;
+      font-size: 1.15rem;
+      line-height: 1.2;
+    }
+    .pic-topic-card.toddler .pic-topic-emoji {
+      font-size: 1.35rem;
+      padding: 4px 8px;
+    }
+    .pic-topic-label {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      bottom: 9px;
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.86rem;
+      line-height: 1.2;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+    }
 
     /* Side Inspector Panel */
     .inspector {
@@ -810,6 +870,9 @@
         <span>Parent Side-by-Side</span>
       </label>
 
+      <a href="faq.html" class="back-link">
+        <span class="material-symbols-rounded" style="font-size:1rem;">help</span> FAQ
+      </a>
       <a href="index.html" class="back-link">
         <span class="material-symbols-rounded" style="font-size:1rem;">arrow_back</span> Back to Web Portal
       </a>
@@ -1040,7 +1103,10 @@
         { id: 'v-3', channelId: 'ch-3', title: 'One | Numberblocks Full Episode', channelTitle: 'Simple Songs & Fun', category: 'Music & Rhymes', sourceType: 'YOUTUBE', youtubeVideoId: 'AXXP3HMAP6c', thumbnailUrl: 'https://i.ytimg.com/vi/AXXP3HMAP6c/hqdefault.jpg', duration: 300, ageRating: 'TODDLER' },
         { id: 'v-4', channelId: 'ch-2', title: 'Space Explorers 24H TV - Planets & Orbit Live', channelTitle: 'Space Explorers 24H TV', category: 'Science & Space', sourceType: 'YOUTUBE', youtubeVideoId: 'libKVRa01L8', thumbnailUrl: 'https://i.ytimg.com/vi/libKVRa01L8/hqdefault.jpg', duration: 1800, ageRating: 'OLDER_KIDS' },
         { id: 'v-5', channelId: 'ch-1', title: 'Why Is The Sky Blue? - Science Mysteries', channelTitle: 'TED-Ed & Science Mysteries', category: 'Science & Space', sourceType: 'YOUTUBE', youtubeVideoId: '9-3nC2_t2_g', thumbnailUrl: 'https://img.youtube.com/vi/9-3nC2_t2_g/hqdefault.jpg', duration: 360, ageRating: 'OLDER_KIDS' },
-        { id: 'v-6', channelId: 'ch-4', title: 'Blocks & Friends - Playground Fun', channelTitle: 'Blocks & Friends Cartoons', category: 'Cartoons & Fun', sourceType: 'YOUTUBE', youtubeVideoId: 'AXXP3HMAP6c', thumbnailUrl: 'https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=400&h=225&fit=crop', duration: 420, ageRating: 'YOUNG_KIDS' }
+        { id: 'v-6', channelId: 'ch-4', title: 'Blocks & Friends - Playground Fun', channelTitle: 'Blocks & Friends Cartoons', category: 'Cartoons & Fun', sourceType: 'YOUTUBE', youtubeVideoId: 'AXXP3HMAP6c', thumbnailUrl: 'https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=400&h=225&fit=crop', duration: 420, ageRating: 'YOUNG_KIDS' },
+        { id: 'v-7', channelId: 'ch-3', title: 'Baby Zoo Animals & Gentle Sounds', channelTitle: 'Simple Songs & Fun', category: 'Animals & Nature', sourceType: 'YOUTUBE', youtubeVideoId: 'AXXP3HMAP6c', thumbnailUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&h=225&fit=crop', duration: 240, ageRating: 'TODDLER' },
+        { id: 'v-8', channelId: 'ch-3', title: 'ABC Colors & Counting Song', channelTitle: 'Simple Songs & Fun', category: 'Learning & ABCs', sourceType: 'YOUTUBE', youtubeVideoId: 'AXXP3HMAP6c', thumbnailUrl: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&h=225&fit=crop', duration: 210, ageRating: 'TODDLER' },
+        { id: 'v-9', channelId: 'ch-3', title: 'Sleepy Bunny Bedtime Story', channelTitle: 'Simple Songs & Fun', category: 'Stories & Reading', sourceType: 'YOUTUBE', youtubeVideoId: 'AXXP3HMAP6c', thumbnailUrl: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&h=225&fit=crop', duration: 260, ageRating: 'TODDLER' }
       ],
       activeVideo: null,
       customPlaylists: [
@@ -1250,6 +1316,10 @@
     function setAgeMode(mode) {
       state.ageMode = mode;
       state.selectedCategory = null;
+      state.selectedVideosCategory = null;
+      if (mode === 'TODDLER' && (state.screen === 'search' || state.screen === 'add_channel')) {
+        state.screen = 'home';
+      }
       document.getElementById('btnAgeAll').classList.toggle('active', mode === 'ALL');
       document.getElementById('btnAgeToddler').classList.toggle('active', mode === 'TODDLER');
       document.getElementById('btnAgeYoung').classList.toggle('active', mode === 'YOUNG_KIDS');
@@ -1257,8 +1327,65 @@
       render();
     }
 
-    function topicEmoji(name) {
+    const TODDLER_ALLOWED_TOPICS = new Set([
+      'cartoons & fun',
+      'learning & abcs',
+      'music & rhymes',
+      'animals & nature',
+      'art & crafts',
+      'stories & reading',
+      'kids yoga & active'
+    ]);
+
+    function isToddlerTopic(name) {
+      return TODDLER_ALLOWED_TOPICS.has(String(name || '').trim().toLowerCase());
+    }
+
+    function displayTopicTitle(name, isToddler) {
+      if (!isToddler) return name;
+      const lower = String(name || '').trim().toLowerCase();
+      if (lower === 'music & rhymes') return 'Songs & Rhymes';
+      if (lower === 'animals & nature') return 'Cute Animals';
+      if (lower === 'cartoons & fun') return 'Cartoons & Fun';
+      if (lower === 'learning & abcs') return 'ABCs & Colors';
+      if (lower === 'stories & reading') return 'Bedtime Stories';
+      if (lower === 'art & crafts') return 'Colors & Play';
+      if (lower === 'kids yoga & active') return 'Sing & Dance';
+      return name;
+    }
+
+    function topicImage(name) {
       const lower = String(name || '').toLowerCase();
+      if (lower.includes('animal') || lower.includes('nature')) return 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&h=400&fit=crop';
+      if (lower.includes('cartoon') || lower.includes('fun')) return 'https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=600&h=400&fit=crop';
+      if (lower.includes('craft') || lower.includes('art')) return 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600&h=400&fit=crop';
+      if (lower.includes('discovery') || lower.includes('world')) return 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&h=400&fit=crop';
+      if (lower.includes('yoga') || lower.includes('active')) return 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&h=400&fit=crop';
+      if (lower.includes('learn') || lower.includes('abc')) return 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&h=400&fit=crop';
+      if (lower.includes('music') || lower.includes('rhyme')) return 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&h=400&fit=crop';
+      if (lower.includes('science') || lower.includes('space')) return 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600&h=400&fit=crop';
+      if (lower.includes('math') || lower.includes('coding')) return 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=600&h=400&fit=crop';
+      if (lower.includes('stor') || lower.includes('read')) return 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&h=400&fit=crop';
+      if (lower.includes('game') || lower.includes('gaming')) return 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&h=400&fit=crop';
+      if (lower.includes('hobb') || lower.includes('diy')) return 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&h=400&fit=crop';
+      if (lower.includes('sport') || lower.includes('outdoor')) return 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&h=400&fit=crop';
+      if (lower.includes('cook') || lower.includes('bak')) return 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=600&h=400&fit=crop';
+      const match = (state.videos || []).find(v => (v.category || '').toLowerCase() === lower && v.thumbnailUrl);
+      return match ? match.thumbnailUrl : 'https://images.unsplash.com/photo-1579202673506-ca3ce28943ef?w=600&h=400&fit=crop';
+    }
+
+    function topicEmoji(name, isToddler = false) {
+      const lower = String(name || '').toLowerCase();
+      if (isToddler) {
+        if (lower.includes('animal') || lower.includes('nature')) return '🐶';
+        if (lower.includes('cartoon') || lower.includes('fun')) return '🧸';
+        if (lower.includes('craft') || lower.includes('art')) return '🎨';
+        if (lower.includes('yoga') || lower.includes('active')) return '🤸';
+        if (lower.includes('learn') || lower.includes('abc')) return '🔤';
+        if (lower.includes('music') || lower.includes('rhyme')) return '🎵';
+        if (lower.includes('stor') || lower.includes('read')) return '📖';
+        return '🎬';
+      }
       if (lower.includes('animal') || lower.includes('nature')) return '🦁';
       if (lower.includes('cartoon') || lower.includes('fun')) return '🎨';
       if (lower.includes('craft') || lower.includes('art')) return '✂️';
@@ -1291,6 +1418,12 @@
     }
 
     function navigate(screen, extra) {
+      if ((screen === 'search' || screen === 'add_channel') && state.ageMode === 'TODDLER') {
+        state.screen = 'home';
+        render();
+        showDeviceToast('deviceScreen', '🔒 Search is only available for Young & Older Kids');
+        return;
+      }
       if (state.sideBySideParent && (screen === 'parent_dashboard' || screen === 'parental_settings')) {
         state.parentScreen = screen;
         render();
@@ -1516,6 +1649,14 @@
           }});
           return;
         }
+        if (state.ageMode === 'TODDLER') {
+          if (state.sideBySideParent) {
+            showDeviceToast('deviceScreen', '🔒 Toddlers cannot request video approvals');
+          } else {
+            alert('🔒 Toddlers cannot request video approvals. Only parent-approved videos can play.');
+          }
+          return;
+        }
         if (!existingReq) {
           const ytId = video.youtubeVideoId || video.id || (video.thumbnailUrl ? (video.thumbnailUrl.match(/vi\/([^\/]+)/) || [])[1] : '') || '';
           state.parentRequests.unshift({
@@ -1572,7 +1713,7 @@
 
     function renderBottomBar() {
       const bar = document.getElementById('appBottomBar');
-      const simple = state.ageMode === 'TODDLER' || state.ageMode === 'YOUNG_KIDS';
+      const simple = state.ageMode === 'TODDLER';
       const tabs = simple
         ? [
             { id: 'home', icon: 'home', label: 'Topics' },
@@ -1909,9 +2050,9 @@
       }
 
       const ageVideos = state.videos
-        .filter(v => matchesPreviewAge(v.ageRating))
+        .filter(v => matchesPreviewAge(v.ageRating) && (state.ageMode !== 'TODDLER' || isToddlerTopic(v.category)))
         .sort((a, b) => (Date.parse(b.createdAt) || 0) - (Date.parse(a.createdAt) || 0));
-      const ageChannels = state.channels.filter(c => matchesPreviewAge(c.ageRating));
+      const ageChannels = state.channels.filter(c => matchesPreviewAge(c.ageRating) && (state.ageMode !== 'TODDLER' || isToddlerTopic(c.category)));
       if (!ageVideos.includes(state.activeVideo)) {
         state.activeVideo = ageVideos[0] || state.videos[0];
       }
@@ -1946,6 +2087,7 @@
 
         if (currentNavTab === 'videos') {
           // Curated Videos Tab
+          const isToddler = state.ageMode === 'TODDLER';
           const catFilter = state.selectedVideosCategory;
           const filteredVideos = catFilter ? ageVideos.filter(v => v.category === catFilter) : ageVideos;
 
@@ -1954,11 +2096,11 @@
             <div class="chips-row" style="margin-bottom:12px;">
               <button class="chip ${!catFilter ? 'active' : ''}" onclick="state.selectedVideosCategory=null; render();">All Videos</button>
               ${cats.map(c => `
-                <button class="chip ${catFilter === c ? 'active' : ''}" onclick="state.selectedVideosCategory=(state.selectedVideosCategory === '${c.replace(/'/g, "\\'")}' ? null : '${c.replace(/'/g, "\\'")}'); render();">${c}</button>
+                <button class="chip ${catFilter === c ? 'active' : ''}" onclick="state.selectedVideosCategory=(state.selectedVideosCategory === '${c.replace(/'/g, "\\'")}' ? null : '${c.replace(/'/g, "\\'")}'); render();">${displayTopicTitle(c, isToddler)}</button>
               `).join('')}
             </div>
             <div style="font-weight:800; font-size:0.88rem; margin-bottom:10px; color:var(--text-muted);">
-              ${catFilter ? `${catFilter} (${filteredVideos.length})` : `All Safe Videos (${filteredVideos.length})`}
+              ${catFilter ? `${displayTopicTitle(catFilter, isToddler)} (${filteredVideos.length})` : `All Safe Videos (${filteredVideos.length})`}
             </div>
             ${filteredVideos.length === 0 ? `
               <div class="card-box" style="text-align:center; padding:20px 14px; font-size:0.8rem; color:var(--text-muted);">
@@ -1991,9 +2133,11 @@
             ${ytTabsHtml}
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
               <h3 style="font-size:1.02rem; font-weight:800; margin:0;">My Subscribed Channels</h3>
-              <button class="btn-primary" style="padding:6px 12px; font-size:0.76rem;" onclick="state.selectedAddTopic=null; state.topicSearchQuery=''; navigate('add_channel');">
-                <span class="material-symbols-rounded" style="font-size:1rem;">add</span> Subscribe
-              </button>
+              ${state.ageMode !== 'TODDLER' ? `
+                <button class="btn-primary" style="padding:6px 12px; font-size:0.76rem;" onclick="state.selectedAddTopic=null; state.topicSearchQuery=''; navigate('add_channel');">
+                  <span class="material-symbols-rounded" style="font-size:1rem;">add</span> Subscribe
+                </button>
+              ` : ''}
             </div>
 
             ${isEmpty ? `
@@ -2890,24 +3034,36 @@
               `}
             `}
           `;
-        } else if (isSimple) {
+        } else {
           const isToddler = state.ageMode === 'TODDLER';
+          const canSearch = !isToddler;
           const selectedVideos = state.selectedCategory ? ageVideos.filter(v => v.category === state.selectedCategory) : [];
+          const borderColors = ['#FF2E93', '#00B4D8', '#06D6A0', '#FFD166', '#4361EE'];
           body.innerHTML = `
             ${ytTabsHtml}
             ${!state.selectedCategory ? `
-              <div style="margin-bottom:8px;">
-                <div style="font-weight:800; font-size:1.1rem;">${isToddler ? 'Pick a Picture!' : 'Pick a Topic!'}</div>
-                <div style="font-size:0.76rem; color:var(--text-muted); margin-top:2px;">Tap a topic below to see safe videos.</div>
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;">
+                <div>
+                  <div style="font-weight:800; font-size:1.1rem;">${isToddler ? 'Pick a Picture!' : 'Pick a Topic'}</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">${isToddler ? 'Tap a picture below to see safe videos.' : 'Tap a picture topic or search safe videos.'}</div>
+                </div>
+                ${canSearch ? `
+                  <button class="btn-outline" style="padding:6px 12px; border-radius:99px; font-size:0.76rem; color:var(--blue); border-color:rgba(0,180,216,0.45); display:inline-flex; align-items:center; gap:5px; flex-shrink:0;" onclick="navigate('search')">
+                    <span class="material-symbols-rounded" style="font-size:1rem;">search</span>
+                    <span>Search</span>
+                  </button>
+                ` : ''}
               </div>
-              <div class="simple-topics-grid">
+              <div class="pic-topics-grid">
                 ${cats.map((c, i) => {
-                  const borderColors = ['#FF2E93', '#00B4D8', '#06D6A0', '#FFD166', '#4361EE'];
                   const borderColor = borderColors[i % borderColors.length];
+                  const label = displayTopicTitle(c, isToddler);
                   return `
-                    <div class="simple-topic-tile" style="border-color:${borderColor};" onclick="state.selectedCategory='${c.replace(/'/g, "\\'")}'; render();">
-                      <div style="font-size:2.4rem; margin-bottom:6px;">${topicEmoji(c)}</div>
-                      <div style="font-weight:800; font-size:0.88rem;">${c}</div>
+                    <div class="pic-topic-card ${isToddler ? 'toddler' : ''}" style="border-color:${borderColor};" onclick="state.selectedCategory='${c.replace(/'/g, "\\'")}'; render();">
+                      <img src="${topicImage(c)}" alt="${label}">
+                      <div class="pic-topic-scrim"></div>
+                      <span class="pic-topic-emoji">${topicEmoji(c, isToddler)}</span>
+                      <div class="pic-topic-label">${label}</div>
                     </div>
                   `;
                 }).join('')}
@@ -2915,77 +3071,29 @@
             ` : `
               <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
                 <button class="btn-outline" style="padding:5px 10px; font-size:0.76rem;" onclick="state.selectedCategory=null; render();">← All Topics</button>
-                <span style="font-weight:800; font-size:0.92rem;">${topicEmoji(state.selectedCategory)} ${state.selectedCategory}</span>
+                <span style="font-weight:800; font-size:0.92rem;">${topicEmoji(state.selectedCategory, isToddler)} ${displayTopicTitle(state.selectedCategory, isToddler)}</span>
               </div>
-              <div class="video-list">
-                ${selectedVideos.map(v => `
-                  <div class="v-card" onclick="openPreviewVideo('${v.id}')">
-                    <div class="v-thumb" style="position:relative;">
-                      <img src="${v.thumbnailUrl}" alt="">
-                      <span class="v-badge" style="left:4px; right:auto;">${Math.floor((v.duration||180)/60)}:${String((v.duration||180)%60).padStart(2,'0')}</span>
-                      ${isPreviewFavorite(v.id) ? `<span style="position:absolute; bottom:4px; right:4px; width:22px; height:22px; border-radius:50%; background:rgba(255,46,147,0.92); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; box-shadow:0 2px 4px rgba(0,0,0,0.5);">❤️</span>` : ''}
+              ${selectedVideos.length === 0 ? `
+                <div class="card-box" style="text-align:center; padding:20px 14px;">
+                  <div style="font-size:0.8rem; color:var(--text-muted);">No videos in ${state.selectedCategory} right now.</div>
+                </div>
+              ` : `
+                <div class="video-list">
+                  ${selectedVideos.map(v => `
+                    <div class="v-card" onclick="openPreviewVideo('${v.id}')">
+                      <div class="v-thumb" style="position:relative;">
+                        <img src="${v.thumbnailUrl}" alt="">
+                        <span class="v-badge" style="left:4px; right:auto;">${Math.floor((v.duration||180)/60)}:${String((v.duration||180)%60).padStart(2,'0')}</span>
+                        ${isPreviewFavorite(v.id) ? `<span style="position:absolute; bottom:4px; right:4px; width:22px; height:22px; border-radius:50%; background:rgba(255,46,147,0.92); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; box-shadow:0 2px 4px rgba(0,0,0,0.5);">❤️</span>` : ''}
+                      </div>
+                      <div class="v-info">
+                        <div class="v-title">${v.title}</div>
+                        <div class="v-meta"><span style="cursor:pointer; text-decoration:underline;" onclick="event.stopPropagation(); openChannelDetailByVideo('${v.id}')">${v.channelTitle}</span></div>
+                      </div>
                     </div>
-                    <div class="v-info">
-                      <div class="v-title">${v.title}</div>
-                      <div class="v-meta"><span style="cursor:pointer; text-decoration:underline;" onclick="event.stopPropagation(); openChannelDetailByVideo('${v.id}')">${v.channelTitle}</span></div>
-                    </div>
-                  </div>
-                `).join('')}
-              </div>
-            `}
-          `;
-        } else {
-          // Standard Intentional Mode (Matching HomeScreen.kt of Android APK)
-          const topicVideos = state.selectedCategory ? ageVideos.filter(v => v.category === state.selectedCategory) : [];
-          body.innerHTML = `
-            ${ytTabsHtml}
-            <!-- 1. Intentional Search-First Prompt Card -->
-            <div style="background:var(--surface); border:1px solid rgba(76,201,240,0.45); border-radius:20px; padding:16px; margin-bottom:12px;">
-              <div style="font-weight:800; font-size:1.05rem; margin-bottom:4px;">What do you want to watch?</div>
-              <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:12px; line-height:1.4;">Search for a topic, pick a channel, or explore your library.</div>
-              <div style="display:flex; align-items:center; gap:8px; background:var(--surface-var); border-radius:12px; padding:10px 12px; cursor:pointer;" onclick="navigate('search')">
-                <span class="material-symbols-rounded" style="color:var(--blue); font-size:1.15rem;">search</span>
-                <span style="font-size:0.78rem; color:var(--text-muted);">Search safe videos or request with ⭐...</span>
-              </div>
-            </div>
-
-            <!-- 2. Deliberate Topic Picker -->
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-              <span style="font-weight:800; font-size:0.9rem;">Pick a Topic</span>
-              ${state.selectedCategory ? `<button class="btn-outline" style="padding:2px 8px; font-size:0.68rem; color:var(--pink);" onclick="state.selectedCategory=null; render();">Clear</button>` : ''}
-            </div>
-            <div class="chips-row">
-              ${cats.map(c => `<button class="chip ${state.selectedCategory === c ? 'active' : ''}" onclick="state.selectedCategory = (state.selectedCategory === '${c.replace(/'/g, "\\'")}' ? null : '${c.replace(/'/g, "\\'")}'); render();">${c}</button>`).join('')}
-            </div>
-
-            <!-- 4. Only show videos if child intentionally chose a topic (No endless feed!) -->
-            ${!state.selectedCategory ? `
-              <div class="card-box" style="text-align:center; padding:24px 16px; margin-top:6px;">
-                <div style="font-size:2.2rem; margin-bottom:6px;">🎯</div>
-                <div style="font-weight:800; font-size:0.98rem; margin-bottom:4px;">No endless feed here!</div>
-                <div style="font-size:0.75rem; color:var(--text-muted); line-height:1.4;">Use Search or pick a Topic above when you know what you want to watch.</div>
-              </div>
-            ` : topicVideos.length === 0 ? `
-              <div class="card-box" style="text-align:center; padding:20px 14px;">
-                <div style="font-size:0.8rem; color:var(--text-muted);">No videos in ${state.selectedCategory} right now.</div>
-              </div>
-            ` : `
-              <div style="font-weight:800; font-size:0.9rem; margin:10px 0 8px;">${state.selectedCategory} (${topicVideos.length})</div>
-              <div class="video-list">
-                ${topicVideos.map(v => `
-                  <div class="v-card" onclick="openPreviewVideo('${v.id}')">
-                    <div class="v-thumb" style="position:relative;">
-                      <img src="${v.thumbnailUrl}" alt="">
-                      <span class="v-badge" style="left:4px; right:auto;">${Math.floor((v.duration||180)/60)}:${String((v.duration||180)%60).padStart(2,'0')}</span>
-                      ${isPreviewFavorite(v.id) ? `<span style="position:absolute; bottom:4px; right:4px; width:22px; height:22px; border-radius:50%; background:rgba(255,46,147,0.92); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; box-shadow:0 2px 4px rgba(0,0,0,0.5);">❤️</span>` : ''}
-                    </div>
-                    <div class="v-info">
-                      <div class="v-title">${v.title}</div>
-                      <div class="v-meta"><span style="cursor:pointer; text-decoration:underline;" onclick="event.stopPropagation(); openChannelDetailByVideo('${v.id}')">${v.channelTitle}</span> • ${v.category}</div>
-                    </div>
-                  </div>
-                `).join('')}
-              </div>
+                  `).join('')}
+                </div>
+              `}
             `}
           `;
         }
@@ -2996,9 +3104,11 @@
         body.innerHTML = `
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
             <h3 style="font-size:1.05rem; font-weight:800;">My Channels</h3>
-            <button class="btn-primary" style="padding:6px 12px; font-size:0.76rem;" onclick="state.selectedAddTopic=null; state.topicSearchQuery=''; navigate('add_channel');">
-              <span class="material-symbols-rounded" style="font-size:1rem;">add</span> Subscribe
-            </button>
+            ${state.ageMode !== 'TODDLER' ? `
+              <button class="btn-primary" style="padding:6px 12px; font-size:0.76rem;" onclick="state.selectedAddTopic=null; state.topicSearchQuery=''; navigate('add_channel');">
+                <span class="material-symbols-rounded" style="font-size:1rem;">add</span> Subscribe
+              </button>
+            ` : ''}
           </div>
 
           ${isEmpty ? `
@@ -3242,9 +3352,11 @@
               </div>
             </div>
 
-            <button class="${isSubscribed ? 'btn-outline' : 'btn-primary'}" style="width:100%; padding:8px 12px; font-size:0.8rem;" onclick="toggleYtSubscription({handle:'${handle}', title:'${(sub.title||'').replace(/'/g, "\\'")}', avatarUrl:'${sub.avatarUrl||''}', trustLevel:'${trust}'});">
-              ${isSubscribed ? 'Subscribed ✓' : '+ Subscribe to @YouTube Channel'}
-            </button>
+            ${state.ageMode !== 'TODDLER' ? `
+              <button class="${isSubscribed ? 'btn-outline' : 'btn-primary'}" style="width:100%; padding:8px 12px; font-size:0.8rem;" onclick="toggleYtSubscription({handle:'${handle}', title:'${(sub.title||'').replace(/'/g, "\\'")}', avatarUrl:'${sub.avatarUrl||''}', trustLevel:'${trust}'});">
+                ${isSubscribed ? 'Subscribed ✓' : '+ Subscribe to @YouTube Channel'}
+              </button>
+            ` : ''}
           </div>
 
           <!-- Dual Tabs: Videos | Playlists -->
@@ -3267,11 +3379,13 @@
                     ? '▶ Instant Play'
                     : req?.status === 'APPROVED'
                       ? '✓ Parent Approved • Play'
-                      : req?.status === 'PENDING'
-                        ? '⏳ Requested • Waiting'
-                        : req?.status === 'REJECTED'
-                          ? '✕ Declined • Tap to Re-ask'
-                          : '👁️ Needs Approval';
+                      : state.ageMode === 'TODDLER'
+                        ? '🔒 Grown-Ups Only'
+                        : req?.status === 'PENDING'
+                          ? '⏳ Requested • Waiting'
+                          : req?.status === 'REJECTED'
+                            ? '✕ Declined • Tap to Re-ask'
+                            : '👁️ Needs Approval';
                 return `
                 <div class="card-box" style="display:flex; gap:10px; padding:8px; cursor:pointer;" onclick="playYtVideo({id:'${v.id}', title:'${v.title.replace(/'/g, "\\'")}', thumbnailUrl:'${v.thumbnailUrl}', duration:${v.duration||200}}, '${handle}')">
                   <div style="position:relative; width:100px; aspect-ratio:16/9; border-radius:8px; overflow:hidden; background:#000; flex-shrink:0;">
