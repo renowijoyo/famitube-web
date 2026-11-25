@@ -1748,7 +1748,7 @@
               <select id="formChannelSelect"></select>
             </div>
             <div class="form-group">
-              <label>Category</label>
+              <label>Primary Category</label>
               <select id="formCategory">
                 <option value="Cartoons & Fun">Cartoons & Fun</option>
                 <option value="Learning & ABCs">Learning & ABCs</option>
@@ -1782,8 +1782,9 @@
               </select>
             </div>
             <div class="form-group">
-              <label>Tags (comma separated)</label>
-              <input type="text" id="formTags" placeholder="cartoon, safe, fun, science">
+              <label>Tags (comma separated — drives category placement)</label>
+              <input type="text" id="formTags" placeholder="cartoon, animals, science, fun">
+              <div id="formCategoryTagPills" style="display:flex; flex-wrap:wrap; gap:0.35rem; margin-top:0.5rem;"></div>
             </div>
           </div>
           <div class="form-group">
@@ -4425,6 +4426,7 @@
               <span>${v.views || 0} views</span>
             </div>
             <div class="video-tags">
+              ${getVideoCategoriesByTags(v).map(c => `<span class="tag-chip" style="background:rgba(76,201,240,0.16); color:var(--accent);">${c}</span>`).join('')}
               ${(v.tags || []).slice(0, 3).map(t => `<span class="tag-chip">#${t}</span>`).join('')}
             </div>
             <div class="video-actions">
@@ -4446,12 +4448,75 @@
       `).join('');
     }
 
+    const STUDIO_CATEGORY_TAG_MAP = {
+      'Cartoons & Fun': ['category:cartoons & fun', 'cartoons & fun', 'topic:animation-cartoons', 'topic:comedy-clean', 'cartoon', 'cartoons', 'animation', 'animated', 'comedy', 'funny', 'puppet', 'puppets', 'toons'],
+      'Learning & ABCs': ['category:learning & abcs', 'learning & abcs', 'topic:abcs-phonics', 'topic:language-learning', 'abc', 'abcs', 'alphabet', 'phonics', 'letters', 'colors', 'shapes', 'preschool', 'spelling', 'vocabulary', 'counting', 'numbers'],
+      'Music & Rhymes': ['category:music & rhymes', 'music & rhymes', 'topic:music-instruments', 'purpose:background-audio', 'music', 'rhyme', 'rhymes', 'nursery rhyme', 'nursery rhymes', 'song', 'songs', 'sing-along', 'singalong', 'lullaby', 'lullabies'],
+      'Animals & Nature': ['category:animals & nature', 'animals & nature', 'topic:animals-nature', 'animal', 'animals', 'nature', 'wildlife', 'ocean', 'reef', 'marine', 'zoo', 'pets', 'pet', 'dino', 'dinosaur', 'dinosaurs', 'birds', 'insects', 'jungle', 'safari', 'bunny', 'puppy', 'kitten'],
+      'Art & Crafts': ['category:art & crafts', 'art & crafts', 'topic:art-drawing', 'topic:crafts-diy', 'art', 'arts', 'craft', 'crafts', 'drawing', 'draw', 'painting', 'paint', 'origami', 'coloring', 'clay', 'illustration'],
+      'Science & Space': ['category:science & space', 'science & space', 'topic:science', 'topic:space-astronomy', 'science', 'space', 'astronomy', 'planet', 'planets', 'rocket', 'rockets', 'nasa', 'physics', 'chemistry', 'biology', 'experiment', 'experiments', 'solar system', 'astronaut'],
+      'Stories & Reading': ['category:stories & reading', 'stories & reading', 'topic:reading-books', 'purpose:story-narrative', 'story', 'stories', 'reading', 'read-aloud', 'book', 'books', 'fairytale', 'fairy tale', 'bedtime story', 'fable', 'storytelling'],
+      'Math & Coding': ['category:math & coding', 'math & coding', 'topic:math-logic', 'topic:coding-tech', 'math', 'maths', 'counting', 'numbers', 'addition', 'subtraction', 'multiplication', 'geometry', 'logic', 'coding', 'programming', 'computer science', 'robotics', 'stem'],
+      'Kids Yoga & Active': ['category:kids yoga & active', 'kids yoga & active', 'topic:physical-fitness', 'topic:mindfulness-breathing', 'context:movement-break', 'yoga', 'fitness', 'exercise', 'workout', 'stretching', 'mindfulness', 'breathing', 'dance', 'movement', 'active'],
+      'World & Discovery': ['category:world & discovery', 'world & discovery', 'topic:history-geography', 'world', 'discovery', 'geography', 'history', 'countries', 'culture', 'cultures', 'earth', 'continents', 'travel', 'landmarks', 'civilization'],
+      'Video Games & Gaming': ['category:video games & gaming', 'video games & gaming', 'topic:gaming-wholesome', 'gaming', 'video game', 'video games', 'minecraft'],
+      'Hobbies & DIY': ['category:hobbies & diy', 'hobbies & diy', 'topic:crafts-diy', 'topic:engineering-robotics', 'hobby', 'hobbies', 'diy', 'maker', 'lego', 'building', 'engineering'],
+      'Sports & Outdoors': ['category:sports & outdoors', 'sports & outdoors', 'topic:sports-outdoors', 'sport', 'sports', 'soccer', 'football', 'basketball', 'swimming', 'outdoors', 'camping', 'hiking'],
+      'Cooking & Baking': ['category:cooking & baking', 'cooking & baking', 'topic:cooking-baking', 'cooking', 'baking', 'recipe', 'recipes', 'kitchen', 'chef', 'cupcakes']
+    };
+
+    function videoMatchesCategoryByTags(v, catName) {
+      const target = String(catName || '').trim().toLowerCase();
+      if (!target || target === 'all videos') return true;
+      const tagSet = new Set((v?.tags || []).map(t => String(t).trim().toLowerCase()).filter(Boolean));
+      if (v?.category && String(v.category).trim().toLowerCase() !== 'all videos') {
+        tagSet.add(`category:${String(v.category).trim().toLowerCase()}`);
+      }
+      if (tagSet.has(`category:${target}`) || tagSet.has(target)) return true;
+      const entry = Object.entries(STUDIO_CATEGORY_TAG_MAP).find(([name]) => name.toLowerCase() === target);
+      return Boolean(entry && entry[1].some(alias => tagSet.has(alias)));
+    }
+
+    function getVideoCategoriesByTags(v) {
+      if (Array.isArray(v?.categories) && v.categories.length) return v.categories;
+      const matched = Object.keys(STUDIO_CATEGORY_TAG_MAP).filter(catName => videoMatchesCategoryByTags(v, catName));
+      if (!matched.length && v?.category && v.category !== 'All Videos') return [v.category];
+      return matched;
+    }
+
+    function renderFormCategoryTagPills() {
+      const wrap = document.getElementById('formCategoryTagPills');
+      const input = document.getElementById('formTags');
+      if (!wrap || !input) return;
+      const tagSet = new Set(input.value.split(',').map(t => t.trim().toLowerCase()).filter(Boolean));
+      wrap.innerHTML = Object.keys(STUDIO_CATEGORY_TAG_MAP).map(catName => {
+        const key = `category:${catName.toLowerCase()}`;
+        const active = tagSet.has(key);
+        return `<button type="button" onclick="toggleFormCategoryTag('${catName.replace(/'/g, "\\'")}')" style="cursor:pointer; font-size:0.72rem; padding:3px 8px; border-radius:99px; border:1px solid ${active ? 'var(--primary)' : 'var(--border)'}; background:${active ? 'rgba(255,51,102,0.16)' : 'var(--surface)'}; color:${active ? 'var(--primary)' : 'var(--text-muted)'}; font-weight:700;">${active ? '✓ ' : '+ '}${catName}</button>`;
+      }).join('');
+    }
+
+    function toggleFormCategoryTag(catName) {
+      const input = document.getElementById('formTags');
+      if (!input) return;
+      const key = `category:${catName.toLowerCase()}`;
+      const list = input.value.split(',').map(t => t.trim()).filter(Boolean);
+      const idx = list.findIndex(t => t.toLowerCase() === key);
+      if (idx >= 0) {
+        list.splice(idx, 1);
+      } else {
+        list.push(key);
+      }
+      input.value = list.join(', ');
+      renderFormCategoryTagPills();
+    }
+
     function filterVideos() {
       const q = document.getElementById('searchFilter').value.toLowerCase();
       const cat = document.getElementById('categoryFilter').value;
       const filtered = allVideos.filter(v => {
         const matchesQ = !q || v.title.toLowerCase().includes(q) || (v.tags || []).some(t => t.toLowerCase().includes(q));
-        const matchesCat = !cat || v.category === cat;
+        const matchesCat = !cat || videoMatchesCategoryByTags(v, cat);
         return matchesQ && matchesCat;
       });
       renderVideos(filtered);
@@ -4478,6 +4543,7 @@
           document.getElementById('formTitle').value = json.title || '';
           document.getElementById('formThumbPreview').src = json.thumbnailUrl;
           document.getElementById('formTags').value = 'kids, safe, fun';
+          renderFormCategoryTagPills();
           document.getElementById('curationForm').style.display = 'grid';
         }
       } catch (err) {
@@ -5709,7 +5775,7 @@
               <img src="${v.channelAvatar}" class="channel-pic">
               <span style="text-decoration:underline;">${v.channelTitle}</span>
               <span>&bull;</span>
-              <span>${v.category}</span>
+              <span>${getVideoCategoriesByTags(v).join(' • ') || v.category}</span>
             </div>
             <div class="tag-row">
               ${(v.tags || []).slice(0, 3).map(t => `<span class="tag-chip">#${t}</span>`).join('')}
