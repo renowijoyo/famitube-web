@@ -6641,8 +6641,18 @@
     let kidCuratedVisibleLimit = 5;
     let kidYtVisibleLimit = 10;
 
-    function kidTopicEmoji(name) {
+    function kidTopicEmoji(name, isToddler = false) {
       const lower = String(name || '').toLowerCase();
+      if (isToddler) {
+        if (lower.includes('animal') || lower.includes('nature')) return '🐶';
+        if (lower.includes('cartoon') || lower.includes('fun')) return '🧸';
+        if (lower.includes('craft') || lower.includes('art')) return '🎨';
+        if (lower.includes('yoga') || lower.includes('active')) return '🤸';
+        if (lower.includes('learn') || lower.includes('abc')) return '🔤';
+        if (lower.includes('music') || lower.includes('rhyme')) return '🎵';
+        if (lower.includes('stor') || lower.includes('read')) return '📖';
+        return '🎬';
+      }
       if (lower.includes('animal') || lower.includes('nature')) return '🦁';
       if (lower.includes('cartoon') || lower.includes('fun')) return '🎨';
       if (lower.includes('craft') || lower.includes('art')) return '✂️';
@@ -6687,8 +6697,17 @@
       return name;
     }
 
-    function kidTopicImage(name) {
+    function kidTopicImage(name, isToddler = false) {
       const lower = String(name || '').toLowerCase();
+      if (isToddler) {
+        if (lower.includes('animal') || lower.includes('nature')) return 'assets/topics/toddler-animals.jpg';
+        if (lower.includes('cartoon') || lower.includes('fun')) return 'assets/topics/toddler-cartoons.jpg';
+        if (lower.includes('craft') || lower.includes('art')) return 'assets/topics/toddler-art.jpg';
+        if (lower.includes('yoga') || lower.includes('active')) return 'assets/topics/toddler-dance.jpg';
+        if (lower.includes('learn') || lower.includes('abc')) return 'assets/topics/toddler-abcs.jpg';
+        if (lower.includes('music') || lower.includes('rhyme')) return 'assets/topics/toddler-music.jpg';
+        if (lower.includes('stor') || lower.includes('read')) return 'assets/topics/toddler-stories.jpg';
+      }
       if (lower.includes('animal') || lower.includes('nature')) return 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&h=400&fit=crop';
       if (lower.includes('cartoon') || lower.includes('fun')) return 'https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=600&h=400&fit=crop';
       if (lower.includes('craft') || lower.includes('art')) return 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600&h=400&fit=crop';
@@ -6748,9 +6767,9 @@
               const displayLabel = kidDisplayTopicTitle(c.name, isToddler);
               return `
               <button type="button" onclick="selectKidHubTopic('${c.name.replace(/'/g, "\\'")}')" style="position:relative; height:${isToddler ? '160px' : '142px'}; cursor:pointer; background:var(--surface); border:2px solid var(--border); border-radius:20px; overflow:hidden; padding:0; text-align:left; color:#fff; font-family:inherit; transition:transform 0.15s ease, border-color 0.15s ease;" onmouseover="this.style.borderColor='var(--primary)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='none'">
-                <img src="${kidTopicImage(c.name)}" alt="${displayLabel}" loading="lazy" style="width:100%; height:100%; object-fit:cover; display:block;">
-                <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.38) 50%, rgba(0,0,0,0.88) 100%);"></div>
-                <span style="position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.58); border-radius:10px; padding:3px 8px; font-size:${isToddler ? '1.35rem' : '1.1rem'}; line-height:1.2;">${kidTopicEmoji(c.name)}</span>
+                <img src="${kidTopicImage(c.name, isToddler)}" alt="${displayLabel}" loading="lazy" style="width:100%; height:100%; object-fit:cover; display:block;">
+                <div style="position:absolute; inset:0; background:${isToddler ? 'linear-gradient(180deg, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.12) 56%, rgba(0,0,0,0.78) 100%)' : 'linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.38) 50%, rgba(0,0,0,0.88) 100%)'};"></div>
+                <span style="position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.58); border-radius:10px; padding:3px 8px; font-size:${isToddler ? '1.35rem' : '1.1rem'}; line-height:1.2;">${kidTopicEmoji(c.name, isToddler)}</span>
                 <span style="position:absolute; left:12px; right:12px; bottom:10px; font-weight:800; font-size:0.95rem; line-height:1.2; text-shadow:0 1px 4px rgba(0,0,0,0.8);">${displayLabel}</span>
               </button>
             `;}).join('')}
@@ -6762,7 +6781,7 @@
             <button type="button" class="btn btn-secondary btn-sm" onclick="selectKidHubTopic(null)">
               <span class="material-symbols-rounded" style="font-size:1rem;">arrow_back</span> All Topics
             </button>
-            <h2 style="font-family:'Fredoka',cursive; font-size:1.35rem; margin:0;">${kidTopicEmoji(kidHomeSelectedTopic)} ${kidDisplayTopicTitle(kidHomeSelectedTopic, isToddler)}</h2>
+            <h2 style="font-family:'Fredoka',cursive; font-size:1.35rem; margin:0;">${kidTopicEmoji(kidHomeSelectedTopic, isToddler)} ${kidDisplayTopicTitle(kidHomeSelectedTopic, isToddler)}</h2>
           </div>
           <div id="kidHubTopicVideos" class="video-grid"><p style="color:var(--text-muted);">Loading safe videos...</p></div>
         `;
