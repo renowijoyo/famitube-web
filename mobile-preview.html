@@ -1914,6 +1914,18 @@
             }).join('')}
             <button class="btn-primary" style="width:100%;" onclick="const n=prompt('Child Name:'); if(n){ state.parentChildren.push({id:'c-'+Date.now(), name:n, email:n.toLowerCase().replace(/\\s+/g,'')+'@famitube.demo', ageRating:'YOUNG_KIDS', dailyLimitMinutes:null}); render(); }">+ Add Child Account</button>
           ` : state.parentTab === 'activity' ? `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <button class="btn-outline" style="padding:4px 10px; font-size:0.74rem; display:inline-flex; align-items:center; gap:4px;" onclick="state.parentTab='kids'; render();">
+                <span class="material-symbols-rounded" style="font-size:0.95rem;">arrow_back</span> Back to My Kids
+              </button>
+              ${(state.activityHistoryTab === 'watched' || state.activityHistoryTab === 'searches') ? `
+                <button class="btn-outline" style="padding:4px 9px; font-size:0.7rem; color:var(--pink); border-color:var(--pink);" onclick="if(state.activityHistoryTab==='watched'){ state.childActivityHistory.watched=[]; } else { state.childActivityHistory.searches=[]; } render();">Clear Tab</button>
+              ` : ''}
+            </div>
+            <div style="margin-bottom:10px;">
+              <div style="font-weight:800; font-size:1.05rem;">${state.selectedActivityKid} • Activity History</div>
+              <div style="font-size:0.72rem; color:var(--text-muted);">Watch history, search queries, channel requests &amp; trust tiers</div>
+            </div>
             <div style="margin-bottom:10px;">
               <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); margin-bottom:4px;">SELECT CHILD:</div>
               <div class="chips-row">
