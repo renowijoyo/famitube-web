@@ -938,6 +938,87 @@
         padding: 1.4rem;
       }
     }
+
+    /* Storybooks & Read-Along Flip-Book */
+    .story-book-stage {
+      perspective: 1400px;
+      margin-bottom: 1.25rem;
+    }
+    .story-page-card {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 14px 36px rgba(15, 23, 42, 0.14), inset -8px 0 18px rgba(15, 23, 42, 0.05);
+      transform-origin: left center;
+      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease;
+    }
+    .story-page-card.flipping-next {
+      animation: storyFlipNext 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .story-page-card.flipping-prev {
+      animation: storyFlipPrev 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes storyFlipNext {
+      0% { transform: rotateY(0deg) scale(1); opacity: 1; }
+      45% { transform: rotateY(-18deg) scale(0.97); opacity: 0.72; }
+      100% { transform: rotateY(0deg) scale(1); opacity: 1; }
+    }
+    @keyframes storyFlipPrev {
+      0% { transform: rotateY(0deg) scale(1); opacity: 1; }
+      45% { transform: rotateY(18deg) scale(0.97); opacity: 0.72; }
+      100% { transform: rotateY(0deg) scale(1); opacity: 1; }
+    }
+    @keyframes storyLockedShake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+    .story-shake {
+      animation: storyLockedShake 0.32s ease-in-out;
+    }
+    .story-words-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      align-items: center;
+      line-height: 1.5;
+    }
+    .story-word-btn {
+      border: 1.5px solid transparent;
+      background: var(--surface-light);
+      color: var(--text);
+      font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.28rem;
+      font-weight: 600;
+      padding: 0.28rem 0.58rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .story-word-btn:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .story-word-btn.is-read {
+      background: rgba(6, 214, 160, 0.16);
+      border-color: rgba(6, 214, 160, 0.45);
+      color: var(--success);
+    }
+    .story-word-btn.is-current {
+      background: rgba(255, 51, 102, 0.14);
+      border-color: var(--primary);
+      color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(255, 51, 102, 0.15);
+      transform: scale(1.04);
+    }
+    .story-mic-pulse {
+      animation: storyMicPulse 1.3s infinite ease-in-out;
+    }
+    @keyframes storyMicPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255, 51, 102, 0.45); }
+      50% { box-shadow: 0 0 0 10px rgba(255, 51, 102, 0); }
+    }
   </style>
 </head>
 <body>
@@ -976,6 +1057,9 @@
       </a>
       <button type="button" class="nav-link active" id="kidTabBtnCurated" style="display:none;" onclick="openKidTabFromHeader('curated')">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">home</span> Explore
+      </button>
+      <button type="button" class="nav-link" id="kidTabBtnStories" style="display:none;" onclick="openKidTabFromHeader('stories')">
+        <span class="material-symbols-rounded" style="font-size:1.05rem;">menu_book</span> Stories
       </button>
       <button type="button" class="nav-link" id="kidTabBtnChannels" style="display:none;" onclick="openChannelsNav()">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">tv</span> Channels
@@ -1370,6 +1454,8 @@
 
     <div id="kidHomeHub" style="display:none; margin-bottom:2rem;"></div>
 
+    <div id="kidStoriesPanel" style="display:none; margin-bottom:2rem;"></div>
+
     <div id="showcaseCuratedPanel" style="display:none;">
     <button type="button" id="btnBackToKidExplore" class="btn btn-secondary btn-sm" style="display:none; margin-bottom:1rem;" onclick="kidViewingSelectedChannel = false; switchKidShowcaseTab('curated');">
       <span class="material-symbols-rounded" style="font-size:1rem;">arrow_back</span> Back to Explore
@@ -1678,6 +1764,7 @@
       </div>
 
       <div id="parentModeChildrenGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:1rem;"></div>
+      <div id="pmGlobalControlsContainer" style="margin-top:1.75rem;"></div>
       <div id="parentReferralsSection" style="margin-top:1.75rem;"></div>
     </div>
 
@@ -1805,6 +1892,7 @@
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('videos', this)">Curated Videos</button>
       <button class="tab-btn" onclick="switchTab('channels', this)">Channels (Live &amp; On Demand)</button>
+      <button class="tab-btn" onclick="switchTab('stories', this)">Storybooks</button>
       <button class="tab-btn" onclick="switchTab('kids', this)">My Kids</button>
       <button class="tab-btn" onclick="switchTab('advisories', this)">Recommended &amp; Caution</button>
       <button class="tab-btn" onclick="switchTab('settings', this)">Parental Defaults</button>
@@ -2165,10 +2253,27 @@
             <label>Global Default Age Tier</label>
             <select id="globalAgeRating">
               <option value="ALL">All Ages (12+)</option>
-              <option value="TODDLER">Toddlers (0-4)</option>
-              <option value="YOUNG_KIDS">Young Kids (5-7)</option>
-              <option value="OLDER_KIDS">Explorers (8-11)</option>
+              <option value="TODDLER">Tier 1: Toddler (TV Mode)</option>
+              <option value="YOUNG_KIDS">Tier 2: Young Kids (5-7)</option>
+              <option value="OLDER_KIDS">Tier 3: Older Kids (8+)</option>
             </select>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.85rem; margin-bottom:1rem;">
+            <div class="form-group" style="margin:0;">
+              <label>Family Language</label>
+              <select id="globalContentLanguage">
+                <option value="en">English</option>
+                <option value="id">Indonesian</option>
+                <option value="bilingual">Bilingual (EN + ID)</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label>Culture Focus</label>
+              <select id="globalCultureMode">
+                <option value="GLOBAL">Global / Cross-Cultural</option>
+                <option value="ID">Indonesia / Nusantara</option>
+              </select>
+            </div>
           </div>
           <div style="padding:0.85rem; border-radius:var(--radius-sm); background:var(--bg); border:1px solid var(--border); margin-bottom:1rem;">
             <label style="display:flex; align-items:center; gap:0.5rem; font-weight:600; font-size:0.88rem; cursor:pointer; margin-bottom:0.65rem;">
@@ -2247,6 +2352,77 @@
           <div id="advisoryCautionList" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
         </div>
       </div>
+    </div>
+
+    <!-- Tab 6: Storybooks & Read-Along Curator -->
+    <div id="tabStories" style="display:none;">
+      <div class="channel-creator-box" style="margin-bottom:1.5rem;">
+        <h3 id="studioStoryFormHeading" style="font-family:'Fredoka',cursive; font-size:1.25rem; margin-bottom:0.35rem; display:flex; align-items:center; gap:0.5rem;">
+          <span class="material-symbols-rounded" style="color:var(--primary);">menu_book</span>
+          Create or Edit a Flip-Page Storybook
+        </h3>
+        <p style="color:var(--text-muted); font-size:0.86rem; margin-bottom:1rem;">
+          Build illustrated flip-page storybooks for Toddlers (Story Flip) and Young Kids (Mic Read-Along).
+        </p>
+        <form id="studioStoryForm" onsubmit="saveStudioStory(event)">
+          <input type="hidden" id="studioStoryEditId" value="">
+          <div class="form-row-3" style="margin-bottom:0.75rem;">
+            <div class="form-group">
+              <label>Story Title</label>
+              <input type="text" id="studioStoryTitle" placeholder="e.g. Little Bear's Sleepy Moon" required>
+            </div>
+            <div class="form-group">
+              <label>Author</label>
+              <input type="text" id="studioStoryAuthor" value="FamiTube Storybooks" required>
+            </div>
+            <div class="form-group">
+              <label>Cover Image URL</label>
+              <input type="url" id="studioStoryCover" placeholder="https://images.unsplash.com/..." required>
+            </div>
+          </div>
+          <div class="form-row-3" style="margin-bottom:0.75rem;">
+            <div class="form-group">
+              <label>Target Age Group</label>
+              <select id="studioStoryAge">
+                <option value="TODDLER">Toddlers (2–4 yrs • Flip Default)</option>
+                <option value="YOUNG_KIDS">Young Kids (5–8 yrs • Read-Along Default)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Language</label>
+              <select id="studioStoryLang">
+                <option value="en">English (en)</option>
+                <option value="id">Indonesian (id)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Famibux Reward</label>
+              <input type="number" id="studioStoryReward" value="25" min="5" max="200" required>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:0.85rem;">
+            <label>Description</label>
+            <input type="text" id="studioStoryDesc" placeholder="Short summary for parents and kids...">
+          </div>
+          <div style="margin-bottom:0.85rem;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem;">
+              <label style="font-weight:700; font-size:0.88rem;">Story Pages (min 2 pages)</label>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="addStudioStoryPageRow()">
+                <span class="material-symbols-rounded" style="font-size:1rem;">add</span> Add Page
+              </button>
+            </div>
+            <div id="studioStoryPagesList" style="display:flex; flex-direction:column; gap:0.65rem;"></div>
+          </div>
+          <div style="display:flex; gap:0.65rem; justify-content:flex-end;">
+            <button type="button" id="btnCancelStudioStoryEdit" class="btn btn-secondary" style="display:none;" onclick="resetStudioStoryForm()">Cancel Edit</button>
+            <button type="submit" class="btn btn-primary">
+              <span class="material-symbols-rounded">save</span> Save Storybook
+            </button>
+          </div>
+        </form>
+      </div>
+      <h3 style="margin-bottom:0.85rem;">Curated Storybooks (<span id="studioStoriesCount">0</span>)</h3>
+      <div id="studioStoriesGrid" class="video-grid"></div>
     </div>
   </div>
 
@@ -2552,6 +2728,23 @@
           <div>
             <label style="display:block; font-weight:700; font-size:0.9rem; margin-bottom:0.35rem;">Change Parent PIN (4 digits)</label>
             <input type="text" id="kidPcNewPin" maxlength="4" pattern="\d{4}" placeholder="1234" style="width:100%;">
+          </div>
+
+          <div id="kidPcToddlerSection" class="card" style="display:none; padding:0.9rem 1rem; background:var(--surface-light);">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.65rem;">
+              <span style="font-weight:700; font-size:0.9rem;">📺 Toddler TV Loop &amp; Nap Cooldown</span>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="wakeWebToddlerTvFromModal()">☀️ Wake Up TV Now</button>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.65rem;">
+              <div>
+                <label style="display:block; font-size:0.78rem; color:var(--text-muted); margin-bottom:0.25rem;">1-Loop Session (min)</label>
+                <input type="number" id="kidPcToddlerLoop" min="5" max="60" value="15" style="width:100%;">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.78rem; color:var(--text-muted); margin-bottom:0.25rem;">Nap Cooldown (min)</label>
+                <input type="number" id="kidPcToddlerCooldown" min="5" max="240" value="30" style="width:100%;">
+              </div>
+            </div>
           </div>
 
           <div id="kidPcStatusMsg" style="display:none; font-size:0.84rem; font-weight:600;"></div>
@@ -4364,6 +4557,10 @@
         document.getElementById('globalPin').value = c.parentPin || '1234';
         document.getElementById('globalDailyLimit').value = c.dailyLimitMinutes ?? 45;
         document.getElementById('globalAgeRating').value = c.ageRating || 'ALL';
+        const langEl = document.getElementById('globalContentLanguage');
+        if (langEl) langEl.value = c.contentLanguage || 'en';
+        const culEl = document.getElementById('globalCultureMode');
+        if (culEl) culEl.value = c.cultureMode || 'GLOBAL';
         document.getElementById('globalAttentionEnabled').checked = c.attentionTrackingEnabled !== false;
         document.getElementById('globalAttentionPause').value = c.attentionPauseSeconds ?? 30;
         document.getElementById('globalAttentionMinPct').value = c.attentionMinWatchPercent ?? 70;
@@ -4378,6 +4575,8 @@
         parentPin: document.getElementById('globalPin').value.trim(),
         dailyLimitMinutes: Number(document.getElementById('globalDailyLimit').value),
         ageRating: document.getElementById('globalAgeRating').value,
+        contentLanguage: document.getElementById('globalContentLanguage')?.value || 'en',
+        cultureMode: document.getElementById('globalCultureMode')?.value || 'GLOBAL',
         attentionTrackingEnabled: document.getElementById('globalAttentionEnabled').checked,
         attentionPauseSeconds: Number(document.getElementById('globalAttentionPause').value),
         attentionMinWatchPercent: Number(document.getElementById('globalAttentionMinPct').value),
@@ -4638,11 +4837,13 @@
 
       document.getElementById('tabVideos').style.display = name === 'videos' ? 'block' : 'none';
       document.getElementById('tabChannels').style.display = name === 'channels' ? 'block' : 'none';
+      document.getElementById('tabStories').style.display = name === 'stories' ? 'block' : 'none';
       document.getElementById('tabKids').style.display = name === 'kids' ? 'block' : 'none';
       document.getElementById('tabAdvisories').style.display = name === 'advisories' ? 'block' : 'none';
       document.getElementById('tabSettings').style.display = name === 'settings' ? 'block' : 'none';
 
       if (name === 'channels') { loadChannels(); toggleLiveTimelineBuilder(); }
+      if (name === 'stories') { loadAdminStories(); }
       if (name === 'kids') { loadParentChildren(); loadParentVideoRequests(); }
       if (name === 'advisories') loadParentAdvisoryLists();
       if (name === 'settings') loadSettings();
@@ -4693,9 +4894,135 @@
     }
 
     function closePlayerModal() {
+      if (webToddlerPhaseTimer) { clearTimeout(webToddlerPhaseTimer); webToddlerPhaseTimer = null; }
+      if (webToddlerTickTimer) { clearInterval(webToddlerTickTimer); webToddlerTickTimer = null; }
+      if (webToddlerActiveTopic) {
+        const st = readWebToddlerLocalState();
+        if (st.playheads?.[webToddlerActiveTopic]) {
+          st.playheads[webToddlerActiveTopic].lastLeftAt = Date.now();
+          st.sessionWatchedSec = webToddlerSessionWatchedSec;
+          writeWebToddlerLocalState(st);
+        }
+        webToddlerActiveTopic = null;
+      }
       stopKidWatchTimer();
       document.getElementById('playerContainer').innerHTML = '';
       document.getElementById('playerModal').style.display = 'none';
+    }
+
+    function tuneWebToddlerChannel(topic) {
+      if (getWebToddlerCooldownUntilMs() > Date.now()) {
+        alert('Shhh... Toddler TV is napping! Time for offline playtime.');
+        return;
+      }
+      const ch = (webToddlerTvData?.channels || []).find(c => c.topic === topic);
+      if (!ch || !ch.videos?.length) {
+        alert('No calm videos available on this channel yet.');
+        return;
+      }
+      if (webToddlerPhaseTimer) clearTimeout(webToddlerPhaseTimer);
+      if (webToddlerTickTimer) clearInterval(webToddlerTickTimer);
+
+      const st = readWebToddlerLocalState();
+      webToddlerSessionWatchedSec = st.sessionWatchedSec || 0;
+      const ph = st.playheads?.[topic] || { index: 0, elapsedSec: 0, lastLeftAt: 0 };
+      if (ph.lastLeftAt && (Date.now() - ph.lastLeftAt) > 180000) {
+        ph.index = (ph.index + 1) % ch.videos.length;
+        ph.elapsedSec = 0;
+      }
+      ph.lastLeftAt = 0;
+      st.playheads = st.playheads || {};
+      st.playheads[topic] = ph;
+      writeWebToddlerLocalState(st);
+
+      webToddlerActiveTopic = topic;
+      const modal = document.getElementById('playerModal');
+      const container = document.getElementById('playerContainer');
+      document.getElementById('modalTitle').textContent = `${ch.emoji} ${ch.displayTitle} • Linear Toddler TV`;
+      document.getElementById('modalDesc').textContent = 'Tuning in...';
+      const bar = document.getElementById('modalPlaylistBar');
+      if (bar) bar.style.display = 'none';
+      const revBar = document.getElementById('modalParentReviewBar');
+      if (revBar) revBar.style.display = 'none';
+
+      container.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; background:linear-gradient(135deg, #1e293b, #0f172a); color:#fff; text-align:center; padding:1.5rem;"><div style="font-size:3rem; margin-bottom:0.5rem;">${ch.emoji}</div><div style="font-family:'Fredoka',cursive; font-size:1.4rem;">Tuning in to ${ch.displayTitle}...</div></div>`;
+      modal.style.display = 'flex';
+
+      webToddlerPhaseTimer = setTimeout(() => {
+        playWebToddlerSlot(ch, ph);
+      }, 2200);
+    }
+
+    function playWebToddlerSlot(ch, ph) {
+      if (!webToddlerActiveTopic) return;
+      const vid = ch.videos[ph.index % ch.videos.length];
+      if (!vid) return;
+      const container = document.getElementById('playerContainer');
+      const loopMins = webToddlerTvData?.settings?.toddlerLoopMinutes || 15;
+      const loopBudgetSec = loopMins * 60;
+      const startSec = Math.max(0, Math.floor(ph.elapsedSec || 0));
+
+      document.getElementById('modalTitle').textContent = `${ch.emoji} ${ch.displayTitle} — ${vid.title}`;
+      document.getElementById('modalDesc').textContent = `${startSec > 0 ? 'Resuming where you left off' : 'Playing from start'} • No skipping`;
+
+      if (vid.sourceType === 'YOUTUBE' && vid.youtubeVideoId) {
+        container.innerHTML = `
+          <div style="position:relative; width:100%; height:100%;">
+            <iframe src="https://www.youtube-nocookie.com/embed/${vid.youtubeVideoId}?autoplay=1&controls=0&disablekb=1&rel=0&modestbranding=1&iv_load_policy=3&start=${startSec}" allow="accelerometer; autoplay; encrypted-media" style="width:100%; height:100%; border:0;"></iframe>
+            <div style="position:absolute; inset:0; z-index:5; background:transparent;"></div>
+          </div>`;
+      } else {
+        container.innerHTML = `<video src="${vid.sourceUrl}" autoplay playsinline style="width:100%; height:100%; pointer-events:none;"></video>`;
+      }
+      if (authToken && currentUser) recordKidHistoryItem(vid);
+
+      const dur = Math.max(30, vid.duration || 180);
+      clearInterval(webToddlerTickTimer);
+      webToddlerTickTimer = setInterval(async () => {
+        if (!webToddlerActiveTopic) { clearInterval(webToddlerTickTimer); return; }
+        ph.elapsedSec = (ph.elapsedSec || 0) + 1;
+        webToddlerSessionWatchedSec += 1;
+        const st = readWebToddlerLocalState();
+        st.playheads[ch.topic] = ph;
+        st.sessionWatchedSec = webToddlerSessionWatchedSec;
+        writeWebToddlerLocalState(st);
+
+        if (ph.elapsedSec >= dur) {
+          clearInterval(webToddlerTickTimer);
+          if (webToddlerSessionWatchedSec >= loopBudgetSec) {
+            container.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; background:#0f172a; color:#fff; text-align:center; padding:1.5rem;"><div style="font-size:3rem; margin-bottom:0.5rem;">🌙 😴</div><div style="font-family:'Fredoka',cursive; font-size:1.35rem;">Bye-Bye! Time for Playtime</div><div style="color:#94a3b8; font-size:0.9rem; margin-top:0.35rem;">${ch.displayTitle} is going to take a nap now.</div></div>`;
+            try {
+              const res = await authFetch('/api/kids/toddler-tv/cooldown', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'START' })
+              });
+              const j = await res.json();
+              const cdUntil = j?.data?.cooldownUntil ? Date.parse(j.data.cooldownUntil) : (Date.now() + 30 * 60000);
+              const nextSt = readWebToddlerLocalState();
+              nextSt.cooldownUntil = cdUntil;
+              nextSt.sessionWatchedSec = 0;
+              writeWebToddlerLocalState(nextSt);
+              if (webToddlerTvData) webToddlerTvData.cooldownUntil = new Date(cdUntil).toISOString();
+            } catch {}
+            webToddlerPhaseTimer = setTimeout(() => {
+              closePlayerModal();
+              if (currentUser) renderKidHomeHub(currentUser);
+            }, 5000);
+          } else {
+            const rem = loopBudgetSec - webToddlerSessionWatchedSec;
+            if (rem <= 240) {
+              const calmIdx = ch.videos.findIndex((x, i) => i !== ph.index && (x.tags || []).some(t => ['pacing:calm', 'context:bedtime-safe'].includes(t.toLowerCase())));
+              ph.index = calmIdx >= 0 ? calmIdx : (ph.index + 1) % ch.videos.length;
+            } else {
+              ph.index = (ph.index + 1) % ch.videos.length;
+            }
+            ph.elapsedSec = 0;
+            container.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; background:#0f172a; color:#fff; text-align:center; padding:1.5rem;"><div style="font-size:3rem; margin-bottom:0.5rem;">${ch.emoji}</div><div style="font-family:'Fredoka',cursive; font-size:1.35rem;">Take a Slow Breath...</div><div style="color:#94a3b8; font-size:0.9rem; margin-top:0.35rem;">Next story starting cleanly</div></div>`;
+            webToddlerPhaseTimer = setTimeout(() => playWebToddlerSlot(ch, ph), 3200);
+          }
+        }
+      }, 1000);
     }
 
     let showcaseChannels = [];
@@ -4837,6 +5164,7 @@
       document.getElementById('parentModeApp').style.display = 'block';
       closeChildProfile();
       loadParentModeChildren();
+      loadParentModeGlobalControls();
       loadParentReferralsAndVouchers();
     }
 
@@ -4856,10 +5184,9 @@
       let age = now.getFullYear() - y;
       const monthDiff = (now.getMonth() + 1) - m;
       if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < d)) age--;
-      if (age <= 4) return 'TODDLER';
-      if (age <= 7) return 'YOUNG_KIDS';
-      if (age <= 11) return 'OLDER_KIDS';
-      return 'ALL';
+      if (age <= 3) return 'TODDLER';
+      if (age <= 6) return 'YOUNG_KIDS';
+      return 'OLDER_KIDS';
     }
 
     function onChildBirthdayChange(birthdayStr) {
@@ -4876,11 +5203,95 @@
 
     function formatAgeGroupLabel(ageRating) {
       switch (ageRating) {
-        case 'TODDLER': return 'Toddler (0-4 yrs)';
-        case 'YOUNG_KIDS': return 'Young Kids (5-7 yrs)';
-        case 'OLDER_KIDS': return 'Explorers (8-11 yrs)';
+        case 'TODDLER': return 'Tier 1: Toddler TV';
+        case 'YOUNG_KIDS': return 'Tier 2: Young Kids';
+        case 'OLDER_KIDS': return 'Tier 3: Older Kids';
         default: return 'Pre-Teens & Up (12+ yrs)';
       }
+    }
+
+    const WEB_TODDLER_TV_CHANNELS = [
+      { topic: 'Music & Rhymes', displayTitle: 'Songs & Rhymes', emoji: '🎵' },
+      { topic: 'Animals & Nature', displayTitle: 'Cute Animals', emoji: '🐶' },
+      { topic: 'Learning & ABCs', displayTitle: 'ABCs & Colors', emoji: '🔤' },
+      { topic: 'Art & Crafts', displayTitle: 'Colors & Play', emoji: '🎨' },
+      { topic: 'Kids Yoga & Active', displayTitle: 'Sing & Dance', emoji: '🤸' },
+      { topic: 'Stories & Reading', displayTitle: 'Bedtime Stories', emoji: '📖' },
+      { topic: 'Cartoons & Fun', displayTitle: 'Gentle Toons', emoji: '🧸' }
+    ];
+
+    async function loadParentModeGlobalControls() {
+      const box = document.getElementById('pmGlobalControlsContainer');
+      if (!box) return;
+      try {
+        const res = await authFetch('/api/parent/controls');
+        const json = await res.json();
+        if (!json.success || !json.data) return;
+        const c = json.data;
+        box.innerHTML = `
+          <div class="channel-creator-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.85rem;">
+              <div>
+                <h3 style="font-family:'Fredoka',cursive; font-size:1.2rem; margin:0;">Global Family Controls</h3>
+                <p style="font-size:0.82rem; color:var(--text-muted); margin:0.2rem 0 0;">Common defaults shared across all age groups (PIN, language, culture, and screen safety).</p>
+              </div>
+              <button type="button" class="btn btn-primary btn-sm" onclick="saveParentModeGlobalControls()">Save Global Controls</button>
+            </div>
+            <div class="form-row-3" style="margin-bottom:0.75rem;">
+              <div class="form-group">
+                <label>Global Parent PIN (4 digits)</label>
+                <input type="text" maxlength="4" id="pmGlobalPin" value="${c.parentPin || '1234'}">
+              </div>
+              <div class="form-group">
+                <label>Family Language</label>
+                <select id="pmGlobalLang">
+                  <option value="en" ${(c.contentLanguage || 'en') === 'en' ? 'selected' : ''}>English</option>
+                  <option value="id" ${c.contentLanguage === 'id' ? 'selected' : ''}>Indonesian</option>
+                  <option value="bilingual" ${c.contentLanguage === 'bilingual' ? 'selected' : ''}>Bilingual (EN + ID)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Culture Focus</label>
+                <select id="pmGlobalCulture">
+                  <option value="GLOBAL" ${(c.cultureMode || 'GLOBAL') === 'GLOBAL' ? 'selected' : ''}>Global / Cross-Cultural</option>
+                  <option value="ID" ${c.cultureMode === 'ID' ? 'selected' : ''}>Indonesia / Nusantara</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row" style="align-items:center;">
+              <div class="form-group">
+                <label>Global Daily Limit (minutes, 0 = unlimited)</label>
+                <input type="number" min="0" max="720" id="pmGlobalDailyLimit" value="${c.dailyLimitMinutes ?? 45}">
+              </div>
+              <label style="display:inline-flex; align-items:center; gap:0.45rem; font-size:0.86rem; font-weight:600; cursor:pointer; margin-top:0.85rem;">
+                <input type="checkbox" id="pmGlobalAttention" ${c.attentionTrackingEnabled !== false ? 'checked' : ''}>
+                Enable Camera Attention Check (Android)
+              </label>
+            </div>
+          </div>
+        `;
+      } catch {}
+    }
+
+    async function saveParentModeGlobalControls() {
+      const parentPin = String(document.getElementById('pmGlobalPin')?.value || '').trim();
+      if (!/^\d{4}$/.test(parentPin)) return alert('Parent PIN must be exactly 4 digits.');
+      const payload = {
+        parentPin,
+        contentLanguage: document.getElementById('pmGlobalLang')?.value || 'en',
+        cultureMode: document.getElementById('pmGlobalCulture')?.value || 'GLOBAL',
+        dailyLimitMinutes: Number(document.getElementById('pmGlobalDailyLimit')?.value || 45),
+        attentionTrackingEnabled: Boolean(document.getElementById('pmGlobalAttention')?.checked)
+      };
+      const res = await authFetch('/api/parent/controls', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to save global controls');
+      await loadParentModeChildren();
+      alert('Global family controls saved!');
     }
 
     async function loadParentModeChildren() {
@@ -5058,6 +5469,14 @@
     function renderChildProfile(c) {
       const container = document.getElementById('childProfileContent');
       if (!container) return;
+      const isToddler = c.ageRating === 'TODDLER';
+      const enabledTopics = Array.isArray(c.toddlerEnabledTopics) && c.toddlerEnabledTopics.length
+        ? c.toddlerEnabledTopics
+        : WEB_TODDLER_TV_CHANNELS.slice(0, 6).map(x => x.topic);
+      const hiddenCount = Array.isArray(c.toddlerHiddenVideoIds) ? c.toddlerHiddenVideoIds.length : 0;
+      const isNapping = c.toddlerCooldownUntil && Date.parse(c.toddlerCooldownUntil) > Date.now();
+      const napMinsLeft = isNapping ? Math.max(1, Math.ceil((Date.parse(c.toddlerCooldownUntil) - Date.now()) / 60000)) : 0;
+
       container.innerHTML = `
         <div class="channel-creator-box" style="margin-bottom:1.25rem;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.25rem;">
@@ -5080,52 +5499,124 @@
 
           <div class="form-row" style="margin-bottom:1rem; align-items:end;">
             <div class="form-group">
-              <label>Birthday</label>
+              <label>Birthday (Reference Only)</label>
               <input type="date" id="profileBirthday_${c.id}" value="${c.birthday || ''}" onchange="onProfileBirthdayChange('${c.id}', this.value)">
             </div>
             <div class="form-group">
-              <label>Age Group</label>
+              <label>Developmental Tier (Parent Decides)</label>
               <select id="profileAgeRating_${c.id}">
-                <option value="TODDLER" ${c.ageRating === 'TODDLER' ? 'selected' : ''}>Toddler (0-4 yrs)</option>
-                <option value="YOUNG_KIDS" ${c.ageRating === 'YOUNG_KIDS' ? 'selected' : ''}>Young Kids (5-7 yrs)</option>
-                <option value="OLDER_KIDS" ${c.ageRating === 'OLDER_KIDS' ? 'selected' : ''}>Explorers (8-11 yrs)</option>
-                <option value="ALL" ${c.ageRating === 'ALL' ? 'selected' : ''}>Pre-Teens &amp; Up (12+ yrs)</option>
+                <option value="TODDLER" ${c.ageRating === 'TODDLER' ? 'selected' : ''}>Tier 1: Toddler (Linear TV Mode)</option>
+                <option value="YOUNG_KIDS" ${c.ageRating === 'YOUNG_KIDS' ? 'selected' : ''}>Tier 2: Young Kids (5-7 yrs)</option>
+                <option value="OLDER_KIDS" ${c.ageRating === 'OLDER_KIDS' ? 'selected' : ''}>Tier 3: Older Kids (8+ yrs)</option>
+                <option value="ALL" ${c.ageRating === 'ALL' ? 'selected' : ''}>All Ages / Pre-Teens (12+ yrs)</option>
               </select>
             </div>
             <div>
-              <button type="button" class="btn btn-primary" onclick="saveChildProfileBasics('${c.id}')">Save Profile</button>
+              <button type="button" class="btn btn-primary" onclick="saveChildProfileBasics('${c.id}')">Save Tier &amp; Profile</button>
             </div>
           </div>
 
-          <div style="padding:0.9rem 1rem; border-radius:var(--radius-sm); background:var(--bg); border:1px solid var(--border); display:flex; flex-wrap:wrap; gap:1rem; align-items:center; justify-content:space-between;">
-            <div style="display:flex; flex-wrap:wrap; gap:1rem; align-items:center; font-size:0.86rem;">
-              <label style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; cursor:pointer;">
-                <input type="checkbox" id="pmSearchEnabled_${c.id}" ${c.youtubeSearchEnabled ? 'checked' : ''}>
-                Enable YouTube Search
-              </label>
-              <label style="display:inline-flex; align-items:center; gap:0.4rem;">
-                Max Searched Videos (0 = unlimited):
-                <input type="number" min="0" id="pmSearchLimit_${c.id}" value="${c.searchViewLimit ?? 0}" style="width:72px; padding:0.25rem 0.45rem; border-radius:4px; border:1px solid var(--border); background:var(--surface); color:var(--text);">
-              </label>
-              <span style="color:var(--accent); font-weight:600;">Used: ${c.searchViewsUsed ?? 0}</span>
-              <label style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; cursor:pointer;">
-                <input type="checkbox" id="pmSearchApproval_${c.id}" ${c.searchRequireApproval !== false ? 'checked' : ''}>
-                Require Parent Approval
-              </label>
+          ${isToddler ? `
+            <div style="padding:1rem; border-radius:var(--radius-sm); background:var(--bg); border:1px solid rgba(255,51,102,0.3); margin-bottom:0.9rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.85rem;">
+                <div>
+                  <div style="font-weight:700; font-size:0.98rem;">📺 Tier 1: Toddler TV Controls</div>
+                  <div style="font-size:0.8rem; color:var(--text-muted);">Linear ready-made TV channels, 1-loop sessions, nap cooldown, and slow-paced language curation.</div>
+                </div>
+                <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+                  ${isNapping ? `<button type="button" class="btn btn-secondary btn-sm" onclick="wakeParentChildToddlerTv('${c.id}')">☀️ Wake Up TV (${napMinsLeft}m nap left)</button>` : `<span style="font-size:0.78rem; font-weight:700; color:var(--success);">● TV Awake</span>`}
+                  <button type="button" class="btn btn-primary btn-sm" onclick="savePmChildToddlerControls('${c.id}')">Save Toddler TV Settings</button>
+                </div>
+              </div>
+              <div class="form-row-3" style="margin-bottom:0.85rem;">
+                <div class="form-group">
+                  <label>1-Loop Session Length (min)</label>
+                  <select id="pmToddlerLoop_${c.id}">
+                    ${[10, 15, 20, 25, 30].map(m => `<option value="${m}" ${(c.toddlerLoopMinutes ?? 15) === m ? 'selected' : ''}>${m} minutes</option>`).join('')}
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Nap Cooldown After Loop</label>
+                  <select id="pmToddlerCooldown_${c.id}">
+                    ${[15, 30, 45, 60, 90].map(m => `<option value="${m}" ${(c.toddlerCooldownMinutes ?? 30) === m ? 'selected' : ''}>${m} minutes</option>`).join('')}
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Toddler Micro-Stage</label>
+                  <select id="pmToddlerSubStage_${c.id}">
+                    <option value="AUTO" ${(c.toddlerSubStage || 'AUTO') === 'AUTO' ? 'selected' : ''}>Auto (Balanced)</option>
+                    <option value="EARLY" ${c.toddlerSubStage === 'EARLY' ? 'selected' : ''}>Early Toddler (1.5-2.5y)</option>
+                    <option value="OLDER" ${c.toddlerSubStage === 'OLDER' ? 'selected' : ''}>Older Toddler (2.5-4y)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row" style="margin-bottom:0.85rem;">
+                <div class="form-group">
+                  <label>Language Override</label>
+                  <select id="pmToddlerLang_${c.id}">
+                    <option value="en" ${(c.contentLanguage || 'en') === 'en' ? 'selected' : ''}>English</option>
+                    <option value="id" ${c.contentLanguage === 'id' ? 'selected' : ''}>Indonesian</option>
+                    <option value="bilingual" ${c.contentLanguage === 'bilingual' ? 'selected' : ''}>Bilingual (EN + ID)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Culture Focus</label>
+                  <select id="pmToddlerCulture_${c.id}">
+                    <option value="GLOBAL" ${(c.cultureMode || 'GLOBAL') === 'GLOBAL' ? 'selected' : ''}>Global / Cross-Cultural</option>
+                    <option value="ID" ${c.cultureMode === 'ID' ? 'selected' : ''}>Indonesia / Nusantara</option>
+                  </select>
+                </div>
+              </div>
+              <div style="margin-bottom:0.85rem;">
+                <div style="font-size:0.82rem; font-weight:700; margin-bottom:0.4rem;">Active Ready-Made TV Channels</div>
+                <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+                  ${WEB_TODDLER_TV_CHANNELS.map(ch => `
+                    <label style="display:inline-flex; align-items:center; gap:0.35rem; padding:0.35rem 0.65rem; border-radius:99px; background:var(--surface); border:1px solid var(--border); font-size:0.8rem; cursor:pointer;">
+                      <input type="checkbox" class="pm-toddler-topic-${c.id}" value="${ch.topic}" ${enabledTopics.includes(ch.topic) ? 'checked' : ''}>
+                      <span>${ch.emoji} ${ch.displayTitle}</span>
+                    </label>
+                  `).join('')}
+                </div>
+              </div>
+              <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.45rem;">
+                  <span style="font-size:0.82rem; font-weight:700;">This Week's Loop Preview (6-Video Sticky Queue)</span>
+                  ${hiddenCount ? `<button type="button" class="btn btn-secondary btn-sm" onclick="restoreParentToddlerHiddenVideos('${c.id}')">Restore ${hiddenCount} Swapped Video${hiddenCount === 1 ? '' : 's'}</button>` : ''}
+                </div>
+                <div id="pmToddlerLoopPreview_${c.id}" style="font-size:0.82rem; color:var(--text-muted);">Loading weekly channels...</div>
+              </div>
             </div>
-            <div style="display:flex; gap:0.5rem;">
-              <button type="button" class="btn btn-secondary btn-sm" onclick="resetPmChildSearchViews('${c.id}')">Reset Count</button>
-              <button type="button" class="btn btn-primary btn-sm" onclick="savePmChildSearchSettings('${c.id}')">Save Search Settings</button>
+          ` : `
+            <div style="padding:0.9rem 1rem; border-radius:var(--radius-sm); background:var(--bg); border:1px solid var(--border); display:flex; flex-wrap:wrap; gap:1rem; align-items:center; justify-content:space-between;">
+              <div style="display:flex; flex-wrap:wrap; gap:1rem; align-items:center; font-size:0.86rem;">
+                <label style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; cursor:pointer;">
+                  <input type="checkbox" id="pmSearchEnabled_${c.id}" ${c.youtubeSearchEnabled ? 'checked' : ''}>
+                  Enable YouTube Search
+                </label>
+                <label style="display:inline-flex; align-items:center; gap:0.4rem;">
+                  Max Searched Videos (0 = unlimited):
+                  <input type="number" min="0" id="pmSearchLimit_${c.id}" value="${c.searchViewLimit ?? 0}" style="width:72px; padding:0.25rem 0.45rem; border-radius:4px; border:1px solid var(--border); background:var(--surface); color:var(--text);">
+                </label>
+                <span style="color:var(--accent); font-weight:600;">Used: ${c.searchViewsUsed ?? 0}</span>
+                <label style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; cursor:pointer;">
+                  <input type="checkbox" id="pmSearchApproval_${c.id}" ${c.searchRequireApproval !== false ? 'checked' : ''}>
+                  Require Parent Approval
+                </label>
+              </div>
+              <div style="display:flex; gap:0.5rem;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="resetPmChildSearchViews('${c.id}')">Reset Count</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="savePmChildSearchSettings('${c.id}')">Save Search Settings</button>
+              </div>
             </div>
-          </div>
+          `}
 
           <div style="margin-top:0.9rem; padding:1rem; border-radius:var(--radius-sm); background:var(--bg); border:1px solid var(--border);">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.75rem;">
               <div>
-                <div style="font-weight:700; font-size:0.95rem;">Parental Controls (Synced to Android App)</div>
-                <div style="font-size:0.8rem; color:var(--text-muted);">Configure screen time, PIN lock, and camera attention checks for ${c.name}.</div>
+                <div style="font-weight:700; font-size:0.95rem;">Device Safety &amp; PIN Override (Synced to Android)</div>
+                <div style="font-size:0.8rem; color:var(--text-muted);">Configure PIN lock, daily watch limit, and camera attention checks for ${c.name}.</div>
               </div>
-              <button type="button" class="btn btn-primary btn-sm" onclick="savePmChildParentalControls('${c.id}')">Save Parental Controls</button>
+              <button type="button" class="btn btn-primary btn-sm" onclick="savePmChildParentalControls('${c.id}')">Save Device Controls</button>
             </div>
             <div class="form-row" style="align-items:end;">
               <div class="form-group">
@@ -5150,12 +5641,14 @@
                   ${[5, 10, 15, 30, 45, 60].map(s => `<option value="${s}" ${(c.attentionPauseSeconds ?? 30) === s ? 'selected' : ''}>${s} seconds away</option>`).join('')}
                 </select>
               </div>
-              <div class="form-group">
-                <label>Min Watch for Famibux</label>
-                <select id="pmAttMinPct_${c.id}">
-                  ${[50, 70, 85, 100].map(p => `<option value="${p}" ${(c.attentionMinWatchPercent ?? 70) === p ? 'selected' : ''}>${p}% active</option>`).join('')}
-                </select>
-              </div>
+              ${!isToddler ? `
+                <div class="form-group">
+                  <label>Min Watch for Famibux</label>
+                  <select id="pmAttMinPct_${c.id}">
+                    ${[50, 70, 85, 100].map(p => `<option value="${p}" ${(c.attentionMinWatchPercent ?? 70) === p ? 'selected' : ''}>${p}% active</option>`).join('')}
+                  </select>
+                </div>
+              ` : ''}
             </div>
             <label style="display:inline-flex; align-items:center; gap:0.45rem; font-size:0.86rem; font-weight:600; cursor:pointer; margin-top:0.5rem;">
               <input type="checkbox" id="pmAttEnabled_${c.id}" ${c.attentionTrackingEnabled !== false ? 'checked' : ''}>
@@ -5166,8 +5659,8 @@
           <div style="margin-top:0.9rem; padding:1rem; border-radius:var(--radius-sm); background:var(--bg); border:1px solid var(--border);">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.85rem;">
               <div>
-                <div style="font-weight:700; font-size:0.98rem;">Activity, YouTube Search &amp; Viewing History</div>
-                <div style="font-size:0.8rem; color:var(--text-muted);">Every video viewed, YouTube search query, and video permission request by ${c.name}.</div>
+                <div style="font-weight:700; font-size:0.98rem;">${isToddler ? 'Viewing History' : 'Activity, YouTube Search &amp; Viewing History'}</div>
+                <div style="font-size:0.8rem; color:var(--text-muted);">${isToddler ? `Videos watched by ${c.name}.` : `Every video viewed, YouTube search query, and video permission request by ${c.name}.`}</div>
               </div>
               <div style="display:flex; gap:0.45rem; flex-wrap:wrap;">
                 <button type="button" class="btn btn-secondary btn-sm" onclick="loadChildActivityHistory('${c.id}')">Refresh</button>
@@ -5176,9 +5669,11 @@
             </div>
             <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.85rem;">
               <button type="button" class="filter-pill active" id="pmActTab_watch_${c.id}" onclick="switchChildActivityTab('${c.id}', 'watch')">🎬 Video Viewing (<span id="pmActCount_watch_${c.id}">0</span>)</button>
-              <button type="button" class="filter-pill" id="pmActTab_search_${c.id}" onclick="switchChildActivityTab('${c.id}', 'search')">🔍 YouTube Searches (<span id="pmActCount_search_${c.id}">0</span>)</button>
-              <button type="button" class="filter-pill" id="pmActTab_requests_${c.id}" onclick="switchChildActivityTab('${c.id}', 'requests')">📩 Video Requests (<span id="pmActCount_requests_${c.id}">0</span>)</button>
-              <button type="button" class="filter-pill" id="pmActTab_subs_${c.id}" onclick="switchChildActivityTab('${c.id}', 'subs')">📺 @YouTube Subscriptions (<span id="pmActCount_subs_${c.id}">0</span>)</button>
+              ${!isToddler ? `
+                <button type="button" class="filter-pill" id="pmActTab_search_${c.id}" onclick="switchChildActivityTab('${c.id}', 'search')">🔍 YouTube Searches (<span id="pmActCount_search_${c.id}">0</span>)</button>
+                <button type="button" class="filter-pill" id="pmActTab_requests_${c.id}" onclick="switchChildActivityTab('${c.id}', 'requests')">📩 Video Requests (<span id="pmActCount_requests_${c.id}">0</span>)</button>
+                <button type="button" class="filter-pill" id="pmActTab_subs_${c.id}" onclick="switchChildActivityTab('${c.id}', 'subs')">📺 @YouTube Subscriptions (<span id="pmActCount_subs_${c.id}">0</span>)</button>
+              ` : ''}
             </div>
             <div id="pmActivityList_${c.id}" style="max-height:380px; overflow-y:auto;">
               <p style="color:var(--text-muted); font-size:0.85rem;">Loading activity history...</p>
@@ -5186,7 +5681,95 @@
           </div>
         </div>
       `;
+      if (isToddler) {
+        childActivityActiveTab[c.id] = 'watch';
+        loadParentToddlerLoopPreview(c.id);
+      }
       loadChildActivityHistory(c.id);
+    }
+
+    async function loadParentToddlerLoopPreview(childId) {
+      const el = document.getElementById(`pmToddlerLoopPreview_${childId}`);
+      if (!el) return;
+      try {
+        const res = await authFetch(`/api/kids/toddler-tv?childId=${encodeURIComponent(childId)}`);
+        const json = await res.json();
+        const channels = json.success ? (json.data?.channels || []) : [];
+        if (!channels.length) {
+          el.innerHTML = 'No Toddler TV channels enabled.';
+          return;
+        }
+        el.innerHTML = channels.map(ch => `
+          <div style="margin-bottom:0.7rem; padding:0.65rem; border-radius:var(--radius-sm); background:var(--surface); border:1px solid var(--border);">
+            <div style="font-weight:700; font-size:0.86rem; color:var(--text); margin-bottom:0.4rem;">${ch.emoji} ${ch.displayTitle} (${ch.videos.length} videos)</div>
+            <div style="display:flex; flex-direction:column; gap:0.35rem;">
+              ${ch.videos.map((v, i) => `
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; font-size:0.78rem;">
+                  <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${i + 1}. ${v.title}</span>
+                  <button type="button" class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.72rem;" onclick="hideParentToddlerVideo('${childId}', '${v.id}')">Swap / Hide</button>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `).join('');
+      } catch {
+        el.innerHTML = 'Unable to load weekly loop preview.';
+      }
+    }
+
+    async function savePmChildToddlerControls(childId) {
+      const checkedTopics = Array.from(document.querySelectorAll(`.pm-toddler-topic-${childId}:checked`)).map(el => el.value);
+      if (!checkedTopics.length) return alert('Keep at least 1 Toddler TV channel enabled.');
+      const payload = {
+        toddlerLoopMinutes: Number(document.getElementById(`pmToddlerLoop_${childId}`)?.value || 15),
+        toddlerCooldownMinutes: Number(document.getElementById(`pmToddlerCooldown_${childId}`)?.value || 30),
+        toddlerSubStage: document.getElementById(`pmToddlerSubStage_${childId}`)?.value || 'AUTO',
+        contentLanguage: document.getElementById(`pmToddlerLang_${childId}`)?.value || 'en',
+        cultureMode: document.getElementById(`pmToddlerCulture_${childId}`)?.value || 'GLOBAL',
+        toddlerEnabledTopics: checkedTopics
+      };
+      const res = await authFetch(`/api/parent/children/${childId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to save Toddler TV controls');
+      await loadParentModeChildren();
+      alert('Toddler TV controls saved!');
+    }
+
+    async function hideParentToddlerVideo(childId, videoId) {
+      const child = parentModeChildrenCache.find(c => c.id === childId);
+      const existing = Array.isArray(child?.toddlerHiddenVideoIds) ? child.toddlerHiddenVideoIds : [];
+      if (existing.includes(videoId)) return;
+      const res = await authFetch(`/api/parent/children/${childId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ toddlerHiddenVideoIds: [...existing, videoId] })
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to swap video');
+      await loadParentModeChildren();
+    }
+
+    async function restoreParentToddlerHiddenVideos(childId) {
+      const res = await authFetch(`/api/parent/children/${childId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ toddlerHiddenVideoIds: [] })
+      });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to restore videos');
+      await loadParentModeChildren();
+    }
+
+    async function wakeParentChildToddlerTv(childId) {
+      const res = await authFetch(`/api/parent/children/${childId}/toddler-wake`, { method: 'POST' });
+      const json = await res.json();
+      if (!json.success) return alert(json.message || 'Failed to wake Toddler TV');
+      await loadParentModeChildren();
+      alert('Toddler TV is awake!');
     }
 
     const childActivityCache = {};
@@ -5366,10 +5949,8 @@
       await loadChildActivityHistory(childId);
     }
 
-    function onProfileBirthdayChange(childId, birthdayStr) {
-      const derived = deriveAgeRatingFromBirthdayInput(birthdayStr);
-      const sel = document.getElementById(`profileAgeRating_${childId}`);
-      if (derived && sel) sel.value = derived;
+    function onProfileBirthdayChange(_childId, _birthdayStr) {
+      // Parent is in full control of ageRating on existing profiles; birthday is informational only.
     }
 
     async function saveChildProfileBasics(childId) {
@@ -6349,6 +6930,7 @@
 
     function updateKidToolsVisibility(user) {
       const channelsBtn = document.getElementById('kidTabBtnChannels');
+      const storiesBtn = document.getElementById('kidTabBtnStories');
       const searchBtn = document.getElementById('kidTabBtnSearch');
       const favoritesBtn = document.getElementById('kidTabBtnFavorites');
       const historyBtn = document.getElementById('kidTabBtnHistory');
@@ -6377,7 +6959,7 @@
       if (heroCard) {
         heroCard.style.display = 'none';
       }
-      const kidNavBtns = [curatedTabBtn, channelsBtn, searchBtn, favoritesBtn, historyBtn, achievementsBtn];
+      const kidNavBtns = [curatedTabBtn, storiesBtn, channelsBtn, searchBtn, favoritesBtn, historyBtn, achievementsBtn];
       if (!user || !authToken) {
         kidNavBtns.forEach(btn => { if (btn) btn.style.display = 'none'; });
         if (guestEntryEl) guestEntryEl.style.display = 'flex';
@@ -6394,10 +6976,12 @@
       }
 
       const simpleMode = isSimpleKidUser(user);
+      const isYoungOrToddler = user?.ageRating === 'TODDLER' || user?.ageRating === 'YOUNG_KIDS';
       if (curatedTabBtn) {
         curatedTabBtn.style.display = 'inline-flex';
-        curatedTabBtn.innerHTML = `<span class="material-symbols-rounded" style="font-size:1.05rem;">${simpleMode ? 'grid_view' : 'home'}</span> ${simpleMode ? 'Topics' : 'Explore'}`;
+        curatedTabBtn.innerHTML = `<span class="material-symbols-rounded" style="font-size:1.05rem;">${simpleMode ? 'tv' : 'home'}</span> ${simpleMode ? 'TV Channels' : 'Explore'}`;
       }
+      if (storiesBtn) storiesBtn.style.display = isYoungOrToddler ? 'inline-flex' : 'none';
       if (channelsBtn) channelsBtn.style.display = simpleMode ? 'none' : 'inline-flex';
       if (searchBtn) searchBtn.style.display = simpleMode ? 'none' : 'inline-flex';
       if (favoritesBtn) favoritesBtn.style.display = simpleMode ? 'inline-flex' : 'none';
@@ -6445,6 +7029,7 @@
     }
 
     function switchKidShowcaseTab(tab, keepSelectedChannel = false) {
+      if (typeof stopStoryAudioAndMic === 'function') stopStoryAudioAndMic();
       if (tab === 'history') tab = 'search';
       if (tab === 'search' && currentUser?.role === 'CHILD' && currentUser?.ageRating === 'TODDLER') {
         tab = 'curated';
@@ -6458,6 +7043,7 @@
       const featuredChannelsSection = document.getElementById('showcaseFeaturedChannelsSection');
       const backToExploreBtn = document.getElementById('btnBackToKidExplore');
       const kidHubEl = document.getElementById('kidHomeHub');
+      const storiesEl = document.getElementById('kidStoriesPanel');
       const searchEl = document.getElementById('kidYouTubeSearchPanel');
             const achievementsEl = document.getElementById('kidAchievementsPanel');
       const favoritesEl = document.getElementById('kidFavoritesPanel');
@@ -6477,17 +7063,20 @@
         if (featuredChannelsSection) featuredChannelsSection.style.display = 'block';
         if (backToExploreBtn) backToExploreBtn.style.display = 'none';
       }
+      if (storiesEl) storiesEl.style.display = activeKidTab === 'stories' ? 'block' : 'none';
       if (searchEl) searchEl.style.display = activeKidTab === 'search' ? 'block' : 'none';
       if (achievementsEl) achievementsEl.style.display = activeKidTab === 'achievements' ? 'block' : 'none';
       if (favoritesEl) favoritesEl.style.display = activeKidTab === 'favorites' ? 'block' : 'none';
 
       document.getElementById('kidTabBtnCurated')?.classList.toggle('active', activeKidTab === 'curated');
+      document.getElementById('kidTabBtnStories')?.classList.toggle('active', activeKidTab === 'stories');
       document.getElementById('kidTabBtnChannels')?.classList.remove('active');
       document.getElementById('kidTabBtnSearch')?.classList.toggle('active', activeKidTab === 'search');
       document.getElementById('kidTabBtnAchievements')?.classList.toggle('active', activeKidTab === 'achievements');
       document.getElementById('kidTabBtnFavorites')?.classList.toggle('active', activeKidTab === 'favorites');
 
       if (activeKidTab === 'curated' && isChild) renderKidHomeHub(currentUser);
+      if (activeKidTab === 'stories' && typeof loadAndRenderKidStories === 'function') loadAndRenderKidStories();
       if (activeKidTab === 'search') {
         loadKidYouTubeSubscriptions();
         const input = document.getElementById('kidYouTubeSearchInput');
@@ -6731,10 +7320,112 @@
       return 'https://images.unsplash.com/photo-1579202673506-ca3ce28943ef?w=600&h=400&fit=crop';
     }
 
+    let webToddlerTvData = null;
+    let webToddlerActiveTopic = null;
+    let webToddlerPhaseTimer = null;
+    let webToddlerTickTimer = null;
+    let webToddlerSessionWatchedSec = 0;
+
+    function getWebToddlerStorageKey() {
+      return `famitube_toddler_tv_${currentUser?.id || 'guest'}`;
+    }
+
+    function readWebToddlerLocalState() {
+      try {
+        const raw = localStorage.getItem(getWebToddlerStorageKey());
+        return raw ? JSON.parse(raw) : { playheads: {}, cooldownUntil: 0, sessionWatchedSec: 0 };
+      } catch {
+        return { playheads: {}, cooldownUntil: 0, sessionWatchedSec: 0 };
+      }
+    }
+
+    function writeWebToddlerLocalState(st) {
+      try {
+        localStorage.setItem(getWebToddlerStorageKey(), JSON.stringify(st));
+      } catch {}
+    }
+
+    function getWebToddlerCooldownUntilMs() {
+      const local = readWebToddlerLocalState();
+      const serverMs = webToddlerTvData?.cooldownUntil ? Date.parse(webToddlerTvData.cooldownUntil) : 0;
+      return Math.max(Number(local.cooldownUntil || 0), Number.isFinite(serverMs) ? serverMs : 0);
+    }
+
+    async function wakeWebToddlerTvWithPin() {
+      const pin = prompt('Grown-Ups Only: Enter 4-digit Parent PIN to wake Toddler TV:');
+      if (!pin) return;
+      try {
+        const res = await authFetch('/api/kids/toddler-tv/cooldown', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'WAKE', pin: pin.trim() })
+        });
+        const json = await res.json();
+        if (!res.ok || !json.success) return alert(json.message || 'Incorrect Parent PIN');
+        const st = readWebToddlerLocalState();
+        st.cooldownUntil = 0;
+        st.sessionWatchedSec = 0;
+        writeWebToddlerLocalState(st);
+        webToddlerSessionWatchedSec = 0;
+        if (webToddlerTvData) webToddlerTvData.cooldownUntil = null;
+        if (currentUser) renderKidHomeHub(currentUser);
+      } catch {
+        alert('Could not verify PIN.');
+      }
+    }
+
     async function renderKidHomeHub(user) {
       const hub = document.getElementById('kidHomeHub');
       if (!hub || user?.role !== 'CHILD') return;
       hub.style.display = 'block';
+      const isToddler = user.ageRating === 'TODDLER';
+
+      if (isToddler) {
+        try {
+          const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
+          const childParam = parentPreviewChild?.id ? `?childId=${encodeURIComponent(parentPreviewChild.id)}` : '';
+          const res = await fetch(apiUrl('/api/kids/toddler-tv' + childParam), { headers });
+          const json = await res.json();
+          if (json.success && json.data) {
+            webToddlerTvData = json.data;
+          }
+        } catch {}
+
+        const channels = webToddlerTvData?.channels || WEB_TODDLER_TV_CHANNELS.slice(0, 6).map(c => ({ ...c, videos: [] }));
+        const loopMins = webToddlerTvData?.settings?.toddlerLoopMinutes || 15;
+        const cooldownUntilMs = getWebToddlerCooldownUntilMs();
+        const isCooling = cooldownUntilMs > Date.now();
+        const minsLeft = isCooling ? Math.max(1, Math.ceil((cooldownUntilMs - Date.now()) / 60000)) : 0;
+
+        hub.innerHTML = `
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
+            <div>
+              <h2 style="font-family:'Fredoka',cursive; font-size:1.55rem; margin:0 0 0.25rem 0;">${isCooling ? '🌙 Shhh... Toddler TV is Napping' : '📺 Toddler TV Channels'}</h2>
+              <p style="color:var(--text-muted); font-size:0.9rem; margin:0;">
+                ${isCooling
+                  ? `Wakes up in <strong>${minsLeft}m</strong> • Time to play with toys!`
+                  : `Tap a picture channel to tune in • 1 Loop (${loopMins}m) per session`}
+              </p>
+            </div>
+            ${isCooling ? `
+              <button type="button" class="btn btn-secondary btn-sm" onclick="wakeWebToddlerTvWithPin()">🔒 Grown-Ups Wake TV (PIN)</button>
+            ` : ''}
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:1rem;">
+            ${channels.map(ch => `
+              <button type="button" onclick="tuneWebToddlerChannel('${ch.topic.replace(/'/g, "\\'")}')" style="position:relative; height:172px; cursor:pointer; background:var(--surface); border:2px solid ${isCooling ? 'var(--border)' : 'var(--primary)'}; border-radius:22px; overflow:hidden; padding:0; text-align:left; color:#fff; font-family:inherit; opacity:${isCooling ? '0.62' : '1'}; transition:transform 0.15s ease;">
+                <img src="${kidTopicImage(ch.topic, true)}" alt="${ch.displayTitle}" loading="lazy" style="width:100%; height:100%; object-fit:cover; display:block; ${isCooling ? 'filter:grayscale(45%) brightness(0.6);' : ''}">
+                <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.16) 54%, rgba(0,0,0,0.82) 100%);"></div>
+                <span style="position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.58); border-radius:10px; padding:3px 8px; font-size:1.35rem; line-height:1.2;">${isCooling ? '😴' : ch.emoji}</span>
+                ${isCooling ? `<span style="position:absolute; top:10px; right:10px; background:rgba(15,23,42,0.86); color:#93C5FD; font-size:0.72rem; font-weight:800; padding:3px 8px; border-radius:99px;">Napping</span>` : ''}
+                <span style="position:absolute; left:14px; right:14px; bottom:12px; font-weight:800; font-size:1rem; line-height:1.2; text-shadow:0 1px 4px rgba(0,0,0,0.8);">${ch.displayTitle}</span>
+              </button>
+            `).join('')}
+          </div>
+        `;
+        return;
+      }
+
       if (!kidHomeCategoriesCache.length) {
         try {
           const res = await fetch(apiUrl('/api/categories'));
@@ -6745,7 +7436,6 @@
         } catch {}
       }
 
-      const isToddler = user.ageRating === 'TODDLER';
       const canSearch = !isToddler && user.youtubeSearchEnabled !== false;
       const visibleCategories = isToddler
         ? kidHomeCategoriesCache.filter(c => isToddlerTopic(c.name))
@@ -6789,6 +7479,17 @@
             </button>
             <h2 style="font-family:'Fredoka',cursive; font-size:1.35rem; margin:0;">${kidTopicEmoji(kidHomeSelectedTopic, isToddler)} ${kidDisplayTopicTitle(kidHomeSelectedTopic, isToddler)}</h2>
           </div>
+          ${kidHomeSelectedTopic === 'Stories & Reading' ? `
+            <div class="card" style="padding:1rem 1.25rem; margin-bottom:1rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; background:linear-gradient(135deg, rgba(255,51,102,0.12), rgba(76,201,240,0.12)); border-color:rgba(255,51,102,0.35);">
+              <div>
+                <div style="font-weight:800; font-size:1rem;">📖 Flip-Page Storybooks &amp; Read-Along</div>
+                <div style="font-size:0.84rem; color:var(--text-muted);">Read illustrated stories page by page or practice reading aloud with your microphone!</div>
+              </div>
+              <button type="button" class="btn btn-primary btn-sm" onclick="switchKidShowcaseTab('stories')">
+                <span class="material-symbols-rounded" style="font-size:1rem;">menu_book</span> Open Storybooks
+              </button>
+            </div>
+          ` : ''}
           <div id="kidHubTopicVideos" class="video-grid"><p style="color:var(--text-muted);">Loading safe videos...</p></div>
         `;
         const effectiveAge = isToddler ? 'TODDLER' : (!user.ageRating || user.ageRating === 'ALL' ? 'OLDER_KIDS' : user.ageRating);
@@ -7222,9 +7923,41 @@
       document.getElementById('kidPcAttentionPause').value = String(kidParentalSettings.attentionPauseSeconds ?? 30);
       document.getElementById('kidPcAttentionPercent').value = String(kidParentalSettings.attentionMinWatchPercent ?? 60);
       document.getElementById('kidPcNewPin').value = kidParentalSettings.parentPin || kidUnlockedPinCache || '1234';
+      const ageVal = kidParentalSettings.ageRating || currentUser?.ageRating || 'ALL';
+      const tSec = document.getElementById('kidPcToddlerSection');
+      if (tSec) tSec.style.display = ageVal === 'TODDLER' ? 'block' : 'none';
+      const tLoopEl = document.getElementById('kidPcToddlerLoop');
+      if (tLoopEl) tLoopEl.value = String(kidParentalSettings.toddlerLoopMinutes ?? 15);
+      const tCoolEl = document.getElementById('kidPcToddlerCooldown');
+      if (tCoolEl) tCoolEl.value = String(kidParentalSettings.toddlerCooldownMinutes ?? 30);
       const status = document.getElementById('kidPcStatusMsg');
       if (status) status.style.display = 'none';
       document.getElementById('kidParentalControlsModal').style.display = 'flex';
+    }
+
+    async function wakeWebToddlerTvFromModal() {
+      const pin = kidUnlockedPinCache || kidParentalSettings.parentPin || '1234';
+      try {
+        const res = await authFetch('/api/kids/toddler-tv/cooldown', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'WAKE', pin })
+        });
+        if (res.ok) {
+          const st = readWebToddlerLocalState();
+          st.cooldownUntil = 0;
+          st.sessionWatchedSec = 0;
+          writeWebToddlerLocalState(st);
+          if (webToddlerTvData) webToddlerTvData.cooldownUntil = null;
+          if (currentUser) renderKidHomeHub(currentUser);
+          const status = document.getElementById('kidPcStatusMsg');
+          if (status) {
+            status.textContent = 'Toddler TV is awake!';
+            status.style.color = '#06d6a0';
+            status.style.display = 'block';
+          }
+        }
+      } catch {}
     }
 
     function closeKidParentalControlsModal() {
@@ -7279,7 +8012,9 @@
             ageRating,
             attentionTrackingEnabled,
             attentionPauseSeconds,
-            attentionMinWatchPercent
+            attentionMinWatchPercent,
+            toddlerLoopMinutes: Math.max(5, Math.min(60, parseInt(document.getElementById('kidPcToddlerLoop')?.value || '15', 10) || 15)),
+            toddlerCooldownMinutes: Math.max(5, Math.min(240, parseInt(document.getElementById('kidPcToddlerCooldown')?.value || '30', 10) || 30))
           })
         });
         const json = await res.json();
@@ -8554,6 +9289,799 @@
 
       startAuto();
     })();
+
+    // ==========================================
+    // STORYBOOKS & MIC-LOCKED READ-ALONG (WEB + STUDIO)
+    // ==========================================
+    const FALLBACK_STORY_BOOKS = [
+      {
+        id: 'story-tod-en-1',
+        title: "Little Bear's Sleepy Moon",
+        author: 'FamiTube Storybooks',
+        description: 'A gentle bedtime flip-book following Little Bear as he says goodnight to the forest.',
+        coverUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&h=400&fit=crop',
+        ageRating: 'TODDLER',
+        language: 'en',
+        rewardFamibux: 20,
+        pages: [
+          { pageNumber: 1, text: 'Little Bear sees the bright moon.', imageUrl: 'https://images.unsplash.com/photo-1532693322450-2cb5c511067d?w=720&h=440&fit=crop', illustrationEmoji: '🐻🌙', bgColor: '#1E293B' },
+          { pageNumber: 2, text: 'Soft stars twinkle in the sky.', imageUrl: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=720&h=440&fit=crop', illustrationEmoji: '✨🌟', bgColor: '#312E81' },
+          { pageNumber: 3, text: 'Owl says hoot hoot goodnight.', imageUrl: 'https://images.unsplash.com/photo-1543549790-8b5f4a028cfb?w=720&h=440&fit=crop', illustrationEmoji: '🦉🌲', bgColor: '#1E3A5F' },
+          { pageNumber: 4, text: 'Little Bear curls up to sleep.', imageUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=720&h=440&fit=crop', illustrationEmoji: '🐻💤', bgColor: '#2E1065' }
+        ]
+      },
+      {
+        id: 'story-tod-en-2',
+        title: 'Splash Goes the Yellow Duck',
+        author: 'FamiTube Storybooks',
+        description: 'Count and splash along with a happy yellow duck in the sunny pond.',
+        coverUrl: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=600&h=400&fit=crop',
+        ageRating: 'TODDLER',
+        language: 'en',
+        rewardFamibux: 20,
+        pages: [
+          { pageNumber: 1, text: 'One yellow duck swims today.', imageUrl: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=720&h=440&fit=crop', illustrationEmoji: '🦆💧', bgColor: '#0C4A6E' },
+          { pageNumber: 2, text: 'Two green frogs hop and play.', imageUrl: 'https://images.unsplash.com/photo-1579380656108-f98e4df8ea62?w=720&h=440&fit=crop', illustrationEmoji: '🐸🌿', bgColor: '#064E3B' },
+          { pageNumber: 3, text: 'Splash splash goes the cool water.', imageUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=720&h=440&fit=crop', illustrationEmoji: '💦🌊', bgColor: '#155E75' },
+          { pageNumber: 4, text: 'Three happy friends wave goodbye.', imageUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=720&h=440&fit=crop', illustrationEmoji: '🦆🐸👋', bgColor: '#1E3A8A' }
+        ]
+      },
+      {
+        id: 'story-tod-id-1',
+        title: 'Kucing Kecil Suka Susu',
+        author: 'Cerita FamiTube',
+        description: 'Cerita bergambar lembut tentang kucing kecil yang mencari mangkuk susu hangat.',
+        coverUrl: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=600&h=400&fit=crop',
+        ageRating: 'TODDLER',
+        language: 'id',
+        rewardFamibux: 20,
+        pages: [
+          { pageNumber: 1, text: 'Ini kucing kecil yang lucu.', imageUrl: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=720&h=440&fit=crop', illustrationEmoji: '🐱💛', bgColor: '#4C1D95' },
+          { pageNumber: 2, text: 'Kucing minum susu putih hangat.', imageUrl: 'https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=720&h=440&fit=crop', illustrationEmoji: '🥛🐾', bgColor: '#1E3A8A' },
+          { pageNumber: 3, text: 'Lalu kucing main bola merah.', imageUrl: 'https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?w=720&h=440&fit=crop', illustrationEmoji: '🧶🔴', bgColor: '#831843' },
+          { pageNumber: 4, text: 'Sekarang kucing tidur nyenyak.', imageUrl: 'https://images.unsplash.com/photo-1548802673-380ab8ebc7b7?w=720&h=440&fit=crop', illustrationEmoji: '🐱💤', bgColor: '#312E81' }
+        ]
+      },
+      {
+        id: 'story-tod-id-2',
+        title: 'Pelangi di Taman Kelinci',
+        author: 'Cerita FamiTube',
+        description: 'Mengenal warna pelangi bersama kelinci putih di taman bunga.',
+        coverUrl: 'https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?w=600&h=400&fit=crop',
+        ageRating: 'TODDLER',
+        language: 'id',
+        rewardFamibux: 20,
+        pages: [
+          { pageNumber: 1, text: 'Kelinci melompat di taman hijau.', imageUrl: 'https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?w=720&h=440&fit=crop', illustrationEmoji: '🐰🌱', bgColor: '#065F46' },
+          { pageNumber: 2, text: 'Hujan turun pelan lalu berhenti.', imageUrl: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=720&h=440&fit=crop', illustrationEmoji: '🌦️💧', bgColor: '#0E7490' },
+          { pageNumber: 3, text: 'Lihat ada pelangi indah sekali.', imageUrl: 'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?w=720&h=440&fit=crop', illustrationEmoji: '🌈✨', bgColor: '#4338CA' },
+          { pageNumber: 4, text: 'Kelinci tersenyum senang sekali.', imageUrl: 'https://images.unsplash.com/photo-1452857297128-d9c29adba80b?w=720&h=440&fit=crop', illustrationEmoji: '🐰🌸', bgColor: '#701A75' }
+        ]
+      },
+      {
+        id: 'story-yk-en-1',
+        title: 'Rocket Pup Visits the Red Planet',
+        author: 'FamiTube Storybooks',
+        description: 'Read aloud with Astro the puppy as he blasts off to explore Mars!',
+        coverUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&h=400&fit=crop',
+        ageRating: 'YOUNG_KIDS',
+        language: 'en',
+        rewardFamibux: 30,
+        pages: [
+          { pageNumber: 1, text: 'Astro the puppy put on his shiny silver helmet and climbed into his red rocket.', imageUrl: 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=720&h=440&fit=crop', illustrationEmoji: '🐶🚀', bgColor: '#1E1B4B' },
+          { pageNumber: 2, text: 'Three, two, one, blast off! The rocket zoomed past fluffy white clouds into space.', imageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=720&h=440&fit=crop', illustrationEmoji: '☁️🛸', bgColor: '#0F172A' },
+          { pageNumber: 3, text: 'Soon Astro landed softly on the dusty red rocks of Mars and wagged his tail.', imageUrl: 'https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=720&h=440&fit=crop', illustrationEmoji: '🔴🪐', bgColor: '#7C2D12' },
+          { pageNumber: 4, text: 'He found a friendly little rover robot taking pictures of bright sparkling stones.', imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=720&h=440&fit=crop', illustrationEmoji: '🤖💎', bgColor: '#1E3A8A' },
+          { pageNumber: 5, text: 'After sharing a snack, Astro flew home safely to tell his family all about Mars.', imageUrl: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=720&h=440&fit=crop', illustrationEmoji: '🌍🏡', bgColor: '#312E81' }
+        ]
+      },
+      {
+        id: 'story-yk-en-2',
+        title: 'Maya and the Singing Treehouse',
+        author: 'FamiTube Storybooks',
+        description: 'Maya discovers a magical wooden treehouse where every leaf plays a musical note.',
+        coverUrl: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=600&h=400&fit=crop',
+        ageRating: 'YOUNG_KIDS',
+        language: 'en',
+        rewardFamibux: 30,
+        pages: [
+          { pageNumber: 1, text: 'Maya climbed the wooden ladder to her cozy treehouse behind the garden.', imageUrl: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=720&h=440&fit=crop', illustrationEmoji: '🌳🪜', bgColor: '#064E3B' },
+          { pageNumber: 2, text: 'When the warm breeze blew, the golden leaves began to hum a gentle tune.', imageUrl: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=720&h=440&fit=crop', illustrationEmoji: '🍃🎶', bgColor: '#14532D' },
+          { pageNumber: 3, text: 'Two bluebirds perched on the window sill and whistled along with the song.', imageUrl: 'https://images.unsplash.com/photo-1444464666168-49d633b86797?w=720&h=440&fit=crop', illustrationEmoji: '🐦🎵', bgColor: '#0C4A6E' },
+          { pageNumber: 4, text: 'Maya tapped a rhythm on her wooden desk and smiled at the forest orchestra.', imageUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=720&h=440&fit=crop', illustrationEmoji: '🥁🌿', bgColor: '#3F6212' },
+          { pageNumber: 5, text: 'As the sun turned orange, Maya waved to the birds and promised to sing again tomorrow.', imageUrl: 'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=720&h=440&fit=crop', illustrationEmoji: '🌅💛', bgColor: '#7C2D12' }
+        ]
+      },
+      {
+        id: 'story-yk-id-1',
+        title: 'Petualangan Bima dan Penyu Laut',
+        author: 'Cerita FamiTube',
+        description: 'Bacakan dengan suara lantang petualangan Bima menolong penyu kecil kembali ke laut biru.',
+        coverUrl: 'https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=600&h=400&fit=crop',
+        ageRating: 'YOUNG_KIDS',
+        language: 'id',
+        rewardFamibux: 30,
+        pages: [
+          { pageNumber: 1, text: 'Pagi itu Bima berjalan di pantai pasir putih bersama ayahnya yang ramah.', imageUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=720&h=440&fit=crop', illustrationEmoji: '🏖️👦', bgColor: '#0E7490' },
+          { pageNumber: 2, text: 'Mereka melihat seekor penyu kecil yang tersangkut di antara ranting kayu.', imageUrl: 'https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=720&h=440&fit=crop', illustrationEmoji: '🐢🌿', bgColor: '#115E59' },
+          { pageNumber: 3, text: 'Dengan hati hati Bima mengangkat ranting itu agar penyu bisa bergerak bebas.', imageUrl: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=720&h=440&fit=crop', illustrationEmoji: '🤲🌊', bgColor: '#1E40AF' },
+          { pageNumber: 4, text: 'Penyu kecil berenang gembira menuju ombak biru yang jernih dan tenang.', imageUrl: 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=720&h=440&fit=crop', illustrationEmoji: '🐢💙', bgColor: '#1D4ED8' },
+          { pageNumber: 5, text: 'Bima berjanji selalu menjaga kebersihan pantai demi semua hewan laut.', imageUrl: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=720&h=440&fit=crop', illustrationEmoji: '🌏✨', bgColor: '#0F766E' }
+        ]
+      },
+      {
+        id: 'story-yk-id-2',
+        title: 'Kereta Bintang Malam Hari',
+        author: 'Cerita FamiTube',
+        description: 'Naiklah ke kereta api bercahaya yang melaju melintasi awan malam penuh bintang.',
+        coverUrl: 'https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=600&h=400&fit=crop',
+        ageRating: 'YOUNG_KIDS',
+        language: 'id',
+        rewardFamibux: 30,
+        pages: [
+          { pageNumber: 1, text: 'Lampu kereta biru menyala terang saat malam tiba di stasiun desa.', imageUrl: 'https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=720&h=440&fit=crop', illustrationEmoji: '🚂🌙', bgColor: '#1E293B' },
+          { pageNumber: 2, text: 'Rara duduk di dekat jendela sambil memegang buku gambar kesayangannya.', imageUrl: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=720&h=440&fit=crop', illustrationEmoji: '👧📖', bgColor: '#312E81' },
+          { pageNumber: 3, text: 'Kereta melaju melewati bukit hijau dan jembatan panjang di bawah bulan.', imageUrl: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=720&h=440&fit=crop', illustrationEmoji: '🌉🌕', bgColor: '#1E1B4B' },
+          { pageNumber: 4, text: 'Kunang kunang menari di luar kaca seperti ribuan bintang kecil.', imageUrl: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=720&h=440&fit=crop', illustrationEmoji: '✨🪲', bgColor: '#3B0764' },
+          { pageNumber: 5, text: 'Kereta pun sampai di kota tujuan dengan selamat dan penuh senyuman.', imageUrl: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=720&h=440&fit=crop', illustrationEmoji: '🏙️😊', bgColor: '#0F172A' }
+        ]
+      }
+    ];
+
+    let kidStoriesCache = [];
+    let kidStoryLangFilter = 'all';
+    let kidStoryBrowseAll = false;
+    let activeStoryBook = null;
+    let activeStoryPageIdx = 0;
+    let activeStoryMode = 'FLIP';
+    let activeStoryCompletedPages = new Set();
+    let activeStoryWordIdx = 0;
+    let activeStoryStuckAttempts = 0;
+    let activeStoryLastTranscript = '';
+    let activeStoryHintMsg = '';
+    let activeStoryFlipDir = '';
+    let activeStoryCompletionResult = null;
+    let storyMicRecognition = null;
+    let storyMicListening = false;
+    let storyTouchStartX = null;
+
+    const STORY_NUMBER_SYNONYMS = {
+      '0': ['zero', 'nol'], '1': ['one', 'satu'], '2': ['two', 'dua'], '3': ['three', 'tiga'],
+      '4': ['four', 'empat'], '5': ['five', 'lima'], '6': ['six', 'enam'], '7': ['seven', 'tujuh'],
+      '8': ['eight', 'delapan'], '9': ['nine', 'sembilan'], '10': ['ten', 'sepuluh']
+    };
+
+    function normalizeStoryWord(raw) {
+      return String(raw || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
+
+    function storyLevenshtein(a, b) {
+      if (a === b) return 0;
+      const m = a.length, n = b.length;
+      if (!m) return n;
+      if (!n) return m;
+      const dp = Array.from({ length: n + 1 }, (_, j) => j);
+      for (let i = 1; i <= m; i++) {
+        let prev = dp[0];
+        dp[0] = i;
+        for (let j = 1; j <= n; j++) {
+          const tmp = dp[j];
+          dp[j] = a[i - 1] === b[j - 1] ? prev : 1 + Math.min(prev, dp[j], dp[j - 1]);
+          prev = tmp;
+        }
+      }
+      return dp[n];
+    }
+
+    function storyWordsMatch(targetRaw, spokenRaw) {
+      const target = normalizeStoryWord(targetRaw);
+      const spoken = normalizeStoryWord(spokenRaw);
+      if (!target || !spoken) return false;
+      if (target === spoken) return true;
+      for (const [digit, words] of Object.entries(STORY_NUMBER_SYNONYMS)) {
+        if ((target === digit || words.includes(target)) && (spoken === digit || words.includes(spoken))) {
+          return true;
+        }
+      }
+      const dist = storyLevenshtein(target, spoken);
+      if (target.length >= 7 && dist <= 2) return true;
+      if (target.length >= 4 && dist <= 1) return true;
+      return false;
+    }
+
+    function getActiveStoryPageWords() {
+      const page = activeStoryBook?.pages?.[activeStoryPageIdx];
+      return String(page?.text || '').trim().split(/\s+/).filter(Boolean);
+    }
+
+    function stopStoryAudioAndMic() {
+      try { window.speechSynthesis?.cancel(); } catch {}
+      if (storyMicRecognition) {
+        try { storyMicRecognition.onend = null; storyMicRecognition.stop(); } catch {}
+        storyMicRecognition = null;
+      }
+      storyMicListening = false;
+    }
+
+    function speakStoryText(text, lang) {
+      if (!window.speechSynthesis || !text) return;
+      try {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = lang === 'id' ? 'id-ID' : 'en-US';
+        utter.rate = 0.88;
+        utter.pitch = 1.05;
+        window.speechSynthesis.speak(utter);
+      } catch {}
+    }
+
+    function playStoryChime() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        [523.25, 659.25, 783.99].forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.08, ctx.currentTime + idx * 0.09);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.09 + 0.25);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + idx * 0.09);
+          osc.stop(ctx.currentTime + idx * 0.09 + 0.26);
+        });
+      } catch {}
+    }
+
+    async function loadAndRenderKidStories() {
+      const panel = document.getElementById('kidStoriesPanel');
+      if (!panel) return;
+      const ageRating = currentUser?.ageRating || 'YOUNG_KIDS';
+      try {
+        const params = new URLSearchParams();
+        params.set('ageRating', ageRating);
+        if (kidStoryBrowseAll) params.set('includeAllAges', 'true');
+        const res = await authFetch('/api/stories?' + params.toString());
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) {
+          kidStoriesCache = json.data;
+        } else {
+          kidStoriesCache = filterFallbackStories(ageRating, kidStoryBrowseAll);
+        }
+      } catch {
+        kidStoriesCache = filterFallbackStories(ageRating, kidStoryBrowseAll);
+      }
+      renderKidStoriesPanel();
+    }
+
+    function filterFallbackStories(ageRating, includeAll) {
+      if (includeAll) return FALLBACK_STORY_BOOKS.slice();
+      if (ageRating === 'TODDLER') return FALLBACK_STORY_BOOKS.filter(b => b.ageRating === 'TODDLER');
+      if (ageRating === 'YOUNG_KIDS') return FALLBACK_STORY_BOOKS.slice().sort((a, b) => (a.ageRating === b.ageRating ? 0 : a.ageRating === 'YOUNG_KIDS' ? -1 : 1));
+      return [];
+    }
+
+    function openStoryBook(storyId) {
+      const book = kidStoriesCache.find(b => b.id === storyId) || FALLBACK_STORY_BOOKS.find(b => b.id === storyId);
+      if (!book) return;
+      stopStoryAudioAndMic();
+      activeStoryBook = book;
+      activeStoryPageIdx = 0;
+      const effectiveAge = currentUser?.ageRating || 'YOUNG_KIDS';
+      activeStoryMode = effectiveAge === 'TODDLER' ? 'FLIP' : 'READ_ALONG';
+      activeStoryCompletedPages = new Set();
+      activeStoryWordIdx = 0;
+      activeStoryStuckAttempts = 0;
+      activeStoryLastTranscript = '';
+      activeStoryHintMsg = '';
+      activeStoryFlipDir = '';
+      activeStoryCompletionResult = null;
+      renderKidStoriesPanel();
+    }
+
+    function closeStoryBook() {
+      stopStoryAudioAndMic();
+      activeStoryBook = null;
+      activeStoryCompletionResult = null;
+      renderKidStoriesPanel();
+    }
+
+    function setStoryReadingMode(mode) {
+      stopStoryAudioAndMic();
+      activeStoryMode = mode === 'READ_ALONG' ? 'READ_ALONG' : 'FLIP';
+      activeStoryWordIdx = 0;
+      activeStoryStuckAttempts = 0;
+      activeStoryLastTranscript = '';
+      activeStoryHintMsg = '';
+      renderKidStoriesPanel();
+    }
+
+    function isActiveStoryPageUnlocked() {
+      if (activeStoryMode !== 'READ_ALONG') return true;
+      if (activeStoryCompletedPages.has(activeStoryPageIdx)) return true;
+      const words = getActiveStoryPageWords();
+      return words.length === 0 || activeStoryWordIdx >= words.length;
+    }
+
+    function flipStoryPage(delta) {
+      if (!activeStoryBook) return;
+      if (delta > 0 && !isActiveStoryPageUnlocked()) {
+        const btn = document.getElementById('storyNextPageBtn');
+        if (btn) {
+          btn.classList.remove('story-shake');
+          void btn.offsetWidth;
+          btn.classList.add('story-shake');
+        }
+        activeStoryHintMsg = '🎤 Read all words on this page aloud to unlock the next page!';
+        renderKidStoriesPanel();
+        return;
+      }
+      const nextIdx = activeStoryPageIdx + delta;
+      if (nextIdx < 0 || nextIdx >= activeStoryBook.pages.length) return;
+      stopStoryAudioAndMic();
+      activeStoryFlipDir = delta > 0 ? 'next' : 'prev';
+      activeStoryPageIdx = nextIdx;
+      const words = getActiveStoryPageWords();
+      activeStoryWordIdx = activeStoryCompletedPages.has(nextIdx) ? words.length : 0;
+      activeStoryStuckAttempts = 0;
+      activeStoryLastTranscript = '';
+      activeStoryHintMsg = '';
+      renderKidStoriesPanel();
+    }
+
+    function matchSpokenToStoryPage(transcript, isFinal) {
+      const words = getActiveStoryPageWords();
+      if (!words.length || activeStoryWordIdx >= words.length) return;
+      const spokenTokens = String(transcript || '').trim().split(/\s+/).filter(Boolean);
+      if (!spokenTokens.length) return;
+      activeStoryLastTranscript = transcript;
+
+      let idx = activeStoryWordIdx;
+      let advanced = false;
+      for (const tok of spokenTokens) {
+        if (idx >= words.length) break;
+        if (storyWordsMatch(words[idx], tok)) {
+          idx++;
+          advanced = true;
+        }
+      }
+
+      if (advanced) {
+        activeStoryWordIdx = idx;
+        activeStoryStuckAttempts = 0;
+        activeStoryHintMsg = idx >= words.length ? '🎉 Awesome reading! Page unlocked!' : '';
+        if (idx >= words.length) {
+          activeStoryCompletedPages.add(activeStoryPageIdx);
+          playStoryChime();
+          stopStoryAudioAndMic();
+        }
+      } else if (isFinal) {
+        activeStoryStuckAttempts += 1;
+        if (activeStoryStuckAttempts >= 3) {
+          const stuckWord = words[activeStoryWordIdx];
+          speakStoryText(stuckWord, activeStoryBook.language);
+          activeStoryWordIdx += 1;
+          activeStoryStuckAttempts = 0;
+          activeStoryHintMsg = `⭐ Nice try! "${stuckWord}" got a helper boost.`;
+          if (activeStoryWordIdx >= words.length) {
+            activeStoryCompletedPages.add(activeStoryPageIdx);
+            playStoryChime();
+            stopStoryAudioAndMic();
+          }
+        } else {
+          activeStoryHintMsg = `Try saying "${words[activeStoryWordIdx]}" (attempt ${activeStoryStuckAttempts}/3) — or tap the word to hear it!`;
+        }
+      }
+      renderKidStoriesPanel();
+    }
+
+    function toggleStoryMic() {
+      if (storyMicListening) {
+        stopStoryAudioAndMic();
+        renderKidStoriesPanel();
+        return;
+      }
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) {
+        activeStoryHintMsg = 'Speech recognition is not supported in this browser. Use the tap-word practice button below!';
+        renderKidStoriesPanel();
+        return;
+      }
+      try {
+        const rec = new SR();
+        rec.lang = activeStoryBook?.language === 'id' ? 'id-ID' : 'en-US';
+        rec.continuous = true;
+        rec.interimResults = true;
+        rec.onresult = (event) => {
+          let latest = '';
+          let isFinal = false;
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            latest += event.results[i][0].transcript + ' ';
+            if (event.results[i].isFinal) isFinal = true;
+          }
+          if (latest.trim()) matchSpokenToStoryPage(latest.trim(), isFinal);
+        };
+        rec.onerror = (e) => {
+          if (e.error === 'not-allowed') {
+            activeStoryHintMsg = 'Microphone permission denied. Please allow mic access or tap the practice button.';
+            stopStoryAudioAndMic();
+            renderKidStoriesPanel();
+          }
+        };
+        rec.onend = () => {
+          if (storyMicListening && activeStoryBook && activeStoryMode === 'READ_ALONG' && !isActiveStoryPageUnlocked()) {
+            try { rec.start(); } catch { storyMicListening = false; renderKidStoriesPanel(); }
+          } else {
+            storyMicListening = false;
+            renderKidStoriesPanel();
+          }
+        };
+        storyMicRecognition = rec;
+        storyMicListening = true;
+        activeStoryHintMsg = '🎤 Listening... Read each highlighted word aloud!';
+        rec.start();
+        renderKidStoriesPanel();
+      } catch {
+        storyMicListening = false;
+        activeStoryHintMsg = 'Could not start microphone.';
+        renderKidStoriesPanel();
+      }
+    }
+
+    function markActiveStoryWordManualFallback() {
+      const words = getActiveStoryPageWords();
+      if (activeStoryWordIdx >= words.length) return;
+      speakStoryText(words[activeStoryWordIdx], activeStoryBook.language);
+      activeStoryWordIdx += 1;
+      activeStoryStuckAttempts = 0;
+      if (activeStoryWordIdx >= words.length) {
+        activeStoryCompletedPages.add(activeStoryPageIdx);
+        playStoryChime();
+        stopStoryAudioAndMic();
+        activeStoryHintMsg = '🎉 Page complete! You can flip to the next page!';
+      }
+      renderKidStoriesPanel();
+    }
+
+    async function finishActiveStoryBook() {
+      if (!activeStoryBook || !isActiveStoryPageUnlocked()) return;
+      stopStoryAudioAndMic();
+      playStoryChime();
+      const expectedReward = activeStoryMode === 'READ_ALONG'
+        ? activeStoryBook.rewardFamibux
+        : Math.max(5, Math.ceil(activeStoryBook.rewardFamibux * 0.5));
+      let awarded = expectedReward;
+      let alreadyToday = false;
+      if (authToken) {
+        try {
+          const res = await authFetch(`/api/kids/stories/${encodeURIComponent(activeStoryBook.id)}/complete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mode: activeStoryMode })
+          });
+          const json = await res.json();
+          if (json.success && json.data) {
+            awarded = json.data.awardedFamibux ?? awarded;
+            alreadyToday = Boolean(json.data.alreadyRewardedToday);
+            if (typeof loadKidAchievements === 'function') loadKidAchievements();
+          }
+        } catch {}
+      }
+      activeStoryCompletionResult = { awarded, alreadyToday };
+      renderKidStoriesPanel();
+    }
+
+    function renderKidStoriesPanel() {
+      const panel = document.getElementById('kidStoriesPanel');
+      if (!panel) return;
+
+      if (activeStoryBook) {
+        if (activeStoryCompletionResult) {
+          const { awarded, alreadyToday } = activeStoryCompletionResult;
+          panel.innerHTML = `
+            <div class="card" style="text-align:center; padding:2.5rem 1.5rem; max-width:640px; margin:0 auto; background:linear-gradient(135deg, rgba(6,214,160,0.12), rgba(255,209,102,0.14));">
+              <div style="font-size:3.5rem; margin-bottom:0.6rem;">🎉📖</div>
+              <h2 style="font-family:'Fredoka',cursive; font-size:1.8rem; margin-bottom:0.4rem;">Story Complete!</h2>
+              <p style="color:var(--text-muted); margin-bottom:1.1rem;">You finished <strong>${activeStoryBook.title}</strong> in ${activeStoryMode === 'READ_ALONG' ? 'Mic Read-Along' : 'Story Flip'} mode!</p>
+              <div style="display:inline-flex; align-items:center; gap:0.5rem; padding:0.65rem 1.25rem; border-radius:99px; background:rgba(255,183,3,0.18); border:1.5px solid #ffb703; font-weight:800; color:#d97706; margin-bottom:1.5rem;">
+                ${alreadyToday ? '⭐ Already earned today — great extra reading!' : `+${awarded} Famibux Earned!`}
+              </div>
+              <div style="display:flex; justify-content:center; gap:0.75rem; flex-wrap:wrap;">
+                <button type="button" class="btn btn-secondary" onclick="openStoryBook('${activeStoryBook.id}')">Read Again</button>
+                <button type="button" class="btn btn-primary" onclick="closeStoryBook()">Back to Story Shelf</button>
+              </div>
+            </div>
+          `;
+          return;
+        }
+
+        const pages = activeStoryBook.pages || [];
+        const page = pages[activeStoryPageIdx] || {};
+        const words = getActiveStoryPageWords();
+        const isLastPage = activeStoryPageIdx >= pages.length - 1;
+        const unlocked = isActiveStoryPageUnlocked();
+        const srSupported = Boolean(window.SpeechRecognition || window.webkitSpeechRecognition);
+        const flipClass = activeStoryFlipDir === 'next' ? 'flipping-next' : activeStoryFlipDir === 'prev' ? 'flipping-prev' : '';
+        activeStoryFlipDir = '';
+
+        panel.innerHTML = `
+          <div style="max-width:860px; margin:0 auto;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap; margin-bottom:1rem;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="closeStoryBook()">
+                <span class="material-symbols-rounded" style="font-size:1rem;">arrow_back</span> Story Shelf
+              </button>
+              <div style="font-family:'Fredoka',cursive; font-size:1.2rem; font-weight:700;">${activeStoryBook.title}</div>
+              <div style="display:inline-flex; background:var(--surface-light); border:1px solid var(--border); border-radius:99px; padding:3px; gap:4px;">
+                <button type="button" class="btn btn-sm ${activeStoryMode === 'FLIP' ? 'btn-primary' : 'btn-secondary'}" style="border-radius:99px; border:none;" onclick="setStoryReadingMode('FLIP')">📖 Story Flip</button>
+                <button type="button" class="btn btn-sm ${activeStoryMode === 'READ_ALONG' ? 'btn-primary' : 'btn-secondary'}" style="border-radius:99px; border:none;" onclick="setStoryReadingMode('READ_ALONG')">🎤 Read-Along</button>
+              </div>
+            </div>
+
+            <div class="story-book-stage">
+              <div class="story-page-card ${flipClass}" ontouchstart="storyTouchStartX=event.touches[0].clientX" ontouchend="if(storyTouchStartX!==null){ const dx=event.changedTouches[0].clientX-storyTouchStartX; storyTouchStartX=null; if(dx<-50) flipStoryPage(1); else if(dx>50) flipStoryPage(-1); }">
+                <div style="position:relative; height:280px; background:${page.bgColor || '#1E293B'}; overflow:hidden;">
+                  <img src="${page.imageUrl || activeStoryBook.coverUrl}" alt="Page ${activeStoryPageIdx + 1}" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.style.display='none'">
+                  <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.65) 100%);"></div>
+                  <span style="position:absolute; top:14px; left:14px; background:rgba(0,0,0,0.58); color:#fff; padding:4px 10px; border-radius:99px; font-size:0.8rem; font-weight:700;">Page ${activeStoryPageIdx + 1} / ${pages.length}</span>
+                  ${page.illustrationEmoji ? `<span style="position:absolute; bottom:12px; right:16px; font-size:2rem; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.6));">${page.illustrationEmoji}</span>` : ''}
+                </div>
+                <div style="padding:1.4rem 1.5rem;">
+                  <div class="story-words-wrap" style="margin-bottom:1.1rem;">
+                    ${words.map((w, idx) => {
+                      const cls = activeStoryMode === 'READ_ALONG'
+                        ? (idx < activeStoryWordIdx ? 'is-read' : idx === activeStoryWordIdx ? 'is-current' : '')
+                        : '';
+                      const safeWord = w.replace(/'/g, "\\'");
+                      return `<button type="button" class="story-word-btn ${cls}" onclick="speakStoryText('${safeWord}', '${activeStoryBook.language}')" title="Tap to hear word">${w}</button>`;
+                    }).join('')}
+                  </div>
+
+                  <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.9rem;">
+                    💡 Tap any word to hear how it sounds!
+                  </div>
+
+                  ${activeStoryMode === 'FLIP' ? `
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap; padding-top:0.85rem; border-top:1px solid var(--border);">
+                      <button type="button" class="btn btn-secondary" onclick="speakStoryText('${String(page.text || '').replace(/'/g, "\\'")}', '${activeStoryBook.language}')">
+                        <span class="material-symbols-rounded" style="font-size:1.1rem;">volume_up</span> Listen to Page
+                      </button>
+                      <div style="display:flex; gap:0.6rem;">
+                        <button type="button" class="btn btn-secondary" ${activeStoryPageIdx === 0 ? 'disabled' : ''} onclick="flipStoryPage(-1)">← Prev</button>
+                        ${isLastPage
+                          ? `<button type="button" class="btn btn-primary" onclick="finishActiveStoryBook()">🎉 Finish Story</button>`
+                          : `<button type="button" class="btn btn-primary" onclick="flipStoryPage(1)">Flip Page →</button>`}
+                      </div>
+                    </div>
+                  ` : `
+                    <div style="padding:1rem; border-radius:14px; background:var(--surface-light); border:1px solid var(--border); margin-bottom:1rem;">
+                      <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap;">
+                        <div style="display:flex; align-items:center; gap:0.65rem; flex-wrap:wrap;">
+                          <button type="button" class="btn ${storyMicListening ? 'btn-primary story-mic-pulse' : 'btn-primary'}" onclick="toggleStoryMic()">
+                            <span class="material-symbols-rounded" style="font-size:1.1rem;">${storyMicListening ? 'mic' : 'mic_none'}</span>
+                            ${storyMicListening ? 'Listening... (Tap to Pause)' : (unlocked ? 'Page Complete ✓' : 'Tap Mic & Read Aloud')}
+                          </button>
+                          ${(!srSupported && !unlocked) ? `
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="markActiveStoryWordManualFallback()">🎙️ Practice Next Word</button>
+                          ` : ''}
+                        </div>
+                        <span style="font-weight:800; font-size:0.86rem; color:${unlocked ? 'var(--success)' : 'var(--primary)'};">
+                          ${Math.min(activeStoryWordIdx, words.length)} / ${words.length} words read
+                        </span>
+                      </div>
+                      ${activeStoryHintMsg ? `<div style="margin-top:0.65rem; font-size:0.84rem; font-weight:600; color:var(--text);">${activeStoryHintMsg}</div>` : ''}
+                      ${activeStoryLastTranscript ? `<div style="margin-top:0.35rem; font-size:0.78rem; color:var(--text-muted);">Heard: "${activeStoryLastTranscript}"</div>` : ''}
+                    </div>
+
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap;">
+                      <button type="button" class="btn btn-secondary" ${activeStoryPageIdx === 0 ? 'disabled' : ''} onclick="flipStoryPage(-1)">← Prev</button>
+                      ${isLastPage
+                        ? `<button id="storyNextPageBtn" type="button" class="btn ${unlocked ? 'btn-primary' : 'btn-secondary'}" onclick="${unlocked ? 'finishActiveStoryBook()' : 'flipStoryPage(1)'}">${unlocked ? '🎉 Finish Story (+Famibux)' : '🔒 Read Aloud to Finish'}</button>`
+                        : `<button id="storyNextPageBtn" type="button" class="btn ${unlocked ? 'btn-primary' : 'btn-secondary'}" onclick="flipStoryPage(1)">${unlocked ? '✨ Flip Next Page →' : '🔒 Read Aloud to Unlock Next Page'}</button>`}
+                    </div>
+                  `}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const ageRating = currentUser?.ageRating || 'YOUNG_KIDS';
+      const isOlder = ageRating === 'OLDER_KIDS' || ageRating === 'ALL';
+      const filtered = kidStoriesCache.filter(b => kidStoryLangFilter === 'all' || b.language === kidStoryLangFilter);
+
+      panel.innerHTML = `
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
+          <div>
+            <h2 style="font-family:'Fredoka',cursive; font-size:1.55rem; margin:0 0 0.25rem 0;">📖 Storybooks &amp; Read-Along</h2>
+            <p style="color:var(--text-muted); font-size:0.9rem; margin:0;">
+              ${ageRating === 'TODDLER'
+                ? 'Flip through illustrated pages with gentle audio, or try Read-Along!'
+                : 'Read each page aloud into your mic to unlock the next page and earn Famibux!'}
+            </p>
+          </div>
+          <div style="display:flex; gap:0.45rem; flex-wrap:wrap; align-items:center;">
+            <button type="button" class="btn btn-sm ${kidStoryLangFilter === 'all' ? 'btn-primary' : 'btn-secondary'}" onclick="kidStoryLangFilter='all'; renderKidStoriesPanel();">All</button>
+            <button type="button" class="btn btn-sm ${kidStoryLangFilter === 'en' ? 'btn-primary' : 'btn-secondary'}" onclick="kidStoryLangFilter='en'; renderKidStoriesPanel();">🇬🇧 English</button>
+            <button type="button" class="btn btn-sm ${kidStoryLangFilter === 'id' ? 'btn-primary' : 'btn-secondary'}" onclick="kidStoryLangFilter='id'; renderKidStoriesPanel();">🇮🇩 Indonesia</button>
+            <button type="button" class="btn btn-sm ${kidStoryBrowseAll ? 'btn-primary' : 'btn-secondary'}" onclick="kidStoryBrowseAll=!kidStoryBrowseAll; loadAndRenderKidStories();">${kidStoryBrowseAll ? 'Showing All Ages' : 'Browse All Stories'}</button>
+          </div>
+        </div>
+        ${filtered.length === 0 ? `
+          <div class="card" style="text-align:center; padding:2.2rem 1.5rem;">
+            <div style="font-size:2.4rem; margin-bottom:0.5rem;">📚</div>
+            <h3 style="margin-bottom:0.35rem;">${isOlder && !kidStoryBrowseAll ? 'Toddler & Younger Stories Hidden for Your Age Tier' : 'No Storybooks Found'}</h3>
+            <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1rem;">
+              ${isOlder && !kidStoryBrowseAll ? 'Stories are tailored for Toddlers (2–4) and Young Kids (5–8). Want to read them anyway?' : 'Try switching language filter above.'}
+            </p>
+            ${isOlder && !kidStoryBrowseAll ? `<button type="button" class="btn btn-primary" onclick="kidStoryBrowseAll=true; loadAndRenderKidStories();">Browse All Stories</button>` : ''}
+          </div>
+        ` : `
+          <div class="video-grid">
+            ${filtered.map(b => `
+              <div class="video-card" style="cursor:pointer;" onclick="openStoryBook('${b.id}')">
+                <div class="thumb-wrap">
+                  <img src="${b.coverUrl}" alt="${b.title}" loading="lazy">
+                  <span class="duration-badge">${b.language === 'id' ? '🇮🇩 ID' : '🇬🇧 EN'} • ${b.pages?.length || 0} pages</span>
+                </div>
+                <div class="video-info">
+                  <div style="display:flex; align-items:center; justify-content:space-between; gap:0.4rem; margin-bottom:0.35rem;">
+                    <span class="age-badge">${b.ageRating === 'TODDLER' ? '🧸 Toddler Flip' : '🎤 Read-Along'}</span>
+                    <span style="font-size:0.76rem; font-weight:800; color:#d97706;">+${b.rewardFamibux} Famibux</span>
+                  </div>
+                  <div class="video-title">${b.title}</div>
+                  <div class="video-meta" style="margin-top:0.25rem;">${b.description}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `}
+      `;
+    }
+
+    // Curator Studio Storybooks CRUD
+    let studioStoriesCache = [];
+
+    function addStudioStoryPageRow(page = {}) {
+      const list = document.getElementById('studioStoryPagesList');
+      if (!list) return;
+      const idx = list.children.length + 1;
+      const row = document.createElement('div');
+      row.className = 'card studio-story-page-row';
+      row.style.cssText = 'padding:0.85rem; display:grid; grid-template-columns:2fr 1.4fr 90px auto; gap:0.6rem; align-items:center;';
+      row.innerHTML = `
+        <input type="text" class="story-page-text" placeholder="Page ${idx} text..." value="${String(page.text || '').replace(/"/g, '&quot;')}" required style="padding:0.45rem 0.65rem; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
+        <input type="url" class="story-page-img" placeholder="Illustration URL (optional)" value="${String(page.imageUrl || '').replace(/"/g, '&quot;')}" style="padding:0.45rem 0.65rem; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
+        <input type="text" class="story-page-emoji" placeholder="📖" value="${String(page.illustrationEmoji || '📖').replace(/"/g, '&quot;')}" style="padding:0.45rem 0.65rem; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text); text-align:center;">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="if(document.querySelectorAll('.studio-story-page-row').length>2) this.closest('.studio-story-page-row').remove();" title="Remove page">✕</button>
+      `;
+      list.appendChild(row);
+    }
+
+    function resetStudioStoryForm() {
+      document.getElementById('studioStoryEditId').value = '';
+      document.getElementById('studioStoryForm')?.reset();
+      document.getElementById('studioStoryAuthor').value = 'FamiTube Storybooks';
+      document.getElementById('studioStoryReward').value = '25';
+      document.getElementById('btnCancelStudioStoryEdit').style.display = 'none';
+      const list = document.getElementById('studioStoryPagesList');
+      if (list) {
+        list.innerHTML = '';
+        addStudioStoryPageRow();
+        addStudioStoryPageRow();
+      }
+    }
+
+    async function loadAdminStories() {
+      const listEl = document.getElementById('studioStoryPagesList');
+      if (listEl && listEl.children.length === 0) {
+        addStudioStoryPageRow();
+        addStudioStoryPageRow();
+      }
+      try {
+        const res = await authFetch('/api/admin/stories');
+        const json = await res.json();
+        studioStoriesCache = json.success ? (json.data || []) : [];
+      } catch {
+        studioStoriesCache = [];
+      }
+      const countEl = document.getElementById('studioStoriesCount');
+      if (countEl) countEl.textContent = String(studioStoriesCache.length);
+      const grid = document.getElementById('studioStoriesGrid');
+      if (!grid) return;
+      grid.innerHTML = studioStoriesCache.map(s => `
+        <div class="video-card">
+          <div class="thumb-wrap">
+            <img src="${s.coverUrl}" alt="${s.title}" loading="lazy">
+            <span class="duration-badge">${s.language.toUpperCase()} • ${s.pages?.length || 0} pages</span>
+          </div>
+          <div class="video-info">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+              <span class="age-badge">${s.ageRating}</span>
+              <span style="font-size:0.76rem; font-weight:700; color:#d97706;">+${s.rewardFamibux} Famibux</span>
+            </div>
+            <div class="video-title">${s.title}</div>
+            <div class="video-meta" style="margin-bottom:0.75rem;">${s.description || ''}</div>
+            <div style="display:flex; gap:0.5rem;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="editStudioStory('${s.id}')">Edit</button>
+              <button type="button" class="btn btn-secondary btn-sm" style="color:var(--primary);" onclick="deleteStudioStory('${s.id}')">Delete</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function editStudioStory(id) {
+      const s = studioStoriesCache.find(b => b.id === id);
+      if (!s) return;
+      document.getElementById('studioStoryEditId').value = s.id;
+      document.getElementById('studioStoryTitle').value = s.title;
+      document.getElementById('studioStoryAuthor').value = s.author;
+      document.getElementById('studioStoryCover').value = s.coverUrl;
+      document.getElementById('studioStoryAge').value = s.ageRating;
+      document.getElementById('studioStoryLang').value = s.language;
+      document.getElementById('studioStoryReward').value = String(s.rewardFamibux || 25);
+      document.getElementById('studioStoryDesc').value = s.description || '';
+      document.getElementById('btnCancelStudioStoryEdit').style.display = 'inline-flex';
+      const list = document.getElementById('studioStoryPagesList');
+      list.innerHTML = '';
+      (s.pages || []).forEach(p => addStudioStoryPageRow(p));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function saveStudioStory(e) {
+      e.preventDefault();
+      const editId = document.getElementById('studioStoryEditId').value.trim();
+      const coverUrl = document.getElementById('studioStoryCover').value.trim();
+      const rows = Array.from(document.querySelectorAll('.studio-story-page-row'));
+      const pages = rows.map((r, i) => ({
+        pageNumber: i + 1,
+        text: r.querySelector('.story-page-text').value.trim(),
+        imageUrl: r.querySelector('.story-page-img').value.trim() || coverUrl,
+        illustrationEmoji: r.querySelector('.story-page-emoji').value.trim() || '📖'
+      })).filter(p => p.text.length > 0);
+      if (pages.length < 2) return alert('Please add at least 2 pages with text.');
+      const payload = {
+        title: document.getElementById('studioStoryTitle').value.trim(),
+        author: document.getElementById('studioStoryAuthor').value.trim(),
+        coverUrl,
+        ageRating: document.getElementById('studioStoryAge').value,
+        language: document.getElementById('studioStoryLang').value,
+        rewardFamibux: Number(document.getElementById('studioStoryReward').value || 25),
+        description: document.getElementById('studioStoryDesc').value.trim(),
+        pages
+      };
+      const url = editId ? `/api/admin/stories/${encodeURIComponent(editId)}` : '/api/admin/stories';
+      const res = await authFetch(url, {
+        method: editId ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) return alert(json.message || 'Could not save storybook');
+      resetStudioStoryForm();
+      await loadAdminStories();
+    }
+
+    async function deleteStudioStory(id) {
+      if (!confirm('Delete this storybook?')) return;
+      await authFetch(`/api/admin/stories/${encodeURIComponent(id)}`, { method: 'DELETE' });
+      await loadAdminStories();
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (!activeStoryBook || activeStoryCompletionResult || activeKidTab !== 'stories') return;
+      const tag = (e.target && e.target.tagName) ? e.target.tagName.toUpperCase() : '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        flipStoryPage(1);
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        flipStoryPage(-1);
+      }
+    });
   </script>
 </body>
 </html>

@@ -836,6 +836,39 @@
         max-width: 390px;
       }
     }
+    .pv-story-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
+      animation: pvStoryFlip 0.35s ease;
+    }
+    @keyframes pvStoryFlip {
+      0% { transform: perspective(900px) rotateY(-12deg) scale(0.97); opacity: 0.75; }
+      100% { transform: perspective(900px) rotateY(0deg) scale(1); opacity: 1; }
+    }
+    .pv-word-chip {
+      border: 1.5px solid transparent;
+      background: var(--surface-alt);
+      color: var(--text);
+      font-weight: 700;
+      font-size: 0.98rem;
+      padding: 4px 8px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .pv-word-chip.is-read {
+      background: rgba(6, 214, 160, 0.16);
+      border-color: rgba(6, 214, 160, 0.5);
+      color: var(--mint);
+    }
+    .pv-word-chip.is-current {
+      background: rgba(255, 46, 147, 0.15);
+      border-color: var(--pink);
+      color: var(--pink);
+      box-shadow: 0 0 0 2px rgba(255, 46, 147, 0.2);
+    }
   </style>
 </head>
 <body>
@@ -1260,6 +1293,104 @@
       h5pCosmicMemoryMatched: [],
       h5pToddlerMemoryFlipped: [],
       h5pToddlerMemoryMatched: [],
+      storyLangFilter: 'all',
+      showAllPreviewStories: false,
+      activeStoryId: null,
+      activeStoryPageIdx: 0,
+      activeStoryMode: 'FLIP',
+      activeStoryWordIdx: 0,
+      activeStoryStuckAttempts: 0,
+      activeStoryCompletedPages: [],
+      activeStoryLastTranscript: '',
+      activeStoryHint: '',
+      activeStoryCompleted: false,
+      storyMicListening: false,
+      storyBooks: [
+        {
+          id: 'story-tod-en-1', title: "Little Bear's Sleepy Moon", ageRating: 'TODDLER', language: 'en', rewardFamibux: 20,
+          coverUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&h=400&fit=crop',
+          pages: [
+            { text: 'Little Bear sees the bright moon.', imageUrl: 'https://images.unsplash.com/photo-1532693322450-2cb5c511067d?w=720&h=440&fit=crop', emoji: '🐻🌙' },
+            { text: 'Soft stars twinkle in the sky.', imageUrl: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=720&h=440&fit=crop', emoji: '✨🌟' },
+            { text: 'Owl says hoot hoot goodnight.', imageUrl: 'https://images.unsplash.com/photo-1543549790-8b5f4a028cfb?w=720&h=440&fit=crop', emoji: '🦉🌲' },
+            { text: 'Little Bear curls up to sleep.', imageUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=720&h=440&fit=crop', emoji: '🐻💤' }
+          ]
+        },
+        {
+          id: 'story-tod-en-2', title: 'Splash Goes the Yellow Duck', ageRating: 'TODDLER', language: 'en', rewardFamibux: 20,
+          coverUrl: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=600&h=400&fit=crop',
+          pages: [
+            { text: 'One yellow duck swims today.', imageUrl: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=720&h=440&fit=crop', emoji: '🦆💧' },
+            { text: 'Two green frogs hop and play.', imageUrl: 'https://images.unsplash.com/photo-1579380656108-f98e4df8ea62?w=720&h=440&fit=crop', emoji: '🐸🌿' },
+            { text: 'Splash splash goes the cool water.', imageUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=720&h=440&fit=crop', emoji: '💦🌊' },
+            { text: 'Three happy friends wave goodbye.', imageUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=720&h=440&fit=crop', emoji: '🦆🐸👋' }
+          ]
+        },
+        {
+          id: 'story-tod-id-1', title: 'Kucing Kecil Suka Susu', ageRating: 'TODDLER', language: 'id', rewardFamibux: 20,
+          coverUrl: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=600&h=400&fit=crop',
+          pages: [
+            { text: 'Ini kucing kecil yang lucu.', imageUrl: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=720&h=440&fit=crop', emoji: '🐱💛' },
+            { text: 'Kucing minum susu putih hangat.', imageUrl: 'https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=720&h=440&fit=crop', emoji: '🥛🐾' },
+            { text: 'Lalu kucing main bola merah.', imageUrl: 'https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?w=720&h=440&fit=crop', emoji: '🧶🔴' },
+            { text: 'Sekarang kucing tidur nyenyak.', imageUrl: 'https://images.unsplash.com/photo-1548802673-380ab8ebc7b7?w=720&h=440&fit=crop', emoji: '🐱💤' }
+          ]
+        },
+        {
+          id: 'story-tod-id-2', title: 'Pelangi di Taman Kelinci', ageRating: 'TODDLER', language: 'id', rewardFamibux: 20,
+          coverUrl: 'https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?w=600&h=400&fit=crop',
+          pages: [
+            { text: 'Kelinci melompat di taman hijau.', imageUrl: 'https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?w=720&h=440&fit=crop', emoji: '🐰🌱' },
+            { text: 'Hujan turun pelan lalu berhenti.', imageUrl: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=720&h=440&fit=crop', emoji: '🌦️💧' },
+            { text: 'Lihat ada pelangi indah sekali.', imageUrl: 'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?w=720&h=440&fit=crop', emoji: '🌈✨' },
+            { text: 'Kelinci tersenyum senang sekali.', imageUrl: 'https://images.unsplash.com/photo-1452857297128-d9c29adba80b?w=720&h=440&fit=crop', emoji: '🐰🌸' }
+          ]
+        },
+        {
+          id: 'story-yk-en-1', title: 'Rocket Pup Visits the Red Planet', ageRating: 'YOUNG_KIDS', language: 'en', rewardFamibux: 30,
+          coverUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&h=400&fit=crop',
+          pages: [
+            { text: 'Astro the puppy put on his shiny silver helmet and climbed into his red rocket.', imageUrl: 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=720&h=440&fit=crop', emoji: '🐶🚀' },
+            { text: 'Three, two, one, blast off! The rocket zoomed past fluffy white clouds into space.', imageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=720&h=440&fit=crop', emoji: '☁️🛸' },
+            { text: 'Soon Astro landed softly on the dusty red rocks of Mars and wagged his tail.', imageUrl: 'https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=720&h=440&fit=crop', emoji: '🔴🪐' },
+            { text: 'He found a friendly little rover robot taking pictures of bright sparkling stones.', imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=720&h=440&fit=crop', emoji: '🤖💎' },
+            { text: 'After sharing a snack, Astro flew home safely to tell his family all about Mars.', imageUrl: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=720&h=440&fit=crop', emoji: '🌍🏡' }
+          ]
+        },
+        {
+          id: 'story-yk-en-2', title: 'Maya and the Singing Treehouse', ageRating: 'YOUNG_KIDS', language: 'en', rewardFamibux: 30,
+          coverUrl: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=600&h=400&fit=crop',
+          pages: [
+            { text: 'Maya climbed the wooden ladder to her cozy treehouse behind the garden.', imageUrl: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=720&h=440&fit=crop', emoji: '🌳🪜' },
+            { text: 'When the warm breeze blew, the golden leaves began to hum a gentle tune.', imageUrl: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=720&h=440&fit=crop', emoji: '🍃🎶' },
+            { text: 'Two bluebirds perched on the window sill and whistled along with the song.', imageUrl: 'https://images.unsplash.com/photo-1444464666168-49d633b86797?w=720&h=440&fit=crop', emoji: '🐦🎵' },
+            { text: 'Maya tapped a rhythm on her wooden desk and smiled at the forest orchestra.', imageUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=720&h=440&fit=crop', emoji: '🥁🌿' },
+            { text: 'As the sun turned orange, Maya waved to the birds and promised to sing again tomorrow.', imageUrl: 'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=720&h=440&fit=crop', emoji: '🌅💛' }
+          ]
+        },
+        {
+          id: 'story-yk-id-1', title: 'Petualangan Bima dan Penyu Laut', ageRating: 'YOUNG_KIDS', language: 'id', rewardFamibux: 30,
+          coverUrl: 'https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=600&h=400&fit=crop',
+          pages: [
+            { text: 'Pagi itu Bima berjalan di pantai pasir putih bersama ayahnya yang ramah.', imageUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=720&h=440&fit=crop', emoji: '🏖️👦' },
+            { text: 'Mereka melihat seekor penyu kecil yang tersangkut di antara ranting kayu.', imageUrl: 'https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=720&h=440&fit=crop', emoji: '🐢🌿' },
+            { text: 'Dengan hati hati Bima mengangkat ranting itu agar penyu bisa bergerak bebas.', imageUrl: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=720&h=440&fit=crop', emoji: '🤲🌊' },
+            { text: 'Penyu kecil berenang gembira menuju ombak biru yang jernih dan tenang.', imageUrl: 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=720&h=440&fit=crop', emoji: '🐢💙' },
+            { text: 'Bima berjanji selalu menjaga kebersihan pantai demi semua hewan laut.', imageUrl: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=720&h=440&fit=crop', emoji: '🌏✨' }
+          ]
+        },
+        {
+          id: 'story-yk-id-2', title: 'Kereta Bintang Malam Hari', ageRating: 'YOUNG_KIDS', language: 'id', rewardFamibux: 30,
+          coverUrl: 'https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=600&h=400&fit=crop',
+          pages: [
+            { text: 'Lampu kereta biru menyala terang saat malam tiba di stasiun desa.', imageUrl: 'https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=720&h=440&fit=crop', emoji: '🚂🌙' },
+            { text: 'Rara duduk di dekat jendela sambil memegang buku gambar kesayangannya.', imageUrl: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=720&h=440&fit=crop', emoji: '👧📖' },
+            { text: 'Kereta melaju melewati bukit hijau dan jembatan panjang di bawah bulan.', imageUrl: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=720&h=440&fit=crop', emoji: '🌉🌕' },
+            { text: 'Kunang kunang menari di luar kaca seperti ribuan bintang kecil.', imageUrl: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=720&h=440&fit=crop', emoji: '✨🪲' },
+            { text: 'Kereta pun sampai di kota tujuan dengan selamat dan penuh senyuman.', imageUrl: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=720&h=440&fit=crop', emoji: '🏙️😊' }
+          ]
+        }
+      ],
       playlists: [
         { id: 'pl-1', title: 'Space & Rockets', description: 'Curated space adventures', count: 6 },
         { id: 'pl-2', title: 'Bedtime Rhymes', description: 'Calm songs for evening', count: 8 }
@@ -1311,6 +1442,12 @@
         if (chRes.success && chRes.data?.length) {
           state.channels = chRes.data;
         }
+        try {
+          const storyRes = await fetch(`${API_BASE}/api/stories?includeAllAges=true`).then(r => r.json());
+          if (storyRes?.success && Array.isArray(storyRes.data) && storyRes.data.length) {
+            state.storyBooks = storyRes.data;
+          }
+        } catch {}
         if (authToken) {
           const achRes = await fetch(`${API_BASE}/api/kids/achievements`, {
             headers: { Authorization: `Bearer ${authToken}` }
@@ -1395,6 +1532,372 @@
       }, 3200);
     }
 
+    const TODDLER_TV_CHANNELS = [
+      { topic: 'Music & Rhymes', displayTitle: 'Songs & Rhymes', emoji: '🎵', img: 'assets/topics/toddler-music.jpg' },
+      { topic: 'Animals & Nature', displayTitle: 'Cute Animals', emoji: '🐶', img: 'assets/topics/toddler-animals.jpg' },
+      { topic: 'Learning & ABCs', displayTitle: 'ABCs & Colors', emoji: '🔤', img: 'assets/topics/toddler-abcs.jpg' },
+      { topic: 'Art & Crafts', displayTitle: 'Colors & Play', emoji: '🎨', img: 'assets/topics/toddler-art.jpg' },
+      { topic: 'Kids Yoga & Active', displayTitle: 'Sing & Dance', emoji: '🤸', img: 'assets/topics/toddler-dance.jpg' },
+      { topic: 'Stories & Reading', displayTitle: 'Bedtime Stories', emoji: '📖', img: 'assets/topics/toddler-stories.jpg' },
+      { topic: 'Cartoons & Fun', displayTitle: 'Gentle Toons', emoji: '🧸', img: 'assets/topics/toddler-cartoons.jpg' }
+    ];
+
+    const TODDLER_EXCLUDED_TAGS = new Set([
+      'pacing:high-energy',
+      'format:short-form',
+      'commercial:toy-unboxing',
+      'advisory:mild-peril',
+      'advisory:slapstick'
+    ]);
+
+    function getActiveToddlerConfigChild() {
+      return state.parentChildren.find(c => c.ageRating === 'TODDLER') || null;
+    }
+
+    function getEffectiveToddlerSettings() {
+      const c = getActiveToddlerConfigChild();
+      return {
+        contentLanguage: c?.contentLanguage || state.contentLanguage || 'en',
+        cultureMode: c?.cultureMode || state.cultureMode || 'GLOBAL',
+        toddlerLoopMinutes: c?.toddlerLoopMinutes ?? state.toddlerLoopMinutes ?? 15,
+        toddlerCooldownMinutes: c?.toddlerCooldownMinutes ?? state.toddlerCooldownMinutes ?? 30,
+        toddlerSubStage: c?.toddlerSubStage || state.toddlerSubStage || 'AUTO',
+        toddlerEnabledTopics: Array.isArray(c?.toddlerEnabledTopics) && c.toddlerEnabledTopics.length
+          ? c.toddlerEnabledTopics
+          : state.toddlerEnabledTopics,
+        toddlerHiddenVideoIds: Array.isArray(c?.toddlerHiddenVideoIds)
+          ? c.toddlerHiddenVideoIds
+          : (state.toddlerHiddenVideoIds || [])
+      };
+    }
+
+    function stableHash(str) {
+      let h = 2166136261;
+      for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return h >>> 0;
+    }
+
+    function buildToddlerTvLoops(customSettings) {
+      const cfg = customSettings || getEffectiveToddlerSettings();
+      const enabledSet = new Set((cfg.toddlerEnabledTopics || []).map(t => t.toLowerCase()));
+      const hiddenSet = new Set(cfg.toddlerHiddenVideoIds || []);
+      const weekNumber = Math.floor(Date.now() / (7 * 86400 * 1000));
+
+      const safePool = (state.videos || []).filter(v => {
+        if (hiddenSet.has(v.id)) return false;
+        const r = String(v.ageRating || 'ALL').toUpperCase();
+        if (r !== 'TODDLER' && r !== 'ALL') return false;
+        const tags = new Set((v.tags || []).map(t => String(t).trim().toLowerCase()));
+        for (const ex of TODDLER_EXCLUDED_TAGS) {
+          if (tags.has(ex)) return false;
+        }
+        const cats = getVideoCategories(v);
+        if (!cats.some(c => isToddlerTopic(c))) return false;
+        if (r !== 'TODDLER' && !cats.every(c => isToddlerTopic(c))) return false;
+        return true;
+      });
+
+      const matchesLang = (v) => {
+        const tags = new Set((v.tags || []).map(t => String(t).trim().toLowerCase()));
+        if (tags.has('access:no-dialogue') || tags.has('access:bilingual')) return true;
+        if (cfg.contentLanguage === 'id') return tags.has('lang:id') || tags.has('culture:indonesia');
+        if (cfg.contentLanguage === 'bilingual') return tags.has('lang:en') || tags.has('lang:id') || tags.has('culture:indonesia') || !tags.has('lang:es');
+        return tags.has('lang:en') || (!tags.has('lang:id') && !tags.has('lang:es'));
+      };
+
+      return TODDLER_TV_CHANNELS.filter(def => enabledSet.has(def.topic.toLowerCase())).map(def => {
+        const topicPool = safePool.filter(v => videoMatchesCategory(v, def.topic));
+        const langFiltered = topicPool.filter(matchesLang);
+        let working = langFiltered.length >= 4 ? langFiltered : topicPool;
+        if (langFiltered.length > 0 && langFiltered.length < 6 && topicPool.length > langFiltered.length) {
+          const seen = new Set(langFiltered.map(x => x.id));
+          working = [...langFiltered, ...topicPool.filter(x => !seen.has(x.id))];
+        }
+        const scored = [...working].sort((a, b) => {
+          const aT = new Set((a.tags || []).map(t => String(t).toLowerCase()));
+          const bT = new Set((b.tags || []).map(t => String(t).toLowerCase()));
+          let aP = 0, bP = 0;
+          if (cfg.cultureMode === 'ID') {
+            if (aT.has('culture:indonesia') || aT.has('lang:id')) aP += 4;
+            if (bT.has('culture:indonesia') || bT.has('lang:id')) bP += 4;
+          }
+          if (cfg.toddlerSubStage === 'EARLY') {
+            if (aT.has('stage:early-toddler')) aP += 2;
+            if (bT.has('stage:early-toddler')) bP += 2;
+          } else if (cfg.toddlerSubStage === 'OLDER') {
+            if (aT.has('stage:older-toddler')) aP += 2;
+            if (bT.has('stage:older-toddler')) bP += 2;
+          }
+          if (aP !== bP) return bP - aP;
+          return stableHash(a.id) - stableHash(b.id);
+        });
+        const count = Math.min(6, scored.length);
+        const picked = [];
+        for (let i = 0; i < count; i++) {
+          picked.push(scored[(weekNumber + i) % scored.length]);
+        }
+        const isCalmTail = (v) => {
+          const t = new Set((v.tags || []).map(x => String(x).toLowerCase()));
+          return t.has('pacing:calm') || t.has('context:bedtime-safe') || t.has('audio:gentle');
+        };
+        const ordered = [...picked.filter(v => !isCalmTail(v)), ...picked.filter(v => isCalmTail(v))];
+        return { ...def, videos: ordered, weekNumber };
+      });
+    }
+
+    function isToddlerCoolingDown() {
+      return state.ageMode === 'TODDLER' && state.toddlerCooldownUntil > Date.now();
+    }
+
+    function getToddlerCooldownMinsLeft() {
+      const ms = Math.max(0, (state.toddlerCooldownUntil || 0) - Date.now());
+      return Math.max(1, Math.ceil(ms / 60000));
+    }
+
+    function playTuningChime() {
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return;
+        const ctx = new Ctx();
+        const now = ctx.currentTime;
+        [523.25, 659.25, 783.99].forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.14);
+          gain.gain.setValueAtTime(0.06, now + idx * 0.14);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.14 + 0.35);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + idx * 0.14);
+          osc.stop(now + idx * 0.14 + 0.36);
+        });
+      } catch {}
+    }
+
+    let toddlerPhaseTimer = null;
+    let toddlerTickTimer = null;
+
+    function clearToddlerTimers() {
+      if (toddlerPhaseTimer) { clearTimeout(toddlerPhaseTimer); toddlerPhaseTimer = null; }
+      if (toddlerTickTimer) { clearInterval(toddlerTickTimer); toddlerTickTimer = null; }
+    }
+
+    function startToddlerPlaybackTick() {
+      clearInterval(toddlerTickTimer);
+      toddlerTickTimer = setInterval(() => {
+        if (state.screen !== 'toddler_tv_player' || state.toddlerPhase !== 'PLAYING' || !state.toddlerActiveTopic) {
+          clearInterval(toddlerTickTimer);
+          return;
+        }
+        const loops = buildToddlerTvLoops();
+        const ch = loops.find(c => c.topic === state.toddlerActiveTopic);
+        const ph = state.toddlerPlayheads[state.toddlerActiveTopic] || { index: 0, elapsedSec: 0, lastLeftAt: 0 };
+        const vid = ch?.videos?.[ph.index % Math.max(1, ch?.videos?.length || 1)];
+        const dur = Math.max(30, vid?.duration || 180);
+
+        ph.elapsedSec = (ph.elapsedSec || 0) + 1;
+        state.toddlerPlayheads[state.toddlerActiveTopic] = ph;
+        state.toddlerSessionWatchedSec = (state.toddlerSessionWatchedSec || 0) + 1;
+
+        if (ph.elapsedSec >= dur) {
+          finishToddlerVideo();
+          return;
+        }
+        // Lightweight DOM progress update without reloading iframe
+        const pct = Math.min(100, Math.round((ph.elapsedSec / dur) * 100));
+        const barEl = document.getElementById('toddlerProgressBar');
+        if (barEl) barEl.style.width = pct + '%';
+        const cfg = getEffectiveToddlerSettings();
+        const loopLeftMin = Math.max(0, Math.ceil(((cfg.toddlerLoopMinutes * 60) - state.toddlerSessionWatchedSec) / 60));
+        const loopPill = document.getElementById('toddlerLoopLeftPill');
+        if (loopPill) loopPill.textContent = loopLeftMin > 0 ? `${loopLeftMin}m left in loop` : 'Last story!';
+      }, 1000);
+    }
+
+    function tuneToddlerChannel(topic) {
+      if (isToddlerCoolingDown()) {
+        const def = TODDLER_TV_CHANNELS.find(d => d.topic === topic);
+        showDeviceToast('deviceScreen', `😴 ${def?.displayTitle || topic} is sleeping! Time to play offline 🧸`);
+        return;
+      }
+      const loops = buildToddlerTvLoops();
+      const ch = loops.find(c => c.topic === topic);
+      if (!ch || !ch.videos.length) {
+        showDeviceToast('deviceScreen', 'No calm videos available for this channel yet.');
+        return;
+      }
+      clearToddlerTimers();
+      const ph = state.toddlerPlayheads[topic] || { index: 0, elapsedSec: 0, lastLeftAt: 0 };
+      // Option B Sticky Playhead: only advance if away > 3 minutes; re-tapping resumes exact video!
+      if (ph.lastLeftAt && (Date.now() - ph.lastLeftAt) > 180000) {
+        ph.index = (ph.index + 1) % ch.videos.length;
+        ph.elapsedSec = 0;
+      }
+      ph.lastLeftAt = 0;
+      state.toddlerPlayheads[topic] = ph;
+      state.toddlerResumedFromSec = ph.elapsedSec || 0;
+      state.toddlerActiveTopic = topic;
+      state.toddlerPhase = 'TUNING';
+      state.screen = 'toddler_tv_player';
+      playTuningChime();
+      render();
+
+      toddlerPhaseTimer = setTimeout(() => {
+        if (state.screen === 'toddler_tv_player' && state.toddlerActiveTopic === topic) {
+          state.toddlerPhase = 'PLAYING';
+          render();
+          startToddlerPlaybackTick();
+          const curVid = ch.videos[ph.index % ch.videos.length];
+          if (curVid) {
+            const watched = state.childActivityHistory?.watched || [];
+            if (!watched.length || watched[0].title !== curVid.title) {
+              watched.unshift({
+                id: 'act-w-' + Date.now(),
+                title: curVid.title,
+                channel: ch.displayTitle,
+                time: 'Just now',
+                duration: `${Math.max(1, Math.round((curVid.duration || 180) / 60))}m`
+              });
+              state.childActivityHistory.watched = watched.slice(0, 12);
+            }
+          }
+        }
+      }, 2200);
+    }
+
+    function exitToddlerPlayerToDial() {
+      if (state.toddlerActiveTopic && state.toddlerPlayheads[state.toddlerActiveTopic]) {
+        state.toddlerPlayheads[state.toddlerActiveTopic].lastLeftAt = Date.now();
+      }
+      clearToddlerTimers();
+      state.screen = 'home';
+      render();
+    }
+
+    function finishToddlerVideo(forceSignoff = false, forceWindDown = false) {
+      const topic = state.toddlerActiveTopic;
+      if (!topic) return;
+      const loops = buildToddlerTvLoops();
+      const ch = loops.find(c => c.topic === topic);
+      if (!ch || !ch.videos.length) return;
+      const cfg = getEffectiveToddlerSettings();
+      const loopBudgetSec = (cfg.toddlerLoopMinutes || 15) * 60;
+      clearToddlerTimers();
+
+      if (forceSignoff || state.toddlerSessionWatchedSec >= loopBudgetSec) {
+        state.toddlerPhase = 'SIGNOFF';
+        render();
+        toddlerPhaseTimer = setTimeout(() => {
+          state.toddlerCooldownUntil = Date.now() + (cfg.toddlerCooldownMinutes || 30) * 60000;
+          state.toddlerSessionWatchedSec = 0;
+          state.toddlerActiveTopic = null;
+          state.screen = 'home';
+          render();
+          if (state.sideBySideParent) {
+            showDeviceToast('parentDeviceScreen', `🌙 Toddler TV finished 1 loop → ${cfg.toddlerCooldownMinutes}m Nap Cooldown`);
+          }
+        }, 4500);
+        return;
+      }
+
+      const ph = state.toddlerPlayheads[topic] || { index: 0, elapsedSec: 0, lastLeftAt: 0 };
+      const remainingSec = loopBudgetSec - state.toddlerSessionWatchedSec;
+      if (forceWindDown || remainingSec <= 240) {
+        const calmIdx = ch.videos.findIndex((v, i) => {
+          const t = new Set((v.tags || []).map(x => String(x).toLowerCase()));
+          return i !== ph.index && (t.has('pacing:calm') || t.has('context:bedtime-safe'));
+        });
+        ph.index = calmIdx >= 0 ? calmIdx : (ph.index + 1) % ch.videos.length;
+        if (forceWindDown) state.toddlerSessionWatchedSec = Math.max(state.toddlerSessionWatchedSec, loopBudgetSec - 180);
+      } else {
+        ph.index = (ph.index + 1) % ch.videos.length;
+      }
+      ph.elapsedSec = 0;
+      state.toddlerPlayheads[topic] = ph;
+      state.toddlerResumedFromSec = 0;
+      state.toddlerPhase = 'BREATHER';
+      render();
+
+      toddlerPhaseTimer = setTimeout(() => {
+        if (state.screen === 'toddler_tv_player' && state.toddlerActiveTopic === topic) {
+          state.toddlerPhase = 'PLAYING';
+          render();
+          startToddlerPlaybackTick();
+        }
+      }, 3200);
+    }
+
+    function wakeToddlerTvWithPin() {
+      const p = prompt('Grown-Ups Only: Enter Parent PIN (1234) to wake Toddler TV:');
+      if (p === null) return;
+      if (p.trim() === '1234') {
+        state.toddlerCooldownUntil = 0;
+        state.toddlerSessionWatchedSec = 0;
+        render();
+        showDeviceToast('deviceScreen', '☀️ Toddler TV is awake!');
+      } else {
+        showDeviceToast('deviceScreen', '❌ Incorrect Parent PIN');
+      }
+    }
+
+    function openTier1ToddlerShowcase() {
+      setAgeMode('TODDLER');
+      const noah = getActiveToddlerConfigChild();
+      if (noah) {
+        state.parentConfigChildId = noah.id;
+        state.selectedActivityKid = noah.name;
+      }
+      state.parentTab = 'kids';
+      toggleSideBySideMode(true);
+    }
+
+    function deriveTierFromBirthday(bday) {
+      if (!bday) return null;
+      const parts = String(bday).split('-').map(Number);
+      if (parts.length !== 3) return null;
+      const [y, m, d] = parts;
+      const now = new Date();
+      let age = now.getFullYear() - y;
+      const md = (now.getMonth() + 1) - m;
+      if (md < 0 || (md === 0 && now.getDate() < d)) age--;
+      if (age <= 3) return 'TODDLER';
+      if (age <= 6) return 'YOUNG_KIDS';
+      return 'OLDER_KIDS';
+    }
+
+    function toggleToddlerChannelForChild(childId, topic) {
+      const c = state.parentChildren.find(x => x.id === childId);
+      if (!c) return;
+      const current = Array.isArray(c.toddlerEnabledTopics) ? [...c.toddlerEnabledTopics] : [...state.toddlerEnabledTopics];
+      const idx = current.indexOf(topic);
+      if (idx >= 0) {
+        if (current.length <= 1) {
+          showDeviceToast('parentDeviceScreen', 'Keep at least 1 Toddler TV channel enabled');
+          return;
+        }
+        current.splice(idx, 1);
+      } else {
+        current.push(topic);
+      }
+      c.toddlerEnabledTopics = current;
+      render();
+    }
+
+    function toggleHideToddlerVideo(childId, videoId) {
+      const c = state.parentChildren.find(x => x.id === childId);
+      if (!c) return;
+      if (!Array.isArray(c.toddlerHiddenVideoIds)) c.toddlerHiddenVideoIds = [];
+      const idx = c.toddlerHiddenVideoIds.indexOf(videoId);
+      if (idx >= 0) c.toddlerHiddenVideoIds.splice(idx, 1);
+      else c.toddlerHiddenVideoIds.push(videoId);
+      render();
+      showDeviceToast('parentDeviceScreen', 'Loop updated — swapped with next calm clip');
+    }
+
     function setAgeMode(mode) {
       state.ageMode = mode;
       state.selectedCategory = null;
@@ -1403,9 +1906,13 @@
         state.selectedCustomPlaylistId = null;
         state.ytChannelTab = 'videos';
         state.selectedYtPlaylistId = null;
-        if (['search', 'add_channel', 'library', 'playlists'].includes(state.screen)) {
+        state.homeNavTab = 'home';
+        if (['search', 'add_channel', 'library', 'playlists', 'player'].includes(state.screen)) {
           state.screen = 'home';
         }
+      } else if (state.screen === 'toddler_tv_player') {
+        clearToddlerTimers();
+        state.screen = 'home';
       }
       document.getElementById('btnAgeAll').classList.toggle('active', mode === 'ALL');
       document.getElementById('btnAgeToddler').classList.toggle('active', mode === 'TODDLER');
@@ -1861,7 +2368,7 @@
           ]
         : (simple
           ? [
-              { id: 'home', icon: 'home', label: 'Topics' },
+              { id: 'home', icon: 'tv', label: 'TV' },
               { id: 'favorites', icon: 'favorite', label: 'Favorites' },
               { id: 'profile', icon: 'person', label: 'Profile' }
             ]
@@ -1877,6 +2384,7 @@
       bar.style.display = showBottom ? 'flex' : 'none';
       bar.innerHTML = tabs.map(t => {
         const isActive = state.screen === t.id ||
+                         (t.id === 'home' && state.screen === 'toddler_tv_player') ||
                          (isChannelView && t.id === 'channels') ||
                          (t.id === 'library' && (state.screen === 'library' || state.screen === 'playlists'));
         return `
@@ -1947,28 +2455,158 @@
               </div>
             `).join('')}
           ` : state.parentTab === 'kids' ? `
-            ${state.parentChildren.map(c => {
-              const effectiveLimit = c.dailyLimitMinutes !== null && c.dailyLimitMinutes !== undefined ? c.dailyLimitMinutes : state.dailyLimit;
-              const isOverridden = c.dailyLimitMinutes !== null && c.dailyLimitMinutes !== undefined;
+            ${(() => {
+              const cfgChild = state.parentConfigChildId ? state.parentChildren.find(x => x.id === state.parentConfigChildId) : null;
+              if (cfgChild) {
+                const isToddlerChild = cfgChild.ageRating === 'TODDLER';
+                const cLang = cfgChild.contentLanguage || state.contentLanguage || 'en';
+                const cCulture = cfgChild.cultureMode || state.cultureMode || 'GLOBAL';
+                const cLoop = cfgChild.toddlerLoopMinutes ?? state.toddlerLoopMinutes ?? 15;
+                const cCool = cfgChild.toddlerCooldownMinutes ?? state.toddlerCooldownMinutes ?? 30;
+                const cStage = cfgChild.toddlerSubStage || state.toddlerSubStage || 'AUTO';
+                const cTopics = Array.isArray(cfgChild.toddlerEnabledTopics) ? cfgChild.toddlerEnabledTopics : state.toddlerEnabledTopics;
+                const cHidden = Array.isArray(cfgChild.toddlerHiddenVideoIds) ? cfgChild.toddlerHiddenVideoIds : [];
+                const previewLoops = isToddlerChild ? buildToddlerTvLoops({
+                  contentLanguage: cLang,
+                  cultureMode: cCulture,
+                  toddlerSubStage: cStage,
+                  toddlerEnabledTopics: cTopics,
+                  toddlerHiddenVideoIds: cHidden
+                }) : [];
+                const activeLoop = previewLoops.find(l => l.topic === state.toddlerLoopPreviewTopic) || previewLoops[0];
+                return `
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+                    <button class="btn-outline" style="padding:4px 9px; font-size:0.72rem;" onclick="state.parentConfigChildId=null; render();">← All Kids</button>
+                    <span style="font-weight:800; font-size:0.86rem;">${cfgChild.name} • ${isToddlerChild ? 'Tier 1: Toddler' : cfgChild.ageRating === 'YOUNG_KIDS' ? 'Tier 2: Young Kids' : 'Tier 3: Older Kids'}</span>
+                  </div>
+                  <div class="card-box">
+                    <div style="font-weight:800; font-size:0.82rem; margin-bottom:6px;">Developmental Tier (Parent Controls)</div>
+                    <div class="chips-row">
+                      ${[
+                        { id: 'TODDLER', label: 'Tier 1: Toddler' },
+                        { id: 'YOUNG_KIDS', label: 'Tier 2: Young' },
+                        { id: 'OLDER_KIDS', label: 'Tier 3: Older' }
+                      ].map(t => `<button class="chip ${cfgChild.ageRating===t.id?'active':''}" onclick="state.parentChildren=state.parentChildren.map(x=>x.id==='${cfgChild.id}'?{...x, ageRating:'${t.id}'}:x); setAgeMode('${t.id}'); render();">${t.label}</button>`).join('')}
+                    </div>
+                  </div>
+                  ${isToddlerChild ? `
+                    <div class="card-box">
+                      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                        <div style="font-weight:800; font-size:0.84rem;">📺 Toddler TV Session &amp; Nap</div>
+                        ${isToddlerCoolingDown() ? `
+                          <button class="btn-primary" style="padding:4px 9px; font-size:0.7rem; background:#06D6A0; color:#0B1120;" onclick="state.toddlerCooldownUntil=0; state.toddlerSessionWatchedSec=0; render(); showDeviceToast('parentDeviceScreen','☀️ Toddler TV awakened!');">☀️ Wake Up TV</button>
+                        ` : `<span style="font-size:0.68rem; color:#06D6A0; font-weight:800;">● Awake</span>`}
+                      </div>
+                      <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:4px;">1-Loop Session Length:</div>
+                      <div class="chips-row" style="margin-bottom:8px;">
+                        ${[10,15,20,25,30].map(m => `<button class="chip ${cLoop===m?'active':''}" onclick="state.parentChildren=state.parentChildren.map(x=>x.id==='${cfgChild.id}'?{...x, toddlerLoopMinutes:${m}}:x); render();">${m}m</button>`).join('')}
+                      </div>
+                      <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:4px;">Nap Cooldown After Loop:</div>
+                      <div class="chips-row" style="margin-bottom:8px;">
+                        ${[15,30,45,60,90].map(m => `<button class="chip ${cCool===m?'active':''}" onclick="state.parentChildren=state.parentChildren.map(x=>x.id==='${cfgChild.id}'?{...x, toddlerCooldownMinutes:${m}}:x); render();">${m}m</button>`).join('')}
+                      </div>
+                      <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:4px;">Language &amp; Culture:</div>
+                      <div class="chips-row" style="margin-bottom:8px;">
+                        ${[
+                          { id: 'en', label: 'English' },
+                          { id: 'id', label: 'Indonesian' },
+                          { id: 'bilingual', label: 'Bilingual' }
+                        ].map(l => `<button class="chip ${cLang===l.id?'active':''}" onclick="state.parentChildren=state.parentChildren.map(x=>x.id==='${cfgChild.id}'?{...x, contentLanguage:'${l.id}'}:x); render();">${l.label}</button>`).join('')}
+                        ${[
+                          { id: 'GLOBAL', label: '🌍 Global' },
+                          { id: 'ID', label: '🇮🇩 Indonesia' }
+                        ].map(cu => `<button class="chip ${cCulture===cu.id?'active':''}" onclick="state.parentChildren=state.parentChildren.map(x=>x.id==='${cfgChild.id}'?{...x, cultureMode:'${cu.id}'}:x); render();">${cu.label}</button>`).join('')}
+                      </div>
+                      <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:4px;">Toddler Micro-Stage:</div>
+                      <div class="chips-row">
+                        ${[
+                          { id: 'AUTO', label: 'Auto' },
+                          { id: 'EARLY', label: 'Early (1.5-2.5y)' },
+                          { id: 'OLDER', label: 'Older (2.5-4y)' }
+                        ].map(st => `<button class="chip ${cStage===st.id?'active':''}" onclick="state.parentChildren=state.parentChildren.map(x=>x.id==='${cfgChild.id}'?{...x, toddlerSubStage:'${st.id}'}:x); render();">${st.label}</button>`).join('')}
+                      </div>
+                    </div>
+                    <div class="card-box">
+                      <div style="font-weight:800; font-size:0.84rem; margin-bottom:6px;">Ready-Made TV Channels (${cTopics.length}/7 Active)</div>
+                      <div class="chips-row">
+                        ${TODDLER_TV_CHANNELS.map(ch => {
+                          const on = cTopics.includes(ch.topic);
+                          return `<button class="chip ${on?'active':''}" onclick="toggleToddlerChannelForChild('${cfgChild.id}', '${ch.topic.replace(/'/g, "\\'")}')">${ch.emoji} ${ch.displayTitle}</button>`;
+                        }).join('')}
+                      </div>
+                    </div>
+                    <div class="card-box">
+                      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+                        <div style="font-weight:800; font-size:0.84rem;">This Week's Loop Preview</div>
+                        ${cHidden.length ? `<button class="btn-outline" style="padding:2px 7px; font-size:0.66rem;" onclick="state.parentChildren=state.parentChildren.map(x=>x.id==='${cfgChild.id}'?{...x, toddlerHiddenVideoIds:[]}:x); render();">Restore (${cHidden.length})</button>` : ''}
+                      </div>
+                      <div class="chips-row" style="margin-bottom:8px;">
+                        ${previewLoops.map(l => `<button class="chip ${activeLoop?.topic===l.topic?'active':''}" onclick="state.toddlerLoopPreviewTopic='${l.topic.replace(/'/g, "\\'")}'; render();">${l.emoji} ${l.displayTitle}</button>`).join('')}
+                      </div>
+                      ${(activeLoop?.videos || []).map((v, idx) => `
+                        <div style="display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid var(--border);">
+                          <span style="font-size:0.68rem; font-weight:800; color:var(--text-muted); width:16px;">${idx + 1}.</span>
+                          <img src="${v.thumbnailUrl}" style="width:48px; height:30px; border-radius:5px; object-fit:cover;">
+                          <div style="flex:1; min-width:0;">
+                            <div style="font-size:0.74rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${v.title}</div>
+                          </div>
+                          <button class="btn-outline" style="padding:2px 6px; font-size:0.64rem;" onclick="toggleHideToddlerVideo('${cfgChild.id}', '${v.id}')">Swap</button>
+                        </div>
+                      `).join('')}
+                    </div>
+                  ` : `
+                    <div class="card-box">
+                      <div style="font-weight:800; font-size:0.84rem; margin-bottom:6px;">Kid Controls (${cfgChild.ageRating === 'YOUNG_KIDS' ? 'Tier 2' : 'Tier 3'})</div>
+                      <div style="font-size:0.74rem; color:var(--text-muted); margin-bottom:8px;">Daily Limit: ${cfgChild.dailyLimitMinutes ?? state.dailyLimit}m/day</div>
+                      <div class="chips-row">
+                        ${[null, 30, 45, 60, 90].map(m => `<button class="chip ${cfgChild.dailyLimitMinutes===m?'active':''}" onclick="state.parentChildren=state.parentChildren.map(x=>x.id==='${cfgChild.id}'?{...x, dailyLimitMinutes:${m===null?'null':m}}:x); render();">${m===null?'Global':m+'m'}</button>`).join('')}
+                      </div>
+                    </div>
+                  `}
+                `;
+              }
               return `
-              <div class="card-box">
-                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
-                  <div>
-                    <div style="font-weight:800; font-size:0.88rem;">${c.name}</div>
-                    <div style="font-size:0.72rem; color:var(--text-muted);">${c.email}</div>
-                    <div style="font-size:0.7rem; color:var(--blue); margin-top:2px;">Age: ${c.ageRating} • Limit: ${effectiveLimit}m/day</div>
-                    <div style="font-size:0.68rem; font-weight:700; margin-top:2px; color:${isOverridden ? 'var(--pink)' : '#06D6A0'};">${isOverridden ? 'Custom Kid Override' : 'Using Global Controls'}</div>
+                ${state.parentChildren.map(c => {
+                  const effectiveLimit = c.dailyLimitMinutes !== null && c.dailyLimitMinutes !== undefined ? c.dailyLimitMinutes : state.dailyLimit;
+                  const isToddlerC = c.ageRating === 'TODDLER';
+                  return `
+                  <div class="card-box">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                      <div>
+                        <div style="font-weight:800; font-size:0.88rem;">${c.name}</div>
+                        <div style="font-size:0.72rem; color:var(--text-muted);">${c.email}</div>
+                        <div style="font-size:0.7rem; color:var(--blue); margin-top:2px;">${isToddlerC ? `Tier 1: Toddler TV (${c.toddlerLoopMinutes ?? 15}m loop)` : `${c.ageRating === 'YOUNG_KIDS' ? 'Tier 2: Young' : 'Tier 3: Older'} • ${effectiveLimit}m/day`}</div>
+                      </div>
+                      <div style="display:flex; flex-direction:column; gap:4px;">
+                        <button class="btn-primary" style="padding:4px 8px; font-size:0.68rem;" onclick="state.parentConfigChildId='${c.id}'; setAgeMode('${c.ageRating}'); render();">Configure</button>
+                        <button class="btn-outline" style="padding:4px 8px; font-size:0.68rem;" onclick="state.selectedActivityKid='${c.name}'; state.parentTab='activity'; state.activityHistoryTab='${isToddlerC ? 'watched' : 'channels'}'; render();">Activity</button>
+                      </div>
+                    </div>
                   </div>
-                  <div style="display:flex; flex-direction:column; gap:4px;">
-                    <button class="btn-outline" style="padding:4px 8px; font-size:0.68rem;" onclick="state.selectedActivityKid='${c.name}'; state.parentTab='activity'; state.activityHistoryTab='channels'; render();">Activity &amp; @</button>
-                    <button class="btn-outline" style="padding:4px 8px; font-size:0.68rem;" onclick="const v=prompt('Override daily limit (min) for ${c.name}, or leave blank for Global:', '${isOverridden ? c.dailyLimitMinutes : ''}'); if(v!==null){ c_val=v.trim(); state.parentChildren=state.parentChildren.map(x=>x.id==='${c.id}'?{...x, dailyLimitMinutes: c_val===''?null:Number(c_val)}:x); render(); }">Override</button>
-                    <button class="btn-outline" style="padding:4px 8px; font-size:0.68rem; color:var(--pink);" onclick="state.parentChildren=state.parentChildren.filter(x=>x.id!=='${c.id}'); render();">Remove</button>
+                  `;
+                }).join('')}
+                ${state.showAddChildModal ? `
+                  <div class="card-box" style="border-color:var(--blue);">
+                    <div style="font-weight:800; font-size:0.86rem; margin-bottom:8px;">Add Child (Birthday Suggests Tier)</div>
+                    <input type="text" placeholder="Child Name" value="${state.newChildDraft.name}" oninput="state.newChildDraft.name=this.value;" style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); margin-bottom:6px; font-size:0.8rem;">
+                    <input type="date" value="${state.newChildDraft.birthday}" onchange="state.newChildDraft.birthday=this.value; const sug=deriveTierFromBirthday(this.value); if(sug) state.newChildDraft.ageRating=sug; render();" style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); margin-bottom:6px; font-size:0.8rem;">
+                    <div class="chips-row" style="margin-bottom:8px;">
+                      ${[
+                        { id: 'TODDLER', label: 'Tier 1: Toddler' },
+                        { id: 'YOUNG_KIDS', label: 'Tier 2: Young' },
+                        { id: 'OLDER_KIDS', label: 'Tier 3: Older' }
+                      ].map(t => `<button class="chip ${state.newChildDraft.ageRating===t.id?'active':''}" onclick="state.newChildDraft.ageRating='${t.id}'; render();">${t.label}</button>`).join('')}
+                    </div>
+                    <div style="display:flex; gap:6px;">
+                      <button class="btn-outline" style="flex:1;" onclick="state.showAddChildModal=false; render();">Cancel</button>
+                      <button class="btn-primary" style="flex:1;" onclick="if(state.newChildDraft.name.trim()){ const nm=state.newChildDraft.name.trim(); state.parentChildren.unshift({id:'c-'+Date.now(), name:nm, email:nm.toLowerCase().replace(/\\s+/g,'')+'@famitube.demo', birthday:state.newChildDraft.birthday, ageRating:state.newChildDraft.ageRating, dailyLimitMinutes:null, toddlerLoopMinutes:15, toddlerCooldownMinutes:30, toddlerEnabledTopics:[...state.toddlerEnabledTopics], toddlerHiddenVideoIds:[]}); state.newChildDraft.name=''; state.showAddChildModal=false; render(); }">Save Child</button>
+                    </div>
                   </div>
-                </div>
-              </div>
+                ` : `
+                  <button class="btn-primary" style="width:100%;" onclick="state.showAddChildModal=true; render();">+ Add Child Account</button>
+                `}
               `;
-            }).join('')}
-            <button class="btn-primary" style="width:100%;" onclick="const n=prompt('Child Name:'); if(n){ state.parentChildren.push({id:'c-'+Date.now(), name:n, email:n.toLowerCase().replace(/\\s+/g,'')+'@famitube.demo', ageRating:'YOUNG_KIDS', dailyLimitMinutes:null}); render(); }">+ Add Child Account</button>
+            })()}
           ` : state.parentTab === 'activity' ? `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
               <button class="btn-outline" style="padding:4px 10px; font-size:0.74rem; display:inline-flex; align-items:center; gap:4px;" onclick="state.parentTab='kids'; render();">
@@ -1991,13 +2629,22 @@
               </div>
             </div>
 
-            <!-- 4 Subtabs: Watched, Searches, Requests, @Channels -->
-            <div class="subtabs">
-              <button class="subtab-btn ${state.activityHistoryTab==='watched'?'active':''}" onclick="state.activityHistoryTab='watched'; render();">Watched</button>
-              <button class="subtab-btn ${state.activityHistoryTab==='searches'?'active':''}" onclick="state.activityHistoryTab='searches'; render();">Searches</button>
-              <button class="subtab-btn ${state.activityHistoryTab==='requests'?'active':''}" onclick="state.activityHistoryTab='requests'; render();">Requests</button>
-              <button class="subtab-btn ${state.activityHistoryTab==='channels'?'active':''}" onclick="state.activityHistoryTab='channels'; render();">@Channels (${state.ytSubscribedChannels.length})</button>
-            </div>
+            <!-- Subtabs (Toddlers only have Watched history) -->
+            ${(() => {
+              const selKidObj = state.parentChildren.find(c => c.name === state.selectedActivityKid);
+              const isToddlerAct = selKidObj?.ageRating === 'TODDLER';
+              if (isToddlerAct && state.activityHistoryTab !== 'watched') state.activityHistoryTab = 'watched';
+              return `
+                <div class="subtabs">
+                  <button class="subtab-btn ${state.activityHistoryTab==='watched'?'active':''}" onclick="state.activityHistoryTab='watched'; render();">Watched</button>
+                  ${!isToddlerAct ? `
+                    <button class="subtab-btn ${state.activityHistoryTab==='searches'?'active':''}" onclick="state.activityHistoryTab='searches'; render();">Searches</button>
+                    <button class="subtab-btn ${state.activityHistoryTab==='requests'?'active':''}" onclick="state.activityHistoryTab='requests'; render();">Requests</button>
+                    <button class="subtab-btn ${state.activityHistoryTab==='channels'?'active':''}" onclick="state.activityHistoryTab='channels'; render();">@Channels (${state.ytSubscribedChannels.length})</button>
+                  ` : ''}
+                </div>
+              `;
+            })()}
 
             ${state.activityHistoryTab === 'watched' ? `
               <div style="display:flex; flex-direction:column; gap:8px;">
@@ -2125,22 +2772,51 @@
       return `
           <button class="btn-outline" onclick="${isSideBySide ? "state.parentScreen='parent_dashboard'; render();" : "navigate('home')"}" style="margin-bottom:10px;">← Done</button>
           <div class="card-box">
+            <div style="font-weight:800; font-size:0.95rem; margin-bottom:8px;">Global Language &amp; Culture</div>
+            <div class="chips-row" style="margin-bottom:6px;">
+              ${[
+                { id: 'en', label: 'English' },
+                { id: 'id', label: 'Indonesian' },
+                { id: 'bilingual', label: 'Bilingual' }
+              ].map(l => `<button class="chip ${state.contentLanguage===l.id?'active':''}" onclick="state.contentLanguage='${l.id}'; render();">${l.label}</button>`).join('')}
+            </div>
+            <div class="chips-row">
+              ${[
+                { id: 'GLOBAL', label: '🌍 Global' },
+                { id: 'ID', label: '🇮🇩 Indonesia' }
+              ].map(cu => `<button class="chip ${state.cultureMode===cu.id?'active':''}" onclick="state.cultureMode='${cu.id}'; render();">${cu.label}</button>`).join('')}
+            </div>
+          </div>
+          <div class="card-box">
             <div style="font-weight:800; font-size:0.95rem; margin-bottom:8px;">Kid Age Group</div>
             <div class="chips-row">
               ${[
                 { id: 'ALL', label: 'All Ages' },
-                { id: 'TODDLER', label: 'Toddler (2–4)' },
-                { id: 'YOUNG_KIDS', label: 'Young Kids (5–8)' },
-                { id: 'OLDER_KIDS', label: 'Older Kids (9–12)' }
+                { id: 'TODDLER', label: 'Tier 1: Toddler' },
+                { id: 'YOUNG_KIDS', label: 'Tier 2: Young' },
+                { id: 'OLDER_KIDS', label: 'Tier 3: Older' }
               ].map(a => `<button class="chip ${state.ageMode===a.id?'active':''}" onclick="setAgeMode('${a.id}');">${a.label}</button>`).join('')}
             </div>
           </div>
-          <div class="card-box">
-            <div style="font-weight:800; font-size:0.95rem; margin-bottom:8px;">Daily Watch Time Limit</div>
-            <div class="chips-row">
-              ${[15,30,45,60,90,120].map(m => `<button class="chip ${state.dailyLimit===m?'active':''}" onclick="state.dailyLimit=${m}; render();">${m}m</button>`).join('')}
+          ${state.ageMode === 'TODDLER' ? `
+            <div class="card-box">
+              <div style="font-weight:800; font-size:0.95rem; margin-bottom:6px;">📺 Toddler TV Loop &amp; Nap</div>
+              <div style="font-size:0.74rem; color:var(--text-muted); margin-bottom:6px;">1 Loop = 1 Session → Nap Cooldown</div>
+              <div class="chips-row" style="margin-bottom:6px;">
+                ${[10,15,20,25,30].map(m => `<button class="chip ${state.toddlerLoopMinutes===m?'active':''}" onclick="state.toddlerLoopMinutes=${m}; render();">Loop ${m}m</button>`).join('')}
+              </div>
+              <div class="chips-row">
+                ${[15,30,45,60].map(m => `<button class="chip ${state.toddlerCooldownMinutes===m?'active':''}" onclick="state.toddlerCooldownMinutes=${m}; render();">Nap ${m}m</button>`).join('')}
+              </div>
             </div>
-          </div>
+          ` : `
+            <div class="card-box">
+              <div style="font-weight:800; font-size:0.95rem; margin-bottom:8px;">Global Daily Watch Limit</div>
+              <div class="chips-row">
+                ${[15,30,45,60,90,120].map(m => `<button class="chip ${state.dailyLimit===m?'active':''}" onclick="state.dailyLimit=${m}; render();">${m}m</button>`).join('')}
+              </div>
+            </div>
+          `}
           <div class="card-box">
             <div style="font-weight:800; font-size:0.95rem; margin-bottom:6px;">Camera Attention Check</div>
             <label style="display:flex; align-items:center; gap:8px; font-size:0.82rem; cursor:pointer;">
@@ -2234,8 +2910,23 @@
         )];
         const currentNavTab = state.homeNavTab || 'home';
 
-        // 1. YouTube Style Tabs Bar (Reference Screenshot)
-        const ytTabsHtml = `
+        // 1. YouTube Style Tabs Bar (Toddler sees TV Channels, Stories & Games)
+        const ytTabsHtml = state.ageMode === 'TODDLER' ? `
+          <div class="yt-tab-bar" style="margin:-14px -14px 14px -14px;">
+            <button class="yt-tab-item ${currentNavTab === 'home' ? 'active' : ''}" onclick="state.homeNavTab='home'; render();">
+              <span>📺 TV Channels</span>
+              <div class="yt-tab-indicator"></div>
+            </button>
+            <button class="yt-tab-item ${currentNavTab === 'stories' ? 'active' : ''}" onclick="state.homeNavTab='stories'; render();">
+              <span>📖 Stories</span>
+              <div class="yt-tab-indicator"></div>
+            </button>
+            <button class="yt-tab-item ${currentNavTab === 'games' ? 'active' : ''}" onclick="state.homeNavTab='games'; render();">
+              <span>🎈 Games</span>
+              <div class="yt-tab-indicator"></div>
+            </button>
+          </div>
+        ` : `
           <div class="yt-tab-bar" style="margin:-14px -14px 14px -14px;">
             <button class="yt-tab-item ${currentNavTab === 'home' ? 'active' : ''}" onclick="state.homeNavTab='home'; render();">
               <span>Home</span>
@@ -2247,6 +2938,10 @@
             </button>
             <button class="yt-tab-item ${currentNavTab === 'channels' ? 'active' : ''}" onclick="state.homeNavTab='channels'; render();">
               <span>Channels</span>
+              <div class="yt-tab-indicator"></div>
+            </button>
+            <button class="yt-tab-item ${currentNavTab === 'stories' ? 'active' : ''}" onclick="state.homeNavTab='stories'; render();">
+              <span>Stories</span>
               <div class="yt-tab-indicator"></div>
             </button>
             <button class="yt-tab-item ${currentNavTab === 'games' ? 'active' : ''}" onclick="state.homeNavTab='games'; render();">
@@ -2362,6 +3057,122 @@
               ` : ''}
             `}
           `;
+        } else if (currentNavTab === 'stories') {
+          const activeBook = (state.storyBooks || []).find(b => b.id === state.activeStoryId);
+          if (activeBook) {
+            if (state.activeStoryCompleted) {
+              const earned = state.activeStoryMode === 'READ_ALONG' ? activeBook.rewardFamibux : Math.ceil(activeBook.rewardFamibux * 0.5);
+              body.innerHTML = `
+                ${ytTabsHtml}
+                <div class="card-box" style="text-align:center; padding:26px 16px; background:linear-gradient(135deg, rgba(6,214,160,0.12), rgba(255,209,102,0.16));">
+                  <div style="font-size:2.8rem; margin-bottom:8px;">🎉📖</div>
+                  <div style="font-weight:800; font-size:1.15rem; margin-bottom:4px;">Story Complete!</div>
+                  <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:12px;">Finished <strong>${activeBook.title}</strong> (${state.activeStoryMode === 'READ_ALONG' ? 'Read-Along' : 'Story Flip'})</div>
+                  <div style="display:inline-block; padding:5px 14px; border-radius:99px; background:rgba(255,209,102,0.2); border:1px solid #ffd166; font-weight:800; color:var(--gold-text); margin-bottom:16px;">+${earned} ⭐ Famibux</div>
+                  <div style="display:flex; gap:8px; justify-content:center;">
+                    <button class="btn-outline" onclick="openPreviewStory('${activeBook.id}')">Read Again</button>
+                    <button class="btn-primary" onclick="state.activeStoryId=null; state.activeStoryCompleted=false; render();">Story Shelf</button>
+                  </div>
+                </div>
+              `;
+            } else {
+              const pages = activeBook.pages || [];
+              const page = pages[state.activeStoryPageIdx] || pages[0];
+              const words = String(page.text || '').trim().split(/\s+/).filter(Boolean);
+              const isLast = state.activeStoryPageIdx >= pages.length - 1;
+              const unlocked = state.activeStoryMode !== 'READ_ALONG' || state.activeStoryCompletedPages.includes(state.activeStoryPageIdx) || state.activeStoryWordIdx >= words.length;
+              body.innerHTML = `
+                ${ytTabsHtml}
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:10px;">
+                  <button class="btn-outline" style="padding:5px 10px; font-size:0.72rem;" onclick="stopPreviewStoryAudio(); state.activeStoryId=null; render();">← Shelf</button>
+                  <div style="display:flex; gap:4px;">
+                    <button class="${state.activeStoryMode === 'FLIP' ? 'btn-primary' : 'btn-outline'}" style="padding:4px 9px; font-size:0.7rem;" onclick="setPreviewStoryMode('FLIP')">📖 Flip</button>
+                    <button class="${state.activeStoryMode === 'READ_ALONG' ? 'btn-primary' : 'btn-outline'}" style="padding:4px 9px; font-size:0.7rem;" onclick="setPreviewStoryMode('READ_ALONG')">🎤 Read-Along</button>
+                  </div>
+                </div>
+                <div class="pv-story-card">
+                  <div style="position:relative; height:150px; background:#1e293b;">
+                    <img src="${page.imageUrl || activeBook.coverUrl}" style="width:100%; height:100%; object-fit:cover;">
+                    <span style="position:absolute; top:8px; left:8px; background:rgba(0,0,0,0.62); color:#fff; font-size:0.7rem; font-weight:700; padding:3px 8px; border-radius:99px;">Page ${state.activeStoryPageIdx + 1} / ${pages.length}</span>
+                    <span style="position:absolute; bottom:8px; right:10px; font-size:1.5rem;">${page.illustrationEmoji || page.emoji || '📖'}</span>
+                  </div>
+                  <div style="padding:12px;">
+                    <div style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:8px;">
+                      ${words.map((w, idx) => {
+                        const cls = state.activeStoryMode === 'READ_ALONG' ? (idx < state.activeStoryWordIdx ? 'is-read' : idx === state.activeStoryWordIdx ? 'is-current' : '') : '';
+                        return `<button type="button" class="pv-word-chip ${cls}" onclick="speakPreviewText('${w.replace(/'/g, "\\'")}', '${activeBook.language}')">${w}</button>`;
+                      }).join('')}
+                    </div>
+                    <div style="font-size:0.68rem; color:var(--text-muted); margin-bottom:10px;">Tap any word to hear it!</div>
+                    ${state.activeStoryMode === 'FLIP' ? `
+                      <div style="display:flex; justify-content:space-between; gap:6px;">
+                        <button class="btn-outline" style="padding:6px 10px; font-size:0.72rem;" onclick="speakPreviewText('${String(page.text || '').replace(/'/g, "\\'")}', '${activeBook.language}')">🔊 Listen</button>
+                        <div style="display:flex; gap:6px;">
+                          <button class="btn-outline" style="padding:6px 10px; font-size:0.72rem;" ${state.activeStoryPageIdx === 0 ? 'disabled' : ''} onclick="flipPreviewStoryPage(-1)">← Prev</button>
+                          <button class="btn-primary" style="padding:6px 12px; font-size:0.72rem;" onclick="${isLast ? 'finishPreviewStory()' : 'flipPreviewStoryPage(1)'}">${isLast ? '🎉 Finish' : 'Next →'}</button>
+                        </div>
+                      </div>
+                    ` : `
+                      <div style="background:var(--surface-alt); border-radius:10px; padding:8px 10px; margin-bottom:10px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+                          <button class="btn-primary" style="padding:6px 10px; font-size:0.72rem;" onclick="togglePreviewStoryMic()">${state.storyMicListening ? '🔴 Listening...' : (unlocked ? '✓ Page Read' : '🎤 Tap Mic')}</button>
+                          <span style="font-size:0.72rem; font-weight:800; color:${unlocked ? 'var(--mint)' : 'var(--pink)'};">${Math.min(state.activeStoryWordIdx, words.length)}/${words.length} words</span>
+                        </div>
+                        ${!unlocked ? `<button class="btn-outline" style="margin-top:6px; width:100%; padding:5px 8px; font-size:0.7rem;" onclick="simulatePreviewNextWord()">🎙️ Simulate Speak Next Word</button>` : ''}
+                        ${state.activeStoryHint ? `<div style="margin-top:6px; font-size:0.7rem; color:var(--text);">${state.activeStoryHint}</div>` : ''}
+                      </div>
+                      <div style="display:flex; justify-content:space-between; gap:6px;">
+                        <button class="btn-outline" style="padding:6px 10px; font-size:0.72rem;" ${state.activeStoryPageIdx === 0 ? 'disabled' : ''} onclick="flipPreviewStoryPage(-1)">← Prev</button>
+                        <button class="${unlocked ? 'btn-primary' : 'btn-outline'}" style="padding:6px 12px; font-size:0.72rem; ${unlocked ? '' : 'opacity:0.65;'}" onclick="${isLast ? (unlocked ? 'finishPreviewStory()' : 'flipPreviewStoryPage(1)') : 'flipPreviewStoryPage(1)'}">${isLast ? (unlocked ? '🎉 Finish (+⭐)' : '🔒 Read Aloud') : (unlocked ? '✨ Next Page →' : '🔒 Locked')}</button>
+                      </div>
+                    `}
+                  </div>
+                </div>
+              `;
+            }
+          } else {
+            const age = state.ageMode || 'YOUNG_KIDS';
+            const visibleBooks = (state.storyBooks || []).filter(b => {
+              if (!state.showAllPreviewStories) {
+                if (age === 'TODDLER' && b.ageRating !== 'TODDLER') return false;
+                if (age === 'OLDER_KIDS' || age === 'ALL') return false;
+              }
+              return state.storyLangFilter === 'all' || b.language === state.storyLangFilter;
+            });
+            body.innerHTML = `
+              ${ytTabsHtml}
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                <div style="font-weight:800; font-size:0.98rem;">📖 Storybooks &amp; Read-Along</div>
+                <button class="${state.showAllPreviewStories ? 'btn-primary' : 'btn-outline'}" style="padding:4px 9px; font-size:0.68rem;" onclick="state.showAllPreviewStories=!state.showAllPreviewStories; render();">${state.showAllPreviewStories ? 'All Ages' : 'Browse All'}</button>
+              </div>
+              <div class="chips-row" style="margin-bottom:10px;">
+                <button class="chip ${state.storyLangFilter === 'all' ? 'active' : ''}" onclick="state.storyLangFilter='all'; render();">All</button>
+                <button class="chip ${state.storyLangFilter === 'en' ? 'active' : ''}" onclick="state.storyLangFilter='en'; render();">🇬🇧 English</button>
+                <button class="chip ${state.storyLangFilter === 'id' ? 'active' : ''}" onclick="state.storyLangFilter='id'; render();">🇮🇩 Indonesia</button>
+              </div>
+              ${visibleBooks.length === 0 ? `
+                <div class="card-box" style="text-align:center; padding:22px 14px;">
+                  <div style="font-size:2rem; margin-bottom:6px;">📚</div>
+                  <div style="font-weight:800; font-size:0.88rem; margin-bottom:4px;">Younger Stories Hidden in ${age} Mode</div>
+                  <div style="font-size:0.74rem; color:var(--text-muted); margin-bottom:10px;">Tap Browse All to read Toddler &amp; Young Kids books.</div>
+                  <button class="btn-primary" style="padding:6px 12px; font-size:0.74rem;" onclick="state.showAllPreviewStories=true; render();">Browse All Stories</button>
+                </div>
+              ` : `
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                  ${visibleBooks.map(b => `
+                    <div class="card-box" style="display:flex; gap:10px; padding:10px; cursor:pointer; align-items:center;" onclick="openPreviewStory('${b.id}')">
+                      <img src="${b.coverUrl}" style="width:84px; height:64px; border-radius:10px; object-fit:cover; flex-shrink:0;">
+                      <div style="flex:1; min-width:0;">
+                        <div style="font-size:0.66rem; font-weight:800; color:var(--pink);">${b.ageRating === 'TODDLER' ? '🧸 Story Flip' : '🎤 Mic Read-Along'} • ${b.language.toUpperCase()}</div>
+                        <div style="font-weight:800; font-size:0.86rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${b.title}</div>
+                        <div style="font-size:0.7rem; color:var(--gold-text); font-weight:700;">${b.pages.length} pages • +${b.rewardFamibux} ⭐</div>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              `}
+            `;
+          }
         } else if (currentNavTab === 'games') {
           // Games & Brain Quests Tab (Locked to Child's Profile Age Mode set by Parent)
           const gameAge = (state.ageMode === 'TODDLER' || state.ageMode === 'YOUNG_KIDS') ? state.ageMode : 'OLDER_KIDS';
@@ -3205,6 +4016,46 @@
               `}
             `}
           `;
+        } else if (state.ageMode === 'TODDLER') {
+          const loops = buildToddlerTvLoops();
+          const cfg = getEffectiveToddlerSettings();
+          const cooling = isToddlerCoolingDown();
+          const minsLeft = getToddlerCooldownMinsLeft();
+          const loopLeftMin = Math.max(1, Math.ceil(((cfg.toddlerLoopMinutes * 60) - (state.toddlerSessionWatchedSec || 0)) / 60));
+          const borderColors = ['#FF2E93', '#00B4D8', '#06D6A0', '#FFD166', '#4361EE', '#8B5CF6', '#FB8500'];
+          body.innerHTML = `
+            ${ytTabsHtml}
+            ${cooling ? `
+              <div class="card-box" style="background:linear-gradient(135deg, rgba(67,97,238,0.22), rgba(15,23,42,0.85)); border-color:rgba(76,201,240,0.4); margin-bottom:12px; text-align:center; padding:14px;">
+                <div style="font-size:2rem; margin-bottom:4px;">🌙 zZz</div>
+                <div style="font-weight:800; font-size:1rem; color:#fff;">Shhh... TV is Napping</div>
+                <div style="font-size:0.76rem; color:#CBD5E1; margin:4px 0 10px;">Wakes up in <strong>${minsLeft}m</strong> • Time to play with toys!</div>
+                <button class="btn-outline" style="font-size:0.72rem; padding:4px 10px; border-color:rgba(255,255,255,0.35); color:#fff;" onclick="wakeToddlerTvWithPin()">🔒 Grown-Ups Wake TV (PIN)</button>
+              </div>
+            ` : `
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px;">
+                <div>
+                  <div style="font-weight:800; font-size:1.1rem;">📺 Toddler TV</div>
+                  <div style="font-size:0.73rem; color:var(--text-muted);">Tap a channel to tune in • 1 Loop (${cfg.toddlerLoopMinutes}m)</div>
+                </div>
+                <span style="font-size:0.7rem; font-weight:800; padding:4px 8px; border-radius:99px; background:rgba(6,214,160,0.16); color:#06D6A0;">${loopLeftMin}m left</span>
+              </div>
+            `}
+            <div class="pic-topics-grid">
+              ${loops.map((ch, i) => {
+                const borderColor = cooling ? 'rgba(148,163,184,0.35)' : borderColors[i % borderColors.length];
+                return `
+                  <div class="pic-topic-card toddler" style="border-color:${borderColor}; ${cooling ? 'opacity:0.65;' : ''}" onclick="tuneToddlerChannel('${ch.topic.replace(/'/g, "\\'")}')">
+                    <img src="${ch.img}" alt="${ch.displayTitle}" style="${cooling ? 'filter:grayscale(45%) brightness(0.6);' : ''}">
+                    <div class="pic-topic-scrim"></div>
+                    <span class="pic-topic-emoji">${cooling ? '😴' : ch.emoji}</span>
+                    ${cooling ? `<span style="position:absolute; top:10px; right:10px; background:rgba(15,23,42,0.85); color:#93C5FD; font-size:0.64rem; font-weight:800; padding:3px 7px; border-radius:99px;">Napping</span>` : ''}
+                    <div class="pic-topic-label">${ch.displayTitle}</div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          `;
         } else {
           const isToddler = state.ageMode === 'TODDLER';
           const canSearch = !isToddler;
@@ -3629,6 +4480,92 @@
             `}
           `}
         `;
+      } else if (state.screen === 'toddler_tv_player') {
+        const loops = buildToddlerTvLoops();
+        const ch = loops.find(c => c.topic === state.toddlerActiveTopic) || loops[0];
+        const cfg = getEffectiveToddlerSettings();
+        const ph = (ch && state.toddlerPlayheads[ch.topic]) || { index: 0, elapsedSec: 0 };
+        const vid = ch?.videos?.[ph.index % Math.max(1, ch?.videos?.length || 1)] || state.videos[0];
+        const dur = Math.max(30, vid?.duration || 180);
+        const pct = Math.min(100, Math.round(((ph.elapsedSec || 0) / dur) * 100));
+        const loopLeftMin = Math.max(0, Math.ceil(((cfg.toddlerLoopMinutes * 60) - (state.toddlerSessionWatchedSec || 0)) / 60));
+
+        if (state.toddlerPhase === 'TUNING') {
+          body.innerHTML = `
+            <div class="card-box" style="text-align:center; padding:34px 16px; background:linear-gradient(135deg, rgba(67,97,238,0.22), rgba(255,46,147,0.16)); border-color:rgba(76,201,240,0.4);">
+              <div style="font-size:3.2rem; margin-bottom:10px;">${ch?.emoji || '📺'}</div>
+              <div style="font-weight:800; font-size:1.15rem; margin-bottom:6px;">Tuning in to ${ch?.displayTitle || 'Toddler TV'}...</div>
+              <div style="font-size:0.78rem; color:var(--text-muted);">Getting a calm story ready for you</div>
+            </div>
+          `;
+        } else if (state.toddlerPhase === 'BREATHER') {
+          body.innerHTML = `
+            <div class="card-box" style="text-align:center; padding:34px 16px; background:linear-gradient(135deg, rgba(6,214,160,0.18), rgba(67,97,238,0.18)); border-color:rgba(6,214,160,0.4);">
+              <div style="font-size:3.2rem; margin-bottom:10px;">${ch?.emoji || '🌿'}</div>
+              <div style="font-weight:800; font-size:1.1rem; margin-bottom:6px;">Take a Slow Breath...</div>
+              <div style="font-size:0.78rem; color:var(--text-muted);">Next gentle video starting in a moment</div>
+            </div>
+          `;
+        } else if (state.toddlerPhase === 'SIGNOFF') {
+          body.innerHTML = `
+            <div class="card-box" style="text-align:center; padding:34px 16px; background:linear-gradient(135deg, rgba(67,97,238,0.28), rgba(15,23,42,0.9)); border-color:rgba(147,197,253,0.45);">
+              <div style="font-size:3.2rem; margin-bottom:10px;">🌙 😴</div>
+              <div style="font-weight:800; font-size:1.15rem; color:#fff; margin-bottom:6px;">Bye-Bye! Time to Rest</div>
+              <div style="font-size:0.78rem; color:#CBD5E1;">${ch?.displayTitle || 'Toddler TV'} is taking a ${cfg.toddlerCooldownMinutes}m nap. See you after playtime!</div>
+            </div>
+          `;
+        } else {
+          body.innerHTML = `
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px;">
+              <button class="btn-outline" style="padding:5px 10px; font-size:0.75rem;" onclick="exitToddlerPlayerToDial()">← Channels</button>
+              <span style="font-weight:800; font-size:0.82rem; color:var(--pink);">${ch?.emoji || '📺'} ${ch?.displayTitle || 'Toddler TV'}</span>
+              <button class="icon-btn" onclick="navigate('parental_gate')" title="Parent PIN" style="width:28px; height:28px;">
+                <span class="material-symbols-rounded" style="font-size:1rem;">lock</span>
+              </button>
+            </div>
+
+            <div style="position:relative; aspect-ratio:16/9; border-radius:14px; overflow:hidden; background:#000; margin-bottom:10px;">
+              ${vid?.youtubeVideoId ? `
+                <iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/${vid.youtubeVideoId}?autoplay=1&controls=0&disablekb=1&rel=0&modestbranding=1&iv_load_policy=3&start=${state.toddlerResumedFromSec || 0}" frameborder="0" allow="accelerometer; autoplay; encrypted-media" style="border:none; width:100%; height:100%;"></iframe>
+              ` : `
+                <video src="${vid?.sourceUrl || ''}" autoplay playsinline style="width:100%; height:100%; object-fit:cover;"></video>
+              `}
+              <!-- Transparent scrub-lock shield: no seeking, skipping, or YouTube click-through -->
+              <div style="position:absolute; inset:0; z-index:4; background:transparent;"></div>
+              <span style="position:absolute; top:8px; left:8px; z-index:5; background:rgba(0,0,0,0.72); color:#fff; font-size:0.62rem; font-weight:800; padding:3px 7px; border-radius:99px;">🔒 LINEAR TV • NO SKIPPING</span>
+            </div>
+
+            <!-- Read-only calm progress bar -->
+            <div style="height:5px; border-radius:99px; background:var(--surface-var); overflow:hidden; margin-bottom:10px;">
+              <div id="toddlerProgressBar" style="height:100%; width:${pct}%; background:linear-gradient(90deg, var(--pink), var(--blue)); transition:width 0.4s ease;"></div>
+            </div>
+
+            <div class="card-box" style="padding:12px;">
+              <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:8px;">
+                <div style="min-width:0;">
+                  <div style="font-weight:800; font-size:0.9rem; line-height:1.3;">${vid?.title || ''}</div>
+                  <div style="font-size:0.72rem; color:var(--text-muted); margin-top:3px;">
+                    ${state.toddlerResumedFromSec > 0 ? 'Resuming where you left off • ' : 'Playing from start • '}
+                    <span id="toddlerLoopLeftPill" style="color:#06D6A0; font-weight:800;">${loopLeftMin > 0 ? `${loopLeftMin}m left in loop` : 'Last story!'}</span>
+                  </div>
+                </div>
+                <button class="btn-outline" style="padding:6px 10px; flex-shrink:0; color:${isPreviewFavorite(vid?.id) ? 'var(--pink)' : 'inherit'}; border-color:${isPreviewFavorite(vid?.id) ? 'var(--pink)' : 'var(--border)'};" onclick="togglePreviewFavorite('${vid?.id || ''}')">
+                  ${isPreviewFavorite(vid?.id) ? '❤️' : '🤍'}
+                </button>
+              </div>
+            </div>
+
+            <!-- Simulator Fast-Forward Strip for testing -->
+            <div class="card-box" style="padding:10px; border-style:dashed; border-color:rgba(76,201,240,0.45);">
+              <div style="font-size:0.68rem; font-weight:800; color:var(--blue); margin-bottom:6px;">🧪 Simulator Controls (Test Tier 1 Flow)</div>
+              <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                <button class="btn-outline" style="font-size:0.68rem; padding:4px 8px;" onclick="finishToddlerVideo(false, false)">⏭️ End Video (Breather)</button>
+                <button class="btn-outline" style="font-size:0.68rem; padding:4px 8px;" onclick="finishToddlerVideo(false, true)">🌿 Jump to Wind-Down</button>
+                <button class="btn-outline" style="font-size:0.68rem; padding:4px 8px; border-color:var(--pink); color:var(--pink);" onclick="finishToddlerVideo(true, false)">🌙 Finish Loop → Nap</button>
+              </div>
+            </div>
+          `;
+        }
       } else if (state.screen === 'player') {
         const v = state.activeVideo || state.videos[0];
         body.innerHTML = `
@@ -3791,6 +4728,18 @@
           `).join('')}
         `;
       } else if (state.screen === 'favorites') {
+        if (isToddlerCoolingDown()) {
+          const minsLeft = getToddlerCooldownMinsLeft();
+          body.innerHTML = `
+            <div class="card-box" style="text-align:center; padding:34px 16px; background:linear-gradient(135deg, rgba(67,97,238,0.22), rgba(15,23,42,0.85)); border-color:rgba(76,201,240,0.4);">
+              <div style="font-size:2.6rem; margin-bottom:8px;">🌙 😴</div>
+              <div style="font-weight:800; font-size:1.05rem; color:#fff; margin-bottom:6px;">Favorites are Sleeping Too!</div>
+              <div style="font-size:0.78rem; color:#CBD5E1; margin-bottom:14px;">Toddler TV wakes up in <strong>${minsLeft}m</strong>. Enjoy offline playtime!</div>
+              <button class="btn-outline" style="font-size:0.74rem; padding:5px 12px; border-color:rgba(255,255,255,0.35); color:#fff;" onclick="wakeToddlerTvWithPin()">🔒 Grown-Ups Wake TV (PIN)</button>
+            </div>
+          `;
+          return;
+        }
         const allVids = [...state.videos, ...Object.values(state.ytSampleVideos).flat()];
         const favVids = allVids.filter(v => (state.favoriteVideoIds || []).includes(v.id) && (state.ageMode !== 'TODDLER' || !v.category || isToddlerTopic(v.category)));
         body.innerHTML = `
@@ -4024,6 +4973,162 @@
           `;
         }
       }
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialAgeParam = String(urlParams.get('age') || '').toUpperCase();
+    if (['ALL', 'TODDLER', 'YOUNG_KIDS', 'OLDER_KIDS'].includes(initialAgeParam)) {
+      setAgeMode(initialAgeParam);
+    }
+    let pvStoryRecognition = null;
+    function stopPreviewStoryAudio() {
+      try { window.speechSynthesis?.cancel(); } catch {}
+      if (pvStoryRecognition) {
+        try { pvStoryRecognition.onend = null; pvStoryRecognition.stop(); } catch {}
+        pvStoryRecognition = null;
+      }
+      state.storyMicListening = false;
+    }
+    function speakPreviewText(text, lang) {
+      if (!window.speechSynthesis || !text) return;
+      try {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = lang === 'id' ? 'id-ID' : 'en-US';
+        u.rate = 0.88;
+        window.speechSynthesis.speak(u);
+      } catch {}
+    }
+    function openPreviewStory(id) {
+      stopPreviewStoryAudio();
+      state.activeStoryId = id;
+      state.activeStoryPageIdx = 0;
+      state.activeStoryMode = state.ageMode === 'TODDLER' ? 'FLIP' : 'READ_ALONG';
+      state.activeStoryWordIdx = 0;
+      state.activeStoryStuckAttempts = 0;
+      state.activeStoryCompletedPages = [];
+      state.activeStoryHint = '';
+      state.activeStoryCompleted = false;
+      render();
+    }
+    function setPreviewStoryMode(mode) {
+      stopPreviewStoryAudio();
+      state.activeStoryMode = mode;
+      state.activeStoryWordIdx = 0;
+      state.activeStoryStuckAttempts = 0;
+      state.activeStoryHint = '';
+      render();
+    }
+    function flipPreviewStoryPage(delta) {
+      const book = (state.storyBooks || []).find(b => b.id === state.activeStoryId);
+      if (!book) return;
+      const page = book.pages[state.activeStoryPageIdx];
+      const words = String(page?.text || '').trim().split(/\s+/).filter(Boolean);
+      const unlocked = state.activeStoryMode !== 'READ_ALONG' || state.activeStoryCompletedPages.includes(state.activeStoryPageIdx) || state.activeStoryWordIdx >= words.length;
+      if (delta > 0 && !unlocked) {
+        state.activeStoryHint = '🔒 Read all words on this page aloud to unlock!';
+        render();
+        return;
+      }
+      const nextIdx = state.activeStoryPageIdx + delta;
+      if (nextIdx < 0 || nextIdx >= book.pages.length) return;
+      stopPreviewStoryAudio();
+      state.activeStoryPageIdx = nextIdx;
+      const nextWords = String(book.pages[nextIdx]?.text || '').trim().split(/\s+/).filter(Boolean);
+      state.activeStoryWordIdx = state.activeStoryCompletedPages.includes(nextIdx) ? nextWords.length : 0;
+      state.activeStoryStuckAttempts = 0;
+      state.activeStoryHint = '';
+      render();
+    }
+    function simulatePreviewNextWord() {
+      const book = (state.storyBooks || []).find(b => b.id === state.activeStoryId);
+      if (!book) return;
+      const words = String(book.pages[state.activeStoryPageIdx]?.text || '').trim().split(/\s+/).filter(Boolean);
+      if (state.activeStoryWordIdx < words.length) {
+        speakPreviewText(words[state.activeStoryWordIdx], book.language);
+        state.activeStoryWordIdx += 1;
+        state.activeStoryStuckAttempts = 0;
+        if (state.activeStoryWordIdx >= words.length) {
+          if (!state.activeStoryCompletedPages.includes(state.activeStoryPageIdx)) state.activeStoryCompletedPages.push(state.activeStoryPageIdx);
+          stopPreviewStoryAudio();
+          state.activeStoryHint = '🎉 Page unlocked!';
+        }
+        render();
+      }
+    }
+    function togglePreviewStoryMic() {
+      if (state.storyMicListening) {
+        stopPreviewStoryAudio();
+        render();
+        return;
+      }
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) {
+        state.activeStoryHint = 'Browser speech mic unavailable — use "Simulate Speak Next Word".';
+        render();
+        return;
+      }
+      const book = (state.storyBooks || []).find(b => b.id === state.activeStoryId);
+      if (!book) return;
+      const rec = new SR();
+      rec.lang = book.language === 'id' ? 'id-ID' : 'en-US';
+      rec.continuous = true;
+      rec.interimResults = true;
+      rec.onresult = (ev) => {
+        const words = String(book.pages[state.activeStoryPageIdx]?.text || '').trim().split(/\s+/).filter(Boolean);
+        let txt = '';
+        let isFinal = false;
+        for (let i = ev.resultIndex; i < ev.results.length; i++) {
+          txt += ev.results[i][0].transcript + ' ';
+          if (ev.results[i].isFinal) isFinal = true;
+        }
+        const toks = txt.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim().split(/\s+/).filter(Boolean);
+        let advanced = false;
+        for (const t of toks) {
+          if (state.activeStoryWordIdx >= words.length) break;
+          const target = words[state.activeStoryWordIdx].toLowerCase().replace(/[^a-z0-9]/g, '');
+          if (t === target || (target.length >= 4 && (t.startsWith(target.slice(0, 3)) || target.startsWith(t.slice(0, 3))))) {
+            state.activeStoryWordIdx++;
+            advanced = true;
+          }
+        }
+        if (advanced) {
+          state.activeStoryStuckAttempts = 0;
+          if (state.activeStoryWordIdx >= words.length) {
+            if (!state.activeStoryCompletedPages.includes(state.activeStoryPageIdx)) state.activeStoryCompletedPages.push(state.activeStoryPageIdx);
+            stopPreviewStoryAudio();
+            state.activeStoryHint = '🎉 Page unlocked!';
+          }
+        } else if (isFinal && state.activeStoryWordIdx < words.length) {
+          state.activeStoryStuckAttempts++;
+          if (state.activeStoryStuckAttempts >= 3) {
+            speakPreviewText(words[state.activeStoryWordIdx], book.language);
+            state.activeStoryWordIdx++;
+            state.activeStoryStuckAttempts = 0;
+            state.activeStoryHint = '⭐ Helper boost! Keep going!';
+            if (state.activeStoryWordIdx >= words.length) {
+              if (!state.activeStoryCompletedPages.includes(state.activeStoryPageIdx)) state.activeStoryCompletedPages.push(state.activeStoryPageIdx);
+              stopPreviewStoryAudio();
+            }
+          }
+        }
+        render();
+      };
+      rec.onend = () => { state.storyMicListening = false; render(); };
+      pvStoryRecognition = rec;
+      state.storyMicListening = true;
+      state.activeStoryHint = '🎤 Listening...';
+      try { rec.start(); } catch { state.storyMicListening = false; }
+      render();
+    }
+    function finishPreviewStory() {
+      const book = (state.storyBooks || []).find(b => b.id === state.activeStoryId);
+      if (!book) return;
+      stopPreviewStoryAudio();
+      const earned = state.activeStoryMode === 'READ_ALONG' ? book.rewardFamibux : Math.ceil(book.rewardFamibux * 0.5);
+      state.starPoints = (state.starPoints || 0) + earned;
+      state.activeStoryCompleted = true;
+      render();
     }
 
     setAppTheme(state.theme || 'LIGHT');
