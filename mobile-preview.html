@@ -1795,19 +1795,26 @@
 
     function renderBottomBar() {
       const bar = document.getElementById('appBottomBar');
+      const isParentMode = state.screen === 'parent_dashboard' || state.screen === 'parental_settings' || (state.screen === 'notifications' && state.isParentLogin);
       const simple = state.ageMode === 'TODDLER';
-      const tabs = simple
+      const tabs = isParentMode
         ? [
-            { id: 'home', icon: 'home', label: 'Topics' },
-            { id: 'favorites', icon: 'favorite', label: 'Favorites' },
-            { id: 'profile', icon: 'person', label: 'Profile' }
+            { id: 'parent_dashboard', icon: 'dashboard', label: 'Dashboard' },
+            { id: 'notifications', icon: 'notifications', label: 'Alerts' },
+            { id: 'parental_settings', icon: 'settings', label: 'Settings' }
           ]
-        : [
-            { id: 'home', icon: 'home', label: 'Explore' },
-            { id: 'channels', icon: 'tv', label: 'Channels' },
-            { id: 'library', icon: 'video_library', label: 'Library' },
-            { id: 'profile', icon: 'person', label: 'Profile' }
-          ];
+        : (simple
+          ? [
+              { id: 'home', icon: 'home', label: 'Topics' },
+              { id: 'favorites', icon: 'favorite', label: 'Favorites' },
+              { id: 'profile', icon: 'person', label: 'Profile' }
+            ]
+          : [
+              { id: 'home', icon: 'home', label: 'Explore' },
+              { id: 'channels', icon: 'tv', label: 'Channels' },
+              { id: 'library', icon: 'video_library', label: 'Library' },
+              { id: 'profile', icon: 'person', label: 'Profile' }
+            ]);
       const isChannelView = state.screen === 'channel_detail' || state.screen === 'yt_channel_detail';
       // Keep bottom bar always visible at all times (except login screen)
       const showBottom = state.screen !== 'login';
