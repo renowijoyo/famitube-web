@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -166,6 +166,7 @@
       --text: #0F172A;
       --text-muted: #64748B;
       --border: #E2E8F0;
+      --gold-text: #B45309;
       background: var(--bg);
       color: var(--text);
     }
@@ -177,6 +178,7 @@
       --text: #F8FAFC;
       --text-muted: #94A3B8;
       --border: #1E293B;
+      --gold-text: #FFD166;
     }
 
     /* Android Status Bar */
@@ -841,7 +843,7 @@
     <a href="index.html" class="brand">
       <span class="brand-icon"><img src="assets/famitube-icon.png" alt="FamiTube"></span>
       <span>FamiTube Mobile Preview</span>
-      <span id="previewAppVersion" style="font-family:inherit; font-size:0.74rem; font-weight:800; padding:2px 8px; border-radius:99px; background:rgba(255,46,147,0.18); color:#ff6eb4; border:1px solid rgba(255,46,147,0.35);">v1.0.0</span>
+      <span id="previewAppVersion" style="font-family:inherit; font-size:0.74rem; font-weight:800; padding:2px 8px; border-radius:99px; background:rgba(255,46,147,0.14); color:var(--pink); border:1px solid rgba(255,46,147,0.35);">v1.0.0</span>
     </a>
 
     <div class="controls">
@@ -855,15 +857,15 @@
       </div>
 
       <div class="ctrl-group">
-        <button class="ctrl-btn" id="btnThemeLight" onclick="setAppTheme('LIGHT')">Light</button>
-        <button class="ctrl-btn active" id="btnThemeDark" onclick="setAppTheme('DARK')">Dark</button>
+        <button class="ctrl-btn active" id="btnThemeLight" onclick="setAppTheme('LIGHT')">Light</button>
+        <button class="ctrl-btn" id="btnThemeDark" onclick="setAppTheme('DARK')">Dark</button>
       </div>
 
       <div class="ctrl-group" role="group" aria-label="Kid Age Group">
         <button class="ctrl-btn" id="btnAgeAll" onclick="setAgeMode('ALL')">All Ages</button>
-        <button class="ctrl-btn" id="btnAgeToddler" onclick="setAgeMode('TODDLER')">Toddler (2–4)</button>
-        <button class="ctrl-btn" id="btnAgeYoung" onclick="setAgeMode('YOUNG_KIDS')">Young Kids (5–8)</button>
-        <button class="ctrl-btn active" id="btnAgeOlder" onclick="setAgeMode('OLDER_KIDS')">Older Kids (9–12)</button>
+        <button class="ctrl-btn" id="btnAgeToddler" onclick="setAgeMode('TODDLER')">Tier 1: Toddler</button>
+        <button class="ctrl-btn" id="btnAgeYoung" onclick="setAgeMode('YOUNG_KIDS')">Tier 2: Young</button>
+        <button class="ctrl-btn active" id="btnAgeOlder" onclick="setAgeMode('OLDER_KIDS')">Tier 3: Older</button>
       </div>
 
       <label class="sbs-toggle-pill" id="sbsTogglePill" for="toggleSideBySide" title="Show Child & Parent Mode side-by-side">
@@ -891,7 +893,7 @@
           <span id="childRoleAgeLabel" style="color:var(--pink);">Ages 9-12</span>
         </div>
         <div class="device-shell" id="deviceShell">
-          <div class="device-screen dark" id="deviceScreen">
+          <div class="device-screen" id="deviceScreen">
             <div class="android-status">
               <span>11:42</span>
               <span class="camera-dot" title="Front Camera Attention Tracker"></span>
@@ -928,7 +930,7 @@
           <span class="live-sync-dot">Live Sync</span>
         </div>
         <div class="device-shell parent-shell" id="parentDeviceShell">
-          <div class="device-screen dark" id="parentDeviceScreen">
+          <div class="device-screen" id="parentDeviceScreen">
             <div class="android-status">
               <span>11:42</span>
               <span class="camera-dot" title="Parent Companion Device"></span>
@@ -962,6 +964,7 @@
       <h3>Interactive APK Simulator</h3>
       <p id="dataSourceNote">Connecting to FamiTube API to load live curated channels and videos...</p>
       <div class="quick-screens">
+        <button class="qs-btn" onclick="openTier1ToddlerShowcase()" style="border-color:rgba(255,46,147,0.55); background:rgba(255,46,147,0.08);"><span>🍼 Tier 1: Toddler TV + Parent Split</span><span>›</span></button>
         <button class="qs-btn" id="qsSideBySideBtn" onclick="toggleSideBySideMode(!state.sideBySideParent)" style="border-color:rgba(67,97,238,0.5);"><span>👥 Child + Parent Side-by-Side</span><span id="qsSideBySideStatus" style="font-size:0.72rem; font-weight:800; padding:2px 7px; border-radius:99px; background:rgba(148,163,184,0.2); color:var(--page-muted);">OFF</span></button>
         <button class="qs-btn" onclick="navigate('login')"><span>🔐 Login (Child / Parent)</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('parent_dashboard')"><span>🛡️ Parent Mode Dashboard</span><span>›</span></button>
@@ -993,7 +996,7 @@
       sideBySideParent: new URLSearchParams(window.location.search).get('sbs') === '1',
       parentScreen: 'parent_dashboard',
       appVersion: '1.0.0',
-      theme: 'DARK',
+      theme: 'LIGHT',
       ageMode: 'OLDER_KIDS',
       selectedCategory: null,
       searchQuery: '',
@@ -1002,6 +1005,30 @@
       stars: 10000,
       dailyLimit: 45,
       attentionEnabled: true,
+      contentLanguage: 'en',
+      cultureMode: 'GLOBAL',
+      toddlerLoopMinutes: 15,
+      toddlerCooldownMinutes: 30,
+      toddlerSubStage: 'AUTO',
+      toddlerEnabledTopics: [
+        'Music & Rhymes',
+        'Animals & Nature',
+        'Learning & ABCs',
+        'Art & Crafts',
+        'Kids Yoga & Active',
+        'Stories & Reading'
+      ],
+      toddlerHiddenVideoIds: [],
+      toddlerLoopPreviewTopic: 'Music & Rhymes',
+      toddlerActiveTopic: null,
+      toddlerPhase: 'PLAYING',
+      toddlerPlayheads: {},
+      toddlerSessionWatchedSec: 0,
+      toddlerCooldownUntil: 0,
+      toddlerResumedFromSec: 0,
+      parentConfigChildId: null,
+      showAddChildModal: false,
+      newChildDraft: { name: '', birthday: '2024-06-15', ageRating: 'TODDLER' },
       favoriteVideoIds: ['v-1', 'yt-ssk-1'],
       isParentLogin: false,
       loginEmail: '',
@@ -1086,8 +1113,23 @@
       selectedActivityKid: 'Leo',
       parentTab: 'requests',
       parentChildren: [
-        { id: 'c-1', name: 'Maya', email: 'maya@famitube.demo', ageRating: 'YOUNG_KIDS', dailyLimitMinutes: null },
-        { id: 'c-2', name: 'Leo', email: 'leo@famitube.demo', ageRating: 'OLDER_KIDS', dailyLimitMinutes: 60 }
+        {
+          id: 'c-0',
+          name: 'Noah',
+          email: 'noah@famitube.demo',
+          birthday: '2024-05-10',
+          ageRating: 'TODDLER',
+          dailyLimitMinutes: null,
+          contentLanguage: 'en',
+          cultureMode: 'GLOBAL',
+          toddlerLoopMinutes: 15,
+          toddlerCooldownMinutes: 30,
+          toddlerSubStage: 'AUTO',
+          toddlerEnabledTopics: ['Music & Rhymes', 'Animals & Nature', 'Learning & ABCs', 'Art & Crafts', 'Kids Yoga & Active', 'Stories & Reading'],
+          toddlerHiddenVideoIds: []
+        },
+        { id: 'c-1', name: 'Maya', email: 'maya@famitube.demo', birthday: '2021-03-14', ageRating: 'YOUNG_KIDS', dailyLimitMinutes: null },
+        { id: 'c-2', name: 'Leo', email: 'leo@famitube.demo', birthday: '2017-08-22', ageRating: 'OLDER_KIDS', dailyLimitMinutes: 60 }
       ],
       parentRequests: [
         { id: 'req-1', title: 'How Rockets Reach Orbit - NASA Kids', channelTitle: 'NASA Space Place', kidName: 'Leo', youtubeVideoId: 'BYVZh5kqaFg', thumbnailUrl: 'https://img.youtube.com/vi/BYVZh5kqaFg/hqdefault.jpg', status: 'PENDING' },
@@ -1132,7 +1174,21 @@
         { id: 'v-29', channelId: 'ch-4', title: 'Animal Sounds Song Compilation 🦁🐮🐶 | Learn Farm & Zoo Animal Names and Sounds for Kids | Emdikidstv ', channelTitle: 'EmdikidsTv', category: 'Animals & Nature', tags: ['animals','nature','zoo','topic:animals-nature','age:toddler'], sourceType: 'YOUTUBE', youtubeVideoId: 'fpcDbSAwFaY', thumbnailUrl: 'https://img.youtube.com/vi/fpcDbSAwFaY/hqdefault.jpg', duration: 240, ageRating: 'TODDLER' },
         { id: 'v-30', channelId: 'ch-4', title: 'Animal Sounds Song: Learn Animal Sounds for Kids by Good Kids Company', channelTitle: 'Good Kids Company - Kids Songs 🎵', category: 'Animals & Nature', tags: ['animals','nature','zoo','topic:animals-nature','age:toddler'], sourceType: 'YOUTUBE', youtubeVideoId: 'efiWeJbdbxk', thumbnailUrl: 'https://img.youtube.com/vi/efiWeJbdbxk/hqdefault.jpg', duration: 240, ageRating: 'TODDLER' },
         { id: 'v-31', channelId: 'ch-1', title: 'Looking at the Earth! | How We Study Space | SciShow Kids', channelTitle: 'SciShow Kids', category: 'Science & Space', tags: ['science','space','planets','experiment','topic:science','topic:space-astronomy','age:young_kids'], sourceType: 'YOUTUBE', youtubeVideoId: 'oSw1TQxkA_M', thumbnailUrl: 'https://img.youtube.com/vi/oSw1TQxkA_M/hqdefault.jpg', duration: 240, ageRating: 'YOUNG_KIDS' },
-        { id: 'v-32', channelId: 'ch-1', title: 'Explore Saturn\'s Rings | Astronomy for Kids', channelTitle: 'SciShow Kids', category: 'Science & Space', tags: ['science','space','planets','experiment','topic:science','topic:space-astronomy','age:young_kids'], sourceType: 'YOUTUBE', youtubeVideoId: 'BxY8v4lNltM', thumbnailUrl: 'https://img.youtube.com/vi/BxY8v4lNltM/hqdefault.jpg', duration: 240, ageRating: 'YOUNG_KIDS' }
+        { id: 'v-32', channelId: 'ch-1', title: 'Explore Saturn\'s Rings | Astronomy for Kids', channelTitle: 'SciShow Kids', category: 'Science & Space', tags: ['science','space','planets','experiment','topic:science','topic:space-astronomy','age:young_kids'], sourceType: 'YOUTUBE', youtubeVideoId: 'BxY8v4lNltM', thumbnailUrl: 'https://img.youtube.com/vi/BxY8v4lNltM/hqdefault.jpg', duration: 240, ageRating: 'YOUNG_KIDS' },
+        { id: 'vt-1', channelId: 'ch-3', title: 'Twinkle Twinkle Little Star | Gentle Lullaby', channelTitle: 'Simple Songs & Fun', category: 'Music & Rhymes', tags: ['music','rhymes','lullaby','age:toddler','stage:early-toddler','pacing:calm','audio:gentle','context:bedtime-safe','lang:en'], sourceType: 'YOUTUBE', youtubeVideoId: 'yCjJyiqpAuU', thumbnailUrl: 'https://img.youtube.com/vi/yCjJyiqpAuU/hqdefault.jpg', duration: 185, ageRating: 'TODDLER' },
+        { id: 'vt-2', channelId: 'ch-3', title: 'Bintang Kecil — Lagu Anak Indonesia Tenang', channelTitle: 'Lagu Balita Nusantara', category: 'Music & Rhymes', tags: ['music','rhymes','lullaby','age:toddler','stage:early-toddler','pacing:calm','audio:gentle','context:bedtime-safe','lang:id','culture:indonesia'], sourceType: 'YOUTUBE', youtubeVideoId: 'xJ6xQ2A9B8E', thumbnailUrl: 'https://img.youtube.com/vi/xJ6xQ2A9B8E/hqdefault.jpg', duration: 195, ageRating: 'TODDLER' },
+        { id: 'vt-3', channelId: 'ch-3', title: 'Balonku Ada Lima — Warna & Berhitung Balita', channelTitle: 'Lagu Balita Nusantara', category: 'Music & Rhymes', tags: ['music','rhymes','age:toddler','stage:early-toddler','pacing:moderate','audio:gentle','lang:id','culture:indonesia'], sourceType: 'YOUTUBE', youtubeVideoId: '9xJ7h9yV4qI', thumbnailUrl: 'https://img.youtube.com/vi/9xJ7h9yV4qI/hqdefault.jpg', duration: 180, ageRating: 'TODDLER' },
+        { id: 'vt-4', channelId: 'ch-3', title: 'Calm Classical Music Box (No Dialogue)', channelTitle: 'Simple Songs & Fun', category: 'Music & Rhymes', tags: ['music','lullaby','age:toddler','stage:early-toddler','pacing:calm','audio:gentle','context:bedtime-safe','access:no-dialogue'], sourceType: 'YOUTUBE', youtubeVideoId: 'vyyllg6fx1I', thumbnailUrl: 'https://img.youtube.com/vi/vyyllg6fx1I/hqdefault.jpg', duration: 240, ageRating: 'TODDLER' },
+        { id: 'vt-5', channelId: 'ch-3', title: 'Baby Farm Animals — Real Lambs & Ducklings (No Dialogue)', channelTitle: 'Gentle Nature Friends', category: 'Animals & Nature', tags: ['animals','nature','age:toddler','stage:early-toddler','pacing:calm','audio:gentle','context:bedtime-safe','access:no-dialogue'], sourceType: 'YOUTUBE', youtubeVideoId: 'efiWeJbdbxk', thumbnailUrl: 'https://img.youtube.com/vi/efiWeJbdbxk/hqdefault.jpg', duration: 210, ageRating: 'TODDLER' },
+        { id: 'vt-6', channelId: 'ch-3', title: 'Mengenal Suara Hewan Ternak | Balita Indonesia', channelTitle: 'Hewan Lucu Nusantara', category: 'Animals & Nature', tags: ['animals','nature','age:toddler','stage:early-toddler','pacing:moderate','audio:gentle','lang:id','culture:indonesia'], sourceType: 'YOUTUBE', youtubeVideoId: 'fpcDbSAwFaY', thumbnailUrl: 'https://img.youtube.com/vi/fpcDbSAwFaY/hqdefault.jpg', duration: 225, ageRating: 'TODDLER' },
+        { id: 'vt-7', channelId: 'ch-3', title: 'Quiet Wooden Blocks Counting 1 to 5 (No Dialogue)', channelTitle: '1-2-3 Toddler Counting', category: 'Learning & ABCs', tags: ['abc','counting','age:toddler','stage:early-toddler','pacing:calm','audio:gentle','context:bedtime-safe','access:no-dialogue'], sourceType: 'YOUTUBE', youtubeVideoId: 'fRovu9zoHDk', thumbnailUrl: 'https://img.youtube.com/vi/fRovu9zoHDk/hqdefault.jpg', duration: 175, ageRating: 'TODDLER' },
+        { id: 'vt-8', channelId: 'ch-3', title: 'Belajar Huruf ABC & Angka 123 Pelan | Indonesia', channelTitle: '1-2-3 Toddler Counting', category: 'Learning & ABCs', tags: ['abc','counting','age:toddler','stage:older-toddler','pacing:moderate','audio:gentle','lang:id','culture:indonesia'], sourceType: 'YOUTUBE', youtubeVideoId: 'AXXP3HMAP6c', thumbnailUrl: 'https://i.ytimg.com/vi/AXXP3HMAP6c/hqdefault.jpg', duration: 240, ageRating: 'TODDLER' },
+        { id: 'vt-9', channelId: 'ch-3', title: 'Slow Watercolor Rainbow Painting (No Dialogue)', channelTitle: 'Toddler Colors & Shapes', category: 'Art & Crafts', tags: ['art','colors','age:toddler','stage:early-toddler','pacing:calm','audio:gentle','context:bedtime-safe','access:no-dialogue'], sourceType: 'YOUTUBE', youtubeVideoId: 'fRovu9zoHDk', thumbnailUrl: 'https://img.youtube.com/vi/fRovu9zoHDk/hqdefault.jpg', duration: 190, ageRating: 'TODDLER' },
+        { id: 'vt-10', channelId: 'ch-3', title: 'Mengenal Warna Dasar & Bentuk dengan Plastisin', channelTitle: 'Toddler Colors & Shapes', category: 'Art & Crafts', tags: ['art','colors','shapes','age:toddler','stage:early-toddler','pacing:calm','audio:gentle','lang:id','culture:indonesia'], sourceType: 'YOUTUBE', youtubeVideoId: 'Ax_3hFz1QEA', thumbnailUrl: 'https://img.youtube.com/vi/Ax_3hFz1QEA/hqdefault.jpg', duration: 220, ageRating: 'TODDLER' },
+        { id: 'vt-11', channelId: 'ch-3', title: 'Senam Pagi Anak Indonesia — Kepala Pundak Lutut Kaki', channelTitle: 'Toddler Wiggles & Yoga', category: 'Kids Yoga & Active', tags: ['dance','yoga','age:toddler','stage:early-toddler','pacing:moderate','audio:gentle','lang:id','culture:indonesia'], sourceType: 'YOUTUBE', youtubeVideoId: '2UcZWXvgMZE', thumbnailUrl: 'https://img.youtube.com/vi/2UcZWXvgMZE/hqdefault.jpg', duration: 185, ageRating: 'TODDLER' },
+        { id: 'vt-12', channelId: 'ch-3', title: 'Sleepy Bear Stretching & Slow Breathing', channelTitle: 'Toddler Wiggles & Yoga', category: 'Kids Yoga & Active', tags: ['yoga','breathing','age:toddler','stage:older-toddler','pacing:calm','audio:gentle','context:bedtime-safe','lang:en'], sourceType: 'YOUTUBE', youtubeVideoId: '2UcZWXvgMZE', thumbnailUrl: 'https://img.youtube.com/vi/2UcZWXvgMZE/hqdefault.jpg', duration: 175, ageRating: 'TODDLER' },
+        { id: 'vt-13', channelId: 'ch-3', title: 'Dongeng Sebelum Tidur: Kancil & Kura-Kura', channelTitle: 'Toddler Storytime', category: 'Stories & Reading', tags: ['story','reading','lullaby','age:toddler','stage:older-toddler','pacing:calm','audio:gentle','context:bedtime-safe','lang:id','culture:indonesia'], sourceType: 'YOUTUBE', youtubeVideoId: 'WqdEsz3lwxg', thumbnailUrl: 'https://img.youtube.com/vi/WqdEsz3lwxg/hqdefault.jpg', duration: 240, ageRating: 'TODDLER' },
+        { id: 'vt-14', channelId: 'ch-3', title: 'Goodnight Little Cloud — Slow Read-Aloud', channelTitle: 'Toddler Storytime', category: 'Stories & Reading', tags: ['story','reading','lullaby','age:toddler','stage:early-toddler','pacing:calm','audio:gentle','context:bedtime-safe','lang:en'], sourceType: 'YOUTUBE', youtubeVideoId: '4weBFqjmXmA', thumbnailUrl: 'https://img.youtube.com/vi/4weBFqjmXmA/hqdefault.jpg', duration: 230, ageRating: 'TODDLER' }
       ],
       activeVideo: null,
       customPlaylists: [
@@ -2265,7 +2321,7 @@
             ` : `
               ${state.ytSubscribedChannels.length > 0 ? `
                 <div style="margin-bottom:8px;">
-                  <div style="font-size:0.86rem; font-weight:800; color:#FFD166;">My @YouTube Subscriptions (${state.ytSubscribedChannels.length})</div>
+                  <div style="font-size:0.86rem; font-weight:800; color:var(--gold-text);">My @YouTube Subscriptions (${state.ytSubscribedChannels.length})</div>
                   <div style="font-size:0.68rem; color:var(--text-muted); margin-top:1px;">Parent-Trusted @channels play immediately; Supervised @channels check parent approval.</div>
                 </div>
                 <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
@@ -2384,7 +2440,7 @@
                 </div>
                 <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">Play free educational games, solve puzzles &amp; earn ⭐ stars!</div>
               </div>
-              <div style="padding:4px 10px; border-radius:99px; background:rgba(255,209,102,0.15); border:1px solid #ffd166; font-weight:800; font-size:0.84rem; color:#ffd166; white-space:nowrap;">
+              <div style="padding:4px 10px; border-radius:99px; background:rgba(255,209,102,0.18); border:1px solid #ffd166; font-weight:800; font-size:0.84rem; color:var(--gold-text); white-space:nowrap;">
                 ⭐ ${state.starPoints || 45}
               </div>
             </div>
@@ -3237,7 +3293,7 @@
             <!-- YouTube Subscriptions (One Row per Channel) -->
             ${state.ytSubscribedChannels.length > 0 ? `
               <div style="margin-bottom:8px;">
-                <div style="font-size:0.86rem; font-weight:800; color:#FFD166;">My @YouTube Subscriptions (${state.ytSubscribedChannels.length})</div>
+                <div style="font-size:0.86rem; font-weight:800; color:var(--gold-text);">My @YouTube Subscriptions (${state.ytSubscribedChannels.length})</div>
                 <div style="font-size:0.68rem; color:var(--text-muted); margin-top:1px;">Parent-Trusted @channels play immediately; Supervised @channels check parent approval.</div>
               </div>
               <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
@@ -3970,7 +4026,7 @@
       }
     }
 
-    setAppTheme(state.theme || 'DARK');
+    setAppTheme(state.theme || 'LIGHT');
     toggleSideBySideMode(state.sideBySideParent);
     syncAndroidVersionFromRepo();
     loadLiveBackendData();
