@@ -1350,7 +1350,7 @@
       <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap; margin-bottom:1rem;">
         <div>
           <h3 style="font-size:1.2rem; margin:0 0 0.2rem 0;">My Favorites</h3>
-          <p style="color:var(--text-muted); font-size:0.86rem; margin:0;">Tap the heart on any video to save it here. You can also put it in a list of your own.</p>
+          <p id="kidFavoritesDesc" style="color:var(--text-muted); font-size:0.86rem; margin:0;">Tap the heart on any video to save it here. You can also put it in a list of your own.</p>
         </div>
       </div>
       <div id="kidFavoritesLists" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center; margin-bottom:1rem;"></div>
@@ -6400,7 +6400,7 @@
       }
       if (channelsBtn) channelsBtn.style.display = simpleMode ? 'none' : 'inline-flex';
       if (searchBtn) searchBtn.style.display = simpleMode ? 'none' : 'inline-flex';
-      if (favoritesBtn) favoritesBtn.style.display = 'none';
+      if (favoritesBtn) favoritesBtn.style.display = simpleMode ? 'inline-flex' : 'none';
       if (historyBtn) historyBtn.style.display = 'none';
       if (achievementsBtn) achievementsBtn.style.display = 'none';
 
@@ -6500,7 +6500,13 @@
         }
       }
       if (activeKidTab === 'achievements') loadKidAchievements();
-      if (activeKidTab === 'favorites') { renderKidFavorites(); loadKidPlaylists(); loadKidHistory(); }
+      if (activeKidTab === 'favorites') {
+        renderKidFavorites();
+        if (!isSimpleKidUser(currentUser)) {
+          loadKidPlaylists();
+          loadKidHistory();
+        }
+      }
     }
 
         function famibuxIconHtml(size = 18) {
@@ -6882,6 +6888,9 @@
     }
 
     async function addVideoToKidList(listId, v) {
+      if (isSimpleKidUser(currentUser)) {
+        return { ok: false, message: 'Playlists are disabled in Toddler mode' };
+      }
       try {
         const res = await authFetch(`/api/kids/playlists/${listId}/items`, {
           method: 'POST',
@@ -6897,6 +6906,7 @@
     }
 
     async function createKidList(title) {
+      if (isSimpleKidUser(currentUser)) return null;
       title = (title || '').trim();
       if (!title) return null;
       try {
@@ -6921,7 +6931,7 @@
 
     async function showKidFavToast(videoId) {
       hideKidFavToast();
-      if (!authToken) return;
+      if (!authToken || isSimpleKidUser(currentUser)) return;
       const v = kidVideoById.get(videoId) || (kidsFeedVideos || []).find(x => x.id === videoId);
       if (!v) return;
       await loadKidPlaylists();
@@ -7002,11 +7012,24 @@
       if (!grid) return;
       const chips = document.getElementById('kidFavoritesLists');
       const header = document.getElementById('kidFavoritesListHeader');
+      const historySec = document.getElementById('kidHistorySection');
+      const descEl = document.getElementById('kidFavoritesDesc');
+      const isToddler = isSimpleKidUser(currentUser);
       const favs = getKidFavorites();
       favs.forEach(v => { if (v?.id) kidVideoById.set(v.id, v); });
-      const active = kidFavActiveList ? kidPlaylists.find(p => p.id === kidFavActiveList) : null;
+      if (isToddler) {
+        kidFavActiveList = null;
+        if (chips) chips.style.display = 'none';
+        if (header) header.style.display = 'none';
+        if (historySec) historySec.style.display = 'none';
+        if (descEl) descEl.textContent = 'Tap the heart on any video to save it here.';
+      } else {
+        if (historySec) historySec.style.display = '';
+        if (descEl) descEl.textContent = 'Tap the heart on any video to save it here. You can also put it in a list of your own.';
+      }
+      const active = !isToddler && kidFavActiveList ? kidPlaylists.find(p => p.id === kidFavActiveList) : null;
       if (kidFavActiveList && !active) kidFavActiveList = null;
-      if (chips) {
+      if (chips && !isToddler) {
         const chip = (label, id, on) => `<button type="button" class="btn ${on ? 'btn-primary' : 'btn-secondary'} btn-sm" onclick="selectKidFavList(${id ? `'${kidEsc(id)}'` : 'null'})">${label}</button>`;
         chips.style.cssText = 'display:flex; flex-wrap:wrap; gap:0.4rem; margin-bottom:1rem;';
         chips.innerHTML = chip('All ❤️ (' + favs.length + ')', null, !active)
@@ -7633,9 +7656,11 @@
             <button type="button" class="btn ${!activeKidYtPlaylistDetail && activeKidYtChannelTab === 'videos' ? 'btn-primary' : 'btn-secondary'} btn-sm" onclick="setKidYtChannelTab('videos')">
               <span class="material-symbols-rounded" style="font-size:1rem;">video_library</span> Videos (${vids.length})
             </button>
-            <button type="button" class="btn ${(activeKidYtPlaylistDetail || activeKidYtChannelTab === 'playlists') ? 'btn-primary' : 'btn-secondary'} btn-sm" onclick="setKidYtChannelTab('playlists')">
-              <span class="material-symbols-rounded" style="font-size:1rem;">playlist_play</span> Playlists (${playlists.length})
-            </button>
+            ${!isSimpleKidUser(currentUser) ? `
+              <button type="button" class="btn ${(activeKidYtPlaylistDetail || activeKidYtChannelTab === 'playlists') ? 'btn-primary' : 'btn-secondary'} btn-sm" onclick="setKidYtChannelTab('playlists')">
+                <span class="material-symbols-rounded" style="font-size:1rem;">playlist_play</span> Playlists (${playlists.length})
+              </button>
+            ` : ''}
           </div>
           ${activeKidYtPlaylistDetail ? `
             <div style="margin-bottom:0.85rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
@@ -8020,6 +8045,10 @@
       const sel = document.getElementById('modalPlaylistSelect');
       const status = document.getElementById('modalPlaylistStatus');
       if (!bar || !sel) return;
+      if (isSimpleKidUser(currentUser)) {
+        bar.style.display = 'none';
+        return;
+      }
       if (status) status.textContent = '';
       await loadKidPlaylists();
       if (!kidPlaylists.length) {
@@ -8031,6 +8060,7 @@
     }
 
     async function addCurrentModalVideoToPlaylist() {
+      if (isSimpleKidUser(currentUser)) return;
       const sel = document.getElementById('modalPlaylistSelect');
       const status = document.getElementById('modalPlaylistStatus');
       const playlistId = sel?.value;

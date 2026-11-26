@@ -1343,8 +1343,13 @@
       state.ageMode = mode;
       state.selectedCategory = null;
       state.selectedVideosCategory = null;
-      if (mode === 'TODDLER' && (state.screen === 'search' || state.screen === 'add_channel')) {
-        state.screen = 'home';
+      if (mode === 'TODDLER') {
+        state.selectedCustomPlaylistId = null;
+        state.ytChannelTab = 'videos';
+        state.selectedYtPlaylistId = null;
+        if (['search', 'add_channel', 'library', 'playlists'].includes(state.screen)) {
+          state.screen = 'home';
+        }
       }
       document.getElementById('btnAgeAll').classList.toggle('active', mode === 'ALL');
       document.getElementById('btnAgeToddler').classList.toggle('active', mode === 'TODDLER');
@@ -1495,6 +1500,9 @@
         showDeviceToast('deviceScreen', '🔒 Search is only available for Young & Older Kids');
         return;
       }
+      if ((screen === 'library' || screen === 'playlists') && state.ageMode === 'TODDLER') {
+        screen = 'favorites';
+      }
       if (state.sideBySideParent && (screen === 'parent_dashboard' || screen === 'parental_settings')) {
         state.parentScreen = screen;
         render();
@@ -1540,6 +1548,7 @@
     }
 
     function createCustomPlaylist(title) {
+      if (state.ageMode === 'TODDLER') return null;
       if (!title || !title.trim()) return null;
       const pl = {
         id: 'cpl-' + Date.now(),
@@ -1552,6 +1561,7 @@
     }
 
     function addVideoToCustomPlaylist(playlistId, video) {
+      if (state.ageMode === 'TODDLER') return false;
       const pl = state.customPlaylists.find(p => p.id === playlistId);
       if (!pl || !video) return false;
       const key = video.id || video.youtubeVideoId || ('item_' + Date.now());
@@ -1586,6 +1596,7 @@
     }
 
     function openSaveToLibraryModal(videoId) {
+      if (state.ageMode === 'TODDLER') return;
       const v = state.videos.find(x => x.id === videoId) || state.activeVideo;
       if (!v) return;
       if (state.customPlaylists.length === 0) {
@@ -1788,6 +1799,7 @@
       const tabs = simple
         ? [
             { id: 'home', icon: 'home', label: 'Topics' },
+            { id: 'favorites', icon: 'favorite', label: 'Favorites' },
             { id: 'profile', icon: 'person', label: 'Profile' }
           ]
         : [
@@ -3445,15 +3457,17 @@
 
           <!-- Dual Tabs: Videos | Playlists -->
           <div class="subtabs">
-            <button class="subtab-btn ${state.ytChannelTab==='videos'?'active':''}" onclick="state.ytChannelTab='videos'; state.selectedYtPlaylistId=null; render();">
+            <button class="subtab-btn ${state.ytChannelTab==='videos'||state.ageMode==='TODDLER'?'active':''}" onclick="state.ytChannelTab='videos'; state.selectedYtPlaylistId=null; render();">
               <span class="material-symbols-rounded" style="font-size:1.1rem;">movie</span> Videos (${videos.length})
             </button>
-            <button class="subtab-btn ${state.ytChannelTab==='playlists'?'active':''}" onclick="state.ytChannelTab='playlists'; state.selectedYtPlaylistId=null; render();">
-              <span class="material-symbols-rounded" style="font-size:1.1rem;">playlist_play</span> Playlists (${playlists.length})
-            </button>
+            ${state.ageMode !== 'TODDLER' ? `
+              <button class="subtab-btn ${state.ytChannelTab==='playlists'?'active':''}" onclick="state.ytChannelTab='playlists'; state.selectedYtPlaylistId=null; render();">
+                <span class="material-symbols-rounded" style="font-size:1.1rem;">playlist_play</span> Playlists (${playlists.length})
+              </button>
+            ` : ''}
           </div>
 
-          ${state.ytChannelTab === 'videos' ? `
+          ${(state.ageMode === 'TODDLER' || state.ytChannelTab === 'videos') ? `
             <div style="display:flex; flex-direction:column; gap:10px;">
               ${videos.map(v => {
                 const req = state.parentRequests.find(r => r.title === v.title);
@@ -3565,10 +3579,12 @@
               <span style="font-size:0.72rem; color:var(--text-muted);">${v.category} • View Channel ›</span>
             </div>
             <div style="display:flex; gap:8px; margin-bottom:10px;">
-              <button class="btn-outline" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px;" onclick="openSaveToLibraryModal('${v.id}')">
-                <span class="material-symbols-rounded" style="font-size:1.15rem; color:var(--pink);">playlist_add</span>
-                <span>Save to List</span>
-              </button>
+              ${state.ageMode !== 'TODDLER' ? `
+                <button class="btn-outline" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px;" onclick="openSaveToLibraryModal('${v.id}')">
+                  <span class="material-symbols-rounded" style="font-size:1.15rem; color:var(--pink);">playlist_add</span>
+                  <span>Save to List</span>
+                </button>
+              ` : ''}
               <button class="btn-outline" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; color:${isPreviewFavorite(v.id) ? 'var(--pink)' : 'inherit'}; border-color:${isPreviewFavorite(v.id) ? 'var(--pink)' : 'var(--border)'};" onclick="togglePreviewFavorite('${v.id}')">
                 <span>${isPreviewFavorite(v.id) ? '❤️' : '🤍'}</span>
                 <span>${isPreviewFavorite(v.id) ? 'Favorited' : 'Favorite'}</span>
@@ -3698,6 +3714,40 @@
               <span style="font-size:0.72rem; font-weight:800; color:${a.done?'#06D6A0':'#F59E0B'};">${a.done?'Unlocked':'Locked'}</span>
             </div>
           `).join('')}
+        `;
+      } else if (state.screen === 'favorites') {
+        const allVids = [...state.videos, ...Object.values(state.ytSampleVideos).flat()];
+        const favVids = allVids.filter(v => (state.favoriteVideoIds || []).includes(v.id) && (state.ageMode !== 'TODDLER' || !v.category || isToddlerTopic(v.category)));
+        body.innerHTML = `
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+            <div>
+              <div style="font-weight:800; font-size:1.15rem;">❤️ Favorites</div>
+              <div style="font-size:0.74rem; color:var(--text-muted);">${favVids.length} saved safe videos</div>
+            </div>
+          </div>
+          ${favVids.length === 0 ? `
+            <div class="card-box" style="text-align:center; padding:36px 16px;">
+              <div style="font-size:2.4rem; margin-bottom:8px;">❤️</div>
+              <div style="font-weight:800; font-size:1rem; margin-bottom:4px;">No favorites yet!</div>
+              <div style="font-size:0.76rem; color:var(--text-muted);">Tap the ❤️ heart on any video to save it here.</div>
+            </div>
+          ` : `
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              ${favVids.map(v => `
+                <div class="card-box" style="display:flex; gap:10px; align-items:center; padding:8px; cursor:pointer;" onclick="openPreviewVideo('${v.id}')">
+                  <div style="position:relative; width:96px; aspect-ratio:16/9; border-radius:10px; overflow:hidden; flex-shrink:0; background:#000;">
+                    <img src="${v.thumbnailUrl}" style="width:100%; height:100%; object-fit:cover;">
+                    <span style="position:absolute; bottom:3px; right:3px; width:18px; height:18px; border-radius:50%; background:rgba(255,46,147,0.92); color:#fff; display:flex; align-items:center; justify-content:center; font-size:10px;">❤️</span>
+                  </div>
+                  <div style="flex:1; min-width:0;">
+                    <div style="font-weight:700; font-size:0.84rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${v.title}</div>
+                    <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">${v.channelTitle || 'FamiTube'}</div>
+                  </div>
+                  <button class="btn-outline" style="padding:4px 8px; font-size:0.72rem; color:var(--pink); border-color:var(--pink);" onclick="event.stopPropagation(); togglePreviewFavorite('${v.id}')">❤️</button>
+                </div>
+              `).join('')}
+            </div>
+          `}
         `;
       } else if (state.screen === 'profile') {
         const name = savedUser?.name || 'Andrea Samantha Wijoyo';
