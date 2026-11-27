@@ -3692,7 +3692,7 @@
               <span>📺 TV Channels</span>
               <div class="yt-tab-indicator"></div>
             </button>
-            <button class="yt-tab-item ${currentNavTab === 'stories' ? 'active' : ''}" onclick="state.homeNavTab='stories'; render();">
+            <button class="yt-tab-item ${currentNavTab === 'stories' ? 'active' : ''}" onclick="state.homeNavTab='stories'; state.activeStoryId=null; render();">
               <span>📖 Stories</span>
               <div class="yt-tab-indicator"></div>
             </button>
@@ -3715,7 +3715,7 @@
               <span>Channels</span>
               <div class="yt-tab-indicator"></div>
             </button>
-            <button class="yt-tab-item ${currentNavTab === 'stories' ? 'active' : ''}" onclick="state.homeNavTab='stories'; render();">
+            <button class="yt-tab-item ${currentNavTab === 'stories' ? 'active' : ''}" onclick="state.homeNavTab='stories'; state.activeStoryId=null; render();">
               <span>Stories</span>
               <div class="yt-tab-indicator"></div>
             </button>
@@ -3957,6 +3957,10 @@
             const activeCategories = (!state.showAllPreviewStories && age === 'TODDLER')
               ? TODDLER_STORY_CATEGORIES
               : YOUNG_KIDS_STORY_CATEGORIES;
+
+            if (state.storyCategoryFilter && state.storyCategoryFilter !== 'all' && !activeCategories.some(c => c.name === state.storyCategoryFilter)) {
+              state.storyCategoryFilter = 'all';
+            }
 
             const allMatching = (state.storyBooks || []).filter(b => {
               if (!isContentAllowedForChildReligion(b, state.childReligion)) return false;
@@ -6209,6 +6213,15 @@
         window.speechSynthesis.speak(u);
       } catch {}
     }
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
     function escapeAttr(str) {
       return String(str ?? '')
         .replace(/&/g, '&amp;')
