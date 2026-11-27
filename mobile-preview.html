@@ -1305,6 +1305,10 @@
       activeStoryHint: '',
       activeStoryCompleted: false,
       storyMicListening: false,
+      storySearchQuery: '',
+      storyCategoryFilter: 'all',
+      storyCurrentPage: 1,
+      storyPageLimit: 12,
       storyBooks: [
         {
           id: 'story-tod-en-1', title: "Little Bear's Sleepy Moon", ageRating: 'TODDLER', language: 'en', rewardFamibux: 20,
@@ -3132,30 +3136,49 @@
             }
           } else {
             const age = state.ageMode || 'YOUNG_KIDS';
-            const visibleBooks = (state.storyBooks || []).filter(b => {
+            const isOlder = age === 'OLDER_KIDS' || age === 'ALL';
+            const allMatching = (state.storyBooks || []).filter(b => {
               if (!state.showAllPreviewStories) {
                 if (age === 'TODDLER' && b.ageRating !== 'TODDLER') return false;
                 if (age === 'OLDER_KIDS' || age === 'ALL') return false;
               }
-              return state.storyLangFilter === 'all' || b.language === state.storyLangFilter;
+              if (state.storyLangFilter !== 'all' && b.language !== state.storyLangFilter) return false;
+              if (state.storyCategoryFilter && state.storyCategoryFilter !== 'all' && b.category !== state.storyCategoryFilter) return false;
+              if (state.storySearchQuery && state.storySearchQuery.trim()) {
+                const q = state.storySearchQuery.trim().toLowerCase();
+                const inTitle = b.title.toLowerCase().includes(q);
+                const inAuthor = b.author?.toLowerCase().includes(q);
+                const inDesc = b.description?.toLowerCase().includes(q);
+                if (!inTitle && !inAuthor && !inDesc) return false;
+              }
+              return true;
             });
+            const totalCount = allMatching.length;
+            const pageSize = state.storyPageLimit || 12;
+            const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+            const curPage = Math.min(Math.max(1, state.storyCurrentPage || 1), totalPages);
+            const visibleBooks = allMatching.slice((curPage - 1) * pageSize, curPage * pageSize);
+
             body.innerHTML = `
               ${ytTabsHtml}
               <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
                 <div style="font-weight:800; font-size:0.98rem;">📖 Storybooks &amp; Read-Along</div>
-                <button class="${state.showAllPreviewStories ? 'btn-primary' : 'btn-outline'}" style="padding:4px 9px; font-size:0.68rem;" onclick="state.showAllPreviewStories=!state.showAllPreviewStories; render();">${state.showAllPreviewStories ? 'All Ages' : 'Browse All'}</button>
+                <button class="${state.showAllPreviewStories ? 'btn-primary' : 'btn-outline'}" style="padding:4px 9px; font-size:0.68rem;" onclick="state.showAllPreviewStories=!state.showAllPreviewStories; state.storyCurrentPage=1; render();">${state.showAllPreviewStories ? 'All Ages' : 'Browse All'}</button>
+              </div>
+              <div style="margin-bottom:8px;">
+                <input type="search" placeholder="Search 300+ stories..." value="${escapeAttr(state.storySearchQuery || '')}" oninput="state.storySearchQuery=this.value; state.storyCurrentPage=1; render();" style="width:100%; box-sizing:border-box; padding:6px 10px; border-radius:18px; border:1px solid rgba(255,255,255,0.18); background:rgba(0,0,0,0.25); color:#fff; font-size:0.78rem;">
               </div>
               <div class="chips-row" style="margin-bottom:10px;">
-                <button class="chip ${state.storyLangFilter === 'all' ? 'active' : ''}" onclick="state.storyLangFilter='all'; render();">All</button>
-                <button class="chip ${state.storyLangFilter === 'en' ? 'active' : ''}" onclick="state.storyLangFilter='en'; render();">🇬🇧 English</button>
-                <button class="chip ${state.storyLangFilter === 'id' ? 'active' : ''}" onclick="state.storyLangFilter='id'; render();">🇮🇩 Indonesia</button>
+                <button class="chip ${state.storyLangFilter === 'all' ? 'active' : ''}" onclick="state.storyLangFilter='all'; state.storyCurrentPage=1; render();">All (${state.storyBooks.length})</button>
+                <button class="chip ${state.storyLangFilter === 'en' ? 'active' : ''}" onclick="state.storyLangFilter='en'; state.storyCurrentPage=1; render();">🇬🇧 English</button>
+                <button class="chip ${state.storyLangFilter === 'id' ? 'active' : ''}" onclick="state.storyLangFilter='id'; state.storyCurrentPage=1; render();">🇮🇩 Indonesia</button>
               </div>
               ${visibleBooks.length === 0 ? `
                 <div class="card-box" style="text-align:center; padding:22px 14px;">
                   <div style="font-size:2rem; margin-bottom:6px;">📚</div>
-                  <div style="font-weight:800; font-size:0.88rem; margin-bottom:4px;">Younger Stories Hidden in ${age} Mode</div>
-                  <div style="font-size:0.74rem; color:var(--text-muted); margin-bottom:10px;">Tap Browse All to read Toddler &amp; Young Kids books.</div>
-                  <button class="btn-primary" style="padding:6px 12px; font-size:0.74rem;" onclick="state.showAllPreviewStories=true; render();">Browse All Stories</button>
+                  <div style="font-weight:800; font-size:0.88rem; margin-bottom:4px;">${isOlder && !state.showAllPreviewStories ? `Younger Stories Hidden in ${age} Mode` : 'No Storybooks Found'}</div>
+                  <div style="font-size:0.74rem; color:var(--text-muted); margin-bottom:10px;">${isOlder && !state.showAllPreviewStories ? 'Tap Browse All to read Toddler &amp; Young Kids books.' : 'Try adjusting your search terms.'}</div>
+                  ${isOlder && !state.showAllPreviewStories ? `<button class="btn-primary" style="padding:6px 12px; font-size:0.74rem;" onclick="state.showAllPreviewStories=true; state.storyCurrentPage=1; render();">Browse All Stories</button>` : ''}
                 </div>
               ` : `
                 <div style="display:flex; flex-direction:column; gap:10px;">
@@ -3165,11 +3188,18 @@
                       <div style="flex:1; min-width:0;">
                         <div style="font-size:0.66rem; font-weight:800; color:var(--pink);">${b.ageRating === 'TODDLER' ? '🧸 Story Flip' : '🎤 Mic Read-Along'} • ${b.language.toUpperCase()}</div>
                         <div style="font-weight:800; font-size:0.86rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${b.title}</div>
-                        <div style="font-size:0.7rem; color:var(--gold-text); font-weight:700;">${b.pages.length} pages • +${b.rewardFamibux} ⭐</div>
+                        <div style="font-size:0.7rem; color:var(--gold-text); font-weight:700;">${b.pages?.length || 0} pages • +${b.rewardFamibux} ⭐</div>
                       </div>
                     </div>
                   `).join('')}
                 </div>
+                ${totalPages > 1 ? `
+                  <div style="display:flex; justify-content:center; align-items:center; gap:8px; margin-top:12px;">
+                    <button class="btn-outline" style="padding:4px 9px; font-size:0.7rem;" ${curPage <= 1 ? 'disabled' : ''} onclick="state.storyCurrentPage=Math.max(1, (state.storyCurrentPage||1)-1); render();">← Prev</button>
+                    <span style="font-size:0.72rem; color:var(--text-muted); font-weight:700;">Page ${curPage} of ${totalPages} (${totalCount})</span>
+                    <button class="btn-outline" style="padding:4px 9px; font-size:0.7rem;" ${curPage >= totalPages ? 'disabled' : ''} onclick="state.storyCurrentPage=Math.min(${totalPages}, (state.storyCurrentPage||1)+1); render();">Next →</button>
+                  </div>
+                ` : ''}
               `}
             `;
           }
