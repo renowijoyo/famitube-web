@@ -1101,8 +1101,7 @@
       gameSearchQuery: '',
       selectedGameCategory: null,
       browseAllGameAges: false,
-      showAddChildModal: false,
-      newChildDraft: { name: '', birthday: '2024-06-15', ageRating: 'TODDLER', religion: null },
+      newChildDraft: { name: '', email: '', password: '', birthday: '2024-06-15', ageRating: 'TODDLER', religion: null },
       favoriteVideoIds: ['v-1', 'yt-ssk-1'],
       isParentLogin: false,
       loginEmail: '',
@@ -3289,39 +3288,62 @@
                   </div>
                   `;
                 }).join('')}
-                ${state.showAddChildModal ? `
-                  <div class="card-box" style="border-color:var(--blue);">
-                    <div style="font-weight:800; font-size:0.86rem; margin-bottom:8px;">Add Child (Birthday Suggests Tier)</div>
-                    <input type="text" placeholder="Child Name" value="${state.newChildDraft.name}" oninput="state.newChildDraft.name=this.value;" style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); margin-bottom:6px; font-size:0.8rem;">
-                    <input type="date" value="${state.newChildDraft.birthday}" onchange="state.newChildDraft.birthday=this.value; const sug=deriveTierFromBirthday(this.value); if(sug) state.newChildDraft.ageRating=sug; render();" style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); margin-bottom:6px; font-size:0.8rem;">
-                    <div class="chips-row" style="margin-bottom:8px;">
-                      ${[
-                        { id: 'TODDLER', label: 'Tier 1: Toddler' },
-                        { id: 'YOUNG_KIDS', label: 'Tier 2: Young' },
-                        { id: 'OLDER_KIDS', label: 'Tier 3: Older' }
-                      ].map(t => `<button class="chip ${state.newChildDraft.ageRating===t.id?'active':''}" onclick="state.newChildDraft.ageRating='${t.id}'; render();">${t.label}</button>`).join('')}
-                    </div>
-                    <div style="font-size:0.72rem; font-weight:700; color:var(--text-muted); margin-bottom:4px;">Faith &amp; Religion (optional):</div>
-                    <div class="chips-row" style="margin-bottom:8px;">
-                      ${[
-                        { id: null, label: 'None (Secular Only)' },
-                        { id: 'ISLAM', label: 'Islam' },
-                        { id: 'CHRISTIANITY', label: 'Christianity' },
-                        { id: 'CATHOLICISM', label: 'Catholicism' },
-                        { id: 'HINDUISM', label: 'Hinduism' },
-                        { id: 'BUDDHISM', label: 'Buddhism' }
-                      ].map(r => `<button class="chip ${(state.newChildDraft.religion || null)===r.id?'active':''}" onclick="state.newChildDraft.religion=${r.id ? `'${r.id}'` : 'null'}; render();">${r.label}</button>`).join('')}
-                    </div>
-                    <div style="display:flex; gap:6px;">
-                      <button class="btn-outline" style="flex:1;" onclick="state.showAddChildModal=false; render();">Cancel</button>
-                      <button class="btn-primary" style="flex:1;" onclick="if(state.newChildDraft.name.trim()){ const nm=state.newChildDraft.name.trim(); state.parentChildren.unshift({id:'c-'+Date.now(), name:nm, email:nm.toLowerCase().replace(/\\s+/g,'')+'@famitube.demo', birthday:state.newChildDraft.birthday, ageRating:state.newChildDraft.ageRating, religion:state.newChildDraft.religion || null, dailyLimitMinutes:null, toddlerLoopMinutes:15, toddlerCooldownMinutes:30, toddlerEnabledTopics:[...state.toddlerEnabledTopics], toddlerHiddenVideoIds:[]}); state.newChildDraft.name=''; state.newChildDraft.religion=null; state.showAddChildModal=false; render(); }">Save Child</button>
-                    </div>
-                  </div>
-                ` : `
-                  <button class="btn-primary" style="width:100%;" onclick="state.showAddChildModal=true; render();">+ Add Child Account</button>
-                `}
+                <button class="btn-primary" style="width:100%;" onclick="state.parentTab='add_child'; render();">+ Add Child Account</button>
               `;
             })()}
+          ` : state.parentTab === 'add_child' ? `
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+              <button class="btn-outline" style="padding:4px 10px; font-size:0.74rem; display:inline-flex; align-items:center; gap:4px;" onclick="state.parentTab='kids'; render();">
+                <span class="material-symbols-rounded" style="font-size:0.95rem;">arrow_back</span> Back to My Kids
+              </button>
+            </div>
+            <div class="card-box" style="border-color:var(--pink); margin-bottom:14px;">
+              <div style="font-weight:800; font-size:1.05rem; margin-bottom:2px;">Add Child Account</div>
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:14px;">Create a safe, personalized profile for your child with age-appropriate content filters.</div>
+
+              <div style="font-size:0.75rem; font-weight:700; margin-bottom:4px;">Child Name</div>
+              <input type="text" placeholder="e.g. Maya" value="${state.newChildDraft.name}" oninput="state.newChildDraft.name=this.value;" style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); margin-bottom:10px; font-size:0.82rem;">
+
+              <div style="font-size:0.75rem; font-weight:700; margin-bottom:4px;">Child Email / Login</div>
+              <input type="email" placeholder="e.g. maya@famitube.demo" value="${state.newChildDraft.email || ''}" oninput="state.newChildDraft.email=this.value;" style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); margin-bottom:10px; font-size:0.82rem;">
+
+              <div style="font-size:0.75rem; font-weight:700; margin-bottom:4px;">Password (min 6 characters)</div>
+              <input type="password" placeholder="••••••••" value="${state.newChildDraft.password || ''}" oninput="state.newChildDraft.password=this.value;" style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); margin-bottom:10px; font-size:0.82rem;">
+
+              <div style="font-size:0.75rem; font-weight:700; margin-bottom:4px;">Birthday (Date Picker)</div>
+              <input type="date" value="${state.newChildDraft.birthday}" onchange="state.newChildDraft.birthday=this.value; const sug=deriveTierFromBirthday(this.value); if(sug) state.newChildDraft.ageRating=sug; render();" style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); margin-bottom:4px; font-size:0.82rem;">
+              <div style="font-size:0.7rem; color:var(--blue); margin-bottom:12px;">Selecting birthday automatically calculates and suggests the best age tier below.</div>
+
+              <div style="font-size:0.75rem; font-weight:700; margin-bottom:4px;">Age Tier (Parent decides; birthday suggests)</div>
+              <div class="chips-row" style="margin-bottom:12px;">
+                ${[
+                  { id: 'TODDLER', label: 'Tier 1: Toddler (1.5-3)' },
+                  { id: 'YOUNG_KIDS', label: 'Tier 2: Young (4-6)' },
+                  { id: 'OLDER_KIDS', label: 'Tier 3: Older (7+)' },
+                  { id: 'ALL', label: 'All Ages (12+)' }
+                ].map(t => `<button class="chip ${state.newChildDraft.ageRating===t.id?'active':''}" onclick="state.newChildDraft.ageRating='${t.id}'; render();">${t.label}</button>`).join('')}
+              </div>
+
+              <div style="font-size:0.75rem; font-weight:700; margin-bottom:4px;">Faith &amp; Religion (optional)</div>
+              <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:6px;">If unselected, religious content is completely hidden.</div>
+              <div class="chips-row" style="margin-bottom:16px;">
+                ${[
+                  { id: null, label: 'None (Secular Only)' },
+                  { id: 'ISLAM', label: 'Islam' },
+                  { id: 'CHRISTIANITY', label: 'Christianity' },
+                  { id: 'CATHOLICISM', label: 'Catholicism' },
+                  { id: 'HINDUISM', label: 'Hinduism' },
+                  { id: 'BUDDHISM', label: 'Buddhism' },
+                  { id: 'JUDAISM', label: 'Judaism' },
+                  { id: 'CONFUCIANISM', label: 'Confucianism' }
+                ].map(r => `<button class="chip ${(state.newChildDraft.religion || null)===r.id?'active':''}" onclick="state.newChildDraft.religion=${r.id ? `'${r.id}'` : 'null'}; render();">${r.label}</button>`).join('')}
+              </div>
+
+              <div style="display:flex; gap:8px;">
+                <button class="btn-outline" style="flex:1; padding:9px;" onclick="state.parentTab='kids'; render();">Cancel</button>
+                <button class="btn-primary" style="flex:1.5; padding:9px;" onclick="if(state.newChildDraft.name.trim()){ const nm=state.newChildDraft.name.trim(); const em=state.newChildDraft.email?.trim() || (nm.toLowerCase().replace(/\\s+/g,'')+'@famitube.demo'); state.parentChildren.unshift({id:'c-'+Date.now(), name:nm, email:em, birthday:state.newChildDraft.birthday, ageRating:state.newChildDraft.ageRating, religion:state.newChildDraft.religion || null, dailyLimitMinutes:null, toddlerLoopMinutes:15, toddlerCooldownMinutes:30, toddlerEnabledTopics:[...state.toddlerEnabledTopics], toddlerHiddenVideoIds:[]}); state.newChildDraft.name=''; state.newChildDraft.email=''; state.newChildDraft.password=''; state.newChildDraft.birthday='2024-06-15'; state.newChildDraft.religion=null; state.parentTab='kids'; render(); showDeviceToast('parentDeviceScreen', 'Child account created!'); }">Create Child Account</button>
+              </div>
+            </div>
           ` : state.parentTab === 'activity' ? `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
               <button class="btn-outline" style="padding:4px 10px; font-size:0.74rem; display:inline-flex; align-items:center; gap:4px;" onclick="state.parentTab='kids'; render();">
