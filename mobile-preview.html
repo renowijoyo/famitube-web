@@ -5850,31 +5850,110 @@
           <div style="text-align:center; font-size:0.72rem; color:var(--text-muted); padding:6px 0;">FamiTube v${state.appVersion} (Build 1)</div>
         `;
       } else if (state.screen === 'login') {
+        const isParent = Boolean(state.isParentLogin);
+        const isRegister = Boolean(state.isParentRegister);
+        const themeColor = isParent ? '#4361EE' : 'var(--pink)';
+        const themeBg = isParent ? 'rgba(67,97,238,0.12)' : 'rgba(255,46,147,0.12)';
+
         body.innerHTML = `
-          <div style="text-align:center; padding:10px 4px 14px;">
-            <div style="font-size:2.2rem;">🎬</div>
-            <div style="font-weight:800; font-size:1.18rem;">FamiTube</div>
-            <div style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;">
-              ${state.isParentLogin ? 'Parent / Curator Sign In' : 'Sign in with your email / Gmail account'}
+          <!-- Mode Header Icon & Title -->
+          <div style="text-align:center; padding:10px 4px 16px;">
+            <div style="position:relative; display:inline-block; margin-bottom:8px;">
+              <div style="width:70px; height:70px; border-radius:20px; background:${isParent ? 'linear-gradient(135deg, #4361EE, #3A0CA3)' : 'linear-gradient(135deg, var(--pink), #ff758c)'}; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 24px rgba(0,0,0,0.25);">
+                <span class="material-symbols-rounded" style="font-size:2.2rem; color:#fff;">${isParent ? (isRegister ? 'person_add' : 'admin_panel_settings') : 'smart_toy'}</span>
+              </div>
+              <span style="position:absolute; bottom:-4px; right:-6px; font-size:0.6rem; font-weight:900; padding:2px 6px; border-radius:99px; background:${isParent ? '#3A0CA3' : 'var(--pink)'}; color:#fff; border:2px solid var(--surface); letter-spacing:0.5px;">
+                ${isParent ? 'PARENT' : 'KIDS'}
+              </span>
+            </div>
+            <div style="font-weight:900; font-size:1.22rem; color:var(--text);">${isParent ? 'FamiTube Parent Studio' : 'FamiTube Kids'}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
+              ${!isParent ? 'Safe, algorithm-free video & learning space for kids' : (isRegister ? 'Create your new FamiTube parent account' : 'Manage child profiles, PIN safety & family settings')}
             </div>
           </div>
-          <div class="card-box">
-            <div style="font-size:0.74rem; padding:9px 10px; border-radius:10px; margin-bottom:10px; background:${state.isParentLogin ? 'rgba(255,46,147,0.12)' : 'rgba(76,201,240,0.14)'}; color:${state.isParentLogin ? 'var(--pink)' : 'var(--blue)'};">
-              ${state.isParentLogin
-                ? 'Sign in with your parent account to manage children, approve video requests, and adjust family controls.'
-                : 'Only email/Gmail accounts previously registered by a parent or guardian can sign in.'}
+
+          <!-- Main Auth Selector Tabs (Child vs Parent) -->
+          <div style="display:flex; gap:4px; padding:4px; border-radius:12px; background:var(--surface-var); margin-bottom:14px;">
+            <button style="flex:1; padding:8px 6px; border:none; border-radius:9px; font-size:0.8rem; font-weight:800; cursor:pointer; background:${!isParent ? 'var(--pink)' : 'transparent'}; color:${!isParent ? '#fff' : 'var(--text-muted)'};" onclick="state.isParentLogin=false; state.isParentRegister=false; render();">
+              👶 Kids Login
+            </button>
+            <button style="flex:1; padding:8px 6px; border:none; border-radius:9px; font-size:0.8rem; font-weight:800; cursor:pointer; background:${isParent ? '#4361EE' : 'transparent'}; color:${isParent ? '#fff' : 'var(--text-muted)'};" onclick="state.isParentLogin=true; render();">
+              🛡️ Parent / Studio
+            </button>
+          </div>
+
+          <!-- Auth Card Form -->
+          <div class="card-box" style="border:1.5px solid ${isParent ? 'rgba(67,97,238,0.35)' : 'rgba(255,46,147,0.35)'}; padding:18px;">
+            <!-- Guidance Banner -->
+            <div style="display:flex; align-items:flex-start; gap:8px; font-size:0.73rem; line-height:1.35; padding:10px 12px; border-radius:10px; margin-bottom:12px; background:${themeBg}; color:${themeColor}; font-weight:600;">
+              <span class="material-symbols-rounded" style="font-size:1.1rem; flex-shrink:0;">${isParent ? (isRegister ? 'how_to_reg' : 'verified_user') : 'face'}</span>
+              <span>
+                ${!isParent
+                  ? 'Child profiles use the email & password set up by their parent inside Parent Studio.'
+                  : (isRegister
+                      ? 'Create your parent account to set up children profiles and access free curated channels.'
+                      : 'Sign in with your parent account to manage safety controls and approve video requests.')}
+              </span>
             </div>
-            <input type="email" placeholder="${state.isParentLogin ? 'parent@gmail.com' : 'kid@gmail.com'}" value="${state.loginEmail}" oninput="state.loginEmail=this.value;" style="width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); margin-bottom:8px; font-size:0.84rem;">
-            <input type="password" placeholder="Password" value="••••••" style="width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); margin-bottom:10px; font-size:0.84rem;">
-            <button class="btn-primary" style="width:100%; margin-bottom:8px;" onclick="navigate(state.isParentLogin ? 'parent_dashboard' : 'home')">
-              ${state.isParentLogin ? 'Sign In as Parent' : 'Sign In'}
+
+            ${isRegister ? `
+              <!-- Name Input (Register Only) -->
+              <div style="margin-bottom:8px;">
+                <input type="text" placeholder="Parent / Guardian Name" value="${state.registerName || ''}" oninput="state.registerName=this.value;" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); font-size:0.84rem;">
+              </div>
+            ` : ''}
+
+            <!-- Email Input -->
+            <div style="margin-bottom:8px;">
+              <input type="email" placeholder="${isParent ? 'parent@example.com' : 'kid@example.com'}" value="${state.loginEmail || ''}" oninput="state.loginEmail=this.value;" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); font-size:0.84rem;">
+            </div>
+
+            <!-- Password Input -->
+            <div style="margin-bottom:10px;">
+              <input type="password" placeholder="${isRegister ? 'Password (min 6 characters)' : 'Password'}" value="${state.loginPassword || '••••••'}" oninput="state.loginPassword=this.value;" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); font-size:0.84rem;">
+            </div>
+
+            ${isRegister ? `
+              <!-- Referral Code Input (Register Only) -->
+              <div style="margin-bottom:10px;">
+                <input type="text" placeholder="Referral Code (Optional, e.g. FAM-8K21)" value="${state.registerRefCode || ''}" oninput="state.registerRefCode=this.value.toUpperCase();" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); font-size:0.84rem;">
+                <div style="font-size:0.68rem; color:var(--text-muted); margin-top:3px; padding-left:4px;">🎁 Enter a referral code to get a 3-month Family Pass voucher!</div>
+              </div>
+            ` : ''}
+
+            <!-- Primary Action Button -->
+            <button class="btn-primary" style="width:100%; background:${themeColor}; border-color:${themeColor}; margin-bottom:8px; font-weight:800; font-size:0.88rem; padding:11px 12px;" onclick="
+              if (state.isParentRegister) {
+                alert('Parent account registered! Please check email to verify.');
+                state.isParentRegister = false;
+                render();
+              } else {
+                navigate(state.isParentLogin ? 'parent_dashboard' : 'home');
+              }
+            ">
+              ${!isParent ? 'Sign In as Child ▶' : (isRegister ? 'Create Parent Account ✨' : 'Sign In as Parent 🛡️')}
             </button>
-            <button class="btn-outline" style="width:100%; margin-bottom:10px;" onclick="navigate(state.isParentLogin ? 'parent_dashboard' : 'home')">
-              Continue with Google
-            </button>
-            <button class="btn-outline" style="width:100%; border-color:var(--pink); color:var(--pink);" onclick="state.isParentLogin=!state.isParentLogin; render();">
-              ${state.isParentLogin ? '← Back to Child Login' : "I'm a Parent — Parent Login"}
-            </button>
+
+            <!-- Parent Register / Sign In Switch -->
+            ${isParent ? `
+              <div style="text-align:center; font-size:0.75rem; color:var(--text-muted); margin:6px 0 10px;">
+                ${isRegister ? 'Already have an account?' : "Don't have a parent account?"}
+                <button style="background:none; border:none; color:${themeColor}; font-weight:800; cursor:pointer; padding:2px 4px;" onclick="state.isParentRegister=!state.isParentRegister; render();">
+                  ${isRegister ? 'Sign In' : 'Register Free'}
+                </button>
+              </div>
+
+              <!-- Google OAuth Button -->
+              <div style="display:flex; align-items:center; gap:8px; margin:8px 0;">
+                <div style="flex:1; height:1px; background:var(--border);"></div>
+                <span style="font-size:0.7rem; color:var(--text-muted);">or</span>
+                <div style="flex:1; height:1px; background:var(--border);"></div>
+              </div>
+              <button class="btn-outline" style="width:100%; font-size:0.82rem; padding:9px 12px; display:flex; align-items:center; justify-content:center; gap:6px;" onclick="navigate('parent_dashboard')">
+                <span class="material-symbols-rounded" style="font-size:1.1rem; color:${themeColor};">account_circle</span>
+                <span>Continue with Google</span>
+              </button>
+            ` : ''}
           </div>
         `;
       } else if (state.screen === 'parent_dashboard') {
