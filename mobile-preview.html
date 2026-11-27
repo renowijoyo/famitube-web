@@ -1073,6 +1073,10 @@
       toddlerResumedFromSec: 0,
       parentConfigChildId: null,
       childReligion: null,
+      activeGameId: null,
+      gameSearchQuery: '',
+      selectedGameCategory: null,
+      browseAllGameAges: false,
       showAddChildModal: false,
       newChildDraft: { name: '', birthday: '2024-06-15', ageRating: 'TODDLER', religion: null },
       favoriteVideoIds: ['v-1', 'yt-ssk-1'],
@@ -2418,6 +2422,8 @@
 
     function setAgeMode(mode) {
       state.ageMode = mode;
+      state.activeStoryId = null;
+      state.activeGameId = null;
       state.selectedCategory = null;
       state.selectedVideosCategory = null;
       if (mode === 'TODDLER') {
@@ -2970,8 +2976,9 @@
           ]);
       const isChannelView = state.screen === 'channel_detail' || state.screen === 'yt_channel_detail';
       const isStoryReading = state.screen === 'home' && state.homeNavTab === 'stories' && Boolean(state.activeStoryId);
-      // Keep bottom bar visible unless login or story reading
-      const showBottom = state.screen !== 'login' && !isStoryReading;
+      const isGamePlaying = state.screen === 'home' && state.homeNavTab === 'games' && Boolean(state.activeGameId);
+      // Keep bottom bar visible unless login, story reading, or full-screen game
+      const showBottom = state.screen !== 'login' && !isStoryReading && !isGamePlaying;
       bar.style.display = showBottom ? 'flex' : 'none';
       bar.innerHTML = tabs.map(t => {
         const isActive = state.screen === t.id ||
@@ -3520,12 +3527,14 @@
       const body = document.getElementById('appBody');
       const topBar = document.getElementById('appTopBar');
       const isStoryReading = state.screen === 'home' && state.homeNavTab === 'stories' && Boolean(state.activeStoryId);
-      if (topBar) topBar.style.display = isStoryReading ? 'none' : 'flex';
+      const isGamePlaying = state.screen === 'home' && state.homeNavTab === 'games' && Boolean(state.activeGameId);
+      const isImmersiveFullScreen = isStoryReading || isGamePlaying;
+      if (topBar) topBar.style.display = isImmersiveFullScreen ? 'none' : 'flex';
       if (body) {
-        body.style.padding = isStoryReading ? '0' : '14px';
-        body.style.overflow = isStoryReading ? 'hidden' : 'auto';
-        body.style.display = isStoryReading ? 'flex' : 'block';
-        body.style.flexDirection = isStoryReading ? 'column' : '';
+        body.style.padding = isImmersiveFullScreen ? '0' : '14px';
+        body.style.overflow = isImmersiveFullScreen ? 'hidden' : 'auto';
+        body.style.display = isImmersiveFullScreen ? 'flex' : 'block';
+        body.style.flexDirection = isImmersiveFullScreen ? 'column' : '';
       }
       if (state.screen === 'home') {
         const isSimple = state.ageMode === 'TODDLER' || state.ageMode === 'YOUNG_KIDS';
@@ -3856,7 +3865,6 @@
             'OLDER_KIDS': { label: '🚀 Older Kids', range: 'Ages 9–12' }
           };
           const curAgeInfo = ageLabels[gameAge];
-          const gameTab = state.activeGameTab || 0;
 
           // Game data
           const toddlerAnimals = [
@@ -3906,40 +3914,43 @@
           const mathCorrect = (state.mathPlus !== false) ? ((state.mathA || 7) + (state.mathB || 5)) : Math.max(1, (state.mathA || 7) - (state.mathB || 5));
           const mathOpts = [mathCorrect, mathCorrect - 2, mathCorrect + 3, mathCorrect + 1].sort(() => Math.random() - 0.5);
 
-          // Subtabs for age groups (Native Quests + H5P Interactive Activities)
-          const tabsForAge = {
-            'TODDLER': ["🦁 Animal Sounds", "🎈 Balloon Pop", "🎨 Shape Sorter", "📦 H5P Farm Match", "📦 H5P Animal Memory"],
-            'YOUNG_KIDS': ["⚡ Math Sprint", "🃏 Memory Match", "🔤 Spelling Quest", "📦 H5P Speed Math", "📦 H5P Phonics Cards", "📦 H5P Word Cloze"],
-            'OLDER_KIDS': ["🧠 Science Trivia", "🌍 World Explorer", "🌌 Orbit Physics", "💡 Logic Lab", "📦 H5P Space Cloze", "📦 H5P Multiplication", "📦 H5P Cosmic Memory"]
-          };
-          const currentSubtabs = tabsForAge[gameAge] || tabsForAge['OLDER_KIDS'];
+          // All games metadata catalog (just like stories catalog)
+          const allPreviewGames = [
+            // Toddler (Ages 2-4)
+            { id: 'toddler-animal-sounds', title: 'Animal Sounds & Calls', category: 'Animals', ageTier: 'TODDLER', ageLabel: '🧸 Toddlers', ageRange: 'Ages 2–4', emoji: '🦁', stars: 10, desc: 'Listen to animal roars, quacks, and sounds to match the happy animal!' },
+            { id: 'toddler-balloon-pop', title: 'Balloon Pop Counting', category: 'Numbers', ageTier: 'TODDLER', ageLabel: '🧸 Toddlers', ageRange: 'Ages 2–4', emoji: '🎈', stars: 10, desc: 'Pop floating rainbow balloons in sequential order 1 to 5 to build early counting!' },
+            { id: 'toddler-shape-sorter', title: 'Shape & Color Sorter', category: 'Shapes', ageTier: 'TODDLER', ageLabel: '🧸 Toddlers', ageRange: 'Ages 2–4', emoji: '🎨', stars: 10, desc: 'Fit circles, squares, and stars into matching outlines.' },
+            { id: 'toddler-h5p-animals', title: 'Farm Match Interactive', category: 'H5P Interactive', ageTier: 'TODDLER', ageLabel: '🧸 Toddlers', ageRange: 'Ages 2–4', emoji: '📦', stars: 15, desc: 'Interactive H5P touch quest pairing farm animal sounds and illustrations.', isH5P: true },
+            { id: 'toddler-h5p-memory', title: 'Animal Memory Quest', category: 'H5P Interactive', ageTier: 'TODDLER', ageLabel: '🧸 Toddlers', ageRange: 'Ages 2–4', emoji: '🃏', stars: 15, desc: 'Gentle card-flip memory match for toddlers with friendly animal cards.', isH5P: true },
 
-          body.innerHTML = `
-            ${ytTabsHtml}
-            <!-- Hero Star Rewards Card (Locked to child's assigned age tier) -->
-            <div class="card-box" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; background:linear-gradient(135deg, rgba(67,97,238,0.15), rgba(255,46,147,0.15)); border-color:rgba(255,209,102,0.35);">
-              <div>
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <span style="font-weight:800; font-size:0.96rem;">Learning Quests 🎮</span>
-                  <span style="padding:2px 8px; border-radius:8px; background:rgba(255,46,147,0.15); color:var(--pink); font-size:0.7rem; font-weight:800;">${curAgeInfo.label} (${curAgeInfo.range})</span>
-                </div>
-                <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">Play free educational games, solve puzzles &amp; earn ⭐ stars!</div>
-              </div>
-              <div style="padding:4px 10px; border-radius:99px; background:rgba(255,209,102,0.18); border:1px solid #ffd166; font-weight:800; font-size:0.84rem; color:var(--gold-text); white-space:nowrap;">
-                ⭐ ${state.starPoints || 45}
-              </div>
-            </div>
+            // Young Kids (Ages 5-8)
+            { id: 'young-math-sprint', title: 'Mental Math Sprint', category: 'Math', ageTier: 'YOUNG_KIDS', ageLabel: '🎒 Young Kids', ageRange: 'Ages 5–8', emoji: '⚡', stars: 10, desc: 'Fast-paced addition and subtraction sprint to boost arithmetic reflexes!' },
+            { id: 'young-memory-match', title: 'Memory Match Pairs', category: 'Memory', ageTier: 'YOUNG_KIDS', ageLabel: '🎒 Young Kids', ageRange: 'Ages 5–8', emoji: '🃏', stars: 15, desc: 'Flip and match 4 pairs of cosmic rockets, lions, dolphins, and art palettes!' },
+            { id: 'young-spelling-quest', title: 'Spelling & Phonics Quest', category: 'Reading', ageTier: 'YOUNG_KIDS', ageLabel: '🎒 Young Kids', ageRange: 'Ages 5–8', emoji: '🔤', stars: 10, desc: 'Fill in the missing letter to complete words with picture clues and hints!' },
+            { id: 'young-h5p-speed-math', title: 'Speed Math Challenge', category: 'H5P Interactive', ageTier: 'YOUNG_KIDS', ageLabel: '🎒 Young Kids', ageRange: 'Ages 5–8', emoji: '📦', stars: 15, desc: 'Interactive arithmetic challenge powered by H5P question sets.', isH5P: true },
+            { id: 'young-h5p-phonics', title: 'Phonics Sound Cards', category: 'H5P Interactive', ageTier: 'YOUNG_KIDS', ageLabel: '🎒 Young Kids', ageRange: 'Ages 5–8', emoji: '📦', stars: 15, desc: 'Tap and listen to word sounds with pronunciation practice.', isH5P: true },
+            { id: 'young-h5p-cloze', title: 'Word Cloze Sentences', category: 'H5P Interactive', ageTier: 'YOUNG_KIDS', ageLabel: '🎒 Young Kids', ageRange: 'Ages 5–8', emoji: '📦', stars: 15, desc: 'Drag words into blanks to complete interesting story passages.', isH5P: true },
 
-            <!-- Games Sub-tabs -->
-            <div style="display:flex; gap:6px; margin-bottom:14px; overflow-x:auto; padding-bottom:4px;">
-              ${currentSubtabs.map((tabLabel, idx) => `
-                <button class="${gameTab === idx ? 'btn-primary' : 'btn-outline'}" style="padding:6px 12px; font-size:0.75rem; white-space:nowrap;" onclick="state.activeGameTab=${idx}; render();">${tabLabel}</button>
-              `).join('')}
-            </div>
+            // Older Kids (Ages 9-12)
+            { id: 'older-science-trivia', title: 'Cosmic Science Trivia', category: 'Science', ageTier: 'OLDER_KIDS', ageLabel: '🚀 Older Kids', ageRange: 'Ages 9–12', emoji: '🧠', stars: 10, desc: 'Test science knowledge on astronomy, biology, and Earth sciences with fun facts!' },
+            { id: 'older-world-explorer', title: 'World Geography Explorer', category: 'World', ageTier: 'OLDER_KIDS', ageLabel: '🚀 Older Kids', ageRange: 'Ages 9–12', emoji: '🌍', stars: 10, desc: 'Identify countries, national flags, capital cities, and famous world rivers!' },
+            { id: 'older-orbit-physics', title: 'Orbital Physics Simulator', category: 'Physics', ageTier: 'OLDER_KIDS', ageLabel: '🚀 Older Kids', ageRange: 'Ages 9–12', emoji: '🌌', stars: 15, desc: 'Simulate planetary gravity, adjust orbital speed, and launch satellites into orbit!' },
+            { id: 'older-logic-lab', title: 'Logic Lab Patterns', category: 'Logic', ageTier: 'OLDER_KIDS', ageLabel: '🚀 Older Kids', ageRange: 'Ages 9–12', emoji: '💡', stars: 15, desc: 'Deduce grid sequences, solve pattern puzzles, and unlock brain badges!' },
+            { id: 'older-h5p-universe-cloze', title: 'Deep Space Cloze Reading', category: 'H5P Interactive', ageTier: 'OLDER_KIDS', ageLabel: '🚀 Older Kids', ageRange: 'Ages 9–12', emoji: '📦', stars: 20, desc: 'Interactive deep space astronomy reading challenge with fill-in-the-blank clues.', isH5P: true },
+            { id: 'older-h5p-multiplication', title: 'Multiplication Mastery', category: 'H5P Interactive', ageTier: 'OLDER_KIDS', ageLabel: '🚀 Older Kids', ageRange: 'Ages 9–12', emoji: '📦', stars: 20, desc: 'Interactive multiplication drills and rapid math problem sets.', isH5P: true },
+            { id: 'older-h5p-space-memory', title: 'Cosmic Memory Challenge', category: 'H5P Interactive', ageTier: 'OLDER_KIDS', ageLabel: '🚀 Older Kids', ageRange: 'Ages 9–12', emoji: '📦', stars: 20, desc: 'Memory match with nebula, planet, and galaxy telescope imagery.', isH5P: true }
+          ];
 
-            <!-- Active Game Container -->
-            ${gameAge === 'TODDLER' ? `
-              ${gameTab === 0 ? `
+          if (state.activeGameId) {
+            // =======================================================
+            // 1. FULL-SCREEN IMMERSIVE GAME PLAYER (Just like stories)
+            // =======================================================
+            const activeGame = allPreviewGames.find(g => g.id === state.activeGameId) || allPreviewGames[0];
+            const isDark = state.theme === 'DARK';
+
+            let gameHtml = '';
+            if (activeGame.id === 'toddler-animal-sounds') {
+              gameHtml = `
                 <!-- Toddler Animal Sounds Match -->
                 <div class="card-box" style="padding:16px; text-align:center;">
                   <div style="font-size:0.72rem; font-weight:800; color:var(--pink); margin-bottom:4px;">Animal Sounds Match 🦁</div>
@@ -3987,7 +3998,9 @@
                     </div>
                   ` : ''}
                 </div>
-              ` : gameTab === 1 ? `
+              `;
+            } else if (activeGame.id === 'toddler-balloon-pop') {
+              gameHtml = `
                 <!-- Toddler Balloon Pop Counting -->
                 <div class="card-box" style="padding:16px; text-align:center;">
                   <div style="font-size:0.72rem; font-weight:800; color:var(--blue); margin-bottom:4px;">Balloon Pop Counting 🎈</div>
@@ -4022,16 +4035,18 @@
                     </div>
                   ` : ''}
                 </div>
-              ` : gameTab === 2 ? `
+              `;
+            } else if (activeGame.id === 'toddler-shape-sorter') {
+              gameHtml = `
                 <!-- Toddler Shape Sorter -->
                 <div class="card-box" style="padding:16px; text-align:center;">
                   <div style="font-size:0.72rem; font-weight:800; color:#ffd166; margin-bottom:4px;">Shape &amp; Color Match 🎨</div>
                   <div style="font-size:1.05rem; font-weight:800; margin-bottom:8px;">Find the shape:</div>
                   <div style="background:#1e293b; border-radius:14px; padding:14px; font-size:1.2rem; font-weight:800; color:#fff; margin-bottom:14px;">
-                    ${curToddlerShape.color} ${curToddlerShape.shape}
+                    ${curToddlerShape.emoji} ${curToddlerShape.name}
                   </div>
-                  <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;">
-                    ${toddlerShapes.slice(0, 3).map(sh => {
+                  <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+                    ${toddlerShapes.map(sh => {
                       const isCorrect = sh.name === curToddlerShape.name;
                       const isSelected = state.toddlerShapeSelected === sh.name;
                       let bg = 'var(--surface-var)';
@@ -4040,7 +4055,7 @@
                         else if (isSelected) bg = 'rgba(239,71,111,0.3); border-color:#EF476F;';
                       }
                       return `
-                        <button style="padding:14px 6px; border-radius:14px; border:1.5px solid var(--border); background:${bg}; cursor:pointer;" onclick="
+                        <button style="width:62px; height:62px; border-radius:14px; border:1.5px solid var(--border); background:${bg}; font-size:1.8rem; cursor:pointer;" onclick="
                           if (!state.toddlerShapeAnswered) {
                             state.toddlerShapeSelected = '${sh.name}';
                             state.toddlerShapeAnswered = true;
@@ -4049,76 +4064,77 @@
                             }
                             render();
                           }
-                        ">
-                          <div style="font-size:2.2rem;">${sh.emoji}</div>
-                          <div style="font-weight:700; font-size:0.72rem; margin-top:4px; color:var(--text);">${sh.shape}</div>
-                        </button>
+                        ">${sh.emoji}</button>
                       `;
                     }).join('')}
                   </div>
                   ${state.toddlerShapeAnswered ? `
                     <div style="margin-top:14px;">
                       <div style="font-weight:800; font-size:0.92rem; color:${state.toddlerShapeSelected === curToddlerShape.name ? '#06D6A0' : '#EF476F'};">
-                        ${state.toddlerShapeSelected === curToddlerShape.name ? `⭐ Wonderful! That's the ${curToddlerShape.name}! +5 ⭐` : `Nice try! That was the ${curToddlerShape.name}.`}
+                        ${state.toddlerShapeSelected === curToddlerShape.name ? '🎉 Great Job! You found it! +5 ⭐' : `That was a different shape! It is the ${curToddlerShape.name}!`}
                       </div>
-                      <button class="btn-primary" style="margin-top:10px; width:100%;" onclick="state.toddlerShapeIdx = ((state.toddlerShapeIdx || 0) + 1) % 5; state.toddlerShapeAnswered = false; state.toddlerShapeSelected = null; render();">Next Shape 🎨 →</button>
+                      <button class="btn-primary" style="margin-top:10px;" onclick="state.toddlerShapeIdx = (state.toddlerShapeIdx || 0) + 1; state.toddlerShapeAnswered = false; state.toddlerShapeSelected = null; render();">Next Shape →</button>
                     </div>
                   ` : ''}
                 </div>
-              ` : gameTab === 3 ? `
-                <!-- H5P.ImageChoice: Toddler Farm Picture Match -->
+              `;
+            } else if (activeGame.id === 'toddler-h5p-animals') {
+              gameHtml = `
+                <!-- Toddler H5P Farm Animals -->
                 <div class="card-box" style="padding:16px; text-align:center;">
-                  <div style="display:inline-block; padding:3px 8px; border-radius:99px; background:rgba(67,97,238,0.15); border:1px solid var(--blue); color:#70a1ff; font-size:0.7rem; font-weight:800; margin-bottom:8px;">📦 H5P.ImageChoice</div>
-                  <div style="font-size:1.15rem; font-weight:800; margin-bottom:12px;">Find the happy Cow 🐮 on the farm!</div>
-                  <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-size:0.72rem; font-weight:800; color:var(--blue);">📦 H5P Farm Match (Interactive)</span>
+                    <span style="font-size:0.68rem; padding:2px 6px; border-radius:6px; background:rgba(76,201,240,0.15); color:var(--blue); font-weight:800;">H5P Standalone</span>
+                  </div>
+                  <div style="font-size:1rem; font-weight:800; margin-bottom:12px;">Match the animal baby to the mother!</div>
+                  <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; margin-bottom:12px;">
                     ${[
-                      { name: 'Cow', emoji: '🐮', correct: true },
-                      { name: 'Lion', emoji: '🦁', correct: false },
-                      { name: 'Frog', emoji: '🐸', correct: false }
-                    ].map(ch => {
-                      let bg = 'var(--surface-var)';
-                      if (state.h5pToddlerPicAnswered) {
-                        if (ch.correct) bg = 'rgba(6,214,160,0.3); border-color:#06D6A0;';
-                        else bg = 'var(--surface-var); opacity:0.5;';
-                      }
+                      { baby: "🐥 Chick", mom: "🐔 Hen", id: 1 },
+                      { baby: "🐶 Puppy", mom: "🐕 Dog", id: 2 },
+                      { baby: "🐱 Kitten", mom: "🐈 Cat", id: 3 },
+                      { baby: "🐑 Lamb", mom: "🐏 Sheep", id: 4 }
+                    ].map(p => {
+                      const matched = (state.h5pToddlerMatched || []).includes(p.id);
                       return `
-                        <button style="padding:16px 8px; border-radius:14px; border:1.5px solid var(--border); background:${bg}; cursor:pointer;" onclick="
-                          if (!state.h5pToddlerPicAnswered) {
-                            state.h5pToddlerPicAnswered = true;
-                            if (${ch.correct}) {
-                              state.starPoints = (state.starPoints || 45) + 15;
+                        <div style="padding:12px; border-radius:12px; background:${matched ? 'rgba(6,214,160,0.2)' : 'var(--surface-var)'}; border:1.5px solid ${matched ? '#06D6A0' : 'var(--border)'}; cursor:pointer;" onclick="
+                          if (!state.h5pToddlerMatched) state.h5pToddlerMatched = [];
+                          if (!state.h5pToddlerMatched.includes(${p.id})) {
+                            state.h5pToddlerMatched.push(${p.id});
+                            if (state.h5pToddlerMatched.length === 4) {
+                              state.starPoints = (state.starPoints || 45) + 10;
                             }
                             render();
                           }
                         ">
-                          <div style="font-size:2.8rem;">${ch.emoji}</div>
-                          <div style="font-weight:800; font-size:0.85rem; margin-top:6px; color:var(--text);">${ch.name}</div>
-                        </button>
+                          <div style="font-size:1.6rem;">${p.baby} ➜ ${matched ? p.mom : '❓'}</div>
+                          <div style="font-size:0.7rem; font-weight:700; margin-top:4px; color:${matched ? '#06D6A0' : 'var(--text-muted)'};">${matched ? '✓ Matched!' : 'Tap to Match'}</div>
+                        </div>
                       `;
                     }).join('')}
                   </div>
-                  ${state.h5pToddlerPicAnswered ? `
-                    <div style="margin-top:14px;">
-                      <div style="font-weight:800; font-size:0.95rem; color:#06D6A0;">🎉 H5P Activity Passed! +15 ⭐ Stars Awarded!</div>
-                      <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">xAPI statement emitted: <code>passed (score: 1/1)</code></div>
-                      <button class="btn-primary" style="margin-top:10px; width:100%;" onclick="state.h5pToddlerPicAnswered=false; render();">Play Again 🔁</button>
+                  ${(state.h5pToddlerMatched || []).length === 4 ? `
+                    <div style="margin-top:10px;">
+                      <div style="font-weight:800; font-size:0.92rem; color:#06D6A0;">🎉 H5P Quest Completed! +10 ⭐ Stars added!</div>
+                      <button class="btn-primary" style="margin-top:8px;" onclick="state.h5pToddlerMatched=[]; render();">Play Again</button>
                     </div>
                   ` : ''}
                 </div>
-              ` : `
-                <!-- H5P.MemoryGame: Toddler Animal Pairs -->
-                <div class="card-box" style="padding:16px;">
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <div style="display:inline-block; padding:3px 8px; border-radius:99px; background:rgba(67,97,238,0.15); border:1px solid var(--blue); color:#70a1ff; font-size:0.7rem; font-weight:800;">📦 H5P.MemoryGame</div>
-                    <div style="font-size:0.72rem; color:var(--text-muted);">${(state.h5pToddlerMemoryMatched || []).length / 2} / 3 Pairs</div>
+              `;
+            } else if (activeGame.id === 'toddler-h5p-memory') {
+              gameHtml = `
+                <!-- Toddler H5P Animal Memory -->
+                <div class="card-box" style="padding:16px; text-align:center;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-size:0.72rem; font-weight:800; color:var(--blue);">📦 H5P Animal Memory (2 Pairs)</span>
+                    <span style="font-size:0.68rem; padding:2px 6px; border-radius:6px; background:rgba(76,201,240,0.15); color:var(--blue); font-weight:800;">H5P Standalone</span>
                   </div>
-                  <div style="font-size:0.95rem; font-weight:800; margin-bottom:10px; text-align:center;">Match 3 cute baby animals!</div>
-                  <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;">
-                    ${["🐶", "🐱", "🐰", "🐶", "🐱", "🐰"].map((emoji, idx) => {
+                  <div style="font-size:1rem; font-weight:800; margin-bottom:12px;">Flip cards to find friendly animals!</div>
+                  <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; max-width:240px; margin:0 auto 12px auto;">
+                    ${["🐶", "🐱", "🐶", "🐱"].map((emoji, idx) => {
                       const isFlipped = (state.h5pToddlerMemoryFlipped || []).includes(idx) || (state.h5pToddlerMemoryMatched || []).includes(idx);
                       const isMatched = (state.h5pToddlerMemoryMatched || []).includes(idx);
                       return `
-                        <div style="aspect-ratio:1; border-radius:12px; background:${isMatched ? 'rgba(6,214,160,0.3)' : isFlipped ? '#202636' : 'var(--surface-var)'}; border:1.5px solid ${isMatched ? '#06D6A0' : 'var(--border)'}; display:flex; align-items:center; justify-content:center; font-size:1.8rem; cursor:pointer;" onclick="
+                        <div style="aspect-ratio:1; border-radius:12px; background:${isMatched ? 'rgba(6,214,160,0.3)' : isFlipped ? '#202636' : 'var(--surface-var)'}; border:1.5px solid ${isMatched ? '#06D6A0' : 'var(--border)'}; display:flex; align-items:center; justify-content:center; font-size:2rem; cursor:pointer;" onclick="
                           if (!state.h5pToddlerMemoryFlipped) state.h5pToddlerMemoryFlipped = [];
                           if (!state.h5pToddlerMemoryMatched) state.h5pToddlerMemoryMatched = [];
                           if (state.h5pToddlerMemoryFlipped.includes(${idx}) || state.h5pToddlerMemoryMatched.includes(${idx})) return;
@@ -4127,11 +4143,11 @@
                           } else if (state.h5pToddlerMemoryFlipped.length === 1) {
                             const prev = state.h5pToddlerMemoryFlipped[0];
                             state.h5pToddlerMemoryFlipped.push(${idx});
-                            const icons = ['🐶', '🐱', '🐰', '🐶', '🐱', '🐰'];
+                            const icons = ['🐶','🐱','🐶','🐱'];
                             if (icons[prev] === icons[${idx}]) {
                               state.h5pToddlerMemoryMatched.push(prev, ${idx});
                               state.h5pToddlerMemoryFlipped = [];
-                              if (state.h5pToddlerMemoryMatched.length === 6) {
+                              if (state.h5pToddlerMemoryMatched.length === 4) {
                                 state.starPoints = (state.starPoints || 45) + 15;
                               }
                             } else {
@@ -4145,16 +4161,16 @@
                       `;
                     }).join('')}
                   </div>
-                  ${(state.h5pToddlerMemoryMatched || []).length === 6 ? `
-                    <div style="margin-top:14px; text-align:center;">
+                  ${(state.h5pToddlerMemoryMatched || []).length === 4 ? `
+                    <div style="margin-top:10px;">
                       <div style="font-weight:800; font-size:0.92rem; color:#06D6A0;">🎉 H5P Memory Completed! +15 ⭐ Stars added!</div>
                       <button class="btn-primary" style="margin-top:8px;" onclick="state.h5pToddlerMemoryFlipped=[]; state.h5pToddlerMemoryMatched=[]; render();">Play Again</button>
                     </div>
                   ` : ''}
                 </div>
-              `}
-            ` : gameAge === 'YOUNG_KIDS' ? `
-              ${gameTab === 0 ? `
+              `;
+            } else if (activeGame.id === 'young-math-sprint') {
+              gameHtml = `
                 <!-- Young Kids Math Sprint -->
                 <div class="card-box" style="padding:16px;">
                   <div style="font-size:0.72rem; font-weight:800; color:#ffd166; margin-bottom:8px;">⚡ Mental Math Sprint (+ / -)</div>
@@ -4186,7 +4202,9 @@
                     </div>
                   ` : ''}
                 </div>
-              ` : gameTab === 1 ? `
+              `;
+            } else if (activeGame.id === 'young-memory-match') {
+              gameHtml = `
                 <!-- Young Kids Memory Match (4 Pairs) -->
                 <div class="card-box" style="padding:16px;">
                   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -4232,7 +4250,9 @@
                     </div>
                   ` : ''}
                 </div>
-              ` : gameTab === 2 ? `
+              `;
+            } else if (activeGame.id === 'young-spelling-quest') {
+              gameHtml = `
                 <!-- Young Kids Spelling Quest -->
                 <div class="card-box" style="padding:16px; text-align:center;">
                   <div style="font-size:0.72rem; font-weight:800; color:var(--pink); margin-bottom:4px;">🔤 Phonics &amp; Spelling Quest</div>
@@ -4250,6 +4270,9 @@
                             if ('${l}' === '${curSpelling.missing}') {
                               state.spellingSuccess = true;
                               state.starPoints = (state.starPoints || 45) + 10;
+                            } else {
+                              state.spellingWrong = true;
+                              setTimeout(() => { state.spellingWrong = false; render(); }, 800);
                             }
                             render();
                           }
@@ -4259,144 +4282,83 @@
                   </div>
                   ${state.spellingSuccess ? `
                     <div style="margin-top:14px;">
-                      <div style="font-weight:800; font-size:0.92rem; color:#06D6A0;">⭐ Correct! You spelled ${curSpelling.word}! +10 ⭐</div>
-                      <button class="btn-primary" style="margin-top:10px;" onclick="state.spellingWordIdx = ((state.spellingWordIdx || 0) + 1) % 4; state.spellingSuccess = false; render();">Next Word 🔤 →</button>
+                      <div style="font-weight:800; font-size:0.92rem; color:#06D6A0;">🎉 You spelled ${curSpelling.word}! +10 ⭐ Stars!</div>
+                      <button class="btn-primary" style="margin-top:8px;" onclick="state.spellingWordIdx = (state.spellingWordIdx || 0) + 1; state.spellingSuccess = false; render();">Next Word →</button>
                     </div>
+                  ` : state.spellingWrong ? `
+                    <div style="margin-top:10px; font-size:0.8rem; color:#EF476F; font-weight:800;">Try another letter!</div>
                   ` : ''}
                 </div>
-              ` : gameTab === 3 ? `
-                <!-- H5P.ArithmeticQuiz: Speed Mental Math -->
+              `;
+            } else if (activeGame.id === 'young-h5p-speed-math') {
+              gameHtml = `
+                <!-- Young Kids H5P Speed Math -->
                 <div class="card-box" style="padding:16px;">
                   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <div style="display:inline-block; padding:3px 8px; border-radius:99px; background:rgba(67,97,238,0.15); border:1px solid var(--blue); color:#70a1ff; font-size:0.7rem; font-weight:800;">📦 H5P.ArithmeticQuiz</div>
-                    <div style="font-size:0.72rem; color:var(--text-muted);">Question ${(state.h5pSpeedMathQ || 0) + 1} of 5 • Score: ${state.h5pSpeedMathScore || 0}</div>
+                    <span style="font-size:0.72rem; font-weight:800; color:var(--blue);">📦 H5P Interactive Speed Math</span>
+                    <span style="font-size:0.68rem; padding:2px 6px; border-radius:6px; background:rgba(76,201,240,0.15); color:var(--blue); font-weight:800;">H5P Arithmetic</span>
                   </div>
-                  <div style="font-weight:800; font-size:0.95rem; margin-bottom:6px;">Speed Addition Challenge</div>
-                  <div style="background:#1e293b; border-radius:14px; padding:18px; text-align:center; font-size:1.8rem; font-weight:900; color:var(--gold); margin-bottom:12px;">
-                    ${((state.h5pSpeedMathQ || 0) * 3 + 4)} + ${((state.h5pSpeedMathQ || 0) * 2 + 3)} = ?
+                  <div style="background:#1e293b; border-radius:14px; padding:16px; text-align:center; margin-bottom:12px;">
+                    <div style="font-size:1.6rem; font-weight:900; color:#ffd166;">9 × 3 = ?</div>
                   </div>
-                  ${(() => {
-                    const a = ((state.h5pSpeedMathQ || 0) * 3 + 4);
-                    const b = ((state.h5pSpeedMathQ || 0) * 2 + 3);
-                    const correctAns = a + b;
-                    const opts = [correctAns, correctAns - 2, correctAns + 3, correctAns + 1].sort(() => 0.5 - ((state.h5pSpeedMathQ || 0) % 2));
-                    return `
-                      <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;">
-                        ${opts.map(opt => `
-                          <button style="padding:12px; border-radius:12px; border:none; text-align:center; cursor:pointer; font-size:1rem; font-weight:800; background:var(--surface-var); color:var(--text);" onclick="
-                            if (!state.h5pSpeedMathAnswered) {
-                              state.h5pSpeedMathAnswered = true;
-                              if (${opt} === ${correctAns}) {
-                                state.h5pSpeedMathScore = (state.h5pSpeedMathScore || 0) + 1;
-                              }
-                              if ((state.h5pSpeedMathQ || 0) >= 4) {
-                                state.starPoints = (state.starPoints || 45) + 15;
-                              }
-                              render();
-                            }
-                          ">${opt}</button>
-                        `).join('')}
-                      </div>
-                    `;
-                  })()}
-                  ${state.h5pSpeedMathAnswered ? `
-                    <div style="margin-top:14px; text-align:center;">
-                      ${(state.h5pSpeedMathQ || 0) >= 4 ? `
-                        <div style="font-weight:800; font-size:0.95rem; color:#06D6A0;">🎉 H5P Quiz Completed! +15 ⭐ Stars Awarded!</div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">Final score: ${state.h5pSpeedMathScore || 0}/5 • xAPI statement emitted</div>
-                        <button class="btn-primary" style="margin-top:10px;" onclick="state.h5pSpeedMathQ=0; state.h5pSpeedMathScore=0; state.h5pSpeedMathAnswered=false; render();">Play Again 🔁</button>
-                      ` : `
-                        <button class="btn-primary" style="width:100%;" onclick="state.h5pSpeedMathQ=(state.h5pSpeedMathQ||0)+1; state.h5pSpeedMathAnswered=false; render();">Next Question →</button>
-                      `}
-                    </div>
-                  ` : ''}
-                </div>
-              ` : gameTab === 4 ? `
-                <!-- H5P.Flashcards: Phonics & Sight Words -->
-                <div class="card-box" style="padding:16px;">
-                  <div style="display:inline-block; padding:3px 8px; border-radius:99px; background:rgba(67,97,238,0.15); border:1px solid var(--blue); color:#70a1ff; font-size:0.7rem; font-weight:800; margin-bottom:8px;">📦 H5P.Flashcards</div>
-                  ${(() => {
-                    const cards = [
-                      { q: "What animal says 'BZZZZ' and makes sweet honey?", ans: "Bee 🐝", hint: "Flies from flower to flower!" },
-                      { q: "What night bird says 'HOOO HOOO'?", ans: "Owl 🦉", hint: "Very wise bird with big round eyes!" },
-                      { q: "What animal hops and carries a baby in a pouch?", ans: "Kangaroo 🦘", hint: "Native to Australia!" }
-                    ];
-                    const idx = (state.h5pFlashcardIdx || 0) % cards.length;
-                    const c = cards[idx];
-                    return `
-                      <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:6px;">Card ${idx + 1} of ${cards.length}</div>
-                      <div style="background:#1e293b; border-radius:14px; padding:18px; text-align:center; font-size:1.15rem; font-weight:800; color:#fff; margin-bottom:10px;">
-                        ${c.q}
-                      </div>
-                      <div style="font-size:0.75rem; color:var(--text-muted); text-align:center; margin-bottom:12px;">💡 Hint: ${c.hint}</div>
-                      ${state.h5pFlashcardRevealed ? `
-                        <div style="background:rgba(6,214,160,0.15); border:1.5px solid #06D6A0; border-radius:12px; padding:12px; text-align:center; font-weight:800; font-size:1.1rem; color:#06D6A0; margin-bottom:12px;">
-                          Answer: ${c.ans}
-                        </div>
-                        <button class="btn-primary" style="width:100%;" onclick="
-                          state.h5pFlashcardIdx = (state.h5pFlashcardIdx || 0) + 1;
-                          state.h5pFlashcardRevealed = false;
-                          if (state.h5pFlashcardIdx >= ${cards.length}) {
-                            state.starPoints = (state.starPoints || 45) + 15;
-                          }
-                          render();
-                        ">Next Card →</button>
-                      ` : `
-                        <button class="btn-primary" style="width:100%;" onclick="state.h5pFlashcardRevealed = true; render();">Show Answer 🔍</button>
-                      `}
-                    `;
-                  })()}
-                </div>
-              ` : `
-                <!-- H5P.DragText: Word Cloze -->
-                <div class="card-box" style="padding:16px;">
-                  <div style="display:inline-block; padding:3px 8px; border-radius:99px; background:rgba(67,97,238,0.15); border:1px solid var(--blue); color:#70a1ff; font-size:0.7rem; font-weight:800; margin-bottom:8px;">📦 H5P.DragText</div>
-                  <div style="font-size:0.88rem; font-weight:800; margin-bottom:6px;">Complete the sentence:</div>
-                  <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:10px;">Tap a word chip, then tap the blank slot to fill it!</div>
-                  <div style="line-height:2.4; font-size:0.95rem; font-weight:700; background:#111420; padding:14px; border-radius:12px; margin-bottom:12px; border:1px solid var(--border);">
-                    Plants need 
-                    <span style="display:inline-block; min-width:70px; padding:2px 8px; border-radius:6px; border:1.5px dashed #ffd166; background:rgba(255,209,102,0.1); color:#ffd166; text-align:center; cursor:pointer;" onclick="if(state.h5pDragSelectedWord){ state.h5pDragAnswers = state.h5pDragAnswers || {}; state.h5pDragAnswers[0] = state.h5pDragSelectedWord; state.h5pDragSelectedWord = null; render(); }">
-                      ${(state.h5pDragAnswers && state.h5pDragAnswers[0]) || '______'}
-                    </span>
-                    and 
-                    <span style="display:inline-block; min-width:70px; padding:2px 8px; border-radius:6px; border:1.5px dashed #ffd166; background:rgba(255,209,102,0.1); color:#ffd166; text-align:center; cursor:pointer;" onclick="if(state.h5pDragSelectedWord){ state.h5pDragAnswers = state.h5pDragAnswers || {}; state.h5pDragAnswers[1] = state.h5pDragSelectedWord; state.h5pDragSelectedWord = null; render(); }">
-                      ${(state.h5pDragAnswers && state.h5pDragAnswers[1]) || '______'}
-                    </span>
-                    to grow healthy green 
-                    <span style="display:inline-block; min-width:70px; padding:2px 8px; border-radius:6px; border:1.5px dashed #ffd166; background:rgba(255,209,102,0.1); color:#ffd166; text-align:center; cursor:pointer;" onclick="if(state.h5pDragSelectedWord){ state.h5pDragAnswers = state.h5pDragAnswers || {}; state.h5pDragAnswers[2] = state.h5pDragSelectedWord; state.h5pDragSelectedWord = null; render(); }">
-                      ${(state.h5pDragAnswers && state.h5pDragAnswers[2]) || '______'}
-                    </span>.
-                  </div>
-                  <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;">
-                    ${['Sunlight', 'Water', 'Leaves'].map(w => `
-                      <button style="padding:6px 12px; border-radius:8px; border:1px solid ${state.h5pDragSelectedWord === w ? 'var(--blue)' : 'var(--border)'}; background:${state.h5pDragSelectedWord === w ? 'var(--blue)' : 'var(--surface-var)'}; color:#fff; font-weight:800; font-size:0.8rem; cursor:pointer;" onclick="state.h5pDragSelectedWord='${w}'; render();">${w}</button>
+                  <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;">
+                    ${[24, 27, 21, 30].map(ans => `
+                      <button class="btn-outline" style="padding:12px; font-size:1rem; font-weight:800;" onclick="if (${ans} === 27) { state.starPoints = (state.starPoints || 45) + 15; state.h5pSpeedMathDone = true; } else { state.h5pSpeedMathDone = false; } render();">${ans}</button>
                     `).join('')}
                   </div>
-                  <button class="btn-primary" style="width:100%;" onclick="
-                    const ans = state.h5pDragAnswers || {};
-                    if (ans[0] === 'Sunlight' && ans[1] === 'Water' && ans[2] === 'Leaves') {
-                      state.h5pDragSuccess = true;
-                      state.starPoints = (state.starPoints || 45) + 15;
-                    } else {
-                      alert('Check your words! (Sunlight, Water, Leaves)');
-                    }
-                    render();
-                  ">Check Answers ✔️</button>
-                  ${state.h5pDragSuccess ? `
+                  ${state.h5pSpeedMathDone ? `
                     <div style="margin-top:12px; text-align:center;">
-                      <div style="font-weight:800; font-size:0.92rem; color:#06D6A0;">🎉 H5P DragText Mastered! +15 ⭐ Stars Awarded!</div>
-                      <button class="btn-primary" style="margin-top:8px;" onclick="state.h5pDragAnswers={}; state.h5pDragSuccess=false; render();">Play Again</button>
+                      <div style="font-weight:800; font-size:0.92rem; color:#06D6A0;">🎉 H5P Math Score: 100%! +15 ⭐ Stars Awarded!</div>
+                      <button class="btn-primary" style="margin-top:8px;" onclick="state.h5pSpeedMathDone=false; render();">Play Again</button>
                     </div>
                   ` : ''}
                 </div>
-              `}
-            ` : `
-              <!-- OLDER KIDS (Ages 9-12) -->
-              ${gameTab === 0 ? `
-                <!-- Science & Space Trivia -->
+              `;
+            } else if (activeGame.id === 'young-h5p-phonics') {
+              gameHtml = `
+                <!-- Young Kids H5P Phonics Cards -->
+                <div class="card-box" style="padding:16px; text-align:center;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-size:0.72rem; font-weight:800; color:var(--pink);">📦 H5P Phonics Flashcards</span>
+                    <span style="font-size:0.68rem; padding:2px 6px; border-radius:6px; background:rgba(255,46,147,0.15); color:var(--pink); font-weight:800;">H5P Audio</span>
+                  </div>
+                  <div style="font-size:1.1rem; font-weight:800; margin-bottom:10px;">Tap the card to reveal the sound!</div>
+                  <div style="padding:24px; border-radius:16px; background:linear-gradient(135deg, rgba(67,97,238,0.2), rgba(255,46,147,0.2)); border:2px dashed var(--pink); cursor:pointer; margin-bottom:12px;" onclick="state.h5pPhonicsFlipped = !state.h5pPhonicsFlipped; if(state.h5pPhonicsFlipped && !state.h5pPhonicsDone){ state.starPoints=(state.starPoints||45)+10; state.h5pPhonicsDone=true; } render();">
+                    <div style="font-size:2.8rem;">${state.h5pPhonicsFlipped ? '☀️ /s/ /ʌ/ /n/' : '☀️ SUN'}</div>
+                    <div style="font-size:0.76rem; color:var(--text-muted); margin-top:8px;">${state.h5pPhonicsFlipped ? 'Sound decoded! Tap to flip back.' : 'Tap to reveal phonics breakdown.'}</div>
+                  </div>
+                  ${state.h5pPhonicsDone ? `
+                    <div style="font-weight:800; font-size:0.86rem; color:#06D6A0;">🎉 Phonics Card Mastered! +10 ⭐ Stars!</div>
+                  ` : ''}
+                </div>
+              `;
+            } else if (activeGame.id === 'young-h5p-cloze') {
+              gameHtml = `
+                <!-- Young Kids H5P Drag Cloze -->
                 <div class="card-box" style="padding:16px;">
-                  <div style="font-size:0.72rem; font-weight:800; color:var(--blue); margin-bottom:4px;">Science &amp; Space Trivia (${((state.triviaIndex || 0) % scienceTrivia.length) + 1} of ${scienceTrivia.length})</div>
-                  <div style="font-weight:800; font-size:0.96rem; margin-bottom:12px;">${curTrivia.q}</div>
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-size:0.72rem; font-weight:800; color:var(--blue);">📦 H5P Word Cloze</span>
+                    <span style="font-size:0.68rem; padding:2px 6px; border-radius:6px; background:rgba(76,201,240,0.15); color:var(--blue); font-weight:800;">H5P Cloze</span>
+                  </div>
+                  <div style="font-size:0.88rem; font-weight:700; line-height:1.6; margin-bottom:12px;">
+                    The little red rocket flew into deep ${state.h5pClozeChoice ? `<span style="color:#06D6A0; font-weight:900;">${state.h5pClozeChoice}</span>` : '<span style="border-bottom:2px dashed var(--blue); padding:0 12px;">_____</span>'} to explore new planets.
+                  </div>
+                  <div style="display:flex; gap:8px;">
+                    ${['ocean', 'space', 'forest'].map(word => `
+                      <button class="btn-outline" style="padding:6px 14px; font-weight:800; font-size:0.82rem;" onclick="state.h5pClozeChoice='${word}'; if('${word}'==='space'&&!state.h5pClozeDone){ state.starPoints=(state.starPoints||45)+10; state.h5pClozeDone=true; } render();">${word}</button>
+                    `).join('')}
+                  </div>
+                  ${state.h5pClozeDone ? `
+                    <div style="margin-top:12px; font-weight:800; font-size:0.88rem; color:#06D6A0;">🎉 Correct sentence completed! +10 ⭐ Stars!</div>
+                  ` : ''}
+                </div>
+              `;
+            } else if (activeGame.id === 'older-science-trivia') {
+              gameHtml = `
+                <!-- Science Trivia Quest -->
+                <div class="card-box" style="padding:16px;">
+                  <div style="font-size:0.72rem; font-weight:800; color:var(--blue); margin-bottom:4px;">🧠 Cosmic Science Trivia (${((state.triviaIndex || 0) % scienceTrivia.length) + 1} of ${scienceTrivia.length})</div>
+                  <div style="font-size:0.96rem; font-weight:800; margin-bottom:12px;">${curTrivia.q}</div>
                   <div style="display:flex; flex-direction:column; gap:8px;">
                     ${curTrivia.opts.map(opt => {
                       const isCorrect = opt === curTrivia.ans;
@@ -4423,7 +4385,9 @@
                     </div>
                   ` : ''}
                 </div>
-              ` : gameTab === 1 ? `
+              `;
+            } else if (activeGame.id === 'older-world-explorer') {
+              gameHtml = `
                 <!-- World Explorer & Geography -->
                 <div class="card-box" style="padding:16px;">
                   <div style="font-size:0.72rem; font-weight:800; color:var(--pink); margin-bottom:4px;">🌍 World Geography Quest (${((state.geoIdx || 0) % worldGeo.length) + 1} of ${worldGeo.length})</div>
@@ -4457,7 +4421,9 @@
                     </div>
                   ` : ''}
                 </div>
-              ` : gameTab === 2 ? `
+              `;
+            } else if (activeGame.id === 'older-orbit-physics') {
+              gameHtml = `
                 <!-- Orbit Mechanics Physics Lab -->
                 <div class="card-box" style="padding:16px;">
                   <div style="font-size:0.72rem; font-weight:800; color:var(--blue); margin-bottom:4px;">🌌 Orbit Mechanics Physics Lab</div>
@@ -4497,7 +4463,9 @@
                     </div>
                   ` : ''}
                 </div>
-              ` : gameTab === 3 ? `
+              `;
+            } else if (activeGame.id === 'older-logic-lab') {
+              gameHtml = `
                 <!-- Logic Circuit Lab -->
                 <div class="card-box" style="padding:16px;">
                   <div style="font-size:0.72rem; font-weight:800; color:#ffd166; margin-bottom:4px;">💡 Logic Circuit Lab</div>
@@ -4540,116 +4508,82 @@
                       const a = !!state.logicSwitchA;
                       const b = !!state.logicSwitchB;
                       const gate = state.logicGate || 'AND';
-                      const out = gate === 'AND' ? (a && b) : gate === 'OR' ? (a || b) : (a !== b);
+                      let out = (gate === 'AND') ? (a && b) : (gate === 'OR') ? (a || b) : (a !== b);
                       if (out) {
-                        state.starPoints = (state.starPoints || 45) + 15;
-                        alert('Awesome logic skills! Bulb powered successfully! +15 ⭐');
+                        state.logicSuccess = true;
+                        if (!state.logicRewarded) {
+                          state.starPoints = (state.starPoints || 45) + 15;
+                          state.logicRewarded = true;
+                        }
                       } else {
-                        alert('Bulb is still off. Check your switches and gate logic!');
+                        state.logicSuccess = false;
                       }
                       render();
-                    ">⚡ Test Circuit</button>
+                    ">Check Circuit ⚡</button>
+                    ${state.logicSuccess ? `
+                      <div style="margin-top:10px; font-weight:800; font-size:0.88rem; color:#06D6A0;">🎉 Puzzle Solved! Power delivered! +15 ⭐ Stars!</div>
+                    ` : (state.logicSuccess === false) ? `
+                      <div style="margin-top:10px; font-size:0.8rem; color:#EF476F; font-weight:800;">Circuit broken! Bulb didn't light. Change switches!</div>
+                    ` : ''}
                   </div>
                 </div>
-              ` : gameTab === 4 ? `
-                <!-- H5P.DragText: Solar System Cloze -->
-                <div class="card-box" style="padding:16px;">
-                  <div style="display:inline-block; padding:3px 8px; border-radius:99px; background:rgba(67,97,238,0.15); border:1px solid var(--blue); color:#70a1ff; font-size:0.7rem; font-weight:800; margin-bottom:8px;">📦 H5P.DragText</div>
-                  <div style="font-size:0.88rem; font-weight:800; margin-bottom:6px;">Solar System Astronomy:</div>
-                  <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:10px;">Tap a celestial term, then tap a blank slot to place it:</div>
-                  <div style="line-height:2.4; font-size:0.95rem; font-weight:700; background:#111420; padding:14px; border-radius:12px; margin-bottom:12px; border:1px solid var(--border);">
-                    The 
-                    <span style="display:inline-block; min-width:70px; padding:2px 8px; border-radius:6px; border:1.5px dashed #ffd166; background:rgba(255,209,102,0.1); color:#ffd166; text-align:center; cursor:pointer;" onclick="if(state.h5pSpaceDragSelectedWord){ state.h5pSpaceDragAnswers = state.h5pSpaceDragAnswers || {}; state.h5pSpaceDragAnswers[0] = state.h5pSpaceDragSelectedWord; state.h5pSpaceDragSelectedWord = null; render(); }">
-                      ${(state.h5pSpaceDragAnswers && state.h5pSpaceDragAnswers[0]) || '______'}
-                    </span>
-                    is the star at the center of our solar system, and 
-                    <span style="display:inline-block; min-width:70px; padding:2px 8px; border-radius:6px; border:1.5px dashed #ffd166; background:rgba(255,209,102,0.1); color:#ffd166; text-align:center; cursor:pointer;" onclick="if(state.h5pSpaceDragSelectedWord){ state.h5pSpaceDragAnswers = state.h5pSpaceDragAnswers || {}; state.h5pSpaceDragAnswers[1] = state.h5pSpaceDragSelectedWord; state.h5pSpaceDragSelectedWord = null; render(); }">
-                      ${(state.h5pSpaceDragAnswers && state.h5pSpaceDragAnswers[1]) || '______'}
-                    </span>
-                    is the largest gas giant planet orbited by many 
-                    <span style="display:inline-block; min-width:70px; padding:2px 8px; border-radius:6px; border:1.5px dashed #ffd166; background:rgba(255,209,102,0.1); color:#ffd166; text-align:center; cursor:pointer;" onclick="if(state.h5pSpaceDragSelectedWord){ state.h5pSpaceDragAnswers = state.h5pSpaceDragAnswers || {}; state.h5pSpaceDragAnswers[2] = state.h5pSpaceDragSelectedWord; state.h5pSpaceDragSelectedWord = null; render(); }">
-                      ${(state.h5pSpaceDragAnswers && state.h5pSpaceDragAnswers[2]) || '______'}
-                    </span>.
-                  </div>
-                  <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;">
-                    ${['Sun', 'Jupiter', 'Moons'].map(w => `
-                      <button style="padding:6px 12px; border-radius:8px; border:1px solid ${state.h5pSpaceDragSelectedWord === w ? 'var(--blue)' : 'var(--border)'}; background:${state.h5pSpaceDragSelectedWord === w ? 'var(--blue)' : 'var(--surface-var)'}; color:#fff; font-weight:800; font-size:0.8rem; cursor:pointer;" onclick="state.h5pSpaceDragSelectedWord='${w}'; render();">${w}</button>
-                    `).join('')}
-                  </div>
-                  <button class="btn-primary" style="width:100%;" onclick="
-                    const ans = state.h5pSpaceDragAnswers || {};
-                    if (ans[0] === 'Sun' && ans[1] === 'Jupiter' && ans[2] === 'Moons') {
-                      state.h5pSpaceDragSuccess = true;
-                      state.starPoints = (state.starPoints || 45) + 15;
-                    } else {
-                      alert('Check your planetary order! (Sun, Jupiter, Moons)');
-                    }
-                    render();
-                  ">Check Space Answers ✔️</button>
-                  ${state.h5pSpaceDragSuccess ? `
-                    <div style="margin-top:12px; text-align:center;">
-                      <div style="font-weight:800; font-size:0.92rem; color:#06D6A0;">🎉 H5P Space DragText Passed! +15 ⭐ Stars Awarded!</div>
-                      <button class="btn-primary" style="margin-top:8px;" onclick="state.h5pSpaceDragAnswers={}; state.h5pSpaceDragSuccess=false; render();">Play Again</button>
-                    </div>
-                  ` : ''}
-                </div>
-              ` : gameTab === 5 ? `
-                <!-- H5P.ArithmeticQuiz: Multiplication Mastery Sprint -->
+              `;
+            } else if (activeGame.id === 'older-h5p-universe-cloze') {
+              gameHtml = `
+                <!-- Older Kids H5P Universe Cloze -->
                 <div class="card-box" style="padding:16px;">
                   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <div style="display:inline-block; padding:3px 8px; border-radius:99px; background:rgba(67,97,238,0.15); border:1px solid var(--blue); color:#70a1ff; font-size:0.7rem; font-weight:800;">📦 H5P.ArithmeticQuiz (Multiplication)</div>
-                    <div style="font-size:0.72rem; color:var(--text-muted);">Question ${(state.h5pMultMathQ || 0) + 1} of 5 • Score: ${state.h5pMultMathScore || 0}</div>
+                    <span style="font-size:0.72rem; font-weight:800; color:var(--blue);">📦 H5P Deep Space Cloze</span>
+                    <span style="font-size:0.68rem; padding:2px 6px; border-radius:6px; background:rgba(76,201,240,0.15); color:var(--blue); font-weight:800;">H5P Science</span>
                   </div>
-                  <div style="font-weight:800; font-size:0.95rem; margin-bottom:6px;">Multiplication Mastery Drill</div>
-                  ${(() => {
-                    const factors = [[6, 4], [7, 8], [9, 6], [8, 5], [12, 4]];
-                    const cur = factors[(state.h5pMultMathQ || 0) % factors.length];
-                    const ans = cur[0] * cur[1];
-                    const opts = [ans, ans + 4, Math.max(2, ans - 6), ans + 2].sort(() => 0.5 - ((state.h5pMultMathQ || 0) % 2));
-                    return `
-                      <div style="background:#1e293b; border-radius:14px; padding:18px; text-align:center; font-size:1.8rem; font-weight:900; color:var(--gold); margin-bottom:12px;">
-                        ${cur[0]} × ${cur[1]} = ?
-                      </div>
-                      <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;">
-                        ${opts.map(opt => `
-                          <button style="padding:12px; border-radius:12px; border:none; text-align:center; cursor:pointer; font-size:1rem; font-weight:800; background:var(--surface-var); color:var(--text);" onclick="
-                            if (!state.h5pMultMathAnswered) {
-                              state.h5pMultMathAnswered = true;
-                              if (${opt} === ${ans}) {
-                                state.h5pMultMathScore = (state.h5pMultMathScore || 0) + 1;
-                              }
-                              if ((state.h5pMultMathQ || 0) >= 4) {
-                                state.starPoints = (state.starPoints || 45) + 15;
-                              }
-                              render();
-                            }
-                          ">${opt}</button>
-                        `).join('')}
-                      </div>
-                    `;
-                  })()}
-                  ${state.h5pMultMathAnswered ? `
-                    <div style="margin-top:14px; text-align:center;">
-                      ${(state.h5pMultMathQ || 0) >= 4 ? `
-                        <div style="font-weight:800; font-size:0.95rem; color:#06D6A0;">🎉 H5P Multiplication Mastered! +15 ⭐ Stars Awarded!</div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">Final score: ${state.h5pMultMathScore || 0}/5 • xAPI statement emitted</div>
-                        <button class="btn-primary" style="margin-top:10px;" onclick="state.h5pMultMathQ=0; state.h5pMultMathScore=0; state.h5pMultMathAnswered=false; render();">Play Again 🔁</button>
-                      ` : `
-                        <button class="btn-primary" style="width:100%;" onclick="state.h5pMultMathQ=(state.h5pMultMathQ||0)+1; state.h5pMultMathAnswered=false; render();">Next Question →</button>
-                      `}
+                  <div style="font-size:0.86rem; font-weight:700; line-height:1.6; margin-bottom:12px;">
+                    A massive exploding star at the end of its life cycle is scientifically known as a ${state.h5pSupernova ? `<span style="color:#06D6A0; font-weight:900;">${state.h5pSupernova}</span>` : '<span style="border-bottom:2px dashed var(--blue); padding:0 12px;">_____</span>'}.
+                  </div>
+                  <div style="display:flex; gap:8px;">
+                    ${['Black Hole', 'Supernova', 'Asteroid'].map(term => `
+                      <button class="btn-outline" style="padding:6px 12px; font-size:0.8rem; font-weight:800;" onclick="state.h5pSupernova='${term}'; if('${term}'==='Supernova'&&!state.h5pSupernovaDone){ state.starPoints=(state.starPoints||45)+20; state.h5pSupernovaDone=true; } render();">${term}</button>
+                    `).join('')}
+                  </div>
+                  ${state.h5pSupernovaDone ? `
+                    <div style="margin-top:12px; font-weight:800; font-size:0.88rem; color:#06D6A0;">🎉 Correct! Supernovae forge heavy elements in the cosmos! +20 ⭐ Stars!</div>
+                  ` : ''}
+                </div>
+              `;
+            } else if (activeGame.id === 'older-h5p-multiplication') {
+              gameHtml = `
+                <!-- Older Kids H5P Multiplication -->
+                <div class="card-box" style="padding:16px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-size:0.72rem; font-weight:800; color:#ffd166;">📦 H5P Multiplication Challenge</span>
+                    <span style="font-size:0.68rem; padding:2px 6px; border-radius:6px; background:rgba(255,209,102,0.18); color:var(--gold-text); font-weight:800;">H5P Arithmetic</span>
+                  </div>
+                  <div style="background:#1e293b; border-radius:14px; padding:16px; text-align:center; font-size:1.8rem; font-weight:900; color:#ffd166; margin-bottom:12px;">
+                    12 × 8 = ?
+                  </div>
+                  <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;">
+                    ${[88, 96, 104, 92].map(num => `
+                      <button class="btn-outline" style="padding:10px; font-size:1.05rem; font-weight:800;" onclick="if(${num}===96){ state.h5pMultDone=true; state.starPoints=(state.starPoints||45)+20; } render();">${num}</button>
+                    `).join('')}
+                  </div>
+                  ${state.h5pMultDone ? `
+                    <div style="margin-top:12px; text-align:center;">
+                      <div style="font-weight:800; font-size:0.9rem; color:#06D6A0;">🎉 Master Multiplication! 12 × 8 = 96! +20 ⭐ Stars Awarded!</div>
+                      <button class="btn-primary" style="margin-top:8px;" onclick="state.h5pMultDone=false; render();">Play Again</button>
                     </div>
                   ` : ''}
                 </div>
-              ` : `
-                <!-- H5P.MemoryGame: Cosmic Deep Space Pairs -->
+              `;
+            } else {
+              // older-h5p-space-memory or default
+              gameHtml = `
+                <!-- Older Kids H5P Space Memory -->
                 <div class="card-box" style="padding:16px;">
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <div style="display:inline-block; padding:3px 8px; border-radius:99px; background:rgba(67,97,238,0.15); border:1px solid var(--blue); color:#70a1ff; font-size:0.7rem; font-weight:800;">📦 H5P.MemoryGame</div>
-                    <div style="font-size:0.72rem; color:var(--text-muted);">${(state.h5pCosmicMemoryMatched || []).length / 2} / 4 Pairs</div>
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-size:0.72rem; font-weight:800; color:var(--blue);">📦 H5P Cosmic Space Memory</span>
+                    <span style="font-size:0.72rem; color:var(--text-muted);">${(state.h5pCosmicMemoryMatched || []).length / 2} / 4 Pairs</span>
                   </div>
-                  <div style="font-size:0.95rem; font-weight:800; margin-bottom:10px; text-align:center;">Match 4 pairs of celestial wonders!</div>
                   <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:6px;">
-                    ${["🚀", "🪐", "🌌", "☄️", "🚀", "🪐", "🌌", "☄️"].map((emoji, idx) => {
+                    ${["🪐","☄️","🛰️","🔭","🪐","☄️","🛰️","🔭"].map((emoji, idx) => {
                       const isFlipped = (state.h5pCosmicMemoryFlipped || []).includes(idx) || (state.h5pCosmicMemoryMatched || []).includes(idx);
                       const isMatched = (state.h5pCosmicMemoryMatched || []).includes(idx);
                       return `
@@ -4662,7 +4596,7 @@
                           } else if (state.h5pCosmicMemoryFlipped.length === 1) {
                             const prev = state.h5pCosmicMemoryFlipped[0];
                             state.h5pCosmicMemoryFlipped.push(${idx});
-                            const icons = ['🚀', '🪐', '🌌', '☄️', '🚀', '🪐', '🌌', '☄️'];
+                            const icons = ['🪐','☄️','🛰️','🔭','🪐','☄️','🛰️','🔭'];
                             if (icons[prev] === icons[${idx}]) {
                               state.h5pCosmicMemoryMatched.push(prev, ${idx});
                               state.h5pCosmicMemoryFlipped = [];
@@ -4687,9 +4621,112 @@
                     </div>
                   ` : ''}
                 </div>
+              `;
+            }
+
+            body.innerHTML = `
+              <div style="flex:1; min-height:0; display:flex; flex-direction:column; background:${isDark ? '#080c14' : 'var(--bg)'}; color:${isDark ? '#fff' : 'var(--text)'}; position:relative; overflow:hidden;">
+                <!-- Floating Top Header Overlay -->
+                <div style="position:relative; z-index:20; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; gap:6px; padding:10px 14px; background:${isDark ? 'linear-gradient(180deg, rgba(8,12,20,0.95) 0%, rgba(8,12,20,0) 100%)' : 'linear-gradient(180deg, rgba(248,250,252,0.95) 0%, rgba(248,250,252,0) 100%)'};">
+                  <button class="btn-outline" style="padding:4px 10px; font-size:0.72rem; border-radius:99px; background:${isDark ? 'rgba(15,23,42,0.75)' : 'rgba(255,255,255,0.9)'}; color:${isDark ? '#fff' : 'var(--text)'}; border-color:${isDark ? 'rgba(255,255,255,0.25)' : 'rgba(15,23,42,0.12)'};" onclick="closePreviewGame()">← Back to Quests</button>
+                  <div style="min-width:0; text-align:center;">
+                    <div style="font-size:0.84rem; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px; color:${isDark ? '#fff' : 'var(--text)'};">${activeGame.emoji} ${activeGame.title}</div>
+                    <span style="font-size:0.64rem; font-weight:700; color:${isDark ? '#ffd166' : '#b45309'};">${activeGame.category} • ${activeGame.ageRange}</span>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="padding:3px 8px; border-radius:99px; background:rgba(255,209,102,0.18); border:1px solid #ffd166; font-weight:800; font-size:0.74rem; color:${isDark ? '#ffd166' : '#b45309'}; white-space:nowrap;">⭐ ${state.starPoints || 45}</span>
+                    <button class="btn-outline" style="padding:3px 7px; font-size:0.68rem; border-radius:99px;" onclick="render();" title="Restart">🔄</button>
+                  </div>
+                </div>
+
+                <!-- Full-Screen Interactive Game Content Canvas -->
+                <div style="flex:1; overflow-y:auto; padding:12px 14px; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;">
+                  <div style="width:100%; max-width:440px;">
+                    ${gameHtml}
+                  </div>
+                </div>
+              </div>
+            `;
+          } else {
+            // =======================================================
+            // 2. DOWNWARD LIST OF GAMES (Just like stories)
+            // =======================================================
+            const q = (state.gameSearchQuery || '').trim().toLowerCase();
+            const matchingGames = allPreviewGames.filter(g => {
+              if (!state.browseAllGameAges && g.ageTier !== gameAge) return false;
+              if (state.selectedGameCategory && !g.category.toLowerCase().includes(state.selectedGameCategory.toLowerCase())) return false;
+              if (q) {
+                const inTitle = g.title.toLowerCase().includes(q);
+                const inDesc = g.desc.toLowerCase().includes(q);
+                const inCat = g.category.toLowerCase().includes(q);
+                if (!inTitle && !inDesc && !inCat) return false;
+              }
+              return true;
+            });
+
+            body.innerHTML = `
+              ${ytTabsHtml}
+              <!-- Hero Star Rewards Card -->
+              <div class="card-box" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; background:linear-gradient(135deg, rgba(67,97,238,0.15), rgba(255,46,147,0.15)); border-color:rgba(255,209,102,0.35);">
+                <div>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-weight:800; font-size:0.96rem;">Learning Quests 🎮</span>
+                    <span style="padding:2px 8px; border-radius:8px; background:rgba(255,46,147,0.15); color:var(--pink); font-size:0.7rem; font-weight:800;">${curAgeInfo.label} (${curAgeInfo.range})</span>
+                  </div>
+                  <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">Select a quest below for full-screen immersive play &amp; ⭐ stars!</div>
+                </div>
+                <div style="padding:4px 10px; border-radius:99px; background:rgba(255,209,102,0.18); border:1px solid #ffd166; font-weight:800; font-size:0.84rem; color:var(--gold-text); white-space:nowrap;">
+                  ⭐ ${state.starPoints || 45}
+                </div>
+              </div>
+
+              <!-- Search Input (Just like stories) -->
+              <div style="position:relative; margin-bottom:10px;">
+                <input type="text" placeholder="Search games, math, science, puzzles..." value="${state.gameSearchQuery || ''}" oninput="state.gameSearchQuery=this.value; render();" style="width:100%; box-sizing:border-box; padding:9px 12px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:0.8rem;">
+                ${state.gameSearchQuery ? `<button style="position:absolute; right:8px; top:50%; transform:translateY(-50%); border:none; background:transparent; color:var(--text-muted); cursor:pointer; font-size:0.9rem;" onclick="state.gameSearchQuery=''; render();">✕</button>` : ''}
+              </div>
+
+              <!-- Filter Chips Row (Just like stories) -->
+              <div class="chips-row" style="margin-bottom:14px;">
+                <button class="chip ${!state.selectedGameCategory ? 'active' : ''}" onclick="state.selectedGameCategory=null; render();">All Quests</button>
+                <button class="chip ${state.selectedGameCategory === 'Math' ? 'active' : ''}" onclick="state.selectedGameCategory = (state.selectedGameCategory === 'Math' ? null : 'Math'); render();">⚡ Math</button>
+                <button class="chip ${state.selectedGameCategory === 'Animals' ? 'active' : ''}" onclick="state.selectedGameCategory = (state.selectedGameCategory === 'Animals' ? null : 'Animals'); render();">🦁 Animals</button>
+                <button class="chip ${state.selectedGameCategory === 'Science' ? 'active' : ''}" onclick="state.selectedGameCategory = (state.selectedGameCategory === 'Science' ? null : 'Science'); render();">🧠 Science</button>
+                <button class="chip ${state.selectedGameCategory === 'World' ? 'active' : ''}" onclick="state.selectedGameCategory = (state.selectedGameCategory === 'World' ? null : 'World'); render();">🌍 World</button>
+                <button class="chip ${state.selectedGameCategory === 'H5P Interactive' ? 'active' : ''}" onclick="state.selectedGameCategory = (state.selectedGameCategory === 'H5P Interactive' ? null : 'H5P Interactive'); render();">📦 H5P Interactive</button>
+                <button class="chip ${state.browseAllGameAges ? 'active' : ''}" onclick="state.browseAllGameAges=!state.browseAllGameAges; render();">${state.browseAllGameAges ? 'All Ages' : 'Browse All'}</button>
+              </div>
+
+              <!-- Downward List of Game Cards (Just like stories) -->
+              ${matchingGames.length === 0 ? `
+                <div class="card-box" style="text-align:center; padding:28px 16px;">
+                  <div style="font-size:2rem; margin-bottom:6px;">🎮</div>
+                  <div style="font-weight:800; font-size:0.92rem; margin-bottom:4px;">No Quests Found</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">Try a different search word or clear the filter.</div>
+                </div>
+              ` : `
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                  ${matchingGames.map(g => `
+                    <div class="card-box" style="display:flex; align-items:center; gap:12px; padding:10px 12px; cursor:pointer;" onclick="openPreviewGame('${g.id}')">
+                      <div style="position:relative; width:80px; height:70px; border-radius:12px; background:linear-gradient(135deg, #1e293b, ${g.isH5P ? '#0f3e4d' : '#2a1b3d'}); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                        <span style="font-size:2rem;">${g.emoji}</span>
+                        <span style="position:absolute; bottom:3px; right:3px; font-size:0.6rem; font-weight:800; padding:1px 4px; border-radius:4px; background:rgba(0,0,0,0.85); color:#ffd166;">⭐ +${g.stars}</span>
+                      </div>
+                      <div style="flex:1; min-width:0;">
+                        <div style="font-weight:800; font-size:0.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${g.title}</div>
+                        <div style="display:flex; gap:5px; margin:3px 0;">
+                          <span style="padding:1px 5px; border-radius:4px; background:rgba(76,201,240,0.15); color:var(--blue); font-size:0.64rem; font-weight:700;">${g.category}</span>
+                          <span style="padding:1px 5px; border-radius:4px; background:rgba(255,46,147,0.15); color:var(--pink); font-size:0.64rem; font-weight:700;">${g.ageLabel}</span>
+                        </div>
+                        <div style="font-size:0.72rem; color:var(--text-muted); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; line-height:1.25;">${g.desc}</div>
+                      </div>
+                      <button class="btn-primary" style="padding:5px 10px; font-size:0.72rem; white-space:nowrap; flex-shrink:0;" onclick="event.stopPropagation(); openPreviewGame('${g.id}')">Play ▶</button>
+                    </div>
+                  `).join('')}
+                </div>
               `}
-            `}
-          `;
+            `;
+          }
         } else if (state.ageMode === 'TODDLER') {
           const loops = buildToddlerTvLoops();
           const cfg = getEffectiveToddlerSettings();
@@ -5664,13 +5701,58 @@
       }
       state.storyMicListening = false;
     }
+
+    let cachedPreviewVoices = [];
+    function initPreviewVoices() {
+      if (!window.speechSynthesis) return;
+      cachedPreviewVoices = window.speechSynthesis.getVoices() || [];
+      if (typeof window.speechSynthesis.onvoiceschanged !== 'undefined') {
+        window.speechSynthesis.onvoiceschanged = () => {
+          cachedPreviewVoices = window.speechSynthesis.getVoices() || [];
+        };
+      }
+    }
+    initPreviewVoices();
+
+    function getBestPreviewStoryVoice(lang) {
+      if (!window.speechSynthesis) return null;
+      if (!cachedPreviewVoices.length) {
+        cachedPreviewVoices = window.speechSynthesis.getVoices() || [];
+      }
+      const targetPrefix = lang === 'id' ? 'id' : 'en';
+      const matching = cachedPreviewVoices.filter(v => v.lang && v.lang.toLowerCase().replace('_', '-').startsWith(targetPrefix));
+      if (!matching.length) return null;
+
+      const scored = matching.map(v => {
+        const name = (v.name || '').toLowerCase();
+        let score = 0;
+        if (name.includes('natural')) score += 60;
+        if (name.includes('neural')) score += 55;
+        if (name.includes('online')) score += 40;
+        if (name.includes('google')) score += 35;
+        if (name.includes('enhanced') || name.includes('premium')) score += 30;
+        if (name.includes('jenny') || name.includes('aria') || name.includes('gadis') || name.includes('samantha') || name.includes('karen') || name.includes('victoria') || name.includes('steffi')) score += 25;
+        if (name.includes('female')) score += 10;
+        if (name.includes('desktop') || name.includes('david') || name.includes('mark') || name.includes('espeak')) score -= 40;
+        return { voice: v, score };
+      });
+      scored.sort((a, b) => b.score - a.score);
+      return scored[0]?.voice || matching[0];
+    }
+
     function speakPreviewText(text, lang) {
       if (!window.speechSynthesis || !text) return;
       try {
         window.speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(text);
+        const naturalText = String(text).replace(/([.?!])\s+/g, '$1  ');
+        const u = new SpeechSynthesisUtterance(naturalText);
         u.lang = lang === 'id' ? 'id-ID' : 'en-US';
-        u.rate = 0.88;
+        const bestVoice = getBestPreviewStoryVoice(lang);
+        if (bestVoice) {
+          u.voice = bestVoice;
+        }
+        u.rate = 0.92;
+        u.pitch = 1.08;
         window.speechSynthesis.speak(u);
       } catch {}
     }
@@ -5693,6 +5775,15 @@
         const len = el.value.length;
         try { el.setSelectionRange(len, len); } catch {}
       }
+    }
+
+    function openPreviewGame(id) {
+      state.activeGameId = id;
+      render();
+    }
+    function closePreviewGame() {
+      state.activeGameId = null;
+      render();
     }
 
     function openPreviewStory(id) {

@@ -32626,14 +32626,62 @@
       storyMicListening = false;
     }
 
+    let cachedStoryVoices = [];
+    function initStoryVoices() {
+      if (!window.speechSynthesis) return;
+      cachedStoryVoices = window.speechSynthesis.getVoices() || [];
+      if (typeof window.speechSynthesis.onvoiceschanged !== 'undefined') {
+        window.speechSynthesis.onvoiceschanged = () => {
+          cachedStoryVoices = window.speechSynthesis.getVoices() || [];
+        };
+      }
+    }
+    initStoryVoices();
+
+    function getBestStoryVoice(lang) {
+      if (!window.speechSynthesis) return null;
+      if (!cachedStoryVoices.length) {
+        cachedStoryVoices = window.speechSynthesis.getVoices() || [];
+      }
+      const targetPrefix = lang === 'id' ? 'id' : 'en';
+      const matching = cachedStoryVoices.filter(v => v.lang && v.lang.toLowerCase().replace('_', '-').startsWith(targetPrefix));
+      if (!matching.length) return null;
+
+      const scored = matching.map(v => {
+        const name = (v.name || '').toLowerCase();
+        let score = 0;
+        // Priority for natural, neural, and high-fidelity cloud/local voices
+        if (name.includes('natural')) score += 60;
+        if (name.includes('neural')) score += 55;
+        if (name.includes('online')) score += 40;
+        if (name.includes('google')) score += 35;
+        if (name.includes('enhanced') || name.includes('premium')) score += 30;
+        // Warm, friendly storytelling voices (Edge Natural Jenny/Aria/Gadis, Apple Samantha/Karen, Android Google)
+        if (name.includes('jenny') || name.includes('aria') || name.includes('gadis') || name.includes('samantha') || name.includes('karen') || name.includes('victoria') || name.includes('steffi')) score += 25;
+        if (name.includes('female')) score += 10;
+        // Penalize tinny, robotic legacy desktop voices
+        if (name.includes('desktop') || name.includes('david') || name.includes('mark') || name.includes('espeak')) score -= 40;
+        return { voice: v, score };
+      });
+      scored.sort((a, b) => b.score - a.score);
+      return scored[0]?.voice || matching[0];
+    }
+
     function speakStoryText(text, lang) {
       if (!window.speechSynthesis || !text) return;
       try {
         window.speechSynthesis.cancel();
-        const utter = new SpeechSynthesisUtterance(text);
+        // Insert gentle micro-pause after periods/commas for conversational breath
+        const naturalText = String(text).replace(/([.?!])\s+/g, '$1  ');
+        const utter = new SpeechSynthesisUtterance(naturalText);
         utter.lang = lang === 'id' ? 'id-ID' : 'en-US';
-        utter.rate = 0.88;
-        utter.pitch = 1.05;
+        const bestVoice = getBestStoryVoice(lang);
+        if (bestVoice) {
+          utter.voice = bestVoice;
+        }
+        // Human storytelling cadence: slightly warmer, gentle pitch and smooth pacing
+        utter.rate = 0.92;
+        utter.pitch = 1.08;
         window.speechSynthesis.speak(utter);
       } catch {}
     }
