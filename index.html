@@ -32743,7 +32743,6 @@
         const params = new URLSearchParams();
         params.set('ageRating', ageRating);
         if (kidStoryBrowseAll) params.set('includeAllAges', 'true');
-        if (kidStoryLangFilter !== 'all') params.set('language', kidStoryLangFilter);
         if (kidStoryCategoryFilter !== 'all') params.set('category', kidStoryCategoryFilter);
         if (kidStorySearchQuery.trim()) params.set('search', kidStorySearchQuery.trim());
         params.set('page', String(kidStoryCurrentPage));
@@ -32757,12 +32756,12 @@
           kidStoryTotalPages = typeof json.totalPages === 'number' ? json.totalPages : Math.max(1, Math.ceil(kidStoryTotalCount / kidStoryPageLimit));
           kidStoryCurrentPage = typeof json.page === 'number' ? json.page : kidStoryCurrentPage;
         } else {
-          kidStoriesCache = filterFallbackStories(ageRating, kidStoryBrowseAll, kidStorySearchQuery.trim(), kidStoryCategoryFilter, kidStoryLangFilter);
+          kidStoriesCache = filterFallbackStories(ageRating, kidStoryBrowseAll, kidStorySearchQuery.trim(), kidStoryCategoryFilter, 'all');
           kidStoryTotalCount = kidStoriesCache.length;
           kidStoryTotalPages = 1;
         }
       } catch {
-        kidStoriesCache = filterFallbackStories(ageRating, kidStoryBrowseAll, kidStorySearchQuery.trim(), kidStoryCategoryFilter, kidStoryLangFilter);
+        kidStoriesCache = filterFallbackStories(ageRating, kidStoryBrowseAll, kidStorySearchQuery.trim(), kidStoryCategoryFilter, 'all');
         kidStoryTotalCount = kidStoriesCache.length;
         kidStoryTotalPages = 1;
       }
@@ -33251,9 +33250,6 @@
               </p>
             </div>
             <div style="display:flex; gap:0.45rem; flex-wrap:wrap; align-items:center;">
-              <button type="button" class="btn btn-sm ${kidStoryLangFilter === 'all' ? 'btn-primary' : 'btn-secondary'}" onclick="kidStoryLangFilter='all'; loadAndRenderKidStories(true);">All</button>
-              <button type="button" class="btn btn-sm ${kidStoryLangFilter === 'en' ? 'btn-primary' : 'btn-secondary'}" onclick="kidStoryLangFilter='en'; loadAndRenderKidStories(true);">🇬🇧 English</button>
-              <button type="button" class="btn btn-sm ${kidStoryLangFilter === 'id' ? 'btn-primary' : 'btn-secondary'}" onclick="kidStoryLangFilter='id'; loadAndRenderKidStories(true);">🇮🇩 Indonesia</button>
               <button type="button" class="btn btn-sm ${kidStoryBrowseAll ? 'btn-primary' : 'btn-secondary'}" onclick="kidStoryBrowseAll=!kidStoryBrowseAll; loadAndRenderKidStories(true);">${kidStoryBrowseAll ? 'Showing All Ages' : 'Browse All Stories'}</button>
             </div>
           </div>

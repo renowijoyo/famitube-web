@@ -3846,7 +3846,6 @@
                 if (age === 'TODDLER' && b.ageRating !== 'TODDLER') return false;
                 if (age === 'OLDER_KIDS' || age === 'ALL') return false;
               }
-              if (state.storyLangFilter !== 'all' && b.language !== state.storyLangFilter) return false;
               if (state.storyCategoryFilter && state.storyCategoryFilter !== 'all' && b.category !== state.storyCategoryFilter) return false;
               if (state.storySearchQuery && state.storySearchQuery.trim()) {
                 const q = state.storySearchQuery.trim().toLowerCase();
@@ -3869,13 +3868,8 @@
                 <div style="font-weight:800; font-size:0.98rem;">📖 Storybooks &amp; Read-Along</div>
                 <button class="${state.showAllPreviewStories ? 'btn-primary' : 'btn-outline'}" style="padding:4px 9px; font-size:0.68rem;" onclick="state.showAllPreviewStories=!state.showAllPreviewStories; state.storyCurrentPage=1; render();">${state.showAllPreviewStories ? 'All Ages' : 'Browse All'}</button>
               </div>
-              <div style="margin-bottom:8px;">
+              <div style="margin-bottom:12px;">
                 <input id="pvStorySearchInput" type="search" placeholder="Search 300+ stories..." value="${escapeAttr(state.storySearchQuery || '')}" oninput="onPreviewStorySearchInput(this.value)" style="width:100%; box-sizing:border-box; padding:6px 10px; border-radius:18px; border:1px solid rgba(255,255,255,0.18); background:rgba(0,0,0,0.25); color:#fff; font-size:0.78rem;">
-              </div>
-              <div class="chips-row" style="margin-bottom:10px;">
-                <button class="chip ${state.storyLangFilter === 'all' ? 'active' : ''}" onclick="state.storyLangFilter='all'; state.storyCurrentPage=1; render();">All (${state.storyBooks.length})</button>
-                <button class="chip ${state.storyLangFilter === 'en' ? 'active' : ''}" onclick="state.storyLangFilter='en'; state.storyCurrentPage=1; render();">🇬🇧 English</button>
-                <button class="chip ${state.storyLangFilter === 'id' ? 'active' : ''}" onclick="state.storyLangFilter='id'; state.storyCurrentPage=1; render();">🇮🇩 Indonesia</button>
               </div>
               ${visibleBooks.length === 0 ? `
                 <div class="card-box" style="text-align:center; padding:22px 14px;">
