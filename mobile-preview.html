@@ -1394,7 +1394,7 @@
                 "coverUrl": "https://raw.githubusercontent.com/global-asp/pb-imagebank/master/medium/0001/01.jpg",
                 "ageRating": "TODDLER",
                 "language": "en",
-                "category": "Stories & Reading",
+                "category": "Animals & Pets",
                 "rewardFamibux": 20,
                 "isApproved": true,
                 "createdAt": "2026-01-01T08:00:00.000Z",
@@ -1486,7 +1486,7 @@
                 "coverUrl": "https://raw.githubusercontent.com/global-asp/pb-imagebank/master/medium/0002/01.jpg",
                 "ageRating": "TODDLER",
                 "language": "en",
-                "category": "Stories & Reading",
+                "category": "Animals & Pets",
                 "rewardFamibux": 20,
                 "isApproved": true,
                 "createdAt": "2026-01-02T08:00:00.000Z",
@@ -1550,7 +1550,7 @@
                 "coverUrl": "https://raw.githubusercontent.com/global-asp/pb-imagebank/master/medium/0003/01.jpg",
                 "ageRating": "YOUNG_KIDS",
                 "language": "en",
-                "category": "Stories & Reading",
+                "category": "Nature & Science",
                 "rewardFamibux": 30,
                 "isApproved": true,
                 "createdAt": "2026-01-03T08:00:00.000Z",
@@ -1635,7 +1635,7 @@
                 "coverUrl": "https://raw.githubusercontent.com/global-asp/pb-imagebank/master/medium/0004/01.jpg",
                 "ageRating": "YOUNG_KIDS",
                 "language": "en",
-                "category": "Stories & Reading",
+                "category": "Friendship & Kindness",
                 "rewardFamibux": 30,
                 "isApproved": true,
                 "createdAt": "2026-01-04T08:00:00.000Z",
@@ -3929,6 +3929,35 @@
           } else {
             const age = state.ageMode || 'YOUNG_KIDS';
             const isOlder = age === 'OLDER_KIDS' || age === 'ALL';
+
+            const TODDLER_STORY_CATEGORIES = [
+              { id: 'animals-pets', name: 'Animals & Pets', emoji: '🐾' },
+              { id: 'colors-words', name: 'Colors & First Words', emoji: '🎨' },
+              { id: 'faith-values', name: 'Faith & Values', emoji: '🕊️' },
+              { id: 'family-daily', name: 'Family & Daily Life', emoji: '🏡' },
+              { id: 'bedtime-sleep', name: 'Bedtime & Sleep', emoji: '🌙' },
+              { id: 'rhymes-music', name: 'Rhymes & Music', emoji: '🎶' }
+            ];
+
+            const YOUNG_KIDS_STORY_CATEGORIES = [
+              { id: 'friendship-kindness', name: 'Friendship & Kindness', emoji: '🤝' },
+              { id: 'folk-tales', name: 'Folk Tales & Legends', emoji: '🌍' },
+              { id: 'funny-silly', name: 'Funny & Silly Stories', emoji: '😄' },
+              { id: 'nature-science', name: 'Nature & Science', emoji: '🌿' },
+              { id: 'faith-values', name: 'Faith & Values', emoji: '🕊️' },
+              { id: 'animals-pets', name: 'Animals & Pets', emoji: '🐾' },
+              { id: 'animal-adventures', name: 'Animal Adventures', emoji: '🦊' },
+              { id: 'colors-words', name: 'Colors & First Words', emoji: '🎨' },
+              { id: 'family-daily', name: 'Family & Daily Life', emoji: '🏡' },
+              { id: 'courage-growing', name: 'Courage & Growing Up', emoji: '🦁' },
+              { id: 'bedtime-sleep', name: 'Bedtime & Sleep', emoji: '🌙' },
+              { id: 'rhymes-music', name: 'Rhymes & Music', emoji: '🎶' }
+            ];
+
+            const activeCategories = (!state.showAllPreviewStories && age === 'TODDLER')
+              ? TODDLER_STORY_CATEGORIES
+              : YOUNG_KIDS_STORY_CATEGORIES;
+
             const allMatching = (state.storyBooks || []).filter(b => {
               if (!isContentAllowedForChildReligion(b, state.childReligion)) return false;
               if (!state.showAllPreviewStories) {
@@ -3955,17 +3984,32 @@
               ${ytTabsHtml}
               <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
                 <div style="font-weight:800; font-size:0.98rem;">📖 Storybooks &amp; Read-Along</div>
-                <button class="${state.showAllPreviewStories ? 'btn-primary' : 'btn-outline'}" style="padding:4px 9px; font-size:0.68rem;" onclick="state.showAllPreviewStories=!state.showAllPreviewStories; state.storyCurrentPage=1; render();">${state.showAllPreviewStories ? 'All Ages' : 'Browse All'}</button>
+                <button class="${state.showAllPreviewStories ? 'btn-primary' : 'btn-outline'}" style="padding:4px 9px; font-size:0.68rem;" onclick="state.showAllPreviewStories=!state.showAllPreviewStories; state.storyCategoryFilter='all'; state.storyCurrentPage=1; render();">${state.showAllPreviewStories ? 'All Ages' : 'Browse All'}</button>
               </div>
-              <div style="margin-bottom:12px;">
+              <div style="margin-bottom:8px;">
                 <input id="pvStorySearchInput" type="search" placeholder="Search 300+ stories..." value="${escapeAttr(state.storySearchQuery || '')}" oninput="onPreviewStorySearchInput(this.value)" style="width:100%; box-sizing:border-box; padding:6px 10px; border-radius:18px; border:1px solid rgba(255,255,255,0.18); background:rgba(0,0,0,0.25); color:#fff; font-size:0.78rem;">
+              </div>
+              <div style="display:flex; gap:6px; overflow-x:auto; padding-bottom:8px; margin-bottom:10px; scrollbar-width:none; -webkit-overflow-scrolling:touch;">
+                <button class="${(!state.storyCategoryFilter || state.storyCategoryFilter === 'all') ? 'btn-primary' : 'btn-outline'}" style="padding:4px 10px; font-size:0.7rem; white-space:nowrap; border-radius:99px;" onclick="state.storyCategoryFilter='all'; state.storyCurrentPage=1; render();">All Stories</button>
+                ${activeCategories.map(cat => {
+                  const isSelected = state.storyCategoryFilter === cat.name;
+                  const catCount = (state.storyBooks || []).filter(b => {
+                    if (!isContentAllowedForChildReligion(b, state.childReligion)) return false;
+                    if (!state.showAllPreviewStories) {
+                      if (age === 'TODDLER' && b.ageRating !== 'TODDLER') return false;
+                      if (age === 'OLDER_KIDS' || age === 'ALL') return false;
+                    }
+                    return b.category === cat.name;
+                  }).length;
+                  return `<button class="${isSelected ? 'btn-primary' : 'btn-outline'}" style="padding:4px 10px; font-size:0.7rem; white-space:nowrap; border-radius:99px;" onclick="state.storyCategoryFilter = (state.storyCategoryFilter === '${escapeAttr(cat.name)}') ? 'all' : '${escapeAttr(cat.name)}'; state.storyCurrentPage=1; render();">${cat.emoji} ${cat.name}${catCount > 0 ? ` (${catCount})` : ''}</button>`;
+                }).join('')}
               </div>
               ${visibleBooks.length === 0 ? `
                 <div class="card-box" style="text-align:center; padding:22px 14px;">
                   <div style="font-size:2rem; margin-bottom:6px;">📚</div>
                   <div style="font-weight:800; font-size:0.88rem; margin-bottom:4px;">${isOlder && !state.showAllPreviewStories ? `Younger Stories Hidden in ${age} Mode` : 'No Storybooks Found'}</div>
                   <div style="font-size:0.74rem; color:var(--text-muted); margin-bottom:10px;">${isOlder && !state.showAllPreviewStories ? 'Tap Browse All to read Toddler &amp; Young Kids books.' : 'Try adjusting your search terms.'}</div>
-                  ${isOlder && !state.showAllPreviewStories ? `<button class="btn-primary" style="padding:6px 12px; font-size:0.74rem;" onclick="state.showAllPreviewStories=true; state.storyCurrentPage=1; render();">Browse All Stories</button>` : ''}
+                  ${isOlder && !state.showAllPreviewStories ? `<button class="btn-primary" style="padding:6px 12px; font-size:0.74rem;" onclick="state.showAllPreviewStories=true; state.storyCategoryFilter='all'; state.storyCurrentPage=1; render();">Browse All Stories</button>` : ''}
                 </div>
               ` : `
                 <div style="display:flex; flex-direction:column; gap:10px;">
@@ -3973,7 +4017,10 @@
                     <div class="card-box" style="display:flex; gap:10px; padding:10px; cursor:pointer; align-items:center;" onclick="openPreviewStory('${b.id}')">
                       <img src="${b.coverUrl}" style="width:84px; height:64px; border-radius:10px; object-fit:cover; flex-shrink:0;">
                       <div style="flex:1; min-width:0;">
-                        <div style="font-size:0.66rem; font-weight:800; color:var(--pink);">${b.ageRating === 'TODDLER' ? '🎧 Read to Me' : '🎙️ Read Aloud'} • ${b.language.toUpperCase()}</div>
+                        <div style="font-size:0.66rem; font-weight:800; color:var(--pink); display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
+                          <span>${b.ageRating === 'TODDLER' ? '🎧 Read to Me' : '🎙️ Read Aloud'} • ${b.language.toUpperCase()}</span>
+                          ${b.category && b.category !== 'Stories & Reading' ? `<span style="display:inline-block; padding:1px 5px; border-radius:4px; background:rgba(255,51,102,0.14); color:var(--pink); font-size:0.62rem;">${escapeHtml(b.category)}</span>` : ''}
+                        </div>
                         <div style="font-weight:800; font-size:0.86rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${b.title}</div>
                         <div style="font-size:0.7rem; color:var(--gold-text); font-weight:700;">${b.pages?.length || 0} pages • +${b.rewardFamibux} ⭐</div>
                       </div>
