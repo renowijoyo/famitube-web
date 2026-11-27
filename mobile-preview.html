@@ -1054,6 +1054,30 @@
     let savedUser = null;
     try { savedUser = JSON.parse(localStorage.getItem('FamiTube_auth_user') || 'null'); } catch {}
 
+    function reportClientCrash(err, extra = {}) {
+      try {
+        fetch(`${API_BASE}/api/telemetry/crash-report`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {}) },
+          body: JSON.stringify({
+            appVersion: state?.appVersion || '1.0.0',
+            deviceModel: `Web Preview (${navigator.userAgent ? navigator.userAgent.slice(0, 80) : 'Browser'})`,
+            osVersion: navigator.platform || 'Web',
+            currentRoute: state?.screen || 'unknown',
+            errorType: err?.name || 'Error',
+            message: err?.message || String(err),
+            stackTrace: err?.stack || '',
+            timestamp: new Date().toISOString(),
+            ...extra
+          })
+        }).catch(() => {});
+      } catch {}
+    }
+
+    window.addEventListener('error', (event) => {
+      reportClientCrash(event.error || { message: event.message, name: 'UnhandledError' });
+    });
+
     let state = {
       screen: 'home',
       deviceMode: 'phone',
