@@ -147,9 +147,19 @@
       flex-direction: column;
       transition: width 0.25s ease, height 0.25s ease, border-radius 0.25s ease;
     }
+    .device-shell.landscape {
+      width: 800px;
+      height: 420px;
+      border-radius: 36px;
+    }
     .device-shell.tablet {
       width: 720px;
       height: 880px;
+      border-radius: 28px;
+    }
+    .device-shell.tablet.landscape {
+      width: 900px;
+      height: 640px;
       border-radius: 28px;
     }
     .device-screen {
@@ -902,6 +912,15 @@
       </div>
 
       <div class="ctrl-group">
+        <button class="ctrl-btn active" id="btnOrientPortrait" onclick="setOrientation('portrait')" title="Portrait Orientation">
+          <span class="material-symbols-rounded" style="font-size:1rem;">stay_current_portrait</span> Portrait
+        </button>
+        <button class="ctrl-btn" id="btnOrientLandscape" onclick="setOrientation('landscape')" title="Landscape Orientation">
+          <span class="material-symbols-rounded" style="font-size:1rem;">stay_current_landscape</span> Landscape
+        </button>
+      </div>
+
+      <div class="ctrl-group">
         <button class="ctrl-btn active" id="btnThemeLight" onclick="setAppTheme('LIGHT')">Light</button>
         <button class="ctrl-btn" id="btnThemeDark" onclick="setAppTheme('DARK')">Dark</button>
       </div>
@@ -1038,6 +1057,7 @@
     let state = {
       screen: 'home',
       deviceMode: 'phone',
+      orientation: 'portrait',
       sideBySideParent: new URLSearchParams(window.location.search).get('sbs') === '1',
       parentScreen: 'parent_dashboard',
       appVersion: '1.0.0',
@@ -2003,6 +2023,20 @@
       if (parentShell) parentShell.classList.toggle('tablet', mode === 'tablet');
       document.getElementById('btnPhone').classList.toggle('active', mode === 'phone');
       document.getElementById('btnTablet').classList.toggle('active', mode === 'tablet');
+    }
+
+    function setOrientation(orientation) {
+      state.orientation = orientation;
+      const isLandscape = orientation === 'landscape';
+      const shell = document.getElementById('deviceShell');
+      const parentShell = document.getElementById('parentDeviceShell');
+      if (shell) shell.classList.toggle('landscape', isLandscape);
+      if (parentShell) parentShell.classList.toggle('landscape', isLandscape);
+      const btnP = document.getElementById('btnOrientPortrait');
+      const btnL = document.getElementById('btnOrientLandscape');
+      if (btnP) btnP.classList.toggle('active', !isLandscape);
+      if (btnL) btnL.classList.toggle('active', isLandscape);
+      render();
     }
 
     function setAppTheme(theme) {
