@@ -3724,8 +3724,8 @@
                       <span style="font-size:0.64rem; font-weight:800; color:${isDark ? '#ffd166' : '#b45309'};">Page ${state.activeStoryPageIdx + 1}/${pages.length}</span>
                     </div>
                     <div style="display:flex; gap:3px; background:${isDark ? 'rgba(15,23,42,0.75)' : 'rgba(255,255,255,0.9)'}; border:1px solid ${isDark ? 'rgba(255,255,255,0.2)' : 'rgba(15,23,42,0.12)'}; border-radius:99px; padding:2px;">
-                      <button class="${state.activeStoryMode === 'FLIP' ? 'btn-primary' : 'btn-outline'}" style="padding:3px 7px; font-size:0.64rem; border-radius:99px; border:none;" onclick="setPreviewStoryMode('FLIP')">Flip</button>
-                      <button class="${state.activeStoryMode === 'READ_ALONG' ? 'btn-primary' : 'btn-outline'}" style="padding:3px 7px; font-size:0.64rem; border-radius:99px; border:none;" onclick="setPreviewStoryMode('READ_ALONG')">Read</button>
+                      <button class="${state.activeStoryMode === 'FLIP' ? 'btn-primary' : 'btn-outline'}" style="padding:3px 7px; font-size:0.64rem; border-radius:99px; border:none;" onclick="setPreviewStoryMode('FLIP')">🎧 Read to Me</button>
+                      <button class="${state.activeStoryMode === 'READ_ALONG' ? 'btn-primary' : 'btn-outline'}" style="padding:3px 7px; font-size:0.64rem; border-radius:99px; border:none;" onclick="setPreviewStoryMode('READ_ALONG')">🎙️ Read Aloud</button>
                     </div>
                   </div>
 
@@ -3765,7 +3765,7 @@
                     ` : `
                       <div style="display:flex; flex-direction:column; gap:4px;">
                         <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
-                          <button class="btn-primary" style="padding:4px 9px; font-size:0.68rem;" onclick="togglePreviewStoryMic()">${state.storyMicListening ? '🔴 Listening...' : (unlocked ? '✓ Page Done' : '🎤 Read Aloud')}</button>
+                          <button class="btn-primary" style="padding:4px 9px; font-size:0.68rem;" onclick="togglePreviewStoryMic()">${state.storyMicListening ? '🎙️ Listening...' : (unlocked ? '✓ Page Done' : '🎙️ Start Mic')}</button>
                           <span style="font-size:0.68rem; font-weight:800; color:${unlocked ? '#06D6A0' : '#FF3366'};">${Math.min(state.activeStoryWordIdx, words.length)}/${words.length} words</span>
                           <button class="${unlocked ? 'btn-primary' : 'btn-outline'}" style="padding:4px 10px; font-size:0.68rem; ${unlocked ? '' : 'opacity:0.6;'}" onclick="${isLast ? (unlocked ? 'finishPreviewStory()' : 'flipPreviewStoryPage(1)') : 'flipPreviewStoryPage(1)'}">${isLast ? (unlocked ? '🎉 Finish' : '🔒 Read') : (unlocked ? 'Next →' : '🔒 Locked')}</button>
                         </div>
@@ -3830,7 +3830,7 @@
                     <div class="card-box" style="display:flex; gap:10px; padding:10px; cursor:pointer; align-items:center;" onclick="openPreviewStory('${b.id}')">
                       <img src="${b.coverUrl}" style="width:84px; height:64px; border-radius:10px; object-fit:cover; flex-shrink:0;">
                       <div style="flex:1; min-width:0;">
-                        <div style="font-size:0.66rem; font-weight:800; color:var(--pink);">${b.ageRating === 'TODDLER' ? '🧸 Story Flip' : '🎤 Mic Read-Along'} • ${b.language.toUpperCase()}</div>
+                        <div style="font-size:0.66rem; font-weight:800; color:var(--pink);">${b.ageRating === 'TODDLER' ? '🎧 Read to Me' : '🎙️ Read Aloud'} • ${b.language.toUpperCase()}</div>
                         <div style="font-weight:800; font-size:0.86rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${b.title}</div>
                         <div style="font-size:0.7rem; color:var(--gold-text); font-weight:700;">${b.pages?.length || 0} pages • +${b.rewardFamibux} ⭐</div>
                       </div>
@@ -5706,6 +5706,9 @@
       state.activeStoryHint = '';
       state.activeStoryCompleted = false;
       render();
+      if (state.activeStoryMode === 'READ_ALONG') {
+        setTimeout(() => togglePreviewStoryMic(true), 350);
+      }
     }
     function setPreviewStoryMode(mode) {
       stopPreviewStoryAudio();
@@ -5714,6 +5717,9 @@
       state.activeStoryStuckAttempts = 0;
       state.activeStoryHint = '';
       render();
+      if (mode === 'READ_ALONG') {
+        setTimeout(() => togglePreviewStoryMic(true), 350);
+      }
     }
     function flipPreviewStoryPage(delta) {
       const book = (state.storyBooks || []).find(b => b.id === state.activeStoryId);
@@ -5735,6 +5741,9 @@
       state.activeStoryStuckAttempts = 0;
       state.activeStoryHint = '';
       render();
+      if (state.activeStoryMode === 'READ_ALONG' && !state.activeStoryCompletedPages.includes(nextIdx)) {
+        setTimeout(() => togglePreviewStoryMic(true), 350);
+      }
     }
     function simulatePreviewNextWord() {
       const book = (state.storyBooks || []).find(b => b.id === state.activeStoryId);
@@ -5747,13 +5756,22 @@
         if (state.activeStoryWordIdx >= words.length) {
           if (!state.activeStoryCompletedPages.includes(state.activeStoryPageIdx)) state.activeStoryCompletedPages.push(state.activeStoryPageIdx);
           stopPreviewStoryAudio();
-          state.activeStoryHint = '🎉 Page unlocked!';
+          const isLast = state.activeStoryPageIdx >= book.pages.length - 1;
+          state.activeStoryHint = isLast ? '🎉 Awesome reading! Finishing story...' : '🎉 Page unlocked! Turning page...';
+          render();
+          setTimeout(() => {
+            if (state.activeStoryId !== book.id) return;
+            if (isLast) finishPreviewStory();
+            else flipPreviewStoryPage(1);
+          }, 1200);
+          return;
         }
         render();
       }
     }
-    function togglePreviewStoryMic() {
+    function togglePreviewStoryMic(forceStart = false) {
       if (state.storyMicListening) {
+        if (forceStart) return;
         stopPreviewStoryAudio();
         render();
         return;
@@ -5793,7 +5811,15 @@
           if (state.activeStoryWordIdx >= words.length) {
             if (!state.activeStoryCompletedPages.includes(state.activeStoryPageIdx)) state.activeStoryCompletedPages.push(state.activeStoryPageIdx);
             stopPreviewStoryAudio();
-            state.activeStoryHint = '🎉 Page unlocked!';
+            const isLast = state.activeStoryPageIdx >= book.pages.length - 1;
+            state.activeStoryHint = isLast ? '🎉 Awesome reading! Finishing story...' : '🎉 Page unlocked! Turning page...';
+            render();
+            setTimeout(() => {
+              if (state.activeStoryId !== book.id) return;
+              if (isLast) finishPreviewStory();
+              else flipPreviewStoryPage(1);
+            }, 1200);
+            return;
           }
         } else if (isFinal && state.activeStoryWordIdx < words.length) {
           state.activeStoryStuckAttempts++;
@@ -5801,10 +5827,20 @@
             speakPreviewText(words[state.activeStoryWordIdx], book.language);
             state.activeStoryWordIdx++;
             state.activeStoryStuckAttempts = 0;
-            state.activeStoryHint = '⭐ Helper boost! Keep going!';
             if (state.activeStoryWordIdx >= words.length) {
               if (!state.activeStoryCompletedPages.includes(state.activeStoryPageIdx)) state.activeStoryCompletedPages.push(state.activeStoryPageIdx);
               stopPreviewStoryAudio();
+              const isLast = state.activeStoryPageIdx >= book.pages.length - 1;
+              state.activeStoryHint = isLast ? '⭐ Nice try! Finishing story...' : '⭐ Nice try! Turning page...';
+              render();
+              setTimeout(() => {
+                if (state.activeStoryId !== book.id) return;
+                if (isLast) finishPreviewStory();
+                else flipPreviewStoryPage(1);
+              }, 1200);
+              return;
+            } else {
+              state.activeStoryHint = '⭐ Helper boost! Keep going!';
             }
           }
         }
@@ -5813,7 +5849,7 @@
       rec.onend = () => { state.storyMicListening = false; render(); };
       pvStoryRecognition = rec;
       state.storyMicListening = true;
-      state.activeStoryHint = '🎤 Listening...';
+      state.activeStoryHint = '🎙️ Listening...';
       try { rec.start(); } catch { state.storyMicListening = false; }
       render();
     }

@@ -32755,6 +32755,9 @@
       activeStoryCompletionResult = null;
       document.body.style.overflow = 'hidden';
       renderKidStoriesPanel();
+      if (activeStoryMode === 'READ_ALONG') {
+        setTimeout(() => toggleStoryMic(true), 350);
+      }
     }
 
     function closeStoryBook() {
@@ -32805,6 +32808,9 @@
       activeStoryLastTranscript = '';
       activeStoryHintMsg = '';
       renderKidStoriesPanel();
+      if (activeStoryMode === 'READ_ALONG' && !isActiveStoryPageUnlocked()) {
+        setTimeout(() => toggleStoryMic(true), 350);
+      }
     }
 
     function isActiveStoryPageUnlocked() {
@@ -32838,6 +32844,9 @@
       activeStoryLastTranscript = '';
       activeStoryHintMsg = '';
       renderKidStoriesPanel();
+      if (activeStoryMode === 'READ_ALONG' && !isActiveStoryPageUnlocked()) {
+        setTimeout(() => toggleStoryMic(true), 350);
+      }
     }
 
     function matchSpokenToStoryPage(transcript, isFinal) {
@@ -32860,11 +32869,21 @@
       if (advanced) {
         activeStoryWordIdx = idx;
         activeStoryStuckAttempts = 0;
-        activeStoryHintMsg = idx >= words.length ? '🎉 Awesome reading! Page unlocked!' : '';
         if (idx >= words.length) {
           activeStoryCompletedPages.add(activeStoryPageIdx);
           playStoryChime();
           stopStoryAudioAndMic();
+          const isLast = activeStoryPageIdx >= (activeStoryBook.pages || []).length - 1;
+          activeStoryHintMsg = isLast ? '🎉 Awesome reading! Finishing story...' : '🎉 Awesome reading! Turning page...';
+          renderKidStoriesPanel();
+          setTimeout(() => {
+            if (!activeStoryBook) return;
+            if (isLast) finishActiveStoryBook();
+            else flipStoryPage(1);
+          }, 1200);
+          return;
+        } else {
+          activeStoryHintMsg = '';
         }
       } else if (isFinal) {
         activeStoryStuckAttempts += 1;
@@ -32873,11 +32892,21 @@
           speakStoryText(stuckWord, activeStoryBook.language);
           activeStoryWordIdx += 1;
           activeStoryStuckAttempts = 0;
-          activeStoryHintMsg = `⭐ Nice try! "${stuckWord}" got a helper boost.`;
           if (activeStoryWordIdx >= words.length) {
             activeStoryCompletedPages.add(activeStoryPageIdx);
             playStoryChime();
             stopStoryAudioAndMic();
+            const isLast = activeStoryPageIdx >= (activeStoryBook.pages || []).length - 1;
+            activeStoryHintMsg = isLast ? '⭐ Nice try! Finishing story...' : '⭐ Nice try! Turning page...';
+            renderKidStoriesPanel();
+            setTimeout(() => {
+              if (!activeStoryBook) return;
+              if (isLast) finishActiveStoryBook();
+              else flipStoryPage(1);
+            }, 1200);
+            return;
+          } else {
+            activeStoryHintMsg = `⭐ Nice try! "${stuckWord}" got a helper boost.`;
           }
         } else {
           activeStoryHintMsg = `Try saying "${words[activeStoryWordIdx]}" (attempt ${activeStoryStuckAttempts}/3) — or tap the word to hear it!`;
@@ -32886,8 +32915,9 @@
       renderKidStoriesPanel();
     }
 
-    function toggleStoryMic() {
+    function toggleStoryMic(forceStart = false) {
       if (storyMicListening) {
+        if (forceStart) return;
         stopStoryAudioAndMic();
         renderKidStoriesPanel();
         return;
@@ -32929,7 +32959,7 @@
         };
         storyMicRecognition = rec;
         storyMicListening = true;
-        activeStoryHintMsg = '🎤 Listening... Read each highlighted word aloud!';
+        activeStoryHintMsg = '🎙️ Listening... Read each highlighted word aloud!';
         rec.start();
         renderKidStoriesPanel();
       } catch {
@@ -32949,7 +32979,15 @@
         activeStoryCompletedPages.add(activeStoryPageIdx);
         playStoryChime();
         stopStoryAudioAndMic();
-        activeStoryHintMsg = '🎉 Page complete! You can flip to the next page!';
+        const isLast = activeStoryPageIdx >= (activeStoryBook.pages || []).length - 1;
+        activeStoryHintMsg = isLast ? '🎉 Page complete! Finishing story...' : '🎉 Page complete! Turning page...';
+        renderKidStoriesPanel();
+        setTimeout(() => {
+          if (!activeStoryBook) return;
+          if (isLast) finishActiveStoryBook();
+          else flipStoryPage(1);
+        }, 1200);
+        return;
       }
       renderKidStoriesPanel();
     }
@@ -32996,7 +33034,7 @@
               <div class="card story-completion-card">
                 <div style="font-size:3.8rem; margin-bottom:0.6rem;">🎉📖</div>
                 <h2 style="font-family:'Fredoka',cursive; font-size:2rem; margin-bottom:0.4rem; color:inherit;">Story Complete!</h2>
-                <p style="color:var(--text-muted); margin-bottom:1.1rem;">You finished <strong>${activeStoryBook.title}</strong> in ${activeStoryMode === 'READ_ALONG' ? 'Mic Read-Along' : 'Story Flip'} mode!</p>
+                <p style="color:var(--text-muted); margin-bottom:1.1rem;">You finished <strong>${activeStoryBook.title}</strong> in ${activeStoryMode === 'READ_ALONG' ? 'Read Aloud' : 'Read to Me'} mode!</p>
                 <div style="display:inline-flex; align-items:center; gap:0.5rem; padding:0.65rem 1.4rem; border-radius:99px; background:rgba(255,209,102,0.2); border:1.5px solid #ffd166; font-weight:800; color:#ffd166; margin-bottom:1.6rem; font-size:1.05rem;">
                   ${alreadyToday ? '⭐ Already earned today — great extra reading!' : `+${awarded} Famibux Earned!`}
                 </div>
@@ -33035,8 +33073,8 @@
               </div>
               <div style="display:flex; align-items:center; gap:0.5rem; flex-shrink:0;">
                 <div class="story-overlay-pill" style="padding:2px 4px; gap:4px;">
-                  <button type="button" class="btn btn-sm ${activeStoryMode === 'FLIP' ? 'btn-primary' : 'btn-secondary'}" style="border-radius:99px; border:none; padding:4px 10px; font-size:0.78rem;" onclick="setStoryReadingMode('FLIP')">📖 Story Flip</button>
-                  <button type="button" class="btn btn-sm ${activeStoryMode === 'READ_ALONG' ? 'btn-primary' : 'btn-secondary'}" style="border-radius:99px; border:none; padding:4px 10px; font-size:0.78rem;" onclick="setStoryReadingMode('READ_ALONG')">🎤 Read-Along</button>
+                  <button type="button" class="btn btn-sm ${activeStoryMode === 'FLIP' ? 'btn-primary' : 'btn-secondary'}" style="border-radius:99px; border:none; padding:4px 10px; font-size:0.78rem;" onclick="setStoryReadingMode('FLIP')">🎧 Read to Me</button>
+                  <button type="button" class="btn btn-sm ${activeStoryMode === 'READ_ALONG' ? 'btn-primary' : 'btn-secondary'}" style="border-radius:99px; border:none; padding:4px 10px; font-size:0.78rem;" onclick="setStoryReadingMode('READ_ALONG')">🎙️ Read Aloud</button>
                 </div>
                 <button type="button" class="btn btn-secondary btn-sm story-overlay-pill" onclick="toggleStoryFullscreen()" title="Toggle Fullscreen" style="padding:6px; width:36px; height:36px; justify-content:center; cursor:pointer;">
                   <span class="material-symbols-rounded" style="font-size:1.25rem;">fullscreen</span>
@@ -33101,7 +33139,7 @@
                     <div style="display:flex; align-items:center; gap:0.65rem; flex-wrap:wrap;">
                       <button type="button" class="btn btn-sm ${storyMicListening ? 'btn-primary story-mic-pulse' : 'btn-primary'}" onclick="toggleStoryMic()">
                         <span class="material-symbols-rounded" style="font-size:1.1rem;">${storyMicListening ? 'mic' : 'mic_none'}</span>
-                        ${storyMicListening ? 'Listening... (Speak word)' : (unlocked ? 'Page Complete ✓' : 'Tap Mic & Read Aloud')}
+                        ${storyMicListening ? '🎙️ Listening... (Speak word)' : (unlocked ? 'Page Complete ✓' : '🎙️ Start Mic')}
                       </button>
                       ${(!srSupported && !unlocked) ? `
                         <button type="button" class="btn btn-secondary btn-sm" onclick="markActiveStoryWordManualFallback()">🎙️ Practice Next Word</button>
@@ -33184,7 +33222,7 @@
                 </div>
                 <div class="video-info">
                   <div style="display:flex; align-items:center; justify-content:space-between; gap:0.4rem; margin-bottom:0.35rem;">
-                    <span class="age-badge">${b.ageRating === 'TODDLER' ? '🧸 Toddler Flip' : '🎤 Read-Along'}</span>
+                    <span class="age-badge">${b.ageRating === 'TODDLER' ? '🎧 Read to Me' : '🎙️ Read Aloud'}</span>
                     <span style="font-size:0.76rem; font-weight:800; color:#d97706;">+${b.rewardFamibux} Famibux</span>
                   </div>
                   <div class="video-title">${b.title}</div>
