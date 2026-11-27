@@ -3166,7 +3166,7 @@
                 <button class="${state.showAllPreviewStories ? 'btn-primary' : 'btn-outline'}" style="padding:4px 9px; font-size:0.68rem;" onclick="state.showAllPreviewStories=!state.showAllPreviewStories; state.storyCurrentPage=1; render();">${state.showAllPreviewStories ? 'All Ages' : 'Browse All'}</button>
               </div>
               <div style="margin-bottom:8px;">
-                <input type="search" placeholder="Search 300+ stories..." value="${escapeAttr(state.storySearchQuery || '')}" oninput="state.storySearchQuery=this.value; state.storyCurrentPage=1; render();" style="width:100%; box-sizing:border-box; padding:6px 10px; border-radius:18px; border:1px solid rgba(255,255,255,0.18); background:rgba(0,0,0,0.25); color:#fff; font-size:0.78rem;">
+                <input id="pvStorySearchInput" type="search" placeholder="Search 300+ stories..." value="${escapeAttr(state.storySearchQuery || '')}" oninput="onPreviewStorySearchInput(this.value)" style="width:100%; box-sizing:border-box; padding:6px 10px; border-radius:18px; border:1px solid rgba(255,255,255,0.18); background:rgba(0,0,0,0.25); color:#fff; font-size:0.78rem;">
               </div>
               <div class="chips-row" style="margin-bottom:10px;">
                 <button class="chip ${state.storyLangFilter === 'all' ? 'active' : ''}" onclick="state.storyLangFilter='all'; state.storyCurrentPage=1; render();">All (${state.storyBooks.length})</button>
@@ -5029,6 +5029,27 @@
         window.speechSynthesis.speak(u);
       } catch {}
     }
+    function escapeAttr(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function onPreviewStorySearchInput(val) {
+      state.storySearchQuery = val;
+      state.storyCurrentPage = 1;
+      render();
+      const el = document.getElementById('pvStorySearchInput');
+      if (el) {
+        el.focus();
+        const len = el.value.length;
+        try { el.setSelectionRange(len, len); } catch {}
+      }
+    }
+
     function openPreviewStory(id) {
       stopPreviewStoryAudio();
       state.activeStoryId = id;

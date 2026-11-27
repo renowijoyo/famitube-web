@@ -9540,6 +9540,15 @@
       } catch {}
     }
 
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
     async function loadAndRenderKidStories(resetPage = false) {
       const panel = document.getElementById('kidStoriesPanel');
       if (!panel) return;
@@ -9927,6 +9936,7 @@
       const ageRating = currentUser?.ageRating || 'YOUNG_KIDS';
       const isOlder = ageRating === 'OLDER_KIDS' || ageRating === 'ALL';
       const filtered = kidStoriesCache;
+      const wasSearchFocused = document.activeElement?.id === 'kidStorySearchInput';
 
       panel.innerHTML = `
         <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1.25rem;">
@@ -9948,7 +9958,7 @@
           </div>
           <div style="display:flex; gap:0.6rem; flex-wrap:wrap; align-items:center;">
             <div style="flex:1; min-width:240px; max-width:380px;">
-              <input type="search" class="form-control" placeholder="Search 300+ stories by title, author, keyword..." value="${escapeHtml(kidStorySearchQuery)}" oninput="onKidStorySearchInput(this.value)" style="font-size:0.88rem; padding:0.45rem 0.85rem;">
+              <input id="kidStorySearchInput" type="search" class="form-control" placeholder="Search 300+ stories by title, author, keyword..." value="${escapeHtml(kidStorySearchQuery)}" oninput="onKidStorySearchInput(this.value)" style="font-size:0.88rem; padding:0.45rem 0.85rem;">
             </div>
             <select class="form-control" style="max-width:220px; font-size:0.86rem; padding:0.45rem 0.75rem;" onchange="kidStoryCategoryFilter=this.value; loadAndRenderKidStories(true);">
               <option value="all" ${kidStoryCategoryFilter === 'all' ? 'selected' : ''}>All Categories</option>
@@ -10000,7 +10010,14 @@
           ` : ''}
         `}
       `;
-      `;
+      if (wasSearchFocused) {
+        const searchEl = document.getElementById('kidStorySearchInput');
+        if (searchEl) {
+          searchEl.focus();
+          const len = searchEl.value.length;
+          try { searchEl.setSelectionRange(len, len); } catch {}
+        }
+      }
     }
 
     // Curator Studio Storybooks CRUD
