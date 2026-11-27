@@ -2891,19 +2891,20 @@
           ]
         : (simple
           ? [
-              { id: 'home', icon: 'tv', label: 'TV' },
-              { id: 'favorites', icon: 'favorite', label: 'Favorites' },
-              { id: 'profile', icon: 'person', label: 'Profile' }
-            ]
-          : [
-              { id: 'home', icon: 'home', label: 'Explore' },
-              { id: 'channels', icon: 'tv', label: 'Channels' },
-              { id: 'library', icon: 'video_library', label: 'Library' },
-              { id: 'profile', icon: 'person', label: 'Profile' }
-            ]);
+            { id: 'home', icon: 'tv', label: 'TV' },
+            { id: 'favorites', icon: 'favorite', label: 'Favorites' },
+            { id: 'profile', icon: 'person', label: 'Profile' }
+          ]
+        : [
+            { id: 'home', icon: 'home', label: 'Explore' },
+            { id: 'channels', icon: 'tv', label: 'Channels' },
+            { id: 'library', icon: 'video_library', label: 'Library' },
+            { id: 'profile', icon: 'person', label: 'Profile' }
+          ]);
       const isChannelView = state.screen === 'channel_detail' || state.screen === 'yt_channel_detail';
-      // Keep bottom bar always visible at all times (except login screen)
-      const showBottom = state.screen !== 'login';
+      const isStoryReading = state.screen === 'home' && state.homeNavTab === 'stories' && Boolean(state.activeStoryId);
+      // Keep bottom bar visible unless login or story reading
+      const showBottom = state.screen !== 'login' && !isStoryReading;
       bar.style.display = showBottom ? 'flex' : 'none';
       bar.innerHTML = tabs.map(t => {
         const isActive = state.screen === t.id ||
@@ -3424,6 +3425,15 @@
       }
 
       const body = document.getElementById('appBody');
+      const topBar = document.getElementById('appTopBar');
+      const isStoryReading = state.screen === 'home' && state.homeNavTab === 'stories' && Boolean(state.activeStoryId);
+      if (topBar) topBar.style.display = isStoryReading ? 'none' : 'flex';
+      if (body) {
+        body.style.padding = isStoryReading ? '0' : '14px';
+        body.style.overflow = isStoryReading ? 'hidden' : 'auto';
+        body.style.display = isStoryReading ? 'flex' : 'block';
+        body.style.flexDirection = isStoryReading ? 'column' : '';
+      }
       if (state.screen === 'home') {
         const isSimple = state.ageMode === 'TODDLER' || state.ageMode === 'YOUNG_KIDS';
         const cats = [...new Set(
@@ -3607,13 +3617,13 @@
               const isLast = state.activeStoryPageIdx >= pages.length - 1;
               const unlocked = state.activeStoryMode !== 'READ_ALONG' || state.activeStoryCompletedPages.includes(state.activeStoryPageIdx) || state.activeStoryWordIdx >= words.length;
               body.innerHTML = `
-                <div style="position:absolute; inset:0; z-index:50; background:#080c14; display:flex; flex-direction:column; overflow:hidden; color:#fff;">
+                <div style="flex:1; min-height:0; display:flex; flex-direction:column; background:#080c14; color:#fff; position:relative; overflow:hidden;">
                   <!-- Ambient blurred background -->
                   <div style="position:absolute; inset:0; background:url('${page.imageUrl || activeBook.coverUrl}') center/cover no-repeat; filter:blur(24px) brightness(0.28); transform:scale(1.1); pointer-events:none; z-index:1;"></div>
                   <div style="position:absolute; inset:0; background:radial-gradient(circle at center, rgba(8,12,20,0.3) 0%, rgba(8,12,20,0.92) 80%); pointer-events:none; z-index:2;"></div>
 
                   <!-- Top Floating Header Overlay -->
-                  <div style="position:relative; z-index:20; display:flex; align-items:center; justify-content:space-between; gap:6px; padding:10px 12px; background:linear-gradient(180deg, rgba(8,12,20,0.95) 0%, rgba(8,12,20,0) 100%);">
+                  <div style="position:relative; z-index:20; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; gap:6px; padding:8px 12px; background:linear-gradient(180deg, rgba(8,12,20,0.95) 0%, rgba(8,12,20,0) 100%);">
                     <button class="btn-outline" style="padding:4px 8px; font-size:0.68rem; border-radius:99px; background:rgba(15,23,42,0.7); color:#fff; border-color:rgba(255,255,255,0.25);" onclick="stopPreviewStoryAudio(); state.activeStoryId=null; render();">← Shelf</button>
                     <div style="min-width:0; text-align:center;">
                       <div style="font-size:0.75rem; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px; color:#fff;">${activeBook.title}</div>
@@ -3625,47 +3635,50 @@
                     </div>
                   </div>
 
-                  <!-- Center Stage with Overlay Navigation Chevrons -->
-                  <div style="position:relative; z-index:10; flex:1; min-height:0; display:flex; align-items:center; justify-content:center; padding:4px 10px;">
-                    <!-- Left chevron button -->
-                    <button class="btn-outline" style="position:absolute; left:6px; z-index:25; width:34px; height:34px; border-radius:50%; background:rgba(15,23,42,0.7); border-color:rgba(255,255,255,0.25); color:#fff; display:flex; align-items:center; justify-content:center; padding:0; ${state.activeStoryPageIdx === 0 ? 'opacity:0.25; pointer-events:none;' : ''}" onclick="flipPreviewStoryPage(-1)">‹</button>
+                  <!-- Center Stage: Story Page (Illustration + Integrated Text) -->
+                  <div style="position:relative; z-index:10; flex:1; min-height:0; display:flex; flex-direction:column; padding:0 10px 4px 10px; overflow:hidden;">
+                    <div style="position:relative; flex:1; min-height:0; border-radius:14px; overflow:hidden; background:#0f172a; border:1px solid rgba(255,255,255,0.15); box-shadow:0 8px 24px rgba(0,0,0,0.6); display:flex; flex-direction:column;">
+                      <!-- Image area -->
+                      <div style="position:relative; flex:1; min-height:0; overflow:hidden; background:#0b0f19;">
+                        <img src="${page.imageUrl || activeBook.coverUrl}" style="width:100%; height:100%; object-fit:contain; display:block;">
+                        ${page.illustrationEmoji ? `<span style="position:absolute; bottom:6px; right:8px; font-size:1.6rem; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8));">${page.illustrationEmoji}</span>` : ''}
 
-                    <div style="position:relative; width:100%; height:100%; max-height:220px; border-radius:14px; overflow:hidden; background:#0f172a; box-shadow:0 12px 30px rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center;">
-                      <img src="${page.imageUrl || activeBook.coverUrl}" style="width:100%; height:100%; object-fit:contain; background:#0b0f19;">
-                      <span style="position:absolute; bottom:6px; right:8px; font-size:1.6rem; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8));">${page.illustrationEmoji || page.emoji || '📖'}</span>
+                        <!-- Left / Right Chevron Overlays -->
+                        <button class="btn-outline" style="position:absolute; left:6px; top:50%; transform:translateY(-50%); z-index:25; width:32px; height:32px; border-radius:50%; background:rgba(15,23,42,0.75); border-color:rgba(255,255,255,0.25); color:#fff; display:flex; align-items:center; justify-content:center; padding:0; ${state.activeStoryPageIdx === 0 ? 'opacity:0.25; pointer-events:none;' : ''}" onclick="flipPreviewStoryPage(-1)">‹</button>
+                        <button class="btn-outline" style="position:absolute; right:6px; top:50%; transform:translateY(-50%); z-index:25; width:32px; height:32px; border-radius:50%; background:rgba(15,23,42,0.75); border-color:rgba(255,255,255,0.25); color:#fff; display:flex; align-items:center; justify-content:center; padding:0;" onclick="${isLast ? (unlocked ? 'finishPreviewStory()' : 'flipPreviewStoryPage(1)') : 'flipPreviewStoryPage(1)'}">${isLast ? (unlocked ? '★' : '🔒') : (unlocked ? '›' : '🔒')}</button>
+                      </div>
+
+                      <!-- Integrated Story Text Bar ON the book card -->
+                      <div style="background:rgba(15,23,42,0.94); border-top:1px solid rgba(255,255,255,0.15); padding:8px 10px; flex-shrink:0;">
+                        <div style="display:flex; flex-wrap:wrap; gap:4px; justify-content:center; margin-bottom:4px;">
+                          ${words.map((w, idx) => {
+                            const cls = state.activeStoryMode === 'READ_ALONG' ? (idx < state.activeStoryWordIdx ? 'is-read' : idx === state.activeStoryWordIdx ? 'is-current' : '') : '';
+                            return `<button type="button" class="pv-word-chip ${cls}" style="font-size:0.86rem; padding:3px 7px;" onclick="speakPreviewText('${w.replace(/'/g, "\\'")}', '${activeBook.language}')">${w}</button>`;
+                          }).join('')}
+                        </div>
+                        <div style="font-size:0.6rem; color:#94a3b8; text-align:center;">💡 Tap word to pronounce</div>
+                      </div>
                     </div>
-
-                    <!-- Right chevron button -->
-                    <button class="btn-outline" style="position:absolute; right:6px; z-index:25; width:34px; height:34px; border-radius:50%; background:rgba(15,23,42,0.7); border-color:rgba(255,255,255,0.25); color:#fff; display:flex; align-items:center; justify-content:center; padding:0;" onclick="${isLast ? (unlocked ? 'finishPreviewStory()' : 'flipPreviewStoryPage(1)') : 'flipPreviewStoryPage(1)'}">${isLast ? (unlocked ? '★' : '🔒') : (unlocked ? '›' : '🔒')}</button>
                   </div>
 
-                  <!-- Bottom Floating Reading & Speech Overlay Card -->
-                  <div style="position:relative; z-index:20; padding:6px 10px 10px 10px; background:linear-gradient(0deg, rgba(8,12,20,0.98) 0%, rgba(8,12,20,0.85) 60%, rgba(8,12,20,0) 100%); display:flex; flex-direction:column; gap:6px;">
-                    <div style="background:rgba(15,23,42,0.85); border:1px solid rgba(255,255,255,0.18); border-radius:14px; padding:8px 10px; backdrop-filter:blur(10px);">
-                      <div style="display:flex; flex-wrap:wrap; gap:4px; justify-content:center; margin-bottom:6px;">
-                        ${words.map((w, idx) => {
-                          const cls = state.activeStoryMode === 'READ_ALONG' ? (idx < state.activeStoryWordIdx ? 'is-read' : idx === state.activeStoryWordIdx ? 'is-current' : '') : '';
-                          return `<button type="button" class="pv-word-chip ${cls}" style="font-size:0.86rem; padding:3px 7px;" onclick="speakPreviewText('${w.replace(/'/g, "\\'")}', '${activeBook.language}')">${w}</button>`;
-                        }).join('')}
+                  <!-- Bottom Floating HUD -->
+                  <div style="position:relative; z-index:20; flex-shrink:0; padding:6px 10px 8px 10px; background:linear-gradient(0deg, rgba(8,12,20,0.98) 0%, rgba(8,12,20,0.7) 100%);">
+                    ${state.activeStoryMode === 'FLIP' ? `
+                      <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
+                        <button class="btn-outline" style="padding:4px 8px; font-size:0.68rem; color:#fff; border-color:rgba(255,255,255,0.2);" onclick="speakPreviewText('${String(page.text || '').replace(/'/g, "\\'")}', '${activeBook.language}')">🔊 Listen</button>
+                        <button class="btn-primary" style="padding:5px 12px; font-size:0.72rem;" onclick="${isLast ? 'finishPreviewStory()' : 'flipPreviewStoryPage(1)'}">${isLast ? '🎉 Finish Story' : 'Next Page →'}</button>
                       </div>
-                      <div style="font-size:0.62rem; color:#94a3b8; text-align:center; margin-bottom:6px;">💡 Tap any word to hear pronunciation</div>
-                      ${state.activeStoryMode === 'FLIP' ? `
-                        <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; border-top:1px solid rgba(255,255,255,0.1); padding-top:6px;">
-                          <button class="btn-outline" style="padding:4px 8px; font-size:0.68rem; color:#fff; border-color:rgba(255,255,255,0.2);" onclick="speakPreviewText('${String(page.text || '').replace(/'/g, "\\'")}', '${activeBook.language}')">🔊 Listen</button>
-                          <button class="btn-primary" style="padding:5px 12px; font-size:0.72rem;" onclick="${isLast ? 'finishPreviewStory()' : 'flipPreviewStoryPage(1)'}">${isLast ? '🎉 Finish Story' : 'Next Page →'}</button>
+                    ` : `
+                      <div style="display:flex; flex-direction:column; gap:4px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+                          <button class="btn-primary" style="padding:4px 9px; font-size:0.68rem;" onclick="togglePreviewStoryMic()">${state.storyMicListening ? '🔴 Listening...' : (unlocked ? '✓ Page Done' : '🎤 Read Aloud')}</button>
+                          <span style="font-size:0.68rem; font-weight:800; color:${unlocked ? '#06D6A0' : '#FF3366'};">${Math.min(state.activeStoryWordIdx, words.length)}/${words.length} words</span>
+                          <button class="${unlocked ? 'btn-primary' : 'btn-outline'}" style="padding:4px 10px; font-size:0.68rem; ${unlocked ? '' : 'opacity:0.6;'}" onclick="${isLast ? (unlocked ? 'finishPreviewStory()' : 'flipPreviewStoryPage(1)') : 'flipPreviewStoryPage(1)'}">${isLast ? (unlocked ? '🎉 Finish' : '🔒 Read') : (unlocked ? 'Next →' : '🔒 Locked')}</button>
                         </div>
-                      ` : `
-                        <div style="display:flex; flex-direction:column; gap:5px; border-top:1px solid rgba(255,255,255,0.1); padding-top:6px;">
-                          <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
-                            <button class="btn-primary" style="padding:4px 9px; font-size:0.68rem;" onclick="togglePreviewStoryMic()">${state.storyMicListening ? '🔴 Listening...' : (unlocked ? '✓ Page Done' : '🎤 Read Aloud')}</button>
-                            <span style="font-size:0.68rem; font-weight:800; color:${unlocked ? '#06D6A0' : '#FF3366'};">${Math.min(state.activeStoryWordIdx, words.length)}/${words.length} words</span>
-                            <button class="${unlocked ? 'btn-primary' : 'btn-outline'}" style="padding:4px 10px; font-size:0.68rem; ${unlocked ? '' : 'opacity:0.6;'}" onclick="${isLast ? (unlocked ? 'finishPreviewStory()' : 'flipPreviewStoryPage(1)') : 'flipPreviewStoryPage(1)'}">${isLast ? (unlocked ? '🎉 Finish' : '🔒 Read') : (unlocked ? 'Next →' : '🔒 Locked')}</button>
-                          </div>
-                          ${!unlocked ? `<button class="btn-outline" style="width:100%; padding:3px 6px; font-size:0.64rem; border-style:dashed; color:#94a3b8; border-color:rgba(255,255,255,0.2);" onclick="simulatePreviewNextWord()">🎙️ Simulate Next Word</button>` : ''}
-                          ${state.activeStoryHint ? `<div style="font-size:0.65rem; color:#fff; text-align:center;">${state.activeStoryHint}</div>` : ''}
-                        </div>
-                      `}
-                    </div>
+                        ${!unlocked ? `<button class="btn-outline" style="width:100%; padding:2px 6px; font-size:0.62rem; border-style:dashed; color:#94a3b8; border-color:rgba(255,255,255,0.2);" onclick="simulatePreviewNextWord()">🎙️ Simulate Next Word</button>` : ''}
+                        ${state.activeStoryHint ? `<div style="font-size:0.64rem; color:#fff; text-align:center;">${state.activeStoryHint}</div>` : ''}
+                      </div>
+                    `}
                   </div>
                 </div>
               `;

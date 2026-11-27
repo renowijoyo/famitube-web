@@ -985,32 +985,36 @@
       line-height: 1.5;
     }
     .story-word-btn {
-      border: 1.5px solid transparent;
-      background: var(--surface-light);
-      color: var(--text);
+      border: 2px solid transparent;
+      background: rgba(255, 255, 255, 0.95);
+      color: #0f172a;
       font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif;
-      font-size: 1.28rem;
-      font-weight: 600;
-      padding: 0.28rem 0.58rem;
-      border-radius: 10px;
+      font-size: 1.35rem;
+      font-weight: 700;
+      padding: 0.35rem 0.75rem;
+      border-radius: 12px;
       cursor: pointer;
       transition: all 0.15s ease;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+      line-height: 1.25;
     }
     .story-word-btn:hover {
-      border-color: var(--accent);
-      transform: translateY(-1px);
+      border-color: #ff3366;
+      transform: translateY(-2px);
     }
     .story-word-btn.is-read {
-      background: rgba(6, 214, 160, 0.16);
-      border-color: rgba(6, 214, 160, 0.45);
-      color: var(--success);
+      background: rgba(6, 214, 160, 0.3) !important;
+      border-color: #06d6a0 !important;
+      color: #06d6a0 !important;
+      text-shadow: 0 0 10px rgba(6, 214, 160, 0.4);
     }
     .story-word-btn.is-current {
-      background: rgba(255, 51, 102, 0.14);
-      border-color: var(--primary);
-      color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(255, 51, 102, 0.15);
-      transform: scale(1.04);
+      background: rgba(255, 51, 102, 0.3) !important;
+      border-color: #ff3366 !important;
+      color: #ff3366 !important;
+      box-shadow: 0 0 0 4px rgba(255, 51, 102, 0.35), 0 6px 16px rgba(255, 51, 102, 0.4) !important;
+      transform: scale(1.08);
+      text-shadow: 0 0 10px rgba(255, 51, 102, 0.5);
     }
     .story-mic-pulse {
       animation: storyMicPulse 1.3s infinite ease-in-out;
@@ -1028,7 +1032,8 @@
       background: #080c14;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      overflow-y: auto;
+      overflow-x: hidden;
       color: #fff;
       user-select: none;
     }
@@ -1052,12 +1057,13 @@
     .story-overlay-header {
       position: relative;
       z-index: 20;
+      flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 0.75rem;
-      padding: 0.9rem 1.5rem;
-      background: linear-gradient(180deg, rgba(8,12,20,0.94) 0%, rgba(8,12,20,0) 100%);
+      padding: 0.75rem 1.25rem;
+      background: linear-gradient(180deg, rgba(8,12,20,0.95) 0%, rgba(8,12,20,0) 100%);
     }
     .story-overlay-pill {
       display: inline-flex;
@@ -1074,8 +1080,8 @@
       top: 50%;
       transform: translateY(-50%);
       z-index: 25;
-      width: 56px;
-      height: 56px;
+      width: 52px;
+      height: 52px;
       border-radius: 50%;
       background: rgba(15, 23, 42, 0.75);
       border: 1.5px solid rgba(255, 255, 255, 0.25);
@@ -1099,8 +1105,8 @@
       cursor: not-allowed;
       transform: translateY(-50%);
     }
-    .story-overlay-nav-prev { left: 1.5rem; }
-    .story-overlay-nav-next { right: 1.5rem; }
+    .story-overlay-nav-prev { left: 1.25rem; }
+    .story-overlay-nav-next { right: 1.25rem; }
     .story-overlay-stage {
       position: relative;
       z-index: 5;
@@ -1109,40 +1115,58 @@
       align-items: center;
       justify-content: center;
       min-height: 0;
-      padding: 0.5rem 1.5rem;
+      padding: 0.4rem 1.25rem;
+      overflow: hidden;
     }
     .story-stage-image-card {
       position: relative;
-      max-height: 56vh;
-      max-width: 880px;
+      max-height: 70vh;
+      max-width: 900px;
       width: 100%;
       height: 100%;
       border-radius: 24px;
       overflow: hidden;
       box-shadow: 0 25px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.12);
-      background: #0f172a;
+      background: #0b0f19;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .story-stage-image-card .story-img-container {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      background: #0b0f19;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
     }
-    .story-stage-image-card img {
+    .story-stage-image-card .story-img-container img {
       width: 100%;
       height: 100%;
       object-fit: contain;
       background: #0b0f19;
       display: block;
     }
+    .story-stage-image-card .story-text-banner {
+      background: rgba(15, 23, 42, 0.94);
+      border-top: 1.5px solid rgba(255, 255, 255, 0.16);
+      padding: 0.9rem 1.25rem;
+      flex-shrink: 0;
+      box-shadow: 0 -10px 25px rgba(0,0,0,0.4);
+    }
     .story-overlay-footer {
       position: relative;
       z-index: 20;
-      padding: 0.85rem 1.5rem 1.4rem 1.5rem;
-      background: linear-gradient(0deg, rgba(8,12,20,0.98) 0%, rgba(8,12,20,0.85) 60%, rgba(8,12,20,0) 100%);
+      flex-shrink: 0;
+      padding: 0.6rem 1.25rem 0.85rem 1.25rem;
+      background: linear-gradient(0deg, rgba(8,12,20,0.98) 0%, rgba(8,12,20,0.7) 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.75rem;
-      max-width: 960px;
+      gap: 0.5rem;
+      max-width: 920px;
       margin: 0 auto;
       width: 100%;
       box-sizing: border-box;
@@ -10529,10 +10553,28 @@
                 <span class="material-symbols-rounded" style="font-size:2.2rem;">chevron_left</span>
               </button>
 
-              <!-- Page Illustration Card -->
+              <!-- Page Illustration Card with Integrated Story Text -->
               <div class="story-stage-image-card ${flipClass}" ontouchstart="storyTouchStartX=event.touches[0].clientX" ontouchend="if(storyTouchStartX!==null){ const dx=event.changedTouches[0].clientX-storyTouchStartX; storyTouchStartX=null; if(dx<-50) flipStoryPage(1); else if(dx>50) flipStoryPage(-1); }">
-                <img src="${page.imageUrl || activeStoryBook.coverUrl}" alt="Page ${activeStoryPageIdx + 1}" onerror="this.style.display='none'">
-                ${page.illustrationEmoji ? `<span style="position:absolute; bottom:16px; right:18px; font-size:2.8rem; filter:drop-shadow(0 3px 8px rgba(0,0,0,0.85));">${page.illustrationEmoji}</span>` : ''}
+                <div class="story-img-container">
+                  <img src="${page.imageUrl || activeStoryBook.coverUrl}" alt="Page ${activeStoryPageIdx + 1}" onerror="this.style.display='none'">
+                  ${page.illustrationEmoji ? `<span style="position:absolute; top:16px; right:18px; font-size:2.8rem; filter:drop-shadow(0 3px 8px rgba(0,0,0,0.85));">${page.illustrationEmoji}</span>` : ''}
+                </div>
+
+                <!-- Story Text Banner right on the story page -->
+                <div class="story-text-banner">
+                  <div class="story-words-wrap" style="justify-content:center; margin-bottom:0.45rem;">
+                    ${words.map((w, idx) => {
+                      const cls = activeStoryMode === 'READ_ALONG'
+                        ? (idx < activeStoryWordIdx ? 'is-read' : idx === activeStoryWordIdx ? 'is-current' : '')
+                        : '';
+                      const safeWord = w.replace(/'/g, "\\'");
+                      return `<button type="button" class="story-word-btn ${cls}" onclick="speakStoryText('${safeWord}', '${activeStoryBook.language}')" title="Tap to hear word">${w}</button>`;
+                    }).join('')}
+                  </div>
+                  <div style="text-align:center; font-size:0.8rem; color:#cbd5e1;">
+                    💡 Tap any word to hear how it sounds!
+                  </div>
+                </div>
               </div>
 
               <!-- Right Floating Chevron -->
@@ -10541,63 +10583,46 @@
               </button>
             </div>
 
-            <!-- Bottom Floating Reading & Speech Overlay Card -->
+            <!-- Bottom Floating HUD -->
             <div class="story-overlay-footer">
-              <div class="story-overlay-text-card">
-                <div class="story-words-wrap" style="justify-content:center; margin-bottom:0.75rem;">
-                  ${words.map((w, idx) => {
-                    const cls = activeStoryMode === 'READ_ALONG'
-                      ? (idx < activeStoryWordIdx ? 'is-read' : idx === activeStoryWordIdx ? 'is-current' : '')
-                      : '';
-                    const safeWord = w.replace(/'/g, "\\'");
-                    return `<button type="button" class="story-word-btn ${cls}" onclick="speakStoryText('${safeWord}', '${activeStoryBook.language}')" title="Tap to hear word">${w}</button>`;
-                  }).join('')}
+              ${activeStoryMode === 'FLIP' ? `
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; width:100%; flex-wrap:wrap;">
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="speakStoryText('${String(page.text || '').replace(/'/g, "\\'")}', '${activeStoryBook.language}')">
+                    <span class="material-symbols-rounded" style="font-size:1.1rem;">volume_up</span> Listen to Page
+                  </button>
+                  <div style="display:flex; gap:0.6rem;">
+                    <button type="button" class="btn btn-secondary btn-sm" ${activeStoryPageIdx === 0 ? 'disabled' : ''} onclick="flipStoryPage(-1)">← Prev</button>
+                    ${isLastPage
+                      ? `<button type="button" class="btn btn-primary btn-sm" onclick="finishActiveStoryBook()">🎉 Finish Story</button>`
+                      : `<button type="button" class="btn btn-primary btn-sm" onclick="flipStoryPage(1)">Flip Page →</button>`}
+                  </div>
                 </div>
-
-                <div style="text-align:center; font-size:0.8rem; color:#94a3b8; margin-bottom:0.75rem;">
-                  💡 Tap any word to hear how it sounds!
-                </div>
-
-                ${activeStoryMode === 'FLIP' ? `
-                  <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap; padding-top:0.65rem; border-top:1px solid rgba(255,255,255,0.12);">
-                    <button type="button" class="btn btn-secondary btn-sm" onclick="speakStoryText('${String(page.text || '').replace(/'/g, "\\'")}', '${activeStoryBook.language}')">
-                      <span class="material-symbols-rounded" style="font-size:1.1rem;">volume_up</span> Listen to Page
-                    </button>
+              ` : `
+                <div style="display:flex; flex-direction:column; gap:0.4rem; width:100%;">
+                  <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap;">
+                    <div style="display:flex; align-items:center; gap:0.65rem; flex-wrap:wrap;">
+                      <button type="button" class="btn btn-sm ${storyMicListening ? 'btn-primary story-mic-pulse' : 'btn-primary'}" onclick="toggleStoryMic()">
+                        <span class="material-symbols-rounded" style="font-size:1.1rem;">${storyMicListening ? 'mic' : 'mic_none'}</span>
+                        ${storyMicListening ? 'Listening... (Speak word)' : (unlocked ? 'Page Complete ✓' : 'Tap Mic & Read Aloud')}
+                      </button>
+                      ${(!srSupported && !unlocked) ? `
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="markActiveStoryWordManualFallback()">🎙️ Practice Next Word</button>
+                      ` : ''}
+                    </div>
+                    <span style="font-weight:800; font-size:0.86rem; color:${unlocked ? '#06D6A0' : '#FF3366'};">
+                      ${Math.min(activeStoryWordIdx, words.length)} / ${words.length} words read
+                    </span>
                     <div style="display:flex; gap:0.6rem;">
                       <button type="button" class="btn btn-secondary btn-sm" ${activeStoryPageIdx === 0 ? 'disabled' : ''} onclick="flipStoryPage(-1)">← Prev</button>
                       ${isLastPage
-                        ? `<button type="button" class="btn btn-primary btn-sm" onclick="finishActiveStoryBook()">🎉 Finish Story</button>`
-                        : `<button type="button" class="btn btn-primary btn-sm" onclick="flipStoryPage(1)">Flip Page →</button>`}
+                        ? `<button id="storyNextPageBtn" type="button" class="btn btn-sm ${unlocked ? 'btn-primary' : 'btn-secondary'}" onclick="${unlocked ? 'finishActiveStoryBook()' : 'flipStoryPage(1)'}">${unlocked ? '🎉 Finish Story (+Famibux)' : '🔒 Read Aloud to Finish'}</button>`
+                        : `<button id="storyNextPageBtn" type="button" class="btn btn-sm ${unlocked ? 'btn-primary' : 'btn-secondary'}" onclick="flipStoryPage(1)">${unlocked ? '✨ Flip Next Page →' : '🔒 Read Aloud to Unlock Next Page'}</button>`}
                     </div>
                   </div>
-                ` : `
-                  <div style="padding:0.75rem 1rem; border-radius:14px; background:rgba(30,41,59,0.7); border:1px solid rgba(255,255,255,0.12); margin-bottom:0.6rem;">
-                    <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap;">
-                      <div style="display:flex; align-items:center; gap:0.65rem; flex-wrap:wrap;">
-                        <button type="button" class="btn btn-sm ${storyMicListening ? 'btn-primary story-mic-pulse' : 'btn-primary'}" onclick="toggleStoryMic()">
-                          <span class="material-symbols-rounded" style="font-size:1.1rem;">${storyMicListening ? 'mic' : 'mic_none'}</span>
-                          ${storyMicListening ? 'Listening... (Tap to Pause)' : (unlocked ? 'Page Complete ✓' : 'Tap Mic & Read Aloud')}
-                        </button>
-                        ${(!srSupported && !unlocked) ? `
-                          <button type="button" class="btn btn-secondary btn-sm" onclick="markActiveStoryWordManualFallback()">🎙️ Practice Next Word</button>
-                        ` : ''}
-                      </div>
-                      <span style="font-weight:800; font-size:0.86rem; color:${unlocked ? '#06D6A0' : '#FF3366'};">
-                        ${Math.min(activeStoryWordIdx, words.length)} / ${words.length} words read
-                      </span>
-                    </div>
-                    ${activeStoryHintMsg ? `<div style="margin-top:0.45rem; font-size:0.84rem; font-weight:600; color:#fff;">${activeStoryHintMsg}</div>` : ''}
-                    ${activeStoryLastTranscript ? `<div style="margin-top:0.25rem; font-size:0.78rem; color:#94a3b8;">Heard: "${activeStoryLastTranscript}"</div>` : ''}
-                  </div>
-
-                  <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap;">
-                    <button type="button" class="btn btn-secondary btn-sm" ${activeStoryPageIdx === 0 ? 'disabled' : ''} onclick="flipStoryPage(-1)">← Prev</button>
-                    ${isLastPage
-                      ? `<button id="storyNextPageBtn" type="button" class="btn btn-sm ${unlocked ? 'btn-primary' : 'btn-secondary'}" onclick="${unlocked ? 'finishActiveStoryBook()' : 'flipStoryPage(1)'}">${unlocked ? '🎉 Finish Story (+Famibux)' : '🔒 Read Aloud to Finish'}</button>`
-                      : `<button id="storyNextPageBtn" type="button" class="btn btn-sm ${unlocked ? 'btn-primary' : 'btn-secondary'}" onclick="flipStoryPage(1)">${unlocked ? '✨ Flip Next Page →' : '🔒 Read Aloud to Unlock Next Page'}</button>`}
-                  </div>
-                `}
-              </div>
+                  ${activeStoryHintMsg ? `<div style="text-align:center; font-size:0.82rem; font-weight:600; color:#fff;">${activeStoryHintMsg}</div>` : ''}
+                  ${activeStoryLastTranscript ? `<div style="text-align:center; font-size:0.75rem; color:#94a3b8;">Heard: "${activeStoryLastTranscript}"</div>` : ''}
+                </div>
+              `}
             </div>
           </div>
         `;
