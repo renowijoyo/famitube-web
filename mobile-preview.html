@@ -1050,7 +1050,7 @@
       stars: 10000,
       dailyLimit: 45,
       attentionEnabled: true,
-      contentLanguage: 'en',
+      contentLanguage: 'all',
       cultureMode: 'GLOBAL',
       toddlerLoopMinutes: 15,
       toddlerCooldownMinutes: 30,
@@ -1071,6 +1071,10 @@
       toddlerSessionWatchedSec: 0,
       toddlerCooldownUntil: 0,
       toddlerResumedFromSec: 0,
+      toddlerFullscreen: false,
+      showToddlerRestartConfirm: false,
+      toddlerRestartSource: null,
+      playerRestartKey: 0,
       parentConfigChildId: null,
       childReligion: null,
       activeGameId: null,
@@ -1171,7 +1175,7 @@
           ageRating: 'TODDLER',
           religion: null,
           dailyLimitMinutes: null,
-          contentLanguage: 'en',
+          contentLanguage: 'all',
           cultureMode: 'GLOBAL',
           toddlerLoopMinutes: 15,
           toddlerCooldownMinutes: 30,
@@ -2079,7 +2083,7 @@
     function getEffectiveToddlerSettings() {
       const c = getActiveToddlerConfigChild();
       return {
-        contentLanguage: c?.contentLanguage || state.contentLanguage || 'en',
+        contentLanguage: c?.contentLanguage || state.contentLanguage || 'all',
         cultureMode: c?.cultureMode || state.cultureMode || 'GLOBAL',
         toddlerLoopMinutes: c?.toddlerLoopMinutes ?? state.toddlerLoopMinutes ?? 15,
         toddlerCooldownMinutes: c?.toddlerCooldownMinutes ?? state.toddlerCooldownMinutes ?? 30,
@@ -2123,6 +2127,7 @@
       });
 
       const matchesLang = (v) => {
+        if (!cfg.contentLanguage || cfg.contentLanguage === 'all') return true;
         const tags = new Set((v.tags || []).map(t => String(t).trim().toLowerCase()));
         if (tags.has('access:no-dialogue') || tags.has('access:bilingual')) return true;
         if (cfg.contentLanguage === 'id') return tags.has('lang:id') || tags.has('culture:indonesia');
@@ -2296,8 +2301,50 @@
         state.toddlerPlayheads[state.toddlerActiveTopic].lastLeftAt = Date.now();
       }
       clearToddlerTimers();
+      state.toddlerFullscreen = false;
+      state.showToddlerRestartConfirm = false;
       state.screen = 'home';
       render();
+    }
+
+    function confirmToddlerRestart() {
+      state.showToddlerRestartConfirm = false;
+      if (state.screen === 'toddler_tv_player') {
+        const topic = state.toddlerActiveTopic;
+        if (topic && state.toddlerPlayheads[topic]) {
+          state.toddlerPlayheads[topic].elapsedSec = 0;
+          state.toddlerPlayheads[topic].lastLeftAt = Date.now();
+        }
+        state.toddlerResumedFromSec = 0;
+      } else if (state.screen === 'player') {
+        const videoEl = document.querySelector('#appBody video');
+        if (videoEl) {
+          videoEl.currentTime = 0;
+          videoEl.play().catch(() => {});
+        }
+        state.playerRestartKey = (state.playerRestartKey || 0) + 1;
+      }
+      render();
+      showDeviceToast('phoneDeviceScreen', '↺ Restarted video from beginning');
+    }
+
+    function renderToddlerRestartModal() {
+      if (!state.showToddlerRestartConfirm) return '';
+      return `
+        <div style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.65); display:flex; align-items:center; justify-content:center; padding:16px;">
+          <div class="card-box" style="width:100%; max-width:300px; background:var(--surface); border:1px solid var(--border); box-shadow:0 12px 32px rgba(0,0,0,0.45); text-align:center; padding:20px 16px;">
+            <div style="font-size:2rem; margin-bottom:8px;">↺</div>
+            <div style="font-weight:800; font-size:1.05rem; margin-bottom:6px;">Restart Video?</div>
+            <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:16px; line-height:1.4;">
+              Do you want to play this video again from the beginning?
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn-outline" style="flex:1;" onclick="state.showToddlerRestartConfirm=false; render();">Keep Watching</button>
+              <button class="btn-primary" style="flex:1;" onclick="confirmToddlerRestart();">Restart</button>
+            </div>
+          </div>
+        </div>
+      `;
     }
 
     function finishToddlerVideo(forceSignoff = false, forceWindDown = false) {
@@ -2977,8 +3024,9 @@
       const isChannelView = state.screen === 'channel_detail' || state.screen === 'yt_channel_detail';
       const isStoryReading = state.screen === 'home' && state.homeNavTab === 'stories' && Boolean(state.activeStoryId);
       const isGamePlaying = state.screen === 'home' && state.homeNavTab === 'games' && Boolean(state.activeGameId);
-      // Keep bottom bar visible unless login, story reading, or full-screen game
-      const showBottom = state.screen !== 'login' && !isStoryReading && !isGamePlaying;
+      const isToddlerFullscreen = (state.screen === 'toddler_tv_player' || state.screen === 'player') && Boolean(state.toddlerFullscreen);
+      // Keep bottom bar visible unless login, story reading, full-screen game, or toddler fullscreen
+      const showBottom = state.screen !== 'login' && !isStoryReading && !isGamePlaying && !isToddlerFullscreen;
       bar.style.display = showBottom ? 'flex' : 'none';
       bar.innerHTML = tabs.map(t => {
         const isActive = state.screen === t.id ||
@@ -3057,7 +3105,7 @@
               const cfgChild = state.parentConfigChildId ? state.parentChildren.find(x => x.id === state.parentConfigChildId) : null;
               if (cfgChild) {
                 const isToddlerChild = cfgChild.ageRating === 'TODDLER';
-                const cLang = cfgChild.contentLanguage || state.contentLanguage || 'en';
+                const cLang = cfgChild.contentLanguage || state.contentLanguage || 'all';
                 const cCulture = cfgChild.cultureMode || state.cultureMode || 'GLOBAL';
                 const cLoop = cfgChild.toddlerLoopMinutes ?? state.toddlerLoopMinutes ?? 15;
                 const cCool = cfgChild.toddlerCooldownMinutes ?? state.toddlerCooldownMinutes ?? 30;
@@ -3106,6 +3154,7 @@
                       <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:4px;">Language &amp; Culture:</div>
                       <div class="chips-row" style="margin-bottom:8px;">
                         ${[
+                          { id: 'all', label: 'All' },
                           { id: 'en', label: 'English' },
                           { id: 'id', label: 'Indonesian' },
                           { id: 'bilingual', label: 'Bilingual' }
@@ -3398,6 +3447,7 @@
             <div style="font-weight:800; font-size:0.95rem; margin-bottom:8px;">Global Language &amp; Culture</div>
             <div class="chips-row" style="margin-bottom:6px;">
               ${[
+                { id: 'all', label: 'All' },
                 { id: 'en', label: 'English' },
                 { id: 'id', label: 'Indonesian' },
                 { id: 'bilingual', label: 'Bilingual' }
@@ -3528,7 +3578,8 @@
       const topBar = document.getElementById('appTopBar');
       const isStoryReading = state.screen === 'home' && state.homeNavTab === 'stories' && Boolean(state.activeStoryId);
       const isGamePlaying = state.screen === 'home' && state.homeNavTab === 'games' && Boolean(state.activeGameId);
-      const isImmersiveFullScreen = isStoryReading || isGamePlaying;
+      const isToddlerFullscreen = (state.screen === 'toddler_tv_player' || state.screen === 'player') && Boolean(state.toddlerFullscreen);
+      const isImmersiveFullScreen = isStoryReading || isGamePlaying || isToddlerFullscreen;
       if (topBar) topBar.style.display = isImmersiveFullScreen ? 'none' : 'flex';
       if (body) {
         body.style.padding = isImmersiveFullScreen ? '0' : '14px';
@@ -5227,98 +5278,219 @@
             </div>
           `;
         } else {
+          const isFs = Boolean(state.toddlerFullscreen);
           body.innerHTML = `
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px;">
-              <button class="btn-outline" style="padding:5px 10px; font-size:0.75rem;" onclick="exitToddlerPlayerToDial()">← Channels</button>
-              <span style="font-weight:800; font-size:0.82rem; color:var(--pink);">${ch?.emoji || '📺'} ${ch?.displayTitle || 'Toddler TV'}</span>
-              <button class="icon-btn" onclick="navigate('parental_gate')" title="Parent PIN" style="width:28px; height:28px;">
-                <span class="material-symbols-rounded" style="font-size:1rem;">lock</span>
-              </button>
-            </div>
+            ${isFs ? `
+              <div style="position:fixed; inset:0; z-index:100; background:#000; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                <div style="position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
+                  ${vid?.youtubeVideoId ? `
+                    <iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/${vid.youtubeVideoId}?autoplay=1&controls=0&disablekb=1&rel=0&modestbranding=1&iv_load_policy=3&start=${state.toddlerResumedFromSec || 0}" frameborder="0" allow="accelerometer; autoplay; encrypted-media" style="border:none; width:100%; height:100%;"></iframe>
+                  ` : `
+                    <video src="${vid?.sourceUrl || ''}" autoplay playsinline style="width:100%; height:100%; object-fit:contain;"></video>
+                  `}
+                  <!-- Transparent scrub-lock shield: no seeking or skipping ahead -->
+                  <div style="position:absolute; inset:0; z-index:4; background:transparent;"></div>
 
-            <div style="position:relative; aspect-ratio:16/9; border-radius:14px; overflow:hidden; background:#000; margin-bottom:10px;">
-              ${vid?.youtubeVideoId ? `
-                <iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/${vid.youtubeVideoId}?autoplay=1&controls=0&disablekb=1&rel=0&modestbranding=1&iv_load_policy=3&start=${state.toddlerResumedFromSec || 0}" frameborder="0" allow="accelerometer; autoplay; encrypted-media" style="border:none; width:100%; height:100%;"></iframe>
-              ` : `
-                <video src="${vid?.sourceUrl || ''}" autoplay playsinline style="width:100%; height:100%; object-fit:cover;"></video>
-              `}
-              <!-- Transparent scrub-lock shield: no seeking, skipping, or YouTube click-through -->
-              <div style="position:absolute; inset:0; z-index:4; background:transparent;"></div>
-              <span style="position:absolute; top:8px; left:8px; z-index:5; background:rgba(0,0,0,0.72); color:#fff; font-size:0.62rem; font-weight:800; padding:3px 7px; border-radius:99px;">🔒 LINEAR TV • NO SKIPPING</span>
-            </div>
+                  <!-- Immersive Floating Top Bar -->
+                  <div style="position:absolute; top:0; left:0; right:0; z-index:10; background:linear-gradient(to bottom, rgba(0,0,0,0.85), transparent); padding:12px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <button class="icon-btn" style="background:rgba(0,0,0,0.5); width:32px; height:32px; color:#fff;" onclick="state.toddlerFullscreen=false; render();" title="Exit Fullscreen">
+                        <span class="material-symbols-rounded" style="font-size:1.1rem;">fullscreen_exit</span>
+                      </button>
+                      <span style="font-weight:800; font-size:0.85rem; color:#fff; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${vid?.title || ch?.displayTitle}</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <button class="icon-btn" style="background:rgba(0,0,0,0.5); width:32px; height:32px; color:#fff;" onclick="state.showToddlerRestartConfirm=true; state.toddlerRestartSource='tv'; render();" title="Restart Video">
+                        <span class="material-symbols-rounded" style="font-size:1.1rem;">refresh</span>
+                      </button>
+                      <button class="icon-btn" style="background:rgba(0,0,0,0.5); width:32px; height:32px; color:${isPreviewFavorite(vid?.id)?'var(--pink)':'#fff'};" onclick="togglePreviewFavorite('${vid?.id || ''}')" title="Favorite">
+                        <span class="material-symbols-rounded" style="font-size:1.1rem;">favorite</span>
+                      </button>
+                    </div>
+                  </div>
 
-            <!-- Read-only calm progress bar -->
-            <div style="height:5px; border-radius:99px; background:var(--surface-var); overflow:hidden; margin-bottom:10px;">
-              <div id="toddlerProgressBar" style="height:100%; width:${pct}%; background:linear-gradient(90deg, var(--pink), var(--blue)); transition:width 0.4s ease;"></div>
-            </div>
+                  <!-- Lock badge -->
+                  <span style="position:absolute; bottom:12px; left:14px; z-index:10; background:rgba(0,0,0,0.72); color:#fff; font-size:0.62rem; font-weight:800; padding:4px 8px; border-radius:99px;">🔒 LINEAR TV • NO SKIPPING</span>
+                </div>
+              </div>
+            ` : `
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px;">
+                <button class="btn-outline" style="padding:5px 10px; font-size:0.75rem;" onclick="exitToddlerPlayerToDial()">← Channels</button>
+                <span style="font-weight:800; font-size:0.82rem; color:var(--pink);">${ch?.emoji || '📺'} ${ch?.displayTitle || 'Toddler TV'}</span>
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <button class="icon-btn" onclick="state.showToddlerRestartConfirm=true; state.toddlerRestartSource='tv'; render();" title="Restart from Beginning" style="width:28px; height:28px;">
+                    <span class="material-symbols-rounded" style="font-size:1rem;">refresh</span>
+                  </button>
+                  <button class="icon-btn" onclick="state.toddlerFullscreen=true; render();" title="Fullscreen" style="width:28px; height:28px;">
+                    <span class="material-symbols-rounded" style="font-size:1rem;">fullscreen</span>
+                  </button>
+                  <button class="icon-btn" onclick="navigate('parental_gate')" title="Parent PIN" style="width:28px; height:28px;">
+                    <span class="material-symbols-rounded" style="font-size:1rem;">lock</span>
+                  </button>
+                </div>
+              </div>
 
-            <div class="card-box" style="padding:12px;">
-              <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:8px;">
-                <div style="min-width:0;">
-                  <div style="font-weight:800; font-size:0.9rem; line-height:1.3;">${vid?.title || ''}</div>
-                  <div style="font-size:0.72rem; color:var(--text-muted); margin-top:3px;">
-                    ${state.toddlerResumedFromSec > 0 ? 'Resuming where you left off • ' : 'Playing from start • '}
-                    <span id="toddlerLoopLeftPill" style="color:#06D6A0; font-weight:800;">${loopLeftMin > 0 ? `${loopLeftMin}m left in loop` : 'Last story!'}</span>
+              <div style="position:relative; aspect-ratio:16/9; border-radius:14px; overflow:hidden; background:#000; margin-bottom:10px;">
+                ${vid?.youtubeVideoId ? `
+                  <iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/${vid.youtubeVideoId}?autoplay=1&controls=0&disablekb=1&rel=0&modestbranding=1&iv_load_policy=3&start=${state.toddlerResumedFromSec || 0}" frameborder="0" allow="accelerometer; autoplay; encrypted-media" style="border:none; width:100%; height:100%;"></iframe>
+                ` : `
+                  <video src="${vid?.sourceUrl || ''}" autoplay playsinline style="width:100%; height:100%; object-fit:cover;"></video>
+                `}
+                <!-- Transparent scrub-lock shield: no seeking, skipping, or YouTube click-through -->
+                <div style="position:absolute; inset:0; z-index:4; background:transparent;"></div>
+                <span style="position:absolute; top:8px; left:8px; z-index:5; background:rgba(0,0,0,0.72); color:#fff; font-size:0.62rem; font-weight:800; padding:3px 7px; border-radius:99px;">🔒 LINEAR TV • NO SKIPPING</span>
+              </div>
+
+              <!-- Read-only calm progress bar -->
+              <div style="height:5px; border-radius:99px; background:var(--surface-var); overflow:hidden; margin-bottom:10px;">
+                <div id="toddlerProgressBar" style="height:100%; width:${pct}%; background:linear-gradient(90deg, var(--pink), var(--blue)); transition:width 0.4s ease;"></div>
+              </div>
+
+              <div class="card-box" style="padding:12px; margin-bottom:10px;">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:8px;">
+                  <div style="min-width:0;">
+                    <div style="font-weight:800; font-size:0.9rem; line-height:1.3;">${vid?.title || ''}</div>
+                    <div style="font-size:0.72rem; color:var(--text-muted); margin-top:3px;">
+                      ${state.toddlerResumedFromSec > 0 ? 'Resuming where you left off • ' : 'Playing from start • '}
+                      <span id="toddlerLoopLeftPill" style="color:#06D6A0; font-weight:800;">${loopLeftMin > 0 ? `${loopLeftMin}m left in loop` : 'Last story!'}</span>
+                    </div>
+                  </div>
+                  <div style="display:flex; gap:6px;">
+                    <button class="btn-outline" style="padding:6px 10px; flex-shrink:0; color:${isPreviewFavorite(vid?.id) ? 'var(--pink)' : 'inherit'}; border-color:${isPreviewFavorite(vid?.id) ? 'var(--pink)' : 'var(--border)'};" onclick="togglePreviewFavorite('${vid?.id || ''}')">
+                      ${isPreviewFavorite(vid?.id) ? '❤️' : '🤍'}
+                    </button>
+                    <button class="btn-outline" style="padding:6px 10px; flex-shrink:0;" onclick="state.toddlerFullscreen=true; render();" title="Fullscreen">
+                      ⛶
+                    </button>
                   </div>
                 </div>
-                <button class="btn-outline" style="padding:6px 10px; flex-shrink:0; color:${isPreviewFavorite(vid?.id) ? 'var(--pink)' : 'inherit'}; border-color:${isPreviewFavorite(vid?.id) ? 'var(--pink)' : 'var(--border)'};" onclick="togglePreviewFavorite('${vid?.id || ''}')">
-                  ${isPreviewFavorite(vid?.id) ? '❤️' : '🤍'}
-                </button>
+                <div style="margin-top:10px;">
+                  <button class="btn-outline" style="width:100%; display:flex; align-items:center; justify-content:center; gap:6px; font-weight:700; color:var(--blue); border-color:var(--blue);" onclick="state.showToddlerRestartConfirm=true; state.toddlerRestartSource='tv'; render();">
+                    <span class="material-symbols-rounded" style="font-size:1.1rem;">refresh</span>
+                    <span>Restart Video from Beginning</span>
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <!-- Simulator Fast-Forward Strip for testing -->
-            <div class="card-box" style="padding:10px; border-style:dashed; border-color:rgba(76,201,240,0.45);">
-              <div style="font-size:0.68rem; font-weight:800; color:var(--blue); margin-bottom:6px;">🧪 Simulator Controls (Test Tier 1 Flow)</div>
-              <div style="display:flex; flex-wrap:wrap; gap:6px;">
-                <button class="btn-outline" style="font-size:0.68rem; padding:4px 8px;" onclick="finishToddlerVideo(false, false)">⏭️ End Video (Breather)</button>
-                <button class="btn-outline" style="font-size:0.68rem; padding:4px 8px;" onclick="finishToddlerVideo(false, true)">🌿 Jump to Wind-Down</button>
-                <button class="btn-outline" style="font-size:0.68rem; padding:4px 8px; border-color:var(--pink); color:var(--pink);" onclick="finishToddlerVideo(true, false)">🌙 Finish Loop → Nap</button>
+              <!-- Simulator Fast-Forward Strip for testing -->
+              <div class="card-box" style="padding:10px; border-style:dashed; border-color:rgba(76,201,240,0.45);">
+                <div style="font-size:0.68rem; font-weight:800; color:var(--blue); margin-bottom:6px;">🧪 Simulator Controls (Test Tier 1 Flow)</div>
+                <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                  <button class="btn-outline" style="font-size:0.68rem; padding:4px 8px;" onclick="finishToddlerVideo(false, false)">⏭️ End Video (Breather)</button>
+                  <button class="btn-outline" style="font-size:0.68rem; padding:4px 8px;" onclick="finishToddlerVideo(false, true)">🌿 Jump to Wind-Down</button>
+                  <button class="btn-outline" style="font-size:0.68rem; padding:4px 8px; border-color:var(--pink); color:var(--pink);" onclick="finishToddlerVideo(true, false)">🌙 Finish Loop → Nap</button>
+                </div>
               </div>
-            </div>
+            `}
+            ${renderToddlerRestartModal()}
           `;
         }
       } else if (state.screen === 'player') {
         const v = state.activeVideo || state.videos[0];
-        body.innerHTML = `
-          <button class="btn-outline" onclick="navigate('home')" style="margin-bottom:10px;">← Back</button>
-          <div style="position:relative; aspect-ratio:16/9; border-radius:14px; overflow:hidden; background:#000; margin-bottom:12px;">
-            <img src="${v.thumbnailUrl}" style="width:100%; height:100%; object-fit:cover; opacity:${state.isAttentionPaused ? '0.25' : '0.85'};">
-            ${state.isAttentionPaused ? `
-              <div onclick="state.isAttentionPaused=false; render();" style="position:absolute; inset:0; background:rgba(11,17,32,0.88); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px; text-align:center; cursor:pointer;">
-                <div style="font-weight:800; color:#fff; font-size:1rem; margin-bottom:4px;">Are you still watching?</div>
-                <div style="font-size:0.74rem; color:#94a3b8; margin-bottom:10px;">Video paused at current position. Tap to resume.</div>
-                <span class="btn-primary">Resume Watching</span>
+        const isToddler = state.ageMode === 'TODDLER';
+        const isFs = isToddler && Boolean(state.toddlerFullscreen);
+        if (isFs) {
+          body.innerHTML = `
+            <div style="position:fixed; inset:0; z-index:100; background:#000; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+              <div style="position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
+                <img src="${v.thumbnailUrl}" style="width:100%; height:100%; object-fit:contain; opacity:${state.isAttentionPaused ? '0.25' : '0.9'};">
+                <!-- Scrub-lock shield: no seeking or skipping ahead -->
+                <div style="position:absolute; inset:0; z-index:4; background:transparent;"></div>
+
+                <!-- Immersive Floating Top Bar -->
+                <div style="position:absolute; top:0; left:0; right:0; z-index:10; background:linear-gradient(to bottom, rgba(0,0,0,0.85), transparent); padding:12px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <button class="icon-btn" style="background:rgba(0,0,0,0.5); width:32px; height:32px; color:#fff;" onclick="state.toddlerFullscreen=false; render();" title="Exit Fullscreen">
+                      <span class="material-symbols-rounded" style="font-size:1.1rem;">fullscreen_exit</span>
+                    </button>
+                    <span style="font-weight:800; font-size:0.85rem; color:#fff; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${v.title}</span>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <button class="icon-btn" style="background:rgba(0,0,0,0.5); width:32px; height:32px; color:#fff;" onclick="state.showToddlerRestartConfirm=true; state.toddlerRestartSource='player'; render();" title="Restart Video">
+                      <span class="material-symbols-rounded" style="font-size:1.1rem;">refresh</span>
+                    </button>
+                    <button class="icon-btn" style="background:rgba(0,0,0,0.5); width:32px; height:32px; color:${isPreviewFavorite(v.id)?'var(--pink)':'#fff'};" onclick="togglePreviewFavorite('${v.id}')" title="Favorite">
+                      <span class="material-symbols-rounded" style="font-size:1.1rem;">favorite</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Lock badge -->
+                <span style="position:absolute; bottom:12px; left:14px; z-index:10; background:rgba(0,0,0,0.72); color:#fff; font-size:0.62rem; font-weight:800; padding:4px 8px; border-radius:99px;">🔒 TODDLER MODE • NO SKIPPING</span>
               </div>
-            ` : `
-              <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">
-                <span class="material-symbols-rounded" style="font-size:3.2rem; color:#fff;">play_circle</span>
-              </div>
-            `}
-          </div>
-          <div class="card-box">
-            <div style="font-weight:800; font-size:0.96rem; margin-bottom:4px;">${v.title}</div>
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; cursor:pointer;" onclick="openChannelDetailByVideo('${v.id}')">
-              <span style="font-size:0.78rem; color:var(--pink); font-weight:700; text-decoration:underline;">${v.channelTitle}</span>
-              <span style="font-size:0.72rem; color:var(--text-muted);">${v.category} • View Channel ›</span>
             </div>
-            <div style="display:flex; gap:8px; margin-bottom:10px;">
-              ${state.ageMode !== 'TODDLER' ? `
-                <button class="btn-outline" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px;" onclick="openSaveToLibraryModal('${v.id}')">
-                  <span class="material-symbols-rounded" style="font-size:1.15rem; color:var(--pink);">playlist_add</span>
-                  <span>Save to List</span>
+            ${renderToddlerRestartModal()}
+          `;
+        } else {
+          body.innerHTML = `
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+              <button class="btn-outline" onclick="navigate('home')">← Back</button>
+              ${isToddler ? `
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <button class="icon-btn" onclick="state.showToddlerRestartConfirm=true; state.toddlerRestartSource='player'; render();" title="Restart from Beginning" style="width:28px; height:28px;">
+                    <span class="material-symbols-rounded" style="font-size:1rem;">refresh</span>
+                  </button>
+                  <button class="icon-btn" onclick="state.toddlerFullscreen=true; render();" title="Fullscreen" style="width:28px; height:28px;">
+                    <span class="material-symbols-rounded" style="font-size:1rem;">fullscreen</span>
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+            <div style="position:relative; aspect-ratio:16/9; border-radius:14px; overflow:hidden; background:#000; margin-bottom:12px;">
+              <img src="${v.thumbnailUrl}" style="width:100%; height:100%; object-fit:cover; opacity:${state.isAttentionPaused ? '0.25' : '0.85'};">
+              ${isToddler ? `
+                <!-- Scrub-lock shield: prevents toddler from skipping ahead -->
+                <div style="position:absolute; inset:0; z-index:4; background:transparent;"></div>
+                <span style="position:absolute; top:8px; left:8px; z-index:5; background:rgba(0,0,0,0.72); color:#fff; font-size:0.62rem; font-weight:800; padding:3px 7px; border-radius:99px;">🔒 TODDLER • NO SKIPPING</span>
+              ` : ''}
+              ${state.isAttentionPaused ? `
+                <div onclick="state.isAttentionPaused=false; render();" style="position:absolute; inset:0; z-index:6; background:rgba(11,17,32,0.88); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px; text-align:center; cursor:pointer;">
+                  <div style="font-weight:800; color:#fff; font-size:1rem; margin-bottom:4px;">Are you still watching?</div>
+                  <div style="font-size:0.74rem; color:#94a3b8; margin-bottom:10px;">Video paused at current position. Tap to resume.</div>
+                  <span class="btn-primary">Resume Watching</span>
+                </div>
+              ` : `
+                <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">
+                  <span class="material-symbols-rounded" style="font-size:3.2rem; color:#fff;">play_circle</span>
+                </div>
+              `}
+            </div>
+            <div class="card-box">
+              <div style="font-weight:800; font-size:0.96rem; margin-bottom:4px;">${v.title}</div>
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; cursor:pointer;" onclick="openChannelDetailByVideo('${v.id}')">
+                <span style="font-size:0.78rem; color:var(--pink); font-weight:700; text-decoration:underline;">${v.channelTitle}</span>
+                <span style="font-size:0.72rem; color:var(--text-muted);">${v.category} • View Channel ›</span>
+              </div>
+              <div style="display:flex; gap:8px; margin-bottom:10px;">
+                ${!isToddler ? `
+                  <button class="btn-outline" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px;" onclick="openSaveToLibraryModal('${v.id}')">
+                    <span class="material-symbols-rounded" style="font-size:1.15rem; color:var(--pink);">playlist_add</span>
+                    <span>Save to List</span>
+                  </button>
+                ` : `
+                  <button class="btn-outline" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; font-weight:700; color:var(--blue); border-color:var(--blue);" onclick="state.showToddlerRestartConfirm=true; state.toddlerRestartSource='player'; render();">
+                    <span class="material-symbols-rounded" style="font-size:1.1rem;">refresh</span>
+                    <span>Restart from Beginning</span>
+                  </button>
+                `}
+                <button class="btn-outline" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; color:${isPreviewFavorite(v.id) ? 'var(--pink)' : 'inherit'}; border-color:${isPreviewFavorite(v.id) ? 'var(--pink)' : 'var(--border)'};" onclick="togglePreviewFavorite('${v.id}')">
+                  <span>${isPreviewFavorite(v.id) ? '❤️' : '🤍'}</span>
+                  <span>${isPreviewFavorite(v.id) ? 'Favorited' : 'Favorite'}</span>
+                </button>
+              </div>
+              ${isToddler ? `
+                <button class="btn-outline" style="width:100%; margin-bottom:10px; display:flex; align-items:center; justify-content:center; gap:6px;" onclick="state.toddlerFullscreen=true; render();">
+                  <span class="material-symbols-rounded" style="font-size:1.1rem;">fullscreen</span>
+                  <span>Enter Fullscreen</span>
                 </button>
               ` : ''}
-              <button class="btn-outline" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; color:${isPreviewFavorite(v.id) ? 'var(--pink)' : 'inherit'}; border-color:${isPreviewFavorite(v.id) ? 'var(--pink)' : 'var(--border)'};" onclick="togglePreviewFavorite('${v.id}')">
-                <span>${isPreviewFavorite(v.id) ? '❤️' : '🤍'}</span>
-                <span>${isPreviewFavorite(v.id) ? 'Favorited' : 'Favorite'}</span>
+              <button class="btn-outline" style="width:100%;" onclick="state.isAttentionPaused=!state.isAttentionPaused; render();">
+                ${state.isAttentionPaused ? '▶ Resume From Paused Position' : '📷 Simulate Attention Tracker Pause'}
               </button>
             </div>
-            <button class="btn-outline" style="width:100%;" onclick="state.isAttentionPaused=!state.isAttentionPaused; render();">
-              ${state.isAttentionPaused ? '▶ Resume From Paused Position' : '📷 Simulate Attention Tracker Pause'}
-            </button>
-          </div>
-        `;
+            ${renderToddlerRestartModal()}
+          `;
+        }
       } else if (state.screen === 'notifications') {
         const approvedNotifs = state.parentRequests
           .filter(r => r.status === 'APPROVED')

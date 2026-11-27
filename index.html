@@ -2535,6 +2535,7 @@
             <div class="form-group" style="margin:0;">
               <label>Family Language</label>
               <select id="globalContentLanguage">
+                <option value="all">All Languages (Default)</option>
                 <option value="en">English</option>
                 <option value="id">Indonesian</option>
                 <option value="bilingual">Bilingual (EN + ID)</option>
@@ -2978,6 +2979,16 @@
               <option value="YOUNG_KIDS">Young Kids (Ages 5-7) — Simple Mode</option>
               <option value="OLDER_KIDS">Explorers / Tweens (Ages 8-11)</option>
               <option value="ALL">Pre-Teens &amp; Up (Ages 12+)</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="display:block; font-weight:700; font-size:0.9rem; margin-bottom:0.35rem;">Language Selection</label>
+            <select id="kidPcContentLanguage" style="width:100%; padding:0.6rem 0.75rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit;">
+              <option value="all">All Languages (Default)</option>
+              <option value="en">English</option>
+              <option value="id">Indonesian</option>
+              <option value="bilingual">Bilingual (EN + ID)</option>
             </select>
           </div>
 
@@ -4831,7 +4842,7 @@
         document.getElementById('globalDailyLimit').value = c.dailyLimitMinutes ?? 45;
         document.getElementById('globalAgeRating').value = c.ageRating || 'ALL';
         const langEl = document.getElementById('globalContentLanguage');
-        if (langEl) langEl.value = c.contentLanguage || 'en';
+        if (langEl) langEl.value = c.contentLanguage || 'all';
         const culEl = document.getElementById('globalCultureMode');
         if (culEl) culEl.value = c.cultureMode || 'GLOBAL';
         document.getElementById('globalAttentionEnabled').checked = c.attentionTrackingEnabled !== false;
@@ -4848,7 +4859,7 @@
         parentPin: document.getElementById('globalPin').value.trim(),
         dailyLimitMinutes: Number(document.getElementById('globalDailyLimit').value),
         ageRating: document.getElementById('globalAgeRating').value,
-        contentLanguage: document.getElementById('globalContentLanguage')?.value || 'en',
+        contentLanguage: document.getElementById('globalContentLanguage')?.value || 'all',
         cultureMode: document.getElementById('globalCultureMode')?.value || 'GLOBAL',
         attentionTrackingEnabled: document.getElementById('globalAttentionEnabled').checked,
         attentionPauseSeconds: Number(document.getElementById('globalAttentionPause').value),
@@ -5518,7 +5529,8 @@
               <div class="form-group">
                 <label>Family Language</label>
                 <select id="pmGlobalLang">
-                  <option value="en" ${(c.contentLanguage || 'en') === 'en' ? 'selected' : ''}>English</option>
+                  <option value="all" ${(c.contentLanguage || 'all') === 'all' ? 'selected' : ''}>All Languages (Default)</option>
+                  <option value="en" ${c.contentLanguage === 'en' ? 'selected' : ''}>English</option>
                   <option value="id" ${c.contentLanguage === 'id' ? 'selected' : ''}>Indonesian</option>
                   <option value="bilingual" ${c.contentLanguage === 'bilingual' ? 'selected' : ''}>Bilingual (EN + ID)</option>
                 </select>
@@ -5551,7 +5563,7 @@
       if (!/^\d{4}$/.test(parentPin)) return alert('Parent PIN must be exactly 4 digits.');
       const payload = {
         parentPin,
-        contentLanguage: document.getElementById('pmGlobalLang')?.value || 'en',
+        contentLanguage: document.getElementById('pmGlobalLang')?.value || 'all',
         cultureMode: document.getElementById('pmGlobalCulture')?.value || 'GLOBAL',
         dailyLimitMinutes: Number(document.getElementById('pmGlobalDailyLimit')?.value || 45),
         attentionTrackingEnabled: Boolean(document.getElementById('pmGlobalAttention')?.checked)
@@ -5827,7 +5839,8 @@
                 <div class="form-group">
                   <label>Language Override</label>
                   <select id="pmToddlerLang_${c.id}">
-                    <option value="en" ${(c.contentLanguage || 'en') === 'en' ? 'selected' : ''}>English</option>
+                    <option value="all" ${(c.contentLanguage || 'all') === 'all' ? 'selected' : ''}>All Languages (Default)</option>
+                    <option value="en" ${c.contentLanguage === 'en' ? 'selected' : ''}>English</option>
                     <option value="id" ${c.contentLanguage === 'id' ? 'selected' : ''}>Indonesian</option>
                     <option value="bilingual" ${c.contentLanguage === 'bilingual' ? 'selected' : ''}>Bilingual (EN + ID)</option>
                   </select>
@@ -5997,7 +6010,7 @@
         toddlerLoopMinutes: Number(document.getElementById(`pmToddlerLoop_${childId}`)?.value || 15),
         toddlerCooldownMinutes: Number(document.getElementById(`pmToddlerCooldown_${childId}`)?.value || 30),
         toddlerSubStage: document.getElementById(`pmToddlerSubStage_${childId}`)?.value || 'AUTO',
-        contentLanguage: document.getElementById(`pmToddlerLang_${childId}`)?.value || 'en',
+        contentLanguage: document.getElementById(`pmToddlerLang_${childId}`)?.value || 'all',
         cultureMode: document.getElementById(`pmToddlerCulture_${childId}`)?.value || 'GLOBAL',
         toddlerEnabledTopics: checkedTopics
       };
@@ -8192,6 +8205,8 @@
       document.getElementById('kidPcLimitHours').value = String(Math.floor(limit / 60));
       document.getElementById('kidPcLimitMinutes').value = String(limit % 60);
       document.getElementById('kidPcAgeRating').value = kidParentalSettings.ageRating || currentUser?.ageRating || 'ALL';
+      const langEl = document.getElementById('kidPcContentLanguage');
+      if (langEl) langEl.value = kidParentalSettings.contentLanguage || currentUser?.contentLanguage || 'all';
       document.getElementById('kidPcAttentionEnabled').checked = Boolean(kidParentalSettings.attentionTrackingEnabled);
       document.getElementById('kidPcAttentionPause').value = String(kidParentalSettings.attentionPauseSeconds ?? 30);
       document.getElementById('kidPcAttentionPercent').value = String(kidParentalSettings.attentionMinWatchPercent ?? 60);
@@ -8259,6 +8274,7 @@
       const mins = Math.max(0, Math.min(59, parseInt(document.getElementById('kidPcLimitMinutes').value || '0', 10) || 0));
       const dailyLimitMinutes = hours * 60 + mins;
       const ageRating = document.getElementById('kidPcAgeRating').value;
+      const contentLanguage = document.getElementById('kidPcContentLanguage')?.value || 'all';
       const attentionTrackingEnabled = document.getElementById('kidPcAttentionEnabled').checked;
       const attentionPauseSeconds = Math.max(5, Math.min(300, parseInt(document.getElementById('kidPcAttentionPause').value || '30', 10) || 30));
       const attentionMinWatchPercent = Math.max(10, Math.min(100, parseInt(document.getElementById('kidPcAttentionPercent').value || '60', 10) || 60));
@@ -8283,6 +8299,7 @@
             parentPin: newPin,
             dailyLimitMinutes,
             ageRating,
+            contentLanguage,
             attentionTrackingEnabled,
             attentionPauseSeconds,
             attentionMinWatchPercent,
@@ -8303,7 +8320,11 @@
         kidUnlockedPinCache = newPin;
         if (currentUser) {
           currentUser.ageRating = kidParentalSettings.ageRating;
+          currentUser.contentLanguage = kidParentalSettings.contentLanguage;
           updateKidToolsVisibility(currentUser);
+          if (currentUser.ageRating === 'TODDLER' && typeof renderKidHomeHub === 'function') {
+            renderKidHomeHub(currentUser);
+          }
         }
         updateKidTimePill();
         if (!isKidTimeUp()) hideKidTimeUpOverlay();
