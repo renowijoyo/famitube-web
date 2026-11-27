@@ -3126,7 +3126,7 @@
             <button class="chip ${state.parentTab==='requests'?'active':''}" onclick="state.parentTab='requests'; render();">Requests${pendingCount ? ' (' + pendingCount + ')' : ''}</button>
             <button class="chip ${state.parentTab==='kids'?'active':''}" onclick="state.parentTab='kids'; render();">My Kids (${state.parentChildren.length})</button>
             <button class="chip ${state.parentTab==='activity'?'active':''}" onclick="state.parentTab='activity'; render();">Activity &amp; @Channels</button>
-            <button class="chip ${state.parentTab==='controls'?'active':''}" onclick="state.parentTab='controls'; render();">Controls</button>
+            <button class="chip ${state.parentTab==='controls'?'active':''}" onclick="state.parentTab='controls'; render();">Global Controls</button>
           </div>
           ${state.parentTab === 'requests' ? `
             ${state.parentRequests.length === 0 ? `
@@ -3611,7 +3611,7 @@
         { id: 'requests', icon: 'inbox', label: pendingCount ? `Requests (${pendingCount})` : 'Requests' },
         { id: 'kids', icon: 'group', label: 'Kids' },
         { id: 'activity', icon: 'monitoring', label: 'Activity' },
-        { id: 'controls', icon: 'tune', label: 'Controls' }
+        { id: 'controls', icon: 'tune', label: 'Global Controls' }
       ];
       parentBar.style.display = 'flex';
       parentBar.innerHTML = parentTabs.map(t => {
