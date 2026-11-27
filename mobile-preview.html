@@ -4756,18 +4756,9 @@
               </div>
 
               <!-- Search Input (Similar to stories and videos) -->
-              <div style="position:relative; margin-bottom:10px;">
+              <div style="position:relative; margin-bottom:12px;">
                 <input type="text" placeholder="Search games, math, science, puzzles..." value="${state.gameSearchQuery || ''}" oninput="state.gameSearchQuery=this.value; render();" style="width:100%; box-sizing:border-box; padding:9px 12px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:0.8rem;">
                 ${state.gameSearchQuery ? `<button style="position:absolute; right:8px; top:50%; transform:translateY(-50%); border:none; background:transparent; color:var(--text-muted); cursor:pointer; font-size:0.9rem;" onclick="state.gameSearchQuery=''; render();">✕</button>` : ''}
-              </div>
-
-              <!-- Category Filter Chips Row (Similar to videos & stories) -->
-              <div class="chips-row" style="margin-bottom:14px;">
-                <button class="chip ${!state.selectedGameCategory ? 'active' : ''}" onclick="state.selectedGameCategory=null; render();">All Categories</button>
-                ${gameCategories.map(c => `
-                  <button class="chip ${state.selectedGameCategory === c.id ? 'active' : ''}" onclick="state.selectedGameCategory = (state.selectedGameCategory === '${c.id}' ? null : '${c.id}'); render();">${c.emoji} ${c.id.split(' ')[0]}</button>
-                `).join('')}
-                <button class="chip ${state.browseAllGameAges ? 'active' : ''}" onclick="state.browseAllGameAges=!state.browseAllGameAges; render();">${state.browseAllGameAges ? 'All Ages' : 'Browse All'}</button>
               </div>
 
               ${q ? `
