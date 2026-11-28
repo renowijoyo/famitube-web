@@ -35,7 +35,7 @@
         "name": "Can children sign up or change parental rules on their own?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "No. FamiTube has zero self-registration for kids. Only verified Parent accounts (via email/password or Google Sign-In) can create child profiles, set passcodes or PINs, and manage channels, timers, and safety defaults."
+          "text": "No. FamiTube uses a parent-first setup with zero self-registration for kids. Only verified Parent accounts (via email/password or Google Sign-In) can create passwordless child profiles (with optional legacy login details), switch kids via \"Who's Watching?\", issue 6-digit one-time device pairing codes (10-minute expiry) to link a kid's tablet or phone without sharing passwords, and manage PIN-locked channels, timers, and safety defaults."
         }
       },
       {
@@ -112,10 +112,10 @@
       },
       {
         "@type": "Question",
-        "name": "How do Favorites, Custom Library Lists, and Calm-by-Design viewing work?",
+        "name": "How do Saved lists, Favorites, Watch History, and Calm-by-Design viewing work?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Kids can heart Favorite videos—with a dedicated Favorites heart tab right on the Toddler (1.5–3) bottom bar and saved under Profile—while Young Kids (4–6) and Older Kids (7+) can also organize approved videos into custom Library playlists (playlists and add-to-playlist are disabled for Toddlers). To keep screen time calm and healthy, FamiTube intentionally avoids games, point currencies, streaks, badges, and front-camera tracking."
+          "text": "Toddlers (1.5–3) see a focused 2-tab interface (TV and Favorites) with a discreet corner PIN lock for grown-up controls, keeping playlists, search, and account menus out of sight. Young Kids (4–6) and Older Kids (7+) get a unified Saved tab combining Favorites, custom My Lists playlists, and Watch History, plus a dedicated bottom Search tab. To keep screen time calm and healthy, FamiTube intentionally avoids games, point currencies, streaks, badges, and front-camera tracking."
         }
       },
       {
@@ -600,7 +600,7 @@
           <span class="material-symbols-rounded faq-chevron">expand_more</span>
         </summary>
         <div class="faq-answer" data-i18n="a_no_kid_self_reg">
-          No. FamiTube has zero self-registration for kids. Only verified Parent accounts (via email/password or Google Sign-In) can create child profiles, set passcodes or PINs, and manage channels, timers, and safety defaults.
+          No. FamiTube uses a parent-first setup with zero self-registration for kids. Only verified Parent accounts (via email/password or Google Sign-In) can create passwordless child profiles (with optional legacy login details), switch kids via "Who's Watching?", issue 6-digit one-time device pairing codes (10-minute expiry) to link a kid's tablet or phone without sharing passwords, and manage PIN-locked channels, timers, and safety defaults.
         </div>
       </details>
 
@@ -725,12 +725,12 @@
         <summary>
           <span class="faq-summary-left">
             <span class="faq-cat-badge" data-i18n="cat_kids">Kids &amp; Stories</span>
-            <span data-i18n="q_library_favorites_calm">How do Favorites, Custom Library Lists, and Calm-by-Design viewing work?</span>
+            <span data-i18n="q_library_favorites_calm">How do Saved lists, Favorites, Watch History, and Calm-by-Design viewing work?</span>
           </span>
           <span class="material-symbols-rounded faq-chevron">expand_more</span>
         </summary>
         <div class="faq-answer" data-i18n="a_library_favorites_calm">
-          Kids can heart Favorite videos—with a dedicated Favorites heart tab right on the Toddler (1.5–3) bottom bar and saved under Profile—while Young Kids (4–6) and Older Kids (7+) can also organize approved videos into custom Library playlists (playlists and add-to-playlist are disabled for Toddlers). To keep screen time calm and healthy, FamiTube intentionally avoids games, point currencies, streaks, badges, and front-camera tracking.
+          Toddlers (1.5–3) see a focused 2-tab interface (TV and Favorites) with a discreet corner PIN lock for grown-up controls, keeping playlists, search, and account menus out of sight. Young Kids (4–6) and Older Kids (7+) get a unified Saved tab combining Favorites, custom My Lists playlists, and Watch History, plus a dedicated bottom Search tab. To keep screen time calm and healthy, FamiTube intentionally avoids games, point currencies, streaks, badges, and front-camera tracking.
         </div>
       </details>
 
@@ -839,7 +839,7 @@
         q_are_videos_free: 'Are curated videos on FamiTube really 100% free?',
         a_are_videos_free: 'Yes. Every curated video on FamiTube is 100% free ($0 / Rp 0 forever) with zero video paywalls. FamiTube Family Pass is completely optional and only unlocks multi-child profiles, private family channels, and advanced household controls.',
         q_no_kid_self_reg: 'Can children sign up or change parental rules on their own?',
-        a_no_kid_self_reg: 'No. FamiTube has zero self-registration for kids. Only verified Parent accounts (via email/password or Google Sign-In) can create child profiles, set passcodes or PINs, and manage channels, timers, and safety defaults.',
+        a_no_kid_self_reg: 'No. FamiTube uses a parent-first setup with zero self-registration for kids. Only verified Parent accounts (via email/password or Google Sign-In) can create passwordless child profiles (with optional legacy login details), switch kids via "Who\'s Watching?", issue 6-digit one-time device pairing codes (10-minute expiry) to link a kid\'s tablet or phone without sharing passwords, and manage PIN-locked channels, timers, and safety defaults.',
         q_ondemand_vs_live: 'What is the difference between On-Demand Channels and 24H Live TV Channels?',
         a_ondemand_vs_live: 'On-Demand channels let kids pick approved episodes anytime. 24H Live TV channels broadcast a scheduled linear lineup (with default, weekday, and date-specific schedules supporting whole videos or clip ranges) for calm, lean-back viewing without decision fatigue.',
         q_controlled_yt_search: 'How do Controlled YouTube Search and video requests work?',
@@ -858,8 +858,8 @@
         a_faith_religion_filtering: 'Parents can optionally set a faith or religion for each child profile (such as Islam, Christianity, Catholicism, Hinduism, Buddhism, Judaism, or Confucianism) or leave it unselected (None). If None is selected, FamiTube operates in a strictly secular mode where all videos, stories, and content with religious themes or holidays are automatically hidden. If a religion is selected, child feeds display secular content alongside curated stories and videos matching that specific faith while filtering out other religious traditions.',
         q_parent_reviews: 'What are Parent Safety Reviews and Community Advisories?',
         a_parent_reviews: 'Parents can rate curated videos as Recommended or Caution with notes so other families can spot pacing, stimulation, or content sensitivity nuances at a glance before approving.',
-        q_library_favorites_calm: 'How do Favorites, Custom Library Lists, and Calm-by-Design viewing work?',
-        a_library_favorites_calm: 'Kids can heart Favorite videos—with a dedicated Favorites heart tab right on the Toddler (1.5–3) bottom bar and saved under Profile—while Young Kids (4–6) and Older Kids (7+) can also organize approved videos into custom Library playlists (playlists and add-to-playlist are disabled for Toddlers). To keep screen time calm and healthy, FamiTube intentionally avoids games, point currencies, streaks, badges, and front-camera tracking.',
+        q_library_favorites_calm: 'How do Saved lists, Favorites, Watch History, and Calm-by-Design viewing work?',
+        a_library_favorites_calm: 'Toddlers (1.5–3) see a focused 2-tab interface (TV and Favorites) with a discreet corner PIN lock for grown-up controls, keeping playlists, search, and account menus out of sight. Young Kids (4–6) and Older Kids (7+) get a unified Saved tab combining Favorites, custom My Lists playlists, and Watch History, plus a dedicated bottom Search tab. To keep screen time calm and healthy, FamiTube intentionally avoids games, point currencies, streaks, badges, and front-camera tracking.',
         q_storybooks_read_along: 'How do FamiRead Storybooks, "Read to Me", and "Read Aloud" work?',
         a_storybooks_read_along: 'Illustrated flip-page storybooks in English and Bahasa Indonesia now live in our dedicated companion Android app, FamiRead (using your shared FamiTube family account and Curator Studio story catalog). Books open in an immersive full-screen reader with ambient backdrops and floating overlay controls. Toddlers (1.5–3) default to "Read to Me" mode with gentle page narration and free flipping, while Young Kids (4–6) default to "Read Aloud" mode where the microphone automatically starts listening and turns to the next page after the child finishes reading all words on the page. Kids can tap any word to hear its pronunciation, get a gentle helper boost after 3 tries on a tricky word, save favorite stories to My Books, and search stories by topics and tags such as animals, bedtime, nature, friendship, folklore, culture, and faith.',
         q_free_vs_family_pass: 'What is included in FamiTube Free vs. FamiTube Family Pass?',
@@ -900,7 +900,7 @@
         q_are_videos_free: 'Apakah semua video terkurasi di FamiTube benar-benar 100% gratis?',
         a_are_videos_free: 'Ya. Setiap video terkurasi di FamiTube 100% gratis (Rp 0 selamanya) tanpa paywall video. FamiTube Family Pass bersifat opsional dan hanya membuka profil banyak anak, saluran keluarga privat, dan kontrol rumah tangga lanjutan.',
         q_no_kid_self_reg: 'Bisakah anak mendaftar atau mengubah aturan orang tua sendiri?',
-        a_no_kid_self_reg: 'Tidak. FamiTube tidak memiliki pendaftaran mandiri untuk anak. Hanya akun Orang Tua terverifikasi (melalui email/kata sandi atau Google Sign-In) yang dapat membuat profil anak, mengatur kode sandi atau PIN, serta mengelola saluran, timer, dan pengaturan keamanan.',
+        a_no_kid_self_reg: 'Tidak. FamiTube menggunakan pengaturan berbasis orang tua tanpa pendaftaran mandiri untuk anak. Hanya akun Orang Tua terverifikasi (melalui email/kata sandi atau Google Sign-In) yang dapat membuat profil anak tanpa kata sandi (dengan opsi detail login lama), beralih profil lewat "Siapa yang Menonton?", membuat kode pemasangan perangkat 6 digit sekali pakai (berlaku 10 menit) untuk menautkan tablet atau ponsel anak tanpa membagikan kata sandi, serta mengelola saluran, timer, dan aturan keamanan terkunci PIN.',
         q_ondemand_vs_live: 'Apa perbedaan antara Saluran On-Demand dan Saluran Live TV 24 Jam?',
         a_ondemand_vs_live: 'Saluran On-Demand memungkinkan anak memilih episode yang disetujui kapan saja. Saluran Live TV 24 Jam menayangkan jadwal siaran linier (mendukung jadwal harian default, hari kerja, dan tanggal khusus untuk video penuh atau cuplikan) agar tontonan tetap tenang tanpa bingung memilih.',
         q_controlled_yt_search: 'Bagaimana cara kerja Pencarian YouTube Terkontrol dan permintaan video?',
@@ -919,8 +919,8 @@
         a_faith_religion_filtering: 'Orang tua dapat secara opsional mengatur agama atau keyakinan untuk setiap profil anak (seperti Islam, Kristen, Katolik, Hindu, Buddha, Yudaisme, atau Konghucu) atau membiarkannya tidak dipilih (None). Jika None dipilih, FamiTube beroperasi dalam mode sekuler murni di mana semua video, buku cerita, dan konten bertema keagamaan disembunyikan secara otomatis. Jika suatu agama dipilih, feed anak akan menampilkan konten sekuler bersama konten yang sesuai dengan agama tersebut sembari menyaring tradisi keagamaan lainnya.',
         q_parent_reviews: 'Apa itu Ulasan Keamanan Orang Tua dan Advisori Komunitas?',
         a_parent_reviews: 'Orang tua dapat memberi penilaian Recommended atau Caution beserta catatan pada video terkurasi agar keluarga lain dapat melihat detail tempo, stimulasi, atau sensitivitas konten secara sekilas sebelum menyetujui.',
-        q_library_favorites_calm: 'Bagaimana cara kerja Favorit, Daftar Pustaka Kustom, dan desain tontonan yang tenang?',
-        a_library_favorites_calm: 'Anak dapat menyukai video Favorit—dengan tab ikon hati Favorit khusus langsung di bilah bawah mode Balita (1.5–3) serta tersimpan di Profil—sementara Anak Kecil (4–6) dan Anak Lebih Besar (7+) juga dapat menyusun video yang disetujui ke playlist Pustaka kustom (fitur playlist dan tambah ke playlist dinonaktifkan untuk Balita). Demi menjaga waktu layar tetap tenang dan sehat, FamiTube sengaja tidak menyertakan game, mata uang poin, streak, lencana, maupun pelacakan kamera depan.',
+        q_library_favorites_calm: 'Bagaimana cara kerja tab Tersimpan, Favorit, Riwayat Tontonan, dan desain tontonan yang tenang?',
+        a_library_favorites_calm: 'Balita (1,5–3) melihat antarmuka 2 tab yang terfokus (TV dan Favorit) dengan kunci PIN di sudut layar untuk kontrol orang tua, sehingga playlist, pencarian, dan menu akun tetap tersembunyi. Anak Kecil (4–6) dan Anak Lebih Besar (7+) mendapatkan tab Tersimpan terpadu yang menggabungkan Favorit, daftar putar Daftar Saya kustom, dan Riwayat Tontonan, serta tab Pencarian khusus di bilah bawah. Demi menjaga waktu layar tetap tenang dan sehat, FamiTube sengaja tidak menyertakan game, mata uang poin, streak, lencana, maupun pelacakan kamera depan.',
         q_storybooks_read_along: 'Bagaimana cara kerja Buku Cerita Bergambar FamiRead, "Read to Me", dan "Baca Nyaring"?',
         a_storybooks_read_along: 'Buku cerita bergambar lipat halaman dalam Bahasa Inggris dan Bahasa Indonesia kini tersedia di aplikasi Android pendamping khusus kami, FamiRead (menggunakan akun keluarga FamiTube dan katalog cerita Studio Kurator yang sama). Buku terbuka dalam mode layar penuh imersif dengan latar belakang ambient dan kontrol melayang. Balita (1.5–3) secara bawaan menggunakan mode "Read to Me" dengan narasi audio lembut dan balik halaman bebas, sedangkan Anak Kecil (4–6) menggunakan mode "Baca Nyaring" (Read Aloud) di mana mikrofon otomatis mendengarkan dan membalik halaman secara otomatis setelah anak selesai membaca seluruh kata. Anak dapat mengetuk kata apa pun untuk mendengar pelafalannya, mendapat bantuan lembut setelah 3 percobaan pada kata sulit, menyimpan buku favorit di Buku Saya, serta mencari cerita berdasarkan topik dan tag seperti hewan, dongeng tidur, alam, persahabatan, cerita rakyat, budaya, dan iman.',
         q_free_vs_family_pass: 'Apa saja yang termasuk dalam FamiTube Gratis vs. FamiTube Family Pass?',

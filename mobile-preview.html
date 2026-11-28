@@ -967,15 +967,18 @@
             <div class="app-topbar" id="appTopBar">
               <div class="app-topbar-left">
                 <div class="app-logo" style="overflow:hidden; padding:0; background:none; border-radius:10px;"><img src="assets/famitube-icon.png" style="width:100%; height:100%; object-fit:cover;"></div>
-                <span class="app-title">FamiTube</span>
+                <span class="app-title" id="topAppTitle">FamiTube</span>
               </div>
               <div class="app-topbar-actions">
                 <button class="icon-btn" id="btnTopNotif" onclick="navigate('notifications')" title="Notifications" style="position:relative;">
                   <span class="material-symbols-rounded" style="font-size:1.25rem;">notifications</span>
                   <span id="topNotifBadge" style="position:absolute; top:2px; right:2px; min-width:14px; height:14px; border-radius:99px; background:var(--pink); color:#fff; font-size:0.58rem; font-weight:800; display:flex; align-items:center; justify-content:center; padding:0 3px;">2</span>
                 </button>
-                <button class="icon-btn" id="btnTopSearch" onclick="navigate('search')" title="Search">
-                  <span class="material-symbols-rounded" style="font-size:1.25rem;">search</span>
+                <button class="icon-btn" id="btnTopSwitcher" onclick="navigate('profile_picker')" title="Who's Watching?">
+                  <span class="material-symbols-rounded" style="font-size:1.22rem;">groups</span>
+                </button>
+                <button class="icon-btn" id="btnTopLock" onclick="navigate('parental_gate')" title="Grown-Ups Only (PIN: 1234)">
+                  <span class="material-symbols-rounded" style="font-size:1.15rem;">lock</span>
                 </button>
               </div>
             </div>
@@ -1030,7 +1033,8 @@
       <div class="quick-screens">
         <button class="qs-btn" onclick="openTier1ToddlerShowcase()" style="border-color:rgba(255,46,147,0.55); background:rgba(255,46,147,0.08);"><span>🍼 Tier 1: Toddler TV + Parent Split</span><span>›</span></button>
         <button class="qs-btn" id="qsSideBySideBtn" onclick="toggleSideBySideMode(!state.sideBySideParent)" style="border-color:rgba(67,97,238,0.5);"><span>👥 Child + Parent Side-by-Side</span><span id="qsSideBySideStatus" style="font-size:0.72rem; font-weight:800; padding:2px 7px; border-radius:99px; background:rgba(148,163,184,0.2); color:var(--page-muted);">OFF</span></button>
-        <button class="qs-btn" onclick="navigate('login')"><span>🔐 Login (Child / Parent)</span><span>›</span></button>
+        <button class="qs-btn" onclick="navigate('login')"><span>🔐 Login (Parent / 6-Digit Pair)</span><span>›</span></button>
+        <button class="qs-btn" onclick="navigate('profile_picker')"><span>👨‍👩‍👧 Who's Watching? Switcher</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('parent_dashboard')"><span>🛡️ Parent Mode Dashboard</span><span>›</span></button>
         <button class="qs-btn" onclick="state.parentTab='activity'; navigate('parent_dashboard');"><span>📊 Child Activity &amp; @Trust Tiers</span><span>›</span></button>
         <button class="qs-btn" onclick="navigate('home')"><span>🏠 Home Feed (Child Mode)</span><span>›</span></button>
@@ -1119,7 +1123,11 @@
       childReligion: null,
       newChildDraft: { name: '', email: '', password: '', birthday: '2024-06-15', ageRating: 'TODDLER', religion: null },
       favoriteVideoIds: ['v-1', 'yt-ssk-1'],
-      isParentLogin: false,
+      isParentLogin: true,
+      isLegacyKidLogin: false,
+      pairCodeInput: '',
+      activeChildId: 'c-2',
+      savedSection: 'favorites',
       loginEmail: '',
       savedChannelIds: ['ch-1'],
       selectedChannelId: 'ch-1',
@@ -3030,41 +3038,54 @@
       }
     }
 
+    function formatPreviewChildSubtitle(child) {
+      if (!child) return 'Passwordless Child Profile';
+      const email = String(child.email || '').trim().toLowerCase();
+      if (!email || email.endsWith('@profiles.famitube.local')) {
+        return 'Passwordless Child Profile';
+      }
+      return child.email;
+    }
+
     function renderBottomBar() {
       const bar = document.getElementById('appBottomBar');
-      const isParentMode = state.screen === 'parent_dashboard' || state.screen === 'parental_settings' || (state.screen === 'notifications' && state.isParentLogin);
+      const isParentMode = state.screen === 'parent_dashboard' || (state.screen === 'notifications' && state.isParentLogin);
       const simple = state.ageMode === 'TODDLER';
+      const pendingBadge = state.parentRequests.filter(r => r.status === 'PENDING').length;
       const tabs = isParentMode
         ? [
-            { id: 'parent_dashboard', icon: 'dashboard', label: 'Dashboard' },
-            { id: 'notifications', icon: 'notifications', label: 'Alerts' },
-            { id: 'parental_settings', icon: 'settings', label: 'Settings' }
+            { id: 'parent_requests', icon: 'approval', label: pendingBadge ? `Approvals (${pendingBadge})` : 'Approvals', action: "state.parentTab='requests'; navigate('parent_dashboard');" },
+            { id: 'parent_kids', icon: 'group', label: 'My Kids', action: "state.parentTab='kids'; navigate('parent_dashboard');" },
+            { id: 'parent_controls', icon: 'tune', label: 'Controls', action: "state.parentTab='controls'; navigate('parent_dashboard');" }
           ]
         : (simple
           ? [
-            { id: 'home', icon: 'home', label: 'Home' },
-            { id: 'favorites', icon: 'favorite', label: 'Favorites' },
-            { id: 'profile', icon: 'person', label: 'Profile' }
+            { id: 'home', icon: 'tv', label: 'TV' },
+            { id: 'favorites', icon: 'favorite', label: 'Favorites' }
           ]
         : [
-            { id: 'home', icon: 'home', label: 'Explore' },
+            { id: 'home', icon: 'home', label: 'Home' },
             { id: 'channels', icon: 'tv', label: 'Channels' },
-            { id: 'library', icon: 'video_library', label: 'Library' },
-            { id: 'profile', icon: 'person', label: 'Profile' }
+            { id: 'library', icon: 'favorite', label: 'Saved' },
+            { id: 'search', icon: 'search', label: 'Search' }
           ]);
       const isChannelView = state.screen === 'channel_detail' || state.screen === 'yt_channel_detail';
-      const isStoryReading = state.screen === 'home' && state.homeNavTab === 'stories' && Boolean(state.activeStoryId);
       const isToddlerFullscreen = (state.screen === 'toddler_tv_player' || state.screen === 'player') && Boolean(state.toddlerFullscreen);
-      // Keep bottom bar visible unless login, story reading, or toddler fullscreen
-      const showBottom = state.screen !== 'login' && !isStoryReading && !isToddlerFullscreen;
+      // Keep bottom bar visible unless login, profile_picker, or toddler fullscreen
+      const showBottom = state.screen !== 'login' && state.screen !== 'profile_picker' && !isToddlerFullscreen;
       bar.style.display = showBottom ? 'flex' : 'none';
       bar.innerHTML = tabs.map(t => {
-        const isActive = state.screen === t.id ||
-                         (t.id === 'home' && state.screen === 'toddler_tv_player') ||
-                         (isChannelView && t.id === 'channels') ||
-                         (t.id === 'library' && (state.screen === 'library' || state.screen === 'playlists'));
+        const isActive = isParentMode
+          ? ((t.id === 'parent_requests' && state.parentTab === 'requests') ||
+             (t.id === 'parent_kids' && (state.parentTab === 'kids' || state.parentTab === 'add_child' || state.parentTab === 'activity')) ||
+             (t.id === 'parent_controls' && state.parentTab === 'controls'))
+          : (state.screen === t.id ||
+             (t.id === 'home' && state.screen === 'toddler_tv_player') ||
+             (isChannelView && t.id === 'channels') ||
+             (t.id === 'library' && (state.screen === 'library' || state.screen === 'playlists' || state.screen === 'favorites')));
+        const clickHandler = t.action ? t.action : `navigate('${t.id}')`;
         return `
-          <button class="nav-item ${isActive ? 'active' : ''}" onclick="navigate('${t.id}')">
+          <button class="nav-item ${isActive ? 'active' : ''}" onclick="${clickHandler}">
             <span class="material-symbols-rounded" style="font-size:1.3rem;">${t.icon}</span>
             <span>${t.label}</span>
           </button>
@@ -3265,11 +3286,13 @@
                     <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
                       <div>
                         <div style="font-weight:800; font-size:0.88rem;">${c.name}</div>
-                        <div style="font-size:0.72rem; color:var(--text-muted);">${c.email}</div>
+                        <div style="font-size:0.72rem; color:var(--text-muted);">${formatPreviewChildSubtitle(c)}</div>
                         <div style="font-size:0.7rem; color:var(--blue); margin-top:2px;">${isToddlerC ? `Tier 1: Toddler TV (${c.toddlerLoopMinutes ?? 15}m loop)` : `${c.ageRating === 'YOUNG_KIDS' ? 'Tier 2: Young' : 'Tier 3: Older'} • ${effectiveLimit}m/day`} • Faith: ${c.religion ? c.religion : 'None (Secular)'}</div>
                       </div>
                       <div style="display:flex; flex-direction:column; gap:4px;">
-                        <button class="btn-primary" style="padding:4px 8px; font-size:0.68rem;" onclick="state.parentConfigChildId='${c.id}'; setAgeMode('${c.ageRating}'); state.childReligion='${c.religion || ''}' || null; render();">Configure</button>
+                        <button class="btn-primary" style="padding:4px 8px; font-size:0.68rem;" onclick="state.activeChildId='${c.id}'; state.childReligion=${c.religion ? `'${c.religion}'` : 'null'}; setAgeMode('${c.ageRating}'); navigate('home');">▶ Watch</button>
+                        <button class="btn-outline" style="padding:4px 8px; font-size:0.68rem;" onclick="const code=String(Math.floor(100000+Math.random()*900000)); alert('6-digit Pair Code for ${c.name}:\\n\\n' + code + '\\n\\nValid for 10 minutes on child device login.');">📱 Pair</button>
+                        <button class="btn-outline" style="padding:4px 8px; font-size:0.68rem;" onclick="state.parentConfigChildId='${c.id}'; setAgeMode('${c.ageRating}'); state.childReligion='${c.religion || ''}' || null; render();">Configure</button>
                         <button class="btn-outline" style="padding:4px 8px; font-size:0.68rem;" onclick="state.selectedActivityKid='${c.name}'; state.parentTab='activity'; state.activityHistoryTab='${isToddlerC ? 'watched' : 'channels'}'; render();">Activity</button>
                       </div>
                     </div>
@@ -3286,17 +3309,21 @@
               </button>
             </div>
             <div class="card-box" style="border-color:var(--pink); margin-bottom:14px;">
-              <div style="font-weight:800; font-size:1.05rem; margin-bottom:2px;">Add Child Account</div>
-              <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:14px;">Create a safe, personalized profile for your child with age-appropriate content filters.</div>
+              <div style="font-weight:800; font-size:1.05rem; margin-bottom:2px;">Add Child Profile</div>
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:14px;">Passwordless by default — enter a name and birthday, then launch or pair any device.</div>
 
               <div style="font-size:0.75rem; font-weight:700; margin-bottom:4px;">Child Name</div>
               <input type="text" placeholder="e.g. Maya" value="${state.newChildDraft.name}" oninput="state.newChildDraft.name=this.value;" style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); margin-bottom:10px; font-size:0.82rem;">
 
-              <div style="font-size:0.75rem; font-weight:700; margin-bottom:4px;">Child Email / Login</div>
-              <input type="email" placeholder="e.g. maya@famitube.demo" value="${state.newChildDraft.email || ''}" oninput="state.newChildDraft.email=this.value;" style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); margin-bottom:10px; font-size:0.82rem;">
-
-              <div style="font-size:0.75rem; font-weight:700; margin-bottom:4px;">Password (min 6 characters)</div>
-              <input type="password" placeholder="••••••••" value="${state.newChildDraft.password || ''}" oninput="state.newChildDraft.password=this.value;" style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); margin-bottom:10px; font-size:0.82rem;">
+              <details style="margin-bottom:12px; padding:8px 10px; border-radius:8px; background:var(--surface-var); border:1px solid var(--border);">
+                <summary style="cursor:pointer; font-size:0.73rem; font-weight:700; color:var(--text-muted);">Optional: Legacy Email &amp; Password Login</summary>
+                <div style="margin-top:8px;">
+                  <div style="font-size:0.72rem; font-weight:700; margin-bottom:4px;">Child Email / Login (Optional)</div>
+                  <input type="email" placeholder="Leave blank for passwordless profile" value="${state.newChildDraft.email || ''}" oninput="state.newChildDraft.email=this.value;" style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text); margin-bottom:8px; font-size:0.8rem;">
+                  <div style="font-size:0.72rem; font-weight:700; margin-bottom:4px;">Password (Optional, min 6 chars)</div>
+                  <input type="password" placeholder="Optional" value="${state.newChildDraft.password || ''}" oninput="state.newChildDraft.password=this.value;" style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:0.8rem;">
+                </div>
+              </details>
 
               <div style="font-size:0.75rem; font-weight:700; margin-bottom:4px;">Birthday (Date Picker)</div>
               <input type="date" value="${state.newChildDraft.birthday}" onchange="state.newChildDraft.birthday=this.value; const sug=deriveTierFromBirthday(this.value); if(sug) state.newChildDraft.ageRating=sug; render();" style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); margin-bottom:4px; font-size:0.82rem;">
@@ -3329,7 +3356,7 @@
 
               <div style="display:flex; gap:8px;">
                 <button class="btn-outline" style="flex:1; padding:9px;" onclick="state.parentTab='kids'; render();">Cancel</button>
-                <button class="btn-primary" style="flex:1.5; padding:9px;" onclick="if(state.newChildDraft.name.trim()){ const nm=state.newChildDraft.name.trim(); const em=state.newChildDraft.email?.trim() || (nm.toLowerCase().replace(/\\s+/g,'')+'@famitube.demo'); state.parentChildren.unshift({id:'c-'+Date.now(), name:nm, email:em, birthday:state.newChildDraft.birthday, ageRating:state.newChildDraft.ageRating, religion:state.newChildDraft.religion || null, dailyLimitMinutes:null, toddlerLoopMinutes:15, toddlerCooldownMinutes:30, toddlerEnabledTopics:[...state.toddlerEnabledTopics], toddlerHiddenVideoIds:[]}); state.newChildDraft.name=''; state.newChildDraft.email=''; state.newChildDraft.password=''; state.newChildDraft.birthday='2024-06-15'; state.newChildDraft.religion=null; state.parentTab='kids'; render(); showDeviceToast('parentDeviceScreen', 'Child account created!'); }">Create Child Account</button>
+                <button class="btn-primary" style="flex:1.5; padding:9px;" onclick="if(state.newChildDraft.name.trim()){ const nm=state.newChildDraft.name.trim(); const rawEm=state.newChildDraft.email?.trim() || ''; const em=rawEm || ('kid-'+Date.now()+'@profiles.famitube.local'); state.parentChildren.unshift({id:'c-'+Date.now(), name:nm, email:em, birthday:state.newChildDraft.birthday, ageRating:state.newChildDraft.ageRating, religion:state.newChildDraft.religion || null, dailyLimitMinutes:null, toddlerLoopMinutes:15, toddlerCooldownMinutes:30, toddlerEnabledTopics:[...state.toddlerEnabledTopics], toddlerHiddenVideoIds:[]}); state.newChildDraft.name=''; state.newChildDraft.email=''; state.newChildDraft.password=''; state.newChildDraft.birthday='2024-06-15'; state.newChildDraft.religion=null; state.parentTab='kids'; render(); showDeviceToast('parentDeviceScreen', 'Child profile created!'); }">Create Child Profile</button>
               </div>
             </div>
           ` : state.parentTab === 'activity' ? `
@@ -3531,18 +3558,34 @@
               <div class="chips-row" style="margin-bottom:6px;">
                 ${[10,15,20,25,30].map(m => `<button class="chip ${state.toddlerLoopMinutes===m?'active':''}" onclick="state.toddlerLoopMinutes=${m}; render();">Loop ${m}m</button>`).join('')}
               </div>
-              <div class="chips-row">
+              <div class="chips-row" style="margin-bottom:8px;">
                 ${[15,30,45,60].map(m => `<button class="chip ${state.toddlerCooldownMinutes===m?'active':''}" onclick="state.toddlerCooldownMinutes=${m}; render();">Nap ${m}m</button>`).join('')}
               </div>
+              ${isToddlerCoolingDown() ? `<button class="btn-primary" style="width:100%; font-size:0.78rem;" onclick="state.toddlerCooldownUntil=0; state.toddlerSessionWatchedSec=0; render(); showDeviceToast('deviceScreen','Toddler TV woken up!');">☀️ Wake Up Toddler TV Now</button>` : ''}
             </div>
           ` : `
             <div class="card-box">
-              <div style="font-weight:800; font-size:0.95rem; margin-bottom:8px;">Global Daily Watch Limit</div>
-              <div class="chips-row">
+              <div style="font-weight:800; font-size:0.95rem; margin-bottom:8px;">⏱️ Daily Screen Time Controls</div>
+              <div class="chips-row" style="margin-bottom:10px;">
                 ${[15,30,45,60,90,120].map(m => `<button class="chip ${state.dailyLimit===m?'active':''}" onclick="state.dailyLimit=${m}; render();">${m}m</button>`).join('')}
+              </div>
+              <div style="display:flex; gap:8px;">
+                <button class="btn-outline" style="flex:1; font-size:0.74rem;" onclick="state.dailyLimit=(state.dailyLimit||45)+15; render();">+15m Bonus</button>
+                <button class="btn-outline" style="flex:1; font-size:0.74rem;" onclick="state.dailyLimit=45; render();">Reset Timer</button>
               </div>
             </div>
           `}
+          <div class="card-box">
+            <div style="font-weight:800; font-size:0.95rem; margin-bottom:6px;">🎨 App Theme &amp; Family</div>
+            <div class="theme-grid" style="margin-bottom:10px;">
+              <button class="theme-tile ${state.theme==='LIGHT'?'active':''}" onclick="setAppTheme('LIGHT')">☀️ Light</button>
+              <button class="theme-tile ${state.theme==='DARK'?'active':''}" onclick="setAppTheme('DARK')">🌙 Dark</button>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <button class="btn-outline" style="width:100%; font-size:0.78rem;" onclick="navigate('profile_picker')">👨‍👩‍👧 Switch Child Profile (Who's Watching?)</button>
+              <button class="btn-primary" style="width:100%; font-size:0.78rem;" onclick="state.isParentLogin=true; state.parentTab='requests'; navigate('parent_dashboard')">🛡️ Open Full Parent Studio</button>
+            </div>
+          </div>
       `;
     }
 
@@ -3565,10 +3608,9 @@
         : buildParentDashboardHtml(true);
 
       const parentTabs = [
-        { id: 'requests', icon: 'inbox', label: pendingCount ? `Requests (${pendingCount})` : 'Requests' },
-        { id: 'kids', icon: 'group', label: 'Kids' },
-        { id: 'activity', icon: 'monitoring', label: 'Activity' },
-        { id: 'controls', icon: 'tune', label: 'Global Controls' }
+        { id: 'requests', icon: 'approval', label: pendingCount ? `Approvals (${pendingCount})` : 'Approvals' },
+        { id: 'kids', icon: 'group', label: 'My Kids' },
+        { id: 'controls', icon: 'tune', label: 'Controls' }
       ];
       parentBar.style.display = 'flex';
       parentBar.innerHTML = parentTabs.map(t => {
@@ -3586,10 +3628,19 @@
 
     function render() {
       const simple = state.ageMode === 'TODDLER';
-      const btnSearch = document.getElementById('btnTopSearch');
-      if (btnSearch) btnSearch.style.display = simple ? 'none' : 'inline-flex';
+      const isParentOrAuth = state.screen === 'parent_dashboard' || state.screen === 'login' || state.screen === 'profile_picker';
+      const topAppTitle = document.getElementById('topAppTitle');
+      if (topAppTitle) {
+        if (state.screen === 'parent_dashboard') topAppTitle.textContent = 'Parent Studio';
+        else if (state.screen === 'profile_picker') topAppTitle.textContent = "Who's Watching?";
+        else topAppTitle.textContent = simple ? 'FamiTube TV' : 'FamiTube';
+      }
       const btnNotif = document.getElementById('btnTopNotif');
-      if (btnNotif) btnNotif.style.display = simple ? 'none' : 'inline-flex';
+      if (btnNotif) btnNotif.style.display = (simple || isParentOrAuth) ? 'none' : 'inline-flex';
+      const btnSwitcher = document.getElementById('btnTopSwitcher');
+      if (btnSwitcher) btnSwitcher.style.display = (simple || state.screen === 'login' || state.screen === 'profile_picker') ? 'none' : 'inline-flex';
+      const btnLock = document.getElementById('btnTopLock');
+      if (btnLock) btnLock.style.display = (state.screen === 'login' || state.screen === 'profile_picker' || state.screen === 'parent_dashboard') ? 'none' : 'inline-flex';
       const timeLeftEl = document.getElementById('topTimeLeft');
       if (timeLeftEl) timeLeftEl.textContent = `${state.dailyLimit}m left`;
       const childRoleAgeEl = document.getElementById('childRoleAgeLabel');
@@ -3643,39 +3694,7 @@
             .filter(c => state.ageMode !== 'TODDLER' || isToddlerTopic(c))
         )];
         const currentNavTab = state.homeNavTab || 'home';
-
-        // 1. YouTube Style Tabs Bar (Toddler sees TV Channels & Stories)
-        const ytTabsHtml = state.ageMode === 'TODDLER' ? `
-          <div class="yt-tab-bar" style="margin:-14px -14px 14px -14px;">
-            <button class="yt-tab-item ${currentNavTab === 'home' ? 'active' : ''}" onclick="state.homeNavTab='home'; render();">
-              <span>📺 TV Channels</span>
-              <div class="yt-tab-indicator"></div>
-            </button>
-            <button class="yt-tab-item ${currentNavTab === 'stories' ? 'active' : ''}" onclick="state.homeNavTab='stories'; state.activeStoryId=null; render();">
-              <span>📖 Stories</span>
-              <div class="yt-tab-indicator"></div>
-            </button>
-          </div>
-        ` : `
-          <div class="yt-tab-bar" style="margin:-14px -14px 14px -14px;">
-            <button class="yt-tab-item ${currentNavTab === 'home' ? 'active' : ''}" onclick="state.homeNavTab='home'; render();">
-              <span>Home</span>
-              <div class="yt-tab-indicator"></div>
-            </button>
-            <button class="yt-tab-item ${currentNavTab === 'videos' ? 'active' : ''}" onclick="state.homeNavTab='videos'; render();">
-              <span>Videos</span>
-              <div class="yt-tab-indicator"></div>
-            </button>
-            <button class="yt-tab-item ${currentNavTab === 'channels' ? 'active' : ''}" onclick="state.homeNavTab='channels'; render();">
-              <span>Channels</span>
-              <div class="yt-tab-indicator"></div>
-            </button>
-            <button class="yt-tab-item ${currentNavTab === 'stories' ? 'active' : ''}" onclick="state.homeNavTab='stories'; state.activeStoryId=null; render();">
-              <span>Stories</span>
-              <div class="yt-tab-indicator"></div>
-            </button>
-          </div>
-        `;
+        const ytTabsHtml = '';
 
         if (currentNavTab === 'videos') {
           // Curated Videos Tab
@@ -4032,22 +4051,43 @@
           `;
         } else {
           const isToddler = state.ageMode === 'TODDLER';
-          const canSearch = !isToddler;
           const selectedVideos = state.selectedCategory ? ageVideos.filter(v => videoMatchesCategory(v, state.selectedCategory)) : [];
+          const feedVideos = ageVideos.slice(0, 8);
+          const continueVideos = ageVideos.slice(0, 4);
           const borderColors = ['#FF2E93', '#00B4D8', '#06D6A0', '#FFD166', '#4361EE'];
           body.innerHTML = `
-            ${ytTabsHtml}
             ${!state.selectedCategory ? `
+              ${continueVideos.length > 0 ? `
+                <div style="margin-bottom:14px;">
+                  <div style="font-weight:800; font-size:0.95rem; margin-bottom:8px;">▶ Continue Watching</div>
+                  <div style="display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none;">
+                    ${continueVideos.map(v => `
+                      <div style="flex:0 0 148px; cursor:pointer; background:var(--surface-var); border-radius:12px; overflow:hidden; border:1px solid var(--border);" onclick="openPreviewVideo('${v.id}')">
+                        <div style="position:relative; height:84px; background:#000;">
+                          <img src="${v.thumbnailUrl}" style="width:100%; height:100%; object-fit:cover;">
+                          <div style="position:absolute; left:0; right:0; bottom:0; height:3px; background:rgba(255,255,255,0.25);">
+                            <div style="width:45%; height:100%; background:var(--pink);"></div>
+                          </div>
+                        </div>
+                        <div style="padding:6px 8px;">
+                          <div style="font-weight:700; font-size:0.74rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${v.title}</div>
+                          <div style="font-size:0.64rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${v.channelTitle}</div>
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              ` : ''}
               <div style="margin-bottom:10px;">
-                <div style="font-weight:800; font-size:1.1rem;">${isToddler ? 'Pick a Picture!' : 'Pick a Topic'}</div>
-                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">${isToddler ? 'Tap a picture below to see safe videos.' : 'Tap a picture topic to see safe videos.'}</div>
+                <div style="font-weight:800; font-size:1.05rem;">Pick a Topic</div>
+                <div style="font-size:0.74rem; color:var(--text-muted); margin-top:2px;">Tap a topic or scroll below to browse safe videos.</div>
               </div>
-              <div class="pic-topics-grid">
+              <div class="pic-topics-grid" style="margin-bottom:16px;">
                 ${cats.map((c, i) => {
                   const borderColor = borderColors[i % borderColors.length];
                   const label = displayTopicTitle(c, isToddler);
                   return `
-                    <div class="pic-topic-card ${isToddler ? 'toddler' : ''}" style="border-color:${borderColor};" onclick="state.selectedCategory='${c.replace(/'/g, "\\'")}'; render();">
+                    <div class="pic-topic-card" style="border-color:${borderColor};" onclick="state.selectedCategory='${c.replace(/'/g, "\\'")}'; render();">
                       <img src="${topicImage(c, isToddler)}" alt="${label}">
                       <div class="pic-topic-scrim"></div>
                       <span class="pic-topic-emoji">${topicEmoji(c, isToddler)}</span>
@@ -4055,6 +4095,25 @@
                     </div>
                   `;
                 }).join('')}
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                <div style="font-weight:800; font-size:0.98rem;">✨ Safe Videos</div>
+                <span style="font-size:0.7rem; color:var(--text-muted);">${ageVideos.length} curated</span>
+              </div>
+              <div class="video-list">
+                ${feedVideos.map(v => `
+                  <div class="v-card" onclick="openPreviewVideo('${v.id}')">
+                    <div class="v-thumb" style="position:relative;">
+                      <img src="${v.thumbnailUrl}" alt="">
+                      <span class="v-badge" style="left:4px; right:auto;">${Math.floor((v.duration||180)/60)}:${String((v.duration||180)%60).padStart(2,'0')}</span>
+                      ${isPreviewFavorite(v.id) ? `<span style="position:absolute; bottom:4px; right:4px; width:22px; height:22px; border-radius:50%; background:rgba(255,46,147,0.92); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; box-shadow:0 2px 4px rgba(0,0,0,0.5);">❤️</span>` : ''}
+                    </div>
+                    <div class="v-info">
+                      <div class="v-title">${v.title}</div>
+                      <div class="v-meta"><span style="cursor:pointer; text-decoration:underline;" onclick="event.stopPropagation(); openChannelDetailByVideo('${v.id}')">${v.channelTitle}</span> • ${v.category}</div>
+                    </div>
+                  </div>
+                `).join('')}
               </div>
             ` : `
               <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
@@ -4843,7 +4902,7 @@
               ${name.charAt(0).toUpperCase()}
             </div>
             <div style="font-weight:800; font-size:1.05rem;">${name}</div>
-            <div style="font-size:0.76rem; color:var(--text-muted); margin-bottom:10px;">${email}</div>
+            <div style="font-size:0.76rem; color:var(--text-muted); margin-bottom:10px;">${formatPreviewChildSubtitle({ email })}</div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
               <div style="background:rgba(255,46,147,0.15); padding:8px 4px; border-radius:12px;">
                 <div style="font-weight:800; font-size:0.86rem; color:var(--pink);">❤️ ${(state.favoriteVideoIds || []).length}</div>
@@ -4910,6 +4969,37 @@
           </div>
           <div style="text-align:center; font-size:0.72rem; color:var(--text-muted); padding:6px 0;">FamiTube v${state.appVersion} (Build 1)</div>
         `;
+      } else if (state.screen === 'profile_picker') {
+        const colors = ['#FF2E93', '#4361EE', '#06D6A0', '#FB8500'];
+        body.innerHTML = `
+          <div style="text-align:center; padding:8px 0 14px;">
+            <div style="font-weight:900; font-size:1.2rem;">Who's Watching?</div>
+            <div style="font-size:0.74rem; color:var(--text-muted); margin-top:2px;">Tap a child profile to launch their age-safe FamiTube experience.</div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;">
+            ${state.parentChildren.map((c, idx) => {
+              const badge = c.ageRating === 'TODDLER' ? 'Toddler TV (1.5–3)' : (c.ageRating === 'YOUNG_KIDS' ? 'Young (4–6)' : 'Older (7+)');
+              const bg = colors[idx % colors.length];
+              return `
+                <div class="card-box" style="text-align:center; padding:16px 10px; cursor:pointer; border-color:${state.activeChildId===c.id ? bg : 'var(--border)'};" onclick="state.activeChildId='${c.id}'; state.isParentLogin=false; state.childReligion=${c.religion ? `'${c.religion}'` : 'null'}; setAgeMode('${c.ageRating}'); navigate('home');">
+                  <div style="width:52px; height:52px; border-radius:50%; margin:0 auto 8px; background:${bg}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.35rem; font-weight:900;">${c.name.charAt(0).toUpperCase()}</div>
+                  <div style="font-weight:800; font-size:0.9rem;">${c.name}</div>
+                  <div style="font-size:0.68rem; color:var(--text-muted); margin-top:2px;">${badge}</div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+          <div class="card-box" style="display:flex; align-items:center; justify-content:space-between; gap:10px; cursor:pointer; border-color:rgba(67,97,238,0.45);" onclick="navigate('parental_gate')">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span class="material-symbols-rounded" style="color:#4361EE; font-size:1.45rem;">admin_panel_settings</span>
+              <div>
+                <div style="font-weight:800; font-size:0.88rem;">Parent Studio (PIN: 1234)</div>
+                <div style="font-size:0.7rem; color:var(--text-muted);">Manage children, approvals &amp; pair codes</div>
+              </div>
+            </div>
+            <span class="material-symbols-rounded" style="color:var(--text-muted);">chevron_right</span>
+          </div>
+        `;
       } else if (state.screen === 'login') {
         const isParent = Boolean(state.isParentLogin);
         const isRegister = Boolean(state.isParentRegister);
@@ -4917,104 +5007,105 @@
         const themeBg = isParent ? 'rgba(67,97,238,0.12)' : 'rgba(255,46,147,0.12)';
 
         body.innerHTML = `
-          <!-- Mode Header Icon & Title -->
           <div style="text-align:center; padding:10px 4px 16px;">
             <div style="position:relative; display:inline-block; margin-bottom:8px;">
               <div style="width:70px; height:70px; border-radius:20px; background:${isParent ? 'linear-gradient(135deg, #4361EE, #3A0CA3)' : 'linear-gradient(135deg, var(--pink), #ff758c)'}; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 24px rgba(0,0,0,0.25);">
-                <span class="material-symbols-rounded" style="font-size:2.2rem; color:#fff;">${isParent ? (isRegister ? 'person_add' : 'admin_panel_settings') : 'smart_toy'}</span>
+                <span class="material-symbols-rounded" style="font-size:2.2rem; color:#fff;">${isParent ? (isRegister ? 'person_add' : 'admin_panel_settings') : 'qr_code_2'}</span>
               </div>
               <span style="position:absolute; bottom:-4px; right:-6px; font-size:0.6rem; font-weight:900; padding:2px 6px; border-radius:99px; background:${isParent ? '#3A0CA3' : 'var(--pink)'}; color:#fff; border:2px solid var(--surface); letter-spacing:0.5px;">
-                ${isParent ? 'PARENT' : 'KIDS'}
+                ${isParent ? 'PARENT' : 'KID DEVICE'}
               </span>
             </div>
-            <div style="font-weight:900; font-size:1.22rem; color:var(--text);">${isParent ? 'FamiTube Parent Studio' : 'FamiTube Kids'}</div>
+            <div style="font-weight:900; font-size:1.22rem; color:var(--text);">${isParent ? 'FamiTube Parent Sign In' : 'Pair Kid Device'}</div>
             <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
-              ${!isParent ? 'Safe, algorithm-free video & learning space for kids' : (isRegister ? 'Create your new FamiTube parent account' : 'Manage child profiles, PIN safety & family settings')}
+              ${isParent ? (isRegister ? 'Create your free FamiTube parent account' : 'Sign in once as a parent, then tap "Who\'s Watching?" for any child') : 'Enter the 6-digit pairing code shown on your Parent Studio'}
             </div>
           </div>
 
-          <!-- Main Auth Selector Tabs (Child vs Parent) -->
           <div style="display:flex; gap:4px; padding:4px; border-radius:12px; background:var(--surface-var); margin-bottom:14px;">
-            <button style="flex:1; padding:8px 6px; border:none; border-radius:9px; font-size:0.8rem; font-weight:800; cursor:pointer; background:${!isParent ? 'var(--pink)' : 'transparent'}; color:${!isParent ? '#fff' : 'var(--text-muted)'};" onclick="state.isParentLogin=false; state.isParentRegister=false; render();">
-              👶 Kids Login
+            <button style="flex:1; padding:8px 6px; border:none; border-radius:9px; font-size:0.78rem; font-weight:800; cursor:pointer; background:${isParent ? '#4361EE' : 'transparent'}; color:${isParent ? '#fff' : 'var(--text-muted)'};" onclick="state.isParentLogin=true; state.isLegacyKidLogin=false; render();">
+              🛡️ Parent Sign In
             </button>
-            <button style="flex:1; padding:8px 6px; border:none; border-radius:9px; font-size:0.8rem; font-weight:800; cursor:pointer; background:${isParent ? '#4361EE' : 'transparent'}; color:${isParent ? '#fff' : 'var(--text-muted)'};" onclick="state.isParentLogin=true; render();">
-              🛡️ Parent / Studio
+            <button style="flex:1; padding:8px 6px; border:none; border-radius:9px; font-size:0.78rem; font-weight:800; cursor:pointer; background:${!isParent ? 'var(--pink)' : 'transparent'}; color:${!isParent ? '#fff' : 'var(--text-muted)'};" onclick="state.isParentLogin=false; state.isParentRegister=false; render();">
+              📱 Pair Kid Device
             </button>
           </div>
 
-          <!-- Auth Card Form -->
           <div class="card-box" style="border:1.5px solid ${isParent ? 'rgba(67,97,238,0.35)' : 'rgba(255,46,147,0.35)'}; padding:18px;">
-            <!-- Guidance Banner -->
-            <div style="display:flex; align-items:flex-start; gap:8px; font-size:0.73rem; line-height:1.35; padding:10px 12px; border-radius:10px; margin-bottom:12px; background:${themeBg}; color:${themeColor}; font-weight:600;">
-              <span class="material-symbols-rounded" style="font-size:1.1rem; flex-shrink:0;">${isParent ? (isRegister ? 'how_to_reg' : 'verified_user') : 'face'}</span>
-              <span>
-                ${!isParent
-                  ? 'Child profiles use the email & password set up by their parent inside Parent Studio.'
-                  : (isRegister
-                      ? 'Create your parent account to set up children profiles and access free curated channels.'
-                      : 'Sign in with your parent account to manage safety controls and approve video requests.')}
-              </span>
-            </div>
-
-            ${isRegister ? `
-              <!-- Name Input (Register Only) -->
-              <div style="margin-bottom:8px;">
-                <input type="text" placeholder="Parent / Guardian Name" value="${state.registerName || ''}" oninput="state.registerName=this.value;" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); font-size:0.84rem;">
-              </div>
-            ` : ''}
-
-            <!-- Email Input -->
-            <div style="margin-bottom:8px;">
-              <input type="email" placeholder="${isParent ? 'parent@example.com' : 'kid@example.com'}" value="${state.loginEmail || ''}" oninput="state.loginEmail=this.value;" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); font-size:0.84rem;">
-            </div>
-
-            <!-- Password Input -->
-            <div style="margin-bottom:10px;">
-              <input type="password" placeholder="${isRegister ? 'Password (min 6 characters)' : 'Password'}" value="${state.loginPassword || '••••••'}" oninput="state.loginPassword=this.value;" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); font-size:0.84rem;">
-            </div>
-
-            ${isRegister ? `
-              <!-- Referral Code Input (Register Only) -->
-              <div style="margin-bottom:10px;">
-                <input type="text" placeholder="Referral Code (Optional, e.g. FAM-8K21)" value="${state.registerRefCode || ''}" oninput="state.registerRefCode=this.value.toUpperCase();" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); font-size:0.84rem;">
-                <div style="font-size:0.68rem; color:var(--text-muted); margin-top:3px; padding-left:4px;">🎁 Enter a referral code to get a 3-month Family Pass voucher!</div>
-              </div>
-            ` : ''}
-
-            <!-- Primary Action Button -->
-            <button class="btn-primary" style="width:100%; background:${themeColor}; border-color:${themeColor}; margin-bottom:8px; font-weight:800; font-size:0.88rem; padding:11px 12px;" onclick="
-              if (state.isParentRegister) {
-                alert('Parent account registered! Please check email to verify.');
-                state.isParentRegister = false;
-                render();
-              } else {
-                navigate(state.isParentLogin ? 'parent_dashboard' : 'home');
-              }
-            ">
-              ${!isParent ? 'Sign In as Child ▶' : (isRegister ? 'Create Parent Account ✨' : 'Sign In as Parent 🛡️')}
-            </button>
-
-            <!-- Parent Register / Sign In Switch -->
             ${isParent ? `
+              <div style="display:flex; align-items:flex-start; gap:8px; font-size:0.73rem; line-height:1.35; padding:10px 12px; border-radius:10px; margin-bottom:12px; background:${themeBg}; color:${themeColor}; font-weight:600;">
+                <span class="material-symbols-rounded" style="font-size:1.1rem; flex-shrink:0;">${isRegister ? 'how_to_reg' : 'verified_user'}</span>
+                <span>${isRegister ? 'Create your parent account to add passwordless child profiles and manage curated channels.' : 'Sign in to switch between your children ("Who\'s Watching?") or manage approvals &amp; timers.'}</span>
+              </div>
+              ${isRegister ? `
+                <div style="margin-bottom:8px;">
+                  <input type="text" placeholder="Parent / Guardian Name" value="${state.registerName || ''}" oninput="state.registerName=this.value;" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); font-size:0.84rem;">
+                </div>
+              ` : ''}
+              <div style="margin-bottom:8px;">
+                <input type="email" placeholder="parent@example.com" value="${state.loginEmail || ''}" oninput="state.loginEmail=this.value;" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); font-size:0.84rem;">
+              </div>
+              <div style="margin-bottom:10px;">
+                <input type="password" placeholder="${isRegister ? 'Password (min 6 characters)' : 'Password'}" value="${state.loginPassword || '••••••'}" oninput="state.loginPassword=this.value;" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); font-size:0.84rem;">
+              </div>
+              ${isRegister ? `
+                <div style="margin-bottom:10px;">
+                  <input type="text" placeholder="Referral Code (Optional, e.g. FAM-8K21)" value="${state.registerRefCode || ''}" oninput="state.registerRefCode=this.value.toUpperCase();" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); font-size:0.84rem;">
+                  <div style="font-size:0.68rem; color:var(--text-muted); margin-top:3px; padding-left:4px;">🎁 Enter a referral code to get a 3-month Family Pass voucher!</div>
+                </div>
+              ` : ''}
+              <button class="btn-primary" style="width:100%; background:${themeColor}; border-color:${themeColor}; margin-bottom:8px; font-weight:800; font-size:0.88rem; padding:11px 12px;" onclick="
+                if (state.isParentRegister) {
+                  alert('Parent account registered! Please check email to verify.');
+                  state.isParentRegister = false;
+                  render();
+                } else {
+                  navigate('profile_picker');
+                }
+              ">
+                ${isRegister ? 'Create Parent Account ✨' : 'Sign In &amp; Pick Profile 🛡️'}
+              </button>
               <div style="text-align:center; font-size:0.75rem; color:var(--text-muted); margin:6px 0 10px;">
                 ${isRegister ? 'Already have an account?' : "Don't have a parent account?"}
                 <button style="background:none; border:none; color:${themeColor}; font-weight:800; cursor:pointer; padding:2px 4px;" onclick="state.isParentRegister=!state.isParentRegister; render();">
                   ${isRegister ? 'Sign In' : 'Register Free'}
                 </button>
               </div>
-
-              <!-- Google OAuth Button -->
               <div style="display:flex; align-items:center; gap:8px; margin:8px 0;">
                 <div style="flex:1; height:1px; background:var(--border);"></div>
                 <span style="font-size:0.7rem; color:var(--text-muted);">or</span>
                 <div style="flex:1; height:1px; background:var(--border);"></div>
               </div>
-              <button class="btn-outline" style="width:100%; font-size:0.82rem; padding:9px 12px; display:flex; align-items:center; justify-content:center; gap:6px;" onclick="navigate('parent_dashboard')">
+              <button class="btn-outline" style="width:100%; font-size:0.82rem; padding:9px 12px; display:flex; align-items:center; justify-content:center; gap:6px;" onclick="navigate('profile_picker')">
                 <span class="material-symbols-rounded" style="font-size:1.1rem; color:${themeColor};">account_circle</span>
                 <span>Continue with Google</span>
               </button>
-            ` : ''}
+            ` : `
+              ${!state.isLegacyKidLogin ? `
+                <div style="display:flex; align-items:flex-start; gap:8px; font-size:0.73rem; line-height:1.35; padding:10px 12px; border-radius:10px; margin-bottom:12px; background:${themeBg}; color:${themeColor}; font-weight:600;">
+                  <span class="material-symbols-rounded" style="font-size:1.1rem; flex-shrink:0;">phonelink_lock</span>
+                  <span>Generate a 6-digit code in <strong>Parent Studio → My Kids → Pair</strong> to link a child's device without passwords.</span>
+                </div>
+                <input type="text" maxlength="6" placeholder="000000" value="${state.pairCodeInput || ''}" oninput="state.pairCodeInput=this.value.replace(/[^0-9]/g,'').slice(0,6);" style="width:100%; box-sizing:border-box; padding:12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); font-size:1.35rem; font-weight:900; letter-spacing:8px; text-align:center; margin-bottom:10px;">
+                <button class="btn-primary" style="width:100%; background:${themeColor}; border-color:${themeColor}; margin-bottom:8px; font-weight:800; font-size:0.88rem; padding:11px 12px;" onclick="if((state.pairCodeInput||'').length===6){ state.activeChildId='c-1'; setAgeMode('YOUNG_KIDS'); navigate('home'); showDeviceToast('deviceScreen', 'Paired Maya profile!'); } else { state.pairCodeInput='482915'; render(); }">
+                  Pair &amp; Start Watching ▶
+                </button>
+                <div style="text-align:center; margin-top:4px;">
+                  <button style="background:none; border:none; color:var(--text-muted); font-size:0.72rem; cursor:pointer; text-decoration:underline;" onclick="state.isLegacyKidLogin=true; render();">Or sign in with legacy kid email</button>
+                </div>
+              ` : `
+                <div style="margin-bottom:8px;">
+                  <input type="email" placeholder="kid@example.com" value="${state.loginEmail || ''}" oninput="state.loginEmail=this.value;" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); font-size:0.84rem;">
+                </div>
+                <div style="margin-bottom:10px;">
+                  <input type="password" placeholder="Password" value="${state.loginPassword || '••••••'}" oninput="state.loginPassword=this.value;" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); font-size:0.84rem;">
+                </div>
+                <button class="btn-primary" style="width:100%; background:${themeColor}; border-color:${themeColor}; margin-bottom:8px; font-weight:800; font-size:0.88rem; padding:11px 12px;" onclick="navigate('home')">Sign In as Child ▶</button>
+                <div style="text-align:center; margin-top:4px;">
+                  <button style="background:none; border:none; color:var(--text-muted); font-size:0.72rem; cursor:pointer; text-decoration:underline;" onclick="state.isLegacyKidLogin=false; render();">Back to 6-digit pairing code</button>
+                </div>
+              `}
+            `}
           </div>
         `;
       } else if (state.screen === 'parent_dashboard') {
@@ -5035,12 +5126,71 @@
       } else if (state.screen === 'parental_settings') {
         body.innerHTML = buildParentalSettingsHtml(false);
       } else {
-        // Library (Child Custom Playlists)
+        // Unified Saved Tab (Favorites | My Lists | History)
+        const sec = state.savedSection || 'favorites';
+        const allVids = [...state.videos, ...Object.values(state.ytSampleVideos).flat()];
+        const favVids = allVids.filter(v => (state.favoriteVideoIds || []).includes(v.id) && isContentAllowedForChildReligion(v, state.childReligion));
         const selectedPl = state.customPlaylists.find(p => p.id === state.selectedCustomPlaylistId);
-        if (selectedPl) {
+        const subTabHtml = `
+          <div style="font-weight:800; font-size:1.1rem; margin-bottom:8px;">Saved</div>
+          <div style="display:flex; gap:6px; margin-bottom:14px;">
+            <button class="chip ${sec==='favorites'?'active':''}" onclick="state.savedSection='favorites'; state.selectedCustomPlaylistId=null; render();">❤️ Favorites (${favVids.length})</button>
+            <button class="chip ${sec==='lists'?'active':''}" onclick="state.savedSection='lists'; render();">📚 My Lists (${state.customPlaylists.length})</button>
+            <button class="chip ${sec==='history'?'active':''}" onclick="state.savedSection='history'; state.selectedCustomPlaylistId=null; render();">🕒 History</button>
+          </div>
+        `;
+
+        if (sec === 'favorites') {
           body.innerHTML = `
+            ${subTabHtml}
+            ${favVids.length === 0 ? `
+              <div class="card-box" style="text-align:center; padding:32px 16px;">
+                <div style="font-size:2.2rem; margin-bottom:8px;">❤️</div>
+                <div style="font-weight:800; font-size:1rem; margin-bottom:4px;">No Favorites Yet</div>
+                <div style="font-size:0.76rem; color:var(--text-muted);">Tap the ❤️ heart on any video to save it here.</div>
+              </div>
+            ` : `
+              <div style="display:flex; flex-direction:column; gap:10px;">
+                ${favVids.map(v => `
+                  <div class="card-box" style="display:flex; gap:10px; align-items:center; padding:8px; cursor:pointer;" onclick="openPreviewVideo('${v.id}')">
+                    <img src="${v.thumbnailUrl}" style="width:88px; height:52px; border-radius:8px; object-fit:cover;">
+                    <div style="flex:1; min-width:0;">
+                      <div style="font-weight:700; font-size:0.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${v.title}</div>
+                      <div style="font-size:0.7rem; color:var(--text-muted);">${v.channelTitle || 'FamiTube'}</div>
+                    </div>
+                    <button class="btn-outline" style="padding:4px 8px; font-size:0.72rem; color:var(--pink); border-color:var(--pink);" onclick="event.stopPropagation(); togglePreviewFavorite('${v.id}')">❤️</button>
+                  </div>
+                `).join('')}
+              </div>
+            `}
+          `;
+        } else if (sec === 'history') {
+          const hist = state.childActivityHistory?.watched || [];
+          body.innerHTML = `
+            ${subTabHtml}
+            ${hist.length === 0 ? `
+              <div class="card-box" style="text-align:center; padding:32px 16px;">
+                <div style="font-size:2.2rem; margin-bottom:8px;">🕒</div>
+                <div style="font-weight:800; font-size:1rem;">No Watch History Yet</div>
+              </div>
+            ` : `
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                ${hist.map(item => `
+                  <div class="card-box" style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px;">
+                    <div>
+                      <div style="font-weight:800; font-size:0.84rem;">${item.title}</div>
+                      <div style="font-size:0.7rem; color:var(--text-muted);">${item.channel} • ${item.time} • ${item.duration}</div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            `}
+          `;
+        } else if (selectedPl) {
+          body.innerHTML = `
+            ${subTabHtml}
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-              <button class="btn-outline" onclick="state.selectedCustomPlaylistId=null; render();">← Back to Library</button>
+              <button class="btn-outline" onclick="state.selectedCustomPlaylistId=null; render();">← Back to My Lists</button>
               <button class="btn-outline" style="color:var(--pink); border-color:var(--pink); padding:4px 8px; font-size:0.74rem;" onclick="deleteCustomPlaylist('${selectedPl.id}')">Delete List</button>
             </div>
             <div style="margin-bottom:14px;">
@@ -5070,17 +5220,15 @@
           `;
         } else {
           body.innerHTML = `
+            ${subTabHtml}
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-              <div>
-                <div style="font-weight:800; font-size:1.1rem;">My Library</div>
-                <div style="font-size:0.74rem; color:var(--text-muted);">Your custom lists and saved videos</div>
-              </div>
+              <div style="font-size:0.76rem; color:var(--text-muted);">Your custom video playlists</div>
               <button class="btn-primary" style="padding:6px 12px; font-size:0.78rem;" onclick="const t = prompt('Enter new list name:'); if (t) createCustomPlaylist(t);">+ New List</button>
             </div>
             ${state.customPlaylists.length === 0 ? `
               <div class="card-box" style="text-align:center; padding:36px 16px;">
                 <div style="font-size:2.4rem; margin-bottom:8px;">📚</div>
-                <div style="font-weight:800; font-size:1rem; margin-bottom:4px;">Your Library is Empty</div>
+                <div style="font-weight:800; font-size:1rem; margin-bottom:4px;">No Custom Lists Yet</div>
                 <div style="font-size:0.76rem; color:var(--text-muted); margin-bottom:14px;">Create your own lists and save videos to watch anytime!</div>
                 <button class="btn-primary" onclick="const t = prompt('Enter new list name:'); if (t) createCustomPlaylist(t);">Create New List</button>
               </div>

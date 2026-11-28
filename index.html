@@ -1311,11 +1311,14 @@
       <button id="btnNavChannels" class="nav-link" onclick="openChannelsNav()">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">subscriptions</span> <span data-i18n="nav_channels">Channels</span>
       </button>
+      <button id="btnWhoIsWatching" class="nav-link" style="display:none;" onclick="openWhoIsWatchingModal()">
+        <span class="material-symbols-rounded" style="font-size:1.05rem;">groups</span> <span>Who's Watching?</span>
+      </button>
       <button id="btnModeParent" class="nav-link" style="display:none;" onclick="openParentMode()">
-        <span class="material-symbols-rounded" style="font-size:1.05rem;">supervisor_account</span> <span>Parent Mode</span>
+        <span class="material-symbols-rounded" style="font-size:1.05rem;">supervisor_account</span> <span>Family &amp; Kids</span>
       </button>
       <button id="btnModeStudio" class="nav-link" style="display:none;" onclick="openStudio()">
-        <span class="material-symbols-rounded" style="font-size:1.05rem;">admin_panel_settings</span> <span data-i18n="nav_studio">Curator Studio</span>
+        <span class="material-symbols-rounded" style="font-size:1.05rem;">admin_panel_settings</span> <span data-i18n="nav_studio">Curate Catalog</span>
       </button>
       <a id="navAppPreview" href="mobile-preview.html" class="nav-link" title="Interactive Android App Preview">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">smartphone</span>
@@ -1366,7 +1369,7 @@
             <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--primary);">admin_panel_settings</span> <span data-i18n="parent_sign_in">Parent / Curator Sign In</span>
           </button>
           <button onclick="document.getElementById('guestProfileDropdown').style.display='none'; showAuthGate('CHILD');" style="width:100%; display:flex; align-items:center; gap:0.55rem; padding:0.7rem 1rem; background:none; border:none; border-top:1px solid var(--border); color:var(--text); font-family:inherit; font-size:0.86rem; font-weight:600; cursor:pointer; text-align:left;" onmouseover="this.style.background='var(--surface-light)'" onmouseout="this.style.background='none'">
-            <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--secondary);">child_care</span> <span data-i18n="kids_sign_in">Kids Sign In</span>
+            <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--secondary);">phonelink_setup</span> <span data-i18n="kids_sign_in">Pair Kid Device</span>
           </button>
           <a href="mobile-preview.html" style="width:100%; display:flex; align-items:center; gap:0.55rem; padding:0.7rem 1rem; background:none; border:none; border-top:1px solid var(--border); color:var(--text); font-family:inherit; font-size:0.86rem; font-weight:600; text-decoration:none;" onmouseover="this.style.background='var(--surface-light)'" onmouseout="this.style.background='none'">
             <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--primary);">smartphone</span>
@@ -1496,19 +1499,27 @@
     <div id="guestEntryView" class="guest-entry-wrap" style="display:none;">
       <section class="card guest-child-hero">
         <h2 data-i18n="guest_child_title" style="font-family:'Fredoka', cursive; font-size:2rem; line-height:1.2; margin-bottom:0.65rem;">
-          Discover, Learn &amp; Explore Amazing Worlds!
+          Calm, 100% Parent-Curated Video for Every Stage of Childhood
         </h2>
-        <p data-i18n="guest_child_desc" style="color:var(--text-muted); font-size:1rem; max-width:700px; margin-bottom:1.25rem;">
-          Ready for calm cartoons, science, music, and parent-approved YouTube channels—without algorithmic rabbit holes? Log in to your FamiTube account and start watching!
+        <p data-i18n="guest_child_desc" style="color:var(--text-muted); font-size:1rem; max-width:720px; margin-bottom:1.25rem;">
+          Turn YouTube into a calm, distraction-free video space for Toddlers (1.5–3), Young Kids (4–6), and Older Kids (7+)—with Toddler TV Nap Cooldown, supervised @YouTube channels, and $0 curated videos forever.
         </p>
         <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
-          <button type="button" class="btn btn-primary" onclick="showAuthGate('CHILD')" style="padding:0.75rem 1.4rem; font-size:0.95rem;">
-            <span class="material-symbols-rounded" style="font-size:1.15rem;">child_care</span>
-            <span data-i18n="guest_child_login_cta">Child Login &amp; Start Exploring</span>
+          <button type="button" class="btn btn-primary" onclick="showAuthGate('PARENT', 'register')" style="padding:0.75rem 1.4rem; font-size:0.95rem;">
+            <span class="material-symbols-rounded" style="font-size:1.15rem;">verified_user</span>
+            <span data-i18n="guest_child_login_cta">Start Free as a Parent</span>
           </button>
-          <span data-i18n="guest_child_note" style="font-size:0.84rem; color:var(--text-muted); font-weight:500;">
-            Ask your parent for your username and passcode if you don't have one yet.
-          </span>
+          <button type="button" class="btn btn-secondary" onclick="showAuthGate('PARENT', 'login')" style="padding:0.75rem 1.2rem; font-size:0.92rem;">
+            <span class="material-symbols-rounded" style="font-size:1.1rem;">admin_panel_settings</span>
+            <span data-i18n="parent_sign_in">Parent / Curator Sign In</span>
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="showAuthGate('CHILD')" style="padding:0.75rem 1.2rem; font-size:0.92rem;">
+            <span class="material-symbols-rounded" style="font-size:1.1rem;">phonelink_setup</span>
+            <span data-i18n="kids_sign_in">Pair Kid Device</span>
+          </button>
+        </div>
+        <div data-i18n="guest_child_note" style="font-size:0.84rem; color:var(--text-muted); font-weight:500; margin-top:0.75rem;">
+          No emails or passwords needed for kids — add child profiles in seconds and switch anytime with "Who's Watching?".
         </div>
 
         <div class="guest-pillars-row">
@@ -1882,13 +1893,13 @@
             <span class="material-symbols-rounded" style="font-size:1.05rem;">admin_panel_settings</span> Parent / Curator
           </button>
           <button type="button" id="roleBtnChild" class="btn btn-secondary" style="justify-content:center;" onclick="setLoginRole('CHILD')">
-            <span class="material-symbols-rounded" style="font-size:1.05rem;">child_care</span> Kid
+            <span class="material-symbols-rounded" style="font-size:1.05rem;">phonelink_setup</span> Pair Kid Device
           </button>
         </div>
       </div>
 
       <div id="kidLoginNotice" style="display:none; padding:0.75rem 0.9rem; border-radius:var(--radius-sm); background:rgba(67,97,238,0.08); border:1px solid rgba(67,97,238,0.22); color:var(--text-muted); font-size:0.82rem; margin-bottom:1rem;">
-        Kids cannot self-register. Use the email registered by your parent or guardian in <strong>FamiTube Studio</strong>.
+        Enter the one-time <strong>6-digit pairing code</strong> from your parent's dashboard (Parent Mode → My Kids → Pair Device).
       </div>
 
       <div id="authModeTabs" style="display:flex; gap:0.5rem; margin-bottom:1.25rem;">
@@ -1897,6 +1908,17 @@
       </div>
 
       <div id="authAlert" style="display:none; padding:0.75rem 1rem; border-radius:var(--radius-sm); margin-bottom:1rem; font-size:0.88rem;"></div>
+
+      <form id="pairDeviceForm" onsubmit="handlePairDeviceLogin(event)" style="display:none; flex-direction:column; gap:1rem;">
+        <div>
+          <label style="display:block; font-size:0.85rem; color:var(--text-muted); margin-bottom:0.35rem;">6-Digit Pairing Code</label>
+          <input type="text" id="pairCodeInput" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" required placeholder="123456" style="width:100%; text-align:center; font-size:1.5rem; font-weight:800; letter-spacing:0.35rem;" />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Pair Kid Device</button>
+        <button type="button" class="btn btn-secondary" style="width:100%; justify-content:center; font-size:0.82rem;" onclick="toggleLegacyKidEmailLogin(true)">
+          Use legacy child email &amp; password
+        </button>
+      </form>
 
       <form id="loginForm" onsubmit="handleLogin(event)" style="display:flex; flex-direction:column; gap:1rem;">
         <div>
@@ -1981,24 +2003,14 @@
           Add a Child Account
         </h3>
         <form onsubmit="registerParentModeChild(event)">
-          <div class="form-row-3" style="margin-bottom:0.75rem;">
+          <div class="form-row-3" style="margin-bottom:0.75rem; align-items:end;">
             <div class="form-group">
               <label>Child Name</label>
               <input type="text" id="pmChildNameInput" placeholder="e.g. Leo" required>
             </div>
             <div class="form-group">
-              <label>Child Email Account</label>
-              <input type="email" id="pmChildEmailInput" placeholder="leo@example.com" required>
-            </div>
-            <div class="form-group">
-              <label>Password (min 6 chars)</label>
-              <input type="password" id="pmChildPasswordInput" minlength="6" placeholder="••••••••" required>
-            </div>
-          </div>
-          <div class="form-row-3" style="margin-bottom:0.5rem; align-items:end;">
-            <div class="form-group">
-              <label>Child Birthday</label>
-              <input type="date" id="pmChildBirthdayInput" onchange="onPmChildBirthdayChange(this.value)" required>
+              <label>Child Birthday (Optional)</label>
+              <input type="date" id="pmChildBirthdayInput" onchange="onPmChildBirthdayChange(this.value)">
             </div>
             <div class="form-group">
               <label>Age Group (Auto from Birthday — Editable)</label>
@@ -2009,10 +2021,23 @@
                 <option value="ALL">All Ages</option>
               </select>
             </div>
-            <div style="display:flex; gap:0.5rem;">
-              <button type="submit" class="btn btn-primary">Save Child</button>
-              <button type="button" class="btn btn-secondary" onclick="toggleParentAddChildForm(false)">Cancel</button>
+          </div>
+          <details style="margin:0.35rem 0 0.85rem; padding:0.65rem 0.85rem; border-radius:var(--radius-sm); background:var(--bg); border:1px solid var(--border);">
+            <summary style="cursor:pointer; font-size:0.82rem; font-weight:700; color:var(--text-muted);">Optional: Set direct login email &amp; password (not required)</summary>
+            <div class="form-row" style="margin-top:0.65rem;">
+              <div class="form-group" style="margin:0;">
+                <label>Child Email (Optional)</label>
+                <input type="email" id="pmChildEmailInput" placeholder="leo@example.com">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label>Password (Optional, min 6 chars)</label>
+                <input type="password" id="pmChildPasswordInput" minlength="6" placeholder="••••••••">
+              </div>
             </div>
+          </details>
+          <div style="display:flex; gap:0.5rem;">
+            <button type="submit" class="btn btn-primary">Save Child Profile</button>
+            <button type="button" class="btn btn-secondary" onclick="toggleParentAddChildForm(false)">Cancel</button>
           </div>
         </form>
       </div>
@@ -2430,27 +2455,17 @@
           Register a Child Account
         </h3>
         <p style="color:var(--text-muted); font-size:0.86rem; margin-bottom:1rem;">
-          Children cannot self-register. Register your child here using their email address so they can sign in via <strong>Kids / Child Login</strong>.
+          Add passwordless child profiles in seconds — switch profiles on this browser via <strong>Who's Watching?</strong> or generate a 6-digit code to pair their device.
         </p>
         <form onsubmit="registerChildAccount(event)">
-          <div class="form-row-3" style="margin-bottom:0.75rem;">
+          <div class="form-row-3" style="margin-bottom:0.75rem; align-items:end;">
             <div class="form-group">
               <label>Child Name</label>
               <input type="text" id="childNameInput" placeholder="e.g. Leo" required>
             </div>
             <div class="form-group">
-              <label>Child Email Account</label>
-              <input type="email" id="childEmailInput" placeholder="leo@example.com" required>
-            </div>
-            <div class="form-group">
-              <label>Password (min 6 chars)</label>
-              <input type="password" id="childPasswordInput" minlength="6" placeholder="••••••••" required>
-            </div>
-          </div>
-          <div class="form-row-3" style="margin-bottom:0.85rem; align-items:end;">
-            <div class="form-group">
-              <label>Child Birthday</label>
-              <input type="date" id="childBirthdayInput" onchange="onChildBirthdayChange(this.value)" required>
+              <label>Child Birthday (Optional)</label>
+              <input type="date" id="childBirthdayInput" onchange="onChildBirthdayChange(this.value)">
             </div>
             <div class="form-group">
               <label>Age Group (Auto from Birthday — Editable)</label>
@@ -2461,11 +2476,24 @@
                 <option value="ALL">All Ages</option>
               </select>
             </div>
-            <div>
-              <button type="submit" class="btn btn-primary">
-                <span class="material-symbols-rounded">person_add</span> Register Child
-              </button>
+          </div>
+          <details style="margin:0.35rem 0 0.85rem; padding:0.65rem 0.85rem; border-radius:var(--radius-sm); background:var(--bg); border:1px solid var(--border);">
+            <summary style="cursor:pointer; font-size:0.82rem; font-weight:700; color:var(--text-muted);">Optional: Set direct login email &amp; password (not required)</summary>
+            <div class="form-row" style="margin-top:0.65rem;">
+              <div class="form-group" style="margin:0;">
+                <label>Child Email (Optional)</label>
+                <input type="email" id="childEmailInput" placeholder="leo@example.com">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label>Password (Optional, min 6 chars)</label>
+                <input type="password" id="childPasswordInput" minlength="6" placeholder="••••••••">
+              </div>
             </div>
+          </details>
+          <div>
+            <button type="submit" class="btn btn-primary">
+              <span class="material-symbols-rounded">person_add</span> Add Child Profile
+            </button>
           </div>
         </form>
       </div>
@@ -2977,12 +3005,42 @@
 
           <div id="kidPcStatusMsg" style="display:none; font-size:0.84rem; font-weight:600;"></div>
 
+          <div id="kidPcSwitchRow" style="display:none; gap:0.5rem; flex-wrap:wrap; padding-top:0.25rem; border-top:1px solid var(--border);">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="closeKidParentalControlsModal(); openWhoIsWatchingModal();">👨‍👩‍👧 Who's Watching?</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="closeKidParentalControlsModal(); handleLogout();">🛡️ Return to Parent Mode</button>
+          </div>
+
           <div style="display:flex; gap:0.6rem; justify-content:flex-end;">
             <button type="button" class="btn btn-secondary" onclick="closeKidParentalControlsModal()">Close</button>
             <button type="submit" class="btn btn-primary" id="kidPcSaveBtn">Save &amp; Sync</button>
           </div>
         </form>
       </div>
+    </div>
+  </div>
+
+  <!-- Who's Watching? Family Profile Switcher Modal -->
+  <div id="whoIsWatchingModal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.86); backdrop-filter:blur(8px); z-index:950; align-items:center; justify-content:center; padding:1.5rem;" onclick="if(event.target===this) closeWhoIsWatchingModal();">
+    <div class="card" style="max-width:640px; width:100%; padding:1.8rem; max-height:90vh; overflow-y:auto;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.15rem;">
+        <div>
+          <h2 style="font-family:'Fredoka',cursive; margin:0; font-size:1.55rem;">Who's Watching?</h2>
+          <p style="color:var(--text-muted); font-size:0.86rem; margin:0.2rem 0 0 0;">Pick a child profile or return to Parent Studio.</p>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeWhoIsWatchingModal()">✕ Close</button>
+      </div>
+      <div id="whoIsWatchingGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:0.9rem;"></div>
+    </div>
+  </div>
+
+  <!-- 6-Digit Child Device Pairing Modal -->
+  <div id="childPairCodeModal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.86); backdrop-filter:blur(8px); z-index:960; align-items:center; justify-content:center; padding:1.5rem;" onclick="if(event.target===this) closeChildPairCodeModal();">
+    <div class="card" style="max-width:420px; width:100%; padding:1.8rem; text-align:center;">
+      <h2 id="childPairModalTitle" style="font-family:'Fredoka',cursive; margin:0 0 0.4rem 0; font-size:1.45rem;">Pair Kid Device</h2>
+      <p style="color:var(--text-muted); font-size:0.86rem; margin:0 0 1.1rem 0;">On the child's phone or tablet, tap <strong>Pair Kid Device</strong> and enter this single-use code:</p>
+      <div id="childPairCodeDisplay" style="font-size:2.2rem; font-weight:900; letter-spacing:0.35rem; padding:1rem; border-radius:var(--radius-sm); background:rgba(255,51,102,0.12); color:var(--primary); margin-bottom:0.75rem;">------</div>
+      <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:1.25rem;">Expires in 10 minutes</div>
+      <button type="button" class="btn btn-primary" style="width:100%; justify-content:center;" onclick="closeChildPairCodeModal()">Done</button>
     </div>
   </div>
 
@@ -3128,6 +3186,20 @@
     let activeLoginRole = 'PARENT';
     let currentUser = null;
 
+    function formatChildEmailSubtitle(email) {
+      if (!email || String(email).toLowerCase().endsWith('@profiles.famitube.local')) {
+        return 'Passwordless Child Profile';
+      }
+      return email;
+    }
+
+    function toggleLegacyKidEmailLogin(showEmailForm) {
+      const pairForm = document.getElementById('pairDeviceForm');
+      const loginForm = document.getElementById('loginForm');
+      if (pairForm) pairForm.style.display = showEmailForm ? 'none' : 'flex';
+      if (loginForm) loginForm.style.display = showEmailForm ? 'flex' : 'none';
+    }
+
     function setLoginRole(role) {
       activeLoginRole = role === 'CHILD' ? 'CHILD' : 'PARENT';
       const isChild = activeLoginRole === 'CHILD';
@@ -3139,13 +3211,24 @@
       if (authModeTabs) authModeTabs.style.display = isChild ? 'none' : 'flex';
       const kidNotice = document.getElementById('kidLoginNotice');
       if (kidNotice) kidNotice.style.display = isChild ? 'block' : 'none';
+      const pairForm = document.getElementById('pairDeviceForm');
+      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
+      if (isChild) {
+        if (pairForm) pairForm.style.display = 'flex';
+        if (loginForm) loginForm.style.display = 'none';
+        if (registerForm) registerForm.style.display = 'none';
+      } else {
+        if (pairForm) pairForm.style.display = 'none';
+        switchAuthTab('login');
+      }
       const loginEmail = document.getElementById('loginEmail');
       if (loginEmail) loginEmail.placeholder = isChild ? 'kid@example.com' : 'curator@example.com';
       const authSubtitle = document.getElementById('authSubtitle');
       if (authSubtitle) {
         authSubtitle.textContent = isChild
-          ? 'Sign in to watch your parent-approved channels and age-safe videos.'
-          : 'Sign in to manage channels, videos, and family controls.';
+          ? 'Enter a 6-digit pairing code from Parent Mode to link this device.'
+          : 'Sign in to manage child profiles, channels, and family controls.';
       }
       const googleBtnLabel = document.getElementById('googleAuthBtnLabel');
       if (googleBtnLabel) {
@@ -3153,7 +3236,6 @@
           ? 'Sign in with Google (Kid)'
           : 'Continue with Google';
       }
-      if (isChild) switchAuthTab('login');
     }
 
     async function openStudio() {
@@ -3362,6 +3444,8 @@
       if (user?.role === 'CHILD') {
         document.getElementById('btnNavHome').style.display = 'none';
         document.getElementById('btnNavChannels').style.display = 'none';
+        const btnWho = document.getElementById('btnWhoIsWatching');
+        if (btnWho) btnWho.style.display = 'none';
         document.getElementById('btnModeParent').style.display = 'none';
         document.getElementById('btnModeStudio').style.display = 'none';
         const appPreviewEl = document.getElementById('navAppPreview');
@@ -3370,10 +3454,12 @@
         if (appPreviewEl) appPreviewEl.style.display = IS_DEV_STAGE ? 'inline-flex' : 'none';
         if (familyPassEl) familyPassEl.style.display = 'none';
         if (faqEl) faqEl.style.display = 'none';
-        document.getElementById('profileMenuMeta').textContent = `${user.email} • Kid Mode`;
+        document.getElementById('profileMenuMeta').textContent = `${formatChildEmailSubtitle(user.email)} • Kid Mode`;
       } else {
         document.getElementById('btnNavHome').style.display = 'none';
         document.getElementById('btnNavChannels').style.display = 'none';
+        const btnWho = document.getElementById('btnWhoIsWatching');
+        if (btnWho) btnWho.style.display = 'inline-flex';
         document.getElementById('btnModeParent').style.display = 'inline-flex';
         document.getElementById('btnModeStudio').style.display = 'inline-flex';
         const appPreviewEl = document.getElementById('navAppPreview');
@@ -3413,9 +3499,10 @@
       if (pendingInviteToken) checkInviteQueryParam();
     }
 
-    function showAuthGate(role = 'PARENT') {
+    function showAuthGate(role = 'PARENT', tab = 'login') {
       setModeButtons('studio');
       setLoginRole(role);
+      if (role !== 'CHILD' && tab === 'register') switchAuthTab('register');
       document.getElementById('linkChannelsJson').style.display = 'none';
       document.getElementById('showcaseApp').style.display = 'none';
       document.getElementById('channelsSearchApp').style.display = 'none';
@@ -3486,6 +3573,8 @@
       document.getElementById('guestProfileMenu').style.display = 'flex';
       document.getElementById('btnNavHome').style.display = 'inline-flex';
       document.getElementById('btnNavChannels').style.display = 'inline-flex';
+      const btnWhoLogout = document.getElementById('btnWhoIsWatching');
+      if (btnWhoLogout) btnWhoLogout.style.display = 'none';
       document.getElementById('btnModeParent').style.display = 'none';
       document.getElementById('btnModeStudio').style.display = 'none';
       const appPreviewEl = document.getElementById('navAppPreview');
@@ -3527,6 +3616,33 @@
         }
       }
       return res;
+    }
+
+    async function handlePairDeviceLogin(e) {
+      e.preventDefault();
+      document.getElementById('authAlert').style.display = 'none';
+      const code = String(document.getElementById('pairCodeInput')?.value || '').replace(/\D/g, '');
+      if (code.length !== 6) {
+        return showAuthAlert('Please enter the 6-digit pairing code.', true);
+      }
+      try {
+        const res = await fetch(apiUrl('/api/auth/pair-device'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code })
+        });
+        const json = await res.json();
+        if (!res.ok || !json.success || !json.token || !json.user) {
+          return showAuthAlert(json.message || 'Invalid or expired pairing code.', true);
+        }
+        localStorage.removeItem('FamiTube_parent_backup_token');
+        localStorage.removeItem('FamiTube_parent_backup_user');
+        authToken = json.token;
+        localStorage.setItem(AUTH_TOKEN_KEY, authToken);
+        handleAuthenticatedUser(json.user);
+      } catch {
+        showAuthAlert('Unable to reach API server at ' + API_BASE, true);
+      }
     }
 
     async function handleLogin(e) {
@@ -5263,7 +5379,7 @@
         <div class="schedule-item" style="flex-direction:column; align-items:stretch; gap:0.75rem;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
             <div>
-              <div style="font-weight:700; font-size:0.95rem;">${c.name} <span style="font-weight:400; color:var(--text-muted); font-size:0.82rem;">(${c.email})</span></div>
+              <div style="font-weight:700; font-size:0.95rem;">${c.name} <span style="font-weight:400; color:var(--text-muted); font-size:0.82rem;">(${formatChildEmailSubtitle(c.email)})</span></div>
               <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.2rem;">
                 ${c.birthday ? `Birthday: <strong>${c.birthday}</strong> • ` : ''}Age Group:
                 <select onchange="updateChildAgeRating('${c.id}', this.value)" style="margin-left:0.35rem; padding:2px 6px; border-radius:4px; border:1px solid var(--border);">
@@ -5274,7 +5390,11 @@
                 </select>
               </div>
             </div>
-            <button class="btn btn-secondary btn-sm" onclick="deleteChildAccount('${c.id}')">Remove Child</button>
+            <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+              <button type="button" class="btn btn-primary btn-sm" onclick="switchToChildMode('${c.id}')">▶ Watch</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="openChildPairCodeModal('${c.id}', '${String(c.name || '').replace(/'/g, "\\'")}')">📱 Pair Device</button>
+              <button class="btn btn-secondary btn-sm" onclick="deleteChildAccount('${c.id}')">Remove Child</button>
+            </div>
           </div>
           <div style="padding:0.75rem 0.9rem; border-radius:var(--radius-sm); background:var(--surface); border:1px solid var(--border); display:flex; flex-wrap:wrap; gap:0.85rem; align-items:center; justify-content:space-between;">
             <div style="display:flex; flex-wrap:wrap; gap:0.9rem; align-items:center; font-size:0.82rem;">
@@ -5526,15 +5646,21 @@
             </div>
             <div style="min-width:0;">
               <div style="font-weight:800; font-size:1.05rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.name}</div>
-              <div style="font-size:0.8rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.email}</div>
+              <div style="font-size:0.8rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${formatChildEmailSubtitle(c.email)}</div>
             </div>
           </div>
           <div style="display:flex; flex-wrap:wrap; gap:0.4rem; align-items:center;">
             <span style="font-size:0.76rem; font-weight:700; padding:0.25rem 0.6rem; border-radius:99px; background:rgba(67,97,238,0.12); color:var(--secondary);">${formatAgeGroupLabel(c.ageRating)}</span>
             ${c.birthday ? `<span style="font-size:0.76rem; color:var(--text-muted);">🎂 ${c.birthday}</span>` : ''}
           </div>
-          <div style="font-size:0.8rem; font-weight:700; color:var(--primary); display:flex; align-items:center; gap:0.25rem;">
-            Open Profile <span class="material-symbols-rounded" style="font-size:1rem;">chevron_right</span>
+          <div style="display:flex; gap:0.45rem; flex-wrap:wrap; align-items:center; justify-content:space-between; margin-top:auto;">
+            <span style="font-size:0.8rem; font-weight:700; color:var(--primary); display:flex; align-items:center; gap:0.25rem;">
+              Configure <span class="material-symbols-rounded" style="font-size:1rem;">chevron_right</span>
+            </span>
+            <div style="display:flex; gap:0.4rem;">
+              <button type="button" class="btn btn-primary btn-sm" style="padding:0.28rem 0.65rem; font-size:0.75rem;" onclick="event.stopPropagation(); switchToChildMode('${c.id}')">▶ Watch</button>
+              <button type="button" class="btn btn-secondary btn-sm" style="padding:0.28rem 0.65rem; font-size:0.75rem;" onclick="event.stopPropagation(); openChildPairCodeModal('${c.id}', '${String(c.name || '').replace(/'/g, "\\'")}')">📱 Pair</button>
+            </div>
           </div>
         </div>
       `).join('');
@@ -5699,13 +5825,14 @@
               </div>
               <div>
                 <h2 style="font-family:'Fredoka',cursive; font-size:1.45rem; margin:0;">${c.name}</h2>
-                <div style="font-size:0.86rem; color:var(--text-muted);">${c.email}${c.birthday ? ` • 🎂 ${c.birthday}` : ''}</div>
+                <div style="font-size:0.86rem; color:var(--text-muted);">${formatChildEmailSubtitle(c.email)}${c.birthday ? ` • 🎂 ${c.birthday}` : ''}</div>
               </div>
             </div>
             <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
               <button type="button" class="btn btn-primary btn-sm" onclick="switchToChildMode('${c.id}')">
                 <span class="material-symbols-rounded" style="font-size:1rem;">switch_account</span> Switch to Child Mode
               </button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="openChildPairCodeModal('${c.id}', '${String(c.name || '').replace(/'/g, "\\'")}')">📱 Pair Kid Device</button>
               <button type="button" class="btn btn-secondary btn-sm" onclick="removeChildFromProfile('${c.id}')">Remove Child</button>
             </div>
           </div>
@@ -6222,12 +6349,15 @@
 
     async function registerParentModeChild(e) {
       e.preventDefault();
+      const emailVal = (document.getElementById('pmChildEmailInput')?.value || '').trim();
+      const passwordVal = document.getElementById('pmChildPasswordInput')?.value || '';
+      const birthdayVal = (document.getElementById('pmChildBirthdayInput')?.value || '').trim();
       const payload = {
         name: document.getElementById('pmChildNameInput').value.trim(),
-        email: document.getElementById('pmChildEmailInput').value.trim(),
-        password: document.getElementById('pmChildPasswordInput').value,
-        birthday: document.getElementById('pmChildBirthdayInput').value,
-        ageRating: document.getElementById('pmChildAgeRatingInput').value
+        ageRating: document.getElementById('pmChildAgeRatingInput').value,
+        ...(birthdayVal ? { birthday: birthdayVal } : {}),
+        ...(emailVal ? { email: emailVal } : {}),
+        ...(passwordVal ? { password: passwordVal } : {})
       };
       const res = await authFetch('/api/parent/children', {
         method: 'POST',
@@ -6239,17 +6369,20 @@
       e.target.reset();
       toggleParentAddChildForm(false);
       await loadParentModeChildren();
-      alert('Child account added!');
+      alert('Child profile added!');
     }
 
     async function registerChildAccount(e) {
       e.preventDefault();
+      const emailVal = (document.getElementById('childEmailInput')?.value || '').trim();
+      const passwordVal = document.getElementById('childPasswordInput')?.value || '';
+      const birthdayVal = (document.getElementById('childBirthdayInput')?.value || '').trim();
       const payload = {
         name: document.getElementById('childNameInput').value.trim(),
-        email: document.getElementById('childEmailInput').value.trim(),
-        password: document.getElementById('childPasswordInput').value,
-        birthday: document.getElementById('childBirthdayInput').value,
-        ageRating: document.getElementById('childAgeRatingInput').value
+        ageRating: document.getElementById('childAgeRatingInput').value,
+        ...(birthdayVal ? { birthday: birthdayVal } : {}),
+        ...(emailVal ? { email: emailVal } : {}),
+        ...(passwordVal ? { password: passwordVal } : {})
       };
       const res = await authFetch('/api/parent/children', {
         method: 'POST',
@@ -6260,7 +6393,102 @@
       if (!json.success) return alert(json.message || 'Failed to register child');
       e.target.reset();
       await loadParentChildren();
-      alert('Child account registered! They can now log in via Kids / Child Login.');
+      alert('Child profile added!');
+    }
+
+    async function openChildPairCodeModal(childId, childName) {
+      const modal = document.getElementById('childPairCodeModal');
+      const titleEl = document.getElementById('childPairModalTitle');
+      const codeEl = document.getElementById('childPairCodeDisplay');
+      if (titleEl) titleEl.textContent = `Pair ${childName || 'Kid'}'s Device`;
+      if (codeEl) codeEl.textContent = '......';
+      if (modal) modal.style.display = 'flex';
+      try {
+        const res = await authFetch(`/api/parent/children/${encodeURIComponent(childId)}/pair-code`, { method: 'POST' });
+        const json = await res.json();
+        if (!res.ok || !json.success || !json.data?.code) {
+          closeChildPairCodeModal();
+          return alert(json.message || 'Unable to generate pairing code');
+        }
+        const c = String(json.data.code);
+        if (codeEl) codeEl.textContent = c.length === 6 ? `${c.slice(0, 3)} ${c.slice(3)}` : c;
+      } catch {
+        closeChildPairCodeModal();
+        alert('Failed to generate pairing code.');
+      }
+    }
+
+    function closeChildPairCodeModal() {
+      const modal = document.getElementById('childPairCodeModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    async function openWhoIsWatchingModal() {
+      const modal = document.getElementById('whoIsWatchingModal');
+      const grid = document.getElementById('whoIsWatchingGrid');
+      if (!modal || !grid) return;
+      modal.style.display = 'flex';
+      grid.innerHTML = '<div style="grid-column:1/-1; color:var(--text-muted); text-align:center; padding:1rem;">Loading family profiles...</div>';
+      const parentBackupToken = localStorage.getItem('FamiTube_parent_backup_token');
+      const fetchToken = currentUser?.role === 'PARENT' ? authToken : parentBackupToken;
+      let kids = parentModeChildrenCache || [];
+      if (fetchToken) {
+        try {
+          const res = await fetch(apiUrl('/api/parent/children'), {
+            headers: { Authorization: `Bearer ${fetchToken}` }
+          });
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data)) {
+            kids = json.data;
+            parentModeChildrenCache = kids;
+          }
+        } catch {}
+      }
+      const kidCards = kids.map(c => `
+        <button type="button" onclick="closeWhoIsWatchingModal(); switchToChildFromPicker('${c.id}');" style="cursor:pointer; background:var(--surface-light); border:1px solid var(--border); border-radius:var(--radius-sm); padding:1.1rem 0.75rem; display:flex; flex-direction:column; align-items:center; gap:0.55rem; color:var(--text); font-family:inherit;">
+          <span style="width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg, var(--primary), var(--secondary)); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.3rem;">${getUserInitials(c.name)}</span>
+          <span style="font-weight:800; font-size:0.96rem;">${c.name}</span>
+          <span style="font-size:0.74rem; color:var(--secondary); font-weight:700;">${formatAgeGroupLabel(c.ageRating)}</span>
+        </button>
+      `).join('');
+      const parentCard = `
+        <button type="button" onclick="closeWhoIsWatchingModal(); if(currentUser?.role==='CHILD'){ handleLogout(); } else { openParentMode(); }" style="cursor:pointer; background:var(--surface); border:1.5px dashed var(--secondary); border-radius:var(--radius-sm); padding:1.1rem 0.75rem; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.55rem; color:var(--text); font-family:inherit;">
+          <span style="width:56px; height:56px; border-radius:50%; background:rgba(67,97,238,0.14); color:var(--secondary); display:flex; align-items:center; justify-content:center;">
+            <span class="material-symbols-rounded" style="font-size:1.6rem;">admin_panel_settings</span>
+          </span>
+          <span style="font-weight:800; font-size:0.96rem;">Parent Mode</span>
+          <span style="font-size:0.74rem; color:var(--text-muted); font-weight:600;">Manage &amp; Curate</span>
+        </button>
+      `;
+      grid.innerHTML = kidCards + parentCard;
+    }
+
+    function closeWhoIsWatchingModal() {
+      const modal = document.getElementById('whoIsWatchingModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    async function switchToChildFromPicker(childId) {
+      if (currentUser?.role === 'PARENT') {
+        return switchToChildMode(childId);
+      }
+      const parentBackupToken = localStorage.getItem('FamiTube_parent_backup_token');
+      if (!parentBackupToken) return;
+      try {
+        const res = await fetch(apiUrl(`/api/parent/children/${childId}/switch-session`), {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${parentBackupToken}` }
+        });
+        const json = await res.json();
+        if (!res.ok || !json?.success || !json?.token || !json?.user) {
+          return alert(json?.message || 'Unable to switch child profile');
+        }
+        authToken = json.token;
+        localStorage.setItem(AUTH_TOKEN_KEY, authToken);
+        handleAuthenticatedUser(json.user);
+      } catch {
+        alert('Failed to switch child profile.');
+      }
     }
 
     async function updateChildAgeRating(childId, ageRating) {
@@ -8120,6 +8348,10 @@
       if (tCoolEl) tCoolEl.value = String(kidParentalSettings.toddlerCooldownMinutes ?? 30);
       const status = document.getElementById('kidPcStatusMsg');
       if (status) status.style.display = 'none';
+      const switchRow = document.getElementById('kidPcSwitchRow');
+      if (switchRow) {
+        switchRow.style.display = localStorage.getItem('FamiTube_parent_backup_token') ? 'flex' : 'none';
+      }
       document.getElementById('kidParentalControlsModal').style.display = 'flex';
     }
 
@@ -9168,14 +9400,14 @@
       en: {
         nav_home: 'Home',
         nav_channels: 'Channels',
-        nav_studio: 'Curator Studio',
+        nav_studio: 'Curate Catalog',
         sign_in: 'Sign In',
         guest_visitor: 'Guest Visitor',
-        guest_sub: 'Sign in as Parent or Kid',
-        guest_child_title: 'Discover, Learn & Explore Amazing Worlds!',
-        guest_child_desc: 'Ready for calm cartoons, science, music, and parent-approved YouTube channels—without algorithmic rabbit holes? Log in to your FamiTube account and start watching!',
-        guest_child_login_cta: 'Child Login & Start Exploring',
-        guest_child_note: "Ask your parent for your username and passcode if you don't have one yet.",
+        guest_sub: 'Sign in as Parent or Pair Kid Device',
+        guest_child_title: 'Calm, 100% Parent-Curated Video for Every Stage of Childhood',
+        guest_child_desc: 'Turn YouTube into a calm, distraction-free video space for Toddlers (1.5–3), Young Kids (4–6), and Older Kids (7+)—with Toddler TV Nap Cooldown, supervised @YouTube channels, and $0 curated videos forever.',
+        guest_child_login_cta: 'Start Free as a Parent',
+        guest_child_note: 'No emails or passwords needed for kids — add child profiles in seconds and switch anytime with "Who\'s Watching?".',
         guest_pill_yt_title: 'Curated Safe Channels',
         guest_pill_yt_desc: 'Hand-picked cartoons, science, music, and 24H Live TV.',
         guest_pill_web_title: 'Calm Toddler TV',
@@ -9186,7 +9418,7 @@
         guest_parent_desc: "Discover FamiTube's unique value proposition—100% parent-curated channels, age-rated child accounts, Calm Mode, and zero self-registration for kids.",
         guest_parent_learn_cta: 'Learn More',
         parent_sign_in: 'Parent / Curator Sign In',
-        kids_sign_in: 'Kids Sign In',
+        kids_sign_in: 'Pair Kid Device',
         language_label: 'Language',
         theme_label: 'Theme',
         theme_system: 'System',
@@ -9228,14 +9460,14 @@
       id: {
         nav_home: 'Beranda',
         nav_channels: 'Saluran',
-        nav_studio: 'Studio Kurator',
+        nav_studio: 'Kelola Katalog',
         sign_in: 'Masuk',
         guest_visitor: 'Tamu',
-        guest_sub: 'Masuk sebagai Orang Tua atau Anak',
-        guest_child_title: 'Temukan, Pelajari & Jelajahi Dunia yang Seru!',
-        guest_child_desc: 'Siap menonton kartun tenang, sains, musik, dan saluran YouTube pilihan orang tua—tanpa jebakan algoritma? Masuk ke akun FamiTube kamu dan mulai menonton!',
-        guest_child_login_cta: 'Masuk Anak & Mulai Jelajahi',
-        guest_child_note: 'Minta username dan kode sandi ke orang tuamu jika kamu belum memilikinya.',
+        guest_sub: 'Masuk sebagai Orang Tua atau Tautkan Perangkat Anak',
+        guest_child_title: 'Video Tenang & 100% Terkurasi Orang Tua untuk Setiap Tahap Tumbuh Kembang Anak',
+        guest_child_desc: 'Ubah YouTube menjadi ruang video yang tenang dan bebas distraksi untuk Balita (1.5–3), Anak Kecil (4–6), dan Anak Lebih Besar (7+)—lengkap dengan Jeda Tidur TV Balita, saluran @YouTube terawasi, dan video terkurasi Rp 0 selamanya.',
+        guest_child_login_cta: 'Mulai Gratis sebagai Orang Tua',
+        guest_child_note: 'Tanpa email atau kata sandi untuk anak — buat profil anak dalam hitungan detik dan ganti kapan saja melalui "Siapa yang Menonton?".',
         guest_pill_yt_title: 'Saluran Aman Terkurasi',
         guest_pill_yt_desc: 'Kartun pilihan, sains, musik, dan TV Langsung 24 Jam.',
         guest_pill_web_title: 'TV Balita Tenang',
@@ -9246,7 +9478,7 @@
         guest_parent_desc: 'Temukan keunggulan unik FamiTube—100% saluran terkurasi orang tua, akun anak berdasarkan usia, Mode Tenang, dan tanpa pendaftaran mandiri untuk anak.',
         guest_parent_learn_cta: 'Pelajari Lebih Lanjut',
         parent_sign_in: 'Masuk Orang Tua / Kurator',
-        kids_sign_in: 'Masuk Anak',
+        kids_sign_in: 'Tautkan Perangkat Anak',
         language_label: 'Bahasa',
         theme_label: 'Tema',
         theme_system: 'Sistem',
