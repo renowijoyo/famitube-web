@@ -1317,10 +1317,9 @@
       <button id="btnModeStudio" class="nav-link" style="display:none;" onclick="openStudio()">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">admin_panel_settings</span> <span data-i18n="nav_studio">Curator Studio</span>
       </button>
-      <a id="navAppPreview" href="mobile-preview.html" class="nav-link" title="Interactive Android App Preview (Dev Stage)">
+      <a id="navAppPreview" href="mobile-preview.html" class="nav-link" title="Interactive Android App Preview">
         <span class="material-symbols-rounded" style="font-size:1.05rem;">smartphone</span>
         <span>App Preview</span>
-        <span class="dev-badge" style="font-size:0.6rem; font-weight:800; padding:1px 5px; border-radius:4px; background:rgba(255,46,147,0.18); color:var(--primary); border:1px solid rgba(255,46,147,0.35); margin-left:3px; letter-spacing:0.5px;">DEV</span>
       </a>
       <a id="navFamilyPass" href="learn-more.html#plans" class="nav-link" title="Compare Free & Family Pass">
         <span class="material-symbols-rounded" style="font-size:1.05rem; color:var(--primary);">workspace_premium</span> <span data-i18n="nav_plans">Family Pass</span>
@@ -1372,7 +1371,6 @@
           <a href="mobile-preview.html" style="width:100%; display:flex; align-items:center; gap:0.55rem; padding:0.7rem 1rem; background:none; border:none; border-top:1px solid var(--border); color:var(--text); font-family:inherit; font-size:0.86rem; font-weight:600; text-decoration:none;" onmouseover="this.style.background='var(--surface-light)'" onmouseout="this.style.background='none'">
             <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--primary);">smartphone</span>
             <span>Android App Preview</span>
-            <span style="margin-left:auto; font-size:0.6rem; font-weight:800; padding:1px 5px; border-radius:4px; background:rgba(255,46,147,0.18); color:var(--primary); border:1px solid rgba(255,46,147,0.35);">DEV</span>
           </a>
           <a href="faq.html" style="width:100%; display:flex; align-items:center; gap:0.55rem; padding:0.7rem 1rem; background:none; border:none; border-top:1px solid var(--border); color:var(--text); font-family:inherit; font-size:0.86rem; font-weight:600; text-decoration:none;" onmouseover="this.style.background='var(--surface-light)'" onmouseout="this.style.background='none'">
             <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--secondary);">help</span>
@@ -1431,16 +1429,6 @@
               <div id="profileMenuMeta" style="font-size:0.78rem; color:var(--text-muted); margin-top:0.15rem;"></div>
             </div>
             <div id="profileKidStatsRow" style="display:none; flex-direction:column; gap:0.55rem; padding:0.75rem 1rem; border-bottom:1px solid var(--border); background:var(--surface);">
-              <button type="button" id="profileLevelBtn" onclick="document.getElementById('profileDropdownMenu').style.display='none'; if(typeof switchView==='function') switchView('showcase'); if(typeof switchKidShowcaseTab==='function') switchKidShowcaseTab('achievements');" title="View Badges &amp; Achievements" style="display:flex; align-items:center; justify-content:space-between; gap:0.6rem; padding:0.5rem 0.75rem; border-radius:10px; border:1px solid rgba(255,209,102,0.4); background:rgba(255,209,102,0.1); color:#ffd166; font-weight:700; font-size:0.84rem; cursor:pointer; text-align:left; width:100%;">
-                <div style="display:flex; align-items:center; gap:0.45rem;">
-                  <span style="font-size:1.15rem;">🏆</span>
-                  <div style="display:flex; flex-direction:column; line-height:1.2;">
-                    <span id="profileLevelTitle" style="font-weight:800; font-size:0.86rem; color:#ffd166;">Lv.1 Curious Explorer</span>
-                    <span id="profileBadgesSubtitle" style="font-size:0.72rem; color:var(--text-muted);">0 Badges Unlocked</span>
-                  </div>
-                </div>
-                <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--text-muted);">chevron_right</span>
-              </button>
               <button type="button" id="profileFavoritesBtn" onclick="document.getElementById('profileDropdownMenu').style.display='none'; if(typeof switchView==='function') switchView('showcase'); if(typeof switchKidShowcaseTab==='function') switchKidShowcaseTab('favorites');" title="My Favorite Videos" style="display:flex; align-items:center; justify-content:space-between; gap:0.6rem; padding:0.5rem 0.75rem; border-radius:10px; border:1px solid rgba(255,46,147,0.4); background:rgba(255,46,147,0.1); color:var(--pink); font-weight:700; font-size:0.84rem; cursor:pointer; text-align:left; width:100%;">
                 <div style="display:flex; align-items:center; gap:0.45rem;">
                   <span style="font-size:1.15rem;">❤️</span>
@@ -1451,16 +1439,10 @@
                 </div>
                 <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--text-muted);">chevron_right</span>
               </button>
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
-                <button type="button" id="headerTimePill" onclick="document.getElementById('profileDropdownMenu').style.display='none'; openKidParentalPinGate();" title="Remaining Daily Screen Time (Tap for Parental Controls)" style="display:inline-flex; align-items:center; justify-content:center; gap:0.35rem; padding:0.45rem 0.6rem; border-radius:10px; border:1px solid rgba(6,214,160,0.4); background:rgba(6,214,160,0.12); color:#06d6a0; font-weight:800; font-size:0.82rem; cursor:pointer; white-space:nowrap;">
-                  <span class="material-symbols-rounded" style="font-size:1rem;">schedule</span>
-                  <span id="headerTimeLabel">45m</span>
-                </button>
-                <button type="button" id="headerStarsPill" onclick="document.getElementById('profileDropdownMenu').style.display='none'; if(typeof switchView==='function') switchView('showcase'); if(typeof switchKidShowcaseTab==='function') switchKidShowcaseTab('achievements');" title="My Famibux Balance" style="display:inline-flex; align-items:center; justify-content:center; gap:0.35rem; padding:0.45rem 0.6rem; border-radius:10px; border:1px solid rgba(251,133,0,0.4); background:rgba(251,133,0,0.12); color:#ffb703; font-weight:800; font-size:0.82rem; cursor:pointer; white-space:nowrap;">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="vertical-align:middle; display:inline-block;"><circle cx="12" cy="12" r="10" fill="url(#famibuxGoldProf)" stroke="#E09F00" stroke-width="1.5"/><circle cx="12" cy="12" r="8.2" stroke="rgba(255,255,255,0.3)" stroke-width="0.75" stroke-dasharray="1.5 1"/><line x1="11" y1="4.5" x2="11" y2="19.5" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"/><rect x="9.8" y="6" width="2.4" height="11.5" rx="1.2" fill="#FFFFFF"/><path d="M10 6H16.2C16.9 6 17.4 6.5 17.4 7.2C17.4 7.9 16.9 8.4 16.2 8.4H10V6Z" fill="#FFFFFF"/><path d="M6.5 11.2H15C15.7 11.2 16.2 11.7 16.2 12.4C16.2 13.1 15.7 13.6 15 13.6H6.5C5.8 13.6 5.3 13.1 5.3 12.4C5.3 11.7 5.8 11.2 6.5 11.2Z" fill="#FFFFFF"/><defs><linearGradient id="famibuxGoldProf" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse"><stop stop-color="#FFE066"/><stop offset="0.6" stop-color="#FFB703"/><stop offset="1" stop-color="#FB8500"/></linearGradient></defs></svg>
-                  <span id="headerStarsCount">0</span>
-                </button>
-              </div>
+              <button type="button" id="headerTimePill" onclick="document.getElementById('profileDropdownMenu').style.display='none'; openKidParentalPinGate();" title="Remaining Daily Screen Time (Tap for Parental Controls)" style="display:inline-flex; align-items:center; justify-content:center; gap:0.35rem; padding:0.48rem 0.75rem; border-radius:10px; border:1px solid rgba(6,214,160,0.4); background:rgba(6,214,160,0.12); color:#06d6a0; font-weight:800; font-size:0.82rem; cursor:pointer; white-space:nowrap; width:100%;">
+                <span class="material-symbols-rounded" style="font-size:1rem;">schedule</span>
+                <span id="headerTimeLabel">45m</span>
+              </button>
             </div>
             <div class="dropdown-prefs" style="border-top:none;" onclick="event.stopPropagation()">
               <label class="dropdown-pref-row">
@@ -1485,7 +1467,6 @@
             <a href="mobile-preview.html" style="display:flex; align-items:center; gap:0.55rem; padding:0.75rem 1rem; border-top:1px solid var(--border); color:var(--text); font-family:inherit; font-size:0.88rem; font-weight:600; text-decoration:none;" onmouseover="this.style.background='var(--surface-light)'" onmouseout="this.style.background='none'">
               <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--primary);">smartphone</span>
               <span>Android App Preview</span>
-              <span style="margin-left:auto; font-size:0.6rem; font-weight:800; padding:1px 5px; border-radius:4px; background:rgba(255,46,147,0.18); color:var(--primary); border:1px solid rgba(255,46,147,0.35);">DEV</span>
             </a>
             <button id="logoutMenuBtn" onclick="handleLogout()" style="width:100%; display:flex; align-items:center; gap:0.55rem; padding:0.75rem 1rem; background:none; border:none; border-top:1px solid var(--border); color:#FF809D; font-family:inherit; font-size:0.88rem; font-weight:600; cursor:pointer; text-align:left;" onmouseover="this.style.background='rgba(255,51,102,0.1)'" onmouseout="this.style.background='none'">
               <span class="material-symbols-rounded" style="font-size:1.1rem;">logout</span> <span id="logoutMenuBtnLabel" data-i18n="logout">Logout</span>
@@ -1518,7 +1499,7 @@
           Discover, Learn &amp; Explore Amazing Worlds!
         </h2>
         <p data-i18n="guest_child_desc" style="color:var(--text-muted); font-size:1rem; max-width:700px; margin-bottom:1.25rem;">
-          Ready for awesome cartoons, mind-blowing science experiments, music, and cool websites? Log in to your FamiTube account and start your adventure!
+          Ready for calm cartoons, science, music, and parent-approved YouTube channels—without algorithmic rabbit holes? Log in to your FamiTube account and start watching!
         </p>
         <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
           <button type="button" class="btn btn-primary" onclick="showAuthGate('CHILD')" style="padding:0.75rem 1.4rem; font-size:0.95rem;">
@@ -1536,26 +1517,26 @@
               <span class="material-symbols-rounded">play_circle</span>
             </div>
             <div>
-              <div data-i18n="guest_pill_yt_title" style="font-weight:700; font-size:0.92rem; margin-bottom:0.15rem;">Awesome Channels</div>
-              <div data-i18n="guest_pill_yt_desc" style="font-size:0.82rem; color:var(--text-muted);">Explore hand-picked cartoons, science, music, and fun stories.</div>
+              <div data-i18n="guest_pill_yt_title" style="font-weight:700; font-size:0.92rem; margin-bottom:0.15rem;">Curated Safe Channels</div>
+              <div data-i18n="guest_pill_yt_desc" style="font-size:0.82rem; color:var(--text-muted);">Hand-picked cartoons, science, music, and 24H Live TV.</div>
             </div>
           </div>
           <div class="guest-mini-pill">
             <div class="guest-mini-pill-icon" style="background:rgba(76,201,240,0.15); color:var(--accent);">
-              <span class="material-symbols-rounded">public</span>
+              <span class="material-symbols-rounded">live_tv</span>
             </div>
             <div>
-              <div data-i18n="guest_pill_web_title" style="font-weight:700; font-size:0.92rem; margin-bottom:0.15rem;">Cool Websites</div>
-              <div data-i18n="guest_pill_web_desc" style="font-size:0.82rem; color:var(--text-muted);">Visit fun learning games, space, nature, and encyclopedia sites.</div>
+              <div data-i18n="guest_pill_web_title" style="font-weight:700; font-size:0.92rem; margin-bottom:0.15rem;">Calm Toddler TV</div>
+              <div data-i18n="guest_pill_web_desc" style="font-size:0.82rem; color:var(--text-muted);">Slow-paced linear channels with gentle loops and Nap Cooldown.</div>
             </div>
           </div>
           <div class="guest-mini-pill">
             <div class="guest-mini-pill-icon" style="background:rgba(6,214,160,0.14); color:var(--success);">
-              <span class="material-symbols-rounded">emoji_events</span>
+              <span class="material-symbols-rounded">verified_user</span>
             </div>
             <div>
-              <div data-i18n="guest_pill_stars_title" style="font-weight:700; font-size:0.92rem; margin-bottom:0.15rem;">Famibux &amp; Badges</div>
-              <div data-i18n="guest_pill_stars_desc" style="font-size:0.82rem; color:var(--text-muted);">Earn Famibux, unlock badges, and save your favorite videos in lists.</div>
+              <div data-i18n="guest_pill_stars_title" style="font-weight:700; font-size:0.92rem; margin-bottom:0.15rem;">Calm by Design</div>
+              <div data-i18n="guest_pill_stars_desc" style="font-size:0.82rem; color:var(--text-muted);">Zero streaks, zero dopamine traps—just parent-approved videos &amp; lists.</div>
             </div>
           </div>
         </div>
@@ -1628,7 +1609,7 @@
           </span>
           <h2 data-i18n="hero_s3_title" style="font-size:1.6rem; margin-bottom:0.4rem;">Turn Screen Time into Curiosity &amp; Learning</h2>
           <p data-i18n="hero_s3_desc" style="color:var(--text-muted); font-size:0.95rem; max-width:760px;">
-            Tailor feeds from Toddlers (2–4) all the way to Teens (13–17) with Calm Mode, Study Mode, and tag filters parents control.
+            Tailor feeds across Toddlers (1.5–3), Young Kids (4–6), and Older Kids (7+) with Calm Mode, Study Mode, and tag filters parents control.
           </p>
           <div class="hero-actions">
             <button type="button" class="btn btn-primary" onclick="openStudio()">
@@ -1797,9 +1778,9 @@
       </div>
       <div id="channelAgeFilters" class="channel-category-pills" role="group" aria-label="Filter by age group" style="margin-bottom:0.15rem;">
         <button type="button" class="filter-pill active" data-age="ALL" onclick="setChannelSearchAge('ALL')">All Ages</button>
-        <button type="button" class="filter-pill" data-age="TODDLER" onclick="setChannelSearchAge('TODDLER')">Toddlers (2-4)</button>
-        <button type="button" class="filter-pill" data-age="YOUNG_KIDS" onclick="setChannelSearchAge('YOUNG_KIDS')">Young Kids (5-8)</button>
-        <button type="button" class="filter-pill" data-age="OLDER_KIDS" onclick="setChannelSearchAge('OLDER_KIDS')">Older Kids (9-12)</button>
+        <button type="button" class="filter-pill" data-age="TODDLER" onclick="setChannelSearchAge('TODDLER')">Toddlers (1.5–3)</button>
+        <button type="button" class="filter-pill" data-age="YOUNG_KIDS" onclick="setChannelSearchAge('YOUNG_KIDS')">Young Kids (4–6)</button>
+        <button type="button" class="filter-pill" data-age="OLDER_KIDS" onclick="setChannelSearchAge('OLDER_KIDS')">Older Kids (7+)</button>
       </div>
       <div id="channelCategoryFilters" class="channel-category-pills" role="group" aria-label="Filter by category"></div>
     </div>
@@ -2022,10 +2003,10 @@
             <div class="form-group">
               <label>Age Group (Auto from Birthday — Editable)</label>
               <select id="pmChildAgeRatingInput">
-                <option value="TODDLER">Toddler (0-4 yrs)</option>
-                <option value="YOUNG_KIDS">Young Kids (5-7 yrs)</option>
-                <option value="OLDER_KIDS">Explorers / Tweens (8-11 yrs)</option>
-                <option value="ALL">Pre-Teens &amp; Up (12+ yrs)</option>
+                <option value="TODDLER">Tier 1: Toddler TV (1.5–3)</option>
+                <option value="YOUNG_KIDS">Tier 2: Young Kids (4–6)</option>
+                <option value="OLDER_KIDS">Tier 3: Older Kids (7+)</option>
+                <option value="ALL">All Ages</option>
               </select>
             </div>
             <div style="display:flex; gap:0.5rem;">
@@ -2474,10 +2455,10 @@
             <div class="form-group">
               <label>Age Group (Auto from Birthday — Editable)</label>
               <select id="childAgeRatingInput">
-                <option value="TODDLER">Toddler (0-4 yrs)</option>
-                <option value="YOUNG_KIDS">Young Kids (5-7 yrs)</option>
-                <option value="OLDER_KIDS">Explorers / Tweens (8-11 yrs)</option>
-                <option value="ALL">Pre-Teens & Up (12+ yrs)</option>
+                <option value="TODDLER">Tier 1: Toddler TV (1.5–3)</option>
+                <option value="YOUNG_KIDS">Tier 2: Young Kids (4–6)</option>
+                <option value="OLDER_KIDS">Tier 3: Older Kids (7+)</option>
+                <option value="ALL">All Ages</option>
               </select>
             </div>
             <div>
@@ -2525,10 +2506,10 @@
           <div class="form-group" style="margin-bottom:1rem;">
             <label>Global Default Age Tier</label>
             <select id="globalAgeRating">
-              <option value="ALL">All Ages (12+)</option>
-              <option value="TODDLER">Tier 1: Toddler (TV Mode)</option>
-              <option value="YOUNG_KIDS">Tier 2: Young Kids (5-7)</option>
-              <option value="OLDER_KIDS">Tier 3: Older Kids (8+)</option>
+              <option value="ALL">All Ages</option>
+              <option value="TODDLER">Tier 1: Toddler TV (1.5–3)</option>
+              <option value="YOUNG_KIDS">Tier 2: Young Kids (4–6)</option>
+              <option value="OLDER_KIDS">Tier 3: Older Kids (7+)</option>
             </select>
           </div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.85rem; margin-bottom:1rem;">
@@ -2547,22 +2528,6 @@
                 <option value="GLOBAL">Global / Cross-Cultural</option>
                 <option value="ID">Indonesia / Nusantara</option>
               </select>
-            </div>
-          </div>
-          <div style="padding:0.85rem; border-radius:var(--radius-sm); background:var(--bg); border:1px solid var(--border); margin-bottom:1rem;">
-            <label style="display:flex; align-items:center; gap:0.5rem; font-weight:600; font-size:0.88rem; cursor:pointer; margin-bottom:0.65rem;">
-              <input type="checkbox" id="globalAttentionEnabled" style="width:auto;">
-              Enable Attention Tracking
-            </label>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
-              <div class="form-group" style="margin:0;">
-                <label style="font-size:0.76rem;">Pause After (sec)</label>
-                <input type="number" min="5" max="300" id="globalAttentionPause">
-              </div>
-              <div class="form-group" style="margin:0;">
-                <label style="font-size:0.76rem;">Min Watch (%)</label>
-                <input type="number" min="10" max="100" id="globalAttentionMinPct">
-              </div>
             </div>
           </div>
           <div style="padding:0.85rem; border-radius:var(--radius-sm); background:var(--bg); border:1px solid var(--border); margin-bottom:1.25rem;">
@@ -2654,12 +2619,12 @@
               <input type="url" id="studioStoryCover" placeholder="https://images.unsplash.com/..." required>
             </div>
           </div>
-          <div class="form-row-3" style="margin-bottom:0.75rem;">
+          <div class="form-row" style="margin-bottom:0.75rem;">
             <div class="form-group">
               <label>Target Age Group</label>
               <select id="studioStoryAge">
-                <option value="TODDLER">Toddlers (2–4 yrs • Flip Default)</option>
-                <option value="YOUNG_KIDS">Young Kids (5–8 yrs • Read-Along Default)</option>
+                <option value="TODDLER">Toddlers (1.5–3 • Read to Me Default)</option>
+                <option value="YOUNG_KIDS">Young Kids (4–6 • Read Aloud Default)</option>
               </select>
             </div>
             <div class="form-group">
@@ -2668,10 +2633,6 @@
                 <option value="en">English (en)</option>
                 <option value="id">Indonesian (id)</option>
               </select>
-            </div>
-            <div class="form-group">
-              <label>Famibux Reward</label>
-              <input type="number" id="studioStoryReward" value="25" min="5" max="200" required>
             </div>
           </div>
           <div class="form-group" style="margin-bottom:0.85rem;">
@@ -2975,10 +2936,10 @@
           <div>
             <label style="display:block; font-weight:700; font-size:0.9rem; margin-bottom:0.35rem;">Age Content Filter</label>
             <select id="kidPcAgeRating" style="width:100%; padding:0.6rem 0.75rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit;">
-              <option value="TODDLER">Toddlers (Ages 0-4) — Simple Mode</option>
-              <option value="YOUNG_KIDS">Young Kids (Ages 5-7) — Simple Mode</option>
-              <option value="OLDER_KIDS">Explorers / Tweens (Ages 8-11)</option>
-              <option value="ALL">Pre-Teens &amp; Up (Ages 12+)</option>
+              <option value="TODDLER">Tier 1: Toddler TV (1.5–3)</option>
+              <option value="YOUNG_KIDS">Tier 2: Young Kids (4–6)</option>
+              <option value="OLDER_KIDS">Tier 3: Older Kids (7+)</option>
+              <option value="ALL">All Ages</option>
             </select>
           </div>
 
@@ -2990,23 +2951,6 @@
               <option value="id">Indonesian</option>
               <option value="bilingual">Bilingual (EN + ID)</option>
             </select>
-          </div>
-
-          <div class="card" style="padding:0.9rem 1rem; background:var(--surface-light);">
-            <label style="display:flex; align-items:center; gap:0.6rem; cursor:pointer; font-weight:700; font-size:0.9rem;">
-              <input type="checkbox" id="kidPcAttentionEnabled">
-              <span>Camera Attention Tracking (Android)</span>
-            </label>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.65rem; margin-top:0.65rem;">
-              <div>
-                <label style="display:block; font-size:0.78rem; color:var(--text-muted); margin-bottom:0.25rem;">Pause After (sec)</label>
-                <input type="number" id="kidPcAttentionPause" min="5" max="300" value="30" style="width:100%;">
-              </div>
-              <div>
-                <label style="display:block; font-size:0.78rem; color:var(--text-muted); margin-bottom:0.25rem;">Min Watch (%)</label>
-                <input type="number" id="kidPcAttentionPercent" min="10" max="100" value="60" style="width:100%;">
-              </div>
-            </div>
           </div>
 
           <div>
@@ -3771,9 +3715,9 @@
     function formatChannelAgeBadge(ageRating) {
       const normalized = String(ageRating || 'ALL').toUpperCase();
       const map = {
-        TODDLER: { label: 'Toddler 2-4', bg: 'rgba(255,183,3,0.16)', color: '#d97706' },
-        YOUNG_KIDS: { label: 'Young Kids 5-8', bg: 'rgba(6,214,160,0.16)', color: '#059669' },
-        OLDER_KIDS: { label: 'Older Kids 9-12', bg: 'rgba(76,201,240,0.18)', color: '#0284c7' },
+        TODDLER: { label: 'Toddler 1.5–3', bg: 'rgba(255,183,3,0.16)', color: '#d97706' },
+        YOUNG_KIDS: { label: 'Young Kids 4–6', bg: 'rgba(6,214,160,0.16)', color: '#059669' },
+        OLDER_KIDS: { label: 'Older Kids 7+', bg: 'rgba(76,201,240,0.18)', color: '#0284c7' },
         ALL: { label: 'All Ages', bg: 'rgba(131,56,236,0.15)', color: '#7c3aed' }
       };
       const meta = map[normalized] || map.ALL;
@@ -4845,9 +4789,6 @@
         if (langEl) langEl.value = c.contentLanguage || 'all';
         const culEl = document.getElementById('globalCultureMode');
         if (culEl) culEl.value = c.cultureMode || 'GLOBAL';
-        document.getElementById('globalAttentionEnabled').checked = c.attentionTrackingEnabled !== false;
-        document.getElementById('globalAttentionPause').value = c.attentionPauseSeconds ?? 30;
-        document.getElementById('globalAttentionMinPct').value = c.attentionMinWatchPercent ?? 70;
         document.getElementById('globalYtSearchEnabled').checked = c.youtubeSearchEnabled !== false;
         document.getElementById('globalYtRequireApproval').checked = c.searchRequireApproval !== false;
         document.getElementById('globalYtSearchLimit').value = c.searchViewLimit ?? 0;
@@ -4861,9 +4802,6 @@
         ageRating: document.getElementById('globalAgeRating').value,
         contentLanguage: document.getElementById('globalContentLanguage')?.value || 'all',
         cultureMode: document.getElementById('globalCultureMode')?.value || 'GLOBAL',
-        attentionTrackingEnabled: document.getElementById('globalAttentionEnabled').checked,
-        attentionPauseSeconds: Number(document.getElementById('globalAttentionPause').value),
-        attentionMinWatchPercent: Number(document.getElementById('globalAttentionMinPct').value),
         youtubeSearchEnabled: document.getElementById('globalYtSearchEnabled').checked,
         searchRequireApproval: document.getElementById('globalYtRequireApproval').checked,
         searchViewLimit: Number(document.getElementById('globalYtSearchLimit').value)
@@ -5329,10 +5267,10 @@
               <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.2rem;">
                 ${c.birthday ? `Birthday: <strong>${c.birthday}</strong> • ` : ''}Age Group:
                 <select onchange="updateChildAgeRating('${c.id}', this.value)" style="margin-left:0.35rem; padding:2px 6px; border-radius:4px; border:1px solid var(--border);">
-                  <option value="ALL" ${c.ageRating === 'ALL' ? 'selected' : ''}>Pre-Teens & Up (12+)</option>
-                  <option value="TODDLER" ${c.ageRating === 'TODDLER' ? 'selected' : ''}>Toddler (0-4)</option>
-                  <option value="YOUNG_KIDS" ${c.ageRating === 'YOUNG_KIDS' ? 'selected' : ''}>Young Kids (5-7)</option>
-                  <option value="OLDER_KIDS" ${c.ageRating === 'OLDER_KIDS' ? 'selected' : ''}>Explorers (8-11)</option>
+                  <option value="ALL" ${c.ageRating === 'ALL' ? 'selected' : ''}>All Ages</option>
+                  <option value="TODDLER" ${c.ageRating === 'TODDLER' ? 'selected' : ''}>Tier 1: Toddler TV (1.5–3)</option>
+                  <option value="YOUNG_KIDS" ${c.ageRating === 'YOUNG_KIDS' ? 'selected' : ''}>Tier 2: Young Kids (4–6)</option>
+                  <option value="OLDER_KIDS" ${c.ageRating === 'OLDER_KIDS' ? 'selected' : ''}>Tier 3: Older Kids (7+)</option>
                 </select>
               </div>
             </div>
@@ -5372,10 +5310,6 @@
                 PIN:
                 <input type="text" maxlength="4" id="childPin_${c.id}" value="${c.parentPin || '1234'}" style="width:60px; padding:0.25rem 0.45rem; border-radius:4px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
               </label>
-              <label style="display:inline-flex; align-items:center; gap:0.35rem; cursor:pointer;">
-                <input type="checkbox" id="childAttention_${c.id}" ${c.attentionTrackingEnabled !== false ? 'checked' : ''}>
-                Attention Check
-              </label>
             </div>
             <div style="display:flex; gap:0.45rem;">
               <button type="button" class="btn btn-secondary btn-sm" onclick="resetChildOverrides('${c.id}')">Use Global</button>
@@ -5389,8 +5323,7 @@
     async function saveChildOverrides(childId) {
       const payload = {
         dailyLimitMinutes: Number(document.getElementById(`childDailyLimit_${childId}`).value),
-        parentPin: document.getElementById(`childPin_${childId}`).value.trim(),
-        attentionTrackingEnabled: document.getElementById(`childAttention_${childId}`).checked
+        parentPin: document.getElementById(`childPin_${childId}`).value.trim()
       };
       const res = await authFetch(`/api/parent/children/${childId}`, {
         method: 'PUT',
@@ -5487,10 +5420,10 @@
 
     function formatAgeGroupLabel(ageRating) {
       switch (ageRating) {
-        case 'TODDLER': return 'Tier 1: Toddler TV';
-        case 'YOUNG_KIDS': return 'Tier 2: Young Kids';
-        case 'OLDER_KIDS': return 'Tier 3: Older Kids';
-        default: return 'Pre-Teens & Up (12+ yrs)';
+        case 'TODDLER': return 'Tier 1: Toddler TV (1.5–3)';
+        case 'YOUNG_KIDS': return 'Tier 2: Young Kids (4–6)';
+        case 'OLDER_KIDS': return 'Tier 3: Older Kids (7+)';
+        default: return 'All Ages';
       }
     }
 
@@ -5548,10 +5481,6 @@
                 <label>Global Daily Limit (minutes, 0 = unlimited)</label>
                 <input type="number" min="0" max="720" id="pmGlobalDailyLimit" value="${c.dailyLimitMinutes ?? 45}">
               </div>
-              <label style="display:inline-flex; align-items:center; gap:0.45rem; font-size:0.86rem; font-weight:600; cursor:pointer; margin-top:0.85rem;">
-                <input type="checkbox" id="pmGlobalAttention" ${c.attentionTrackingEnabled !== false ? 'checked' : ''}>
-                Enable Camera Attention Check (Android)
-              </label>
             </div>
           </div>
         `;
@@ -5565,8 +5494,7 @@
         parentPin,
         contentLanguage: document.getElementById('pmGlobalLang')?.value || 'all',
         cultureMode: document.getElementById('pmGlobalCulture')?.value || 'GLOBAL',
-        dailyLimitMinutes: Number(document.getElementById('pmGlobalDailyLimit')?.value || 45),
-        attentionTrackingEnabled: Boolean(document.getElementById('pmGlobalAttention')?.checked)
+        dailyLimitMinutes: Number(document.getElementById('pmGlobalDailyLimit')?.value || 45)
       };
       const res = await authFetch('/api/parent/controls', {
         method: 'PUT',
@@ -5790,10 +5718,10 @@
             <div class="form-group">
               <label>Developmental Tier (Parent Decides)</label>
               <select id="profileAgeRating_${c.id}">
-                <option value="TODDLER" ${c.ageRating === 'TODDLER' ? 'selected' : ''}>Tier 1: Toddler (Linear TV Mode)</option>
-                <option value="YOUNG_KIDS" ${c.ageRating === 'YOUNG_KIDS' ? 'selected' : ''}>Tier 2: Young Kids (5-7 yrs)</option>
-                <option value="OLDER_KIDS" ${c.ageRating === 'OLDER_KIDS' ? 'selected' : ''}>Tier 3: Older Kids (8+ yrs)</option>
-                <option value="ALL" ${c.ageRating === 'ALL' ? 'selected' : ''}>All Ages / Pre-Teens (12+ yrs)</option>
+                <option value="TODDLER" ${c.ageRating === 'TODDLER' ? 'selected' : ''}>Tier 1: Toddler TV (1.5–3)</option>
+                <option value="YOUNG_KIDS" ${c.ageRating === 'YOUNG_KIDS' ? 'selected' : ''}>Tier 2: Young Kids (4–6)</option>
+                <option value="OLDER_KIDS" ${c.ageRating === 'OLDER_KIDS' ? 'selected' : ''}>Tier 3: Older Kids (7+)</option>
+                <option value="ALL" ${c.ageRating === 'ALL' ? 'selected' : ''}>All Ages</option>
               </select>
             </div>
             <div>
@@ -5900,7 +5828,7 @@
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.75rem;">
               <div>
                 <div style="font-weight:700; font-size:0.95rem;">Device Safety &amp; PIN Override (Synced to Android)</div>
-                <div style="font-size:0.8rem; color:var(--text-muted);">Configure PIN lock, daily watch limit, and camera attention checks for ${c.name}.</div>
+                <div style="font-size:0.8rem; color:var(--text-muted);">Configure PIN lock and daily watch limit for ${c.name}.</div>
               </div>
               <button type="button" class="btn btn-primary btn-sm" onclick="savePmChildParentalControls('${c.id}')">Save Device Controls</button>
             </div>
@@ -5921,25 +5849,7 @@
                 <label>Parent PIN (4 digits)</label>
                 <input type="text" maxlength="4" pattern="\\d{4}" id="pmParentPin_${c.id}" value="${c.parentPin || '1234'}" placeholder="1234">
               </div>
-              <div class="form-group">
-                <label>Attention Pause After</label>
-                <select id="pmAttPause_${c.id}">
-                  ${[5, 10, 15, 30, 45, 60].map(s => `<option value="${s}" ${(c.attentionPauseSeconds ?? 30) === s ? 'selected' : ''}>${s} seconds away</option>`).join('')}
-                </select>
-              </div>
-              ${!isToddler ? `
-                <div class="form-group">
-                  <label>Min Watch for Famibux</label>
-                  <select id="pmAttMinPct_${c.id}">
-                    ${[50, 70, 85, 100].map(p => `<option value="${p}" ${(c.attentionMinWatchPercent ?? 70) === p ? 'selected' : ''}>${p}% active</option>`).join('')}
-                  </select>
-                </div>
-              ` : ''}
             </div>
-            <label style="display:inline-flex; align-items:center; gap:0.45rem; font-size:0.86rem; font-weight:600; cursor:pointer; margin-top:0.5rem;">
-              <input type="checkbox" id="pmAttEnabled_${c.id}" ${c.attentionTrackingEnabled !== false ? 'checked' : ''}>
-              Enable Camera Attention Check (pauses video when child looks away)
-            </label>
           </div>
 
           <div style="margin-top:0.9rem; padding:1rem; border-radius:var(--radius-sm); background:var(--bg); border:1px solid var(--border);">
@@ -6273,9 +6183,6 @@
       const limitMins = Math.max(0, Math.min(59, Number(document.getElementById(`pmDailyMinutes_${childId}`)?.value || 0)));
       const dailyLimitMinutes = limitHours * 60 + limitMins;
       const parentPin = String(document.getElementById(`pmParentPin_${childId}`)?.value || '').trim();
-      const attentionTrackingEnabled = Boolean(document.getElementById(`pmAttEnabled_${childId}`)?.checked);
-      const attentionPauseSeconds = Number(document.getElementById(`pmAttPause_${childId}`)?.value || 30);
-      const attentionMinWatchPercent = Number(document.getElementById(`pmAttMinPct_${childId}`)?.value || 70);
       if (!/^\d{4}$/.test(parentPin)) {
         return alert('Parent PIN must be exactly 4 digits.');
       }
@@ -6284,10 +6191,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           dailyLimitMinutes,
-          parentPin,
-          attentionTrackingEnabled,
-          attentionPauseSeconds,
-          attentionMinWatchPercent
+          parentPin
         })
       });
       const json = await res.json();
@@ -7284,7 +7188,6 @@
         const appPreviewEl = document.getElementById('navAppPreview');
         if (appPreviewEl) appPreviewEl.style.display = 'inline-flex';
       }
-      loadKidAchievements();
       switchKidShowcaseTab(activeKidTab || 'curated');
     }
 
@@ -7317,6 +7220,7 @@
     function switchKidShowcaseTab(tab, keepSelectedChannel = false) {
       if (typeof stopStoryAudioAndMic === 'function') stopStoryAudioAndMic();
       if (tab === 'history') tab = 'search';
+      if (tab === 'achievements') tab = 'curated';
       if (tab === 'search' && currentUser?.role === 'CHILD' && currentUser?.ageRating === 'TODDLER') {
         tab = 'curated';
       }
@@ -7374,7 +7278,6 @@
           if (resultsEl) resultsEl.innerHTML = '';
         }
       }
-      if (activeKidTab === 'achievements') loadKidAchievements();
       if (activeKidTab === 'favorites') {
         renderKidFavorites();
         if (!isSimpleKidUser(currentUser)) {
@@ -8207,9 +8110,6 @@
       document.getElementById('kidPcAgeRating').value = kidParentalSettings.ageRating || currentUser?.ageRating || 'ALL';
       const langEl = document.getElementById('kidPcContentLanguage');
       if (langEl) langEl.value = kidParentalSettings.contentLanguage || currentUser?.contentLanguage || 'all';
-      document.getElementById('kidPcAttentionEnabled').checked = Boolean(kidParentalSettings.attentionTrackingEnabled);
-      document.getElementById('kidPcAttentionPause').value = String(kidParentalSettings.attentionPauseSeconds ?? 30);
-      document.getElementById('kidPcAttentionPercent').value = String(kidParentalSettings.attentionMinWatchPercent ?? 60);
       document.getElementById('kidPcNewPin').value = kidParentalSettings.parentPin || kidUnlockedPinCache || '1234';
       const ageVal = kidParentalSettings.ageRating || currentUser?.ageRating || 'ALL';
       const tSec = document.getElementById('kidPcToddlerSection');
@@ -8275,9 +8175,6 @@
       const dailyLimitMinutes = hours * 60 + mins;
       const ageRating = document.getElementById('kidPcAgeRating').value;
       const contentLanguage = document.getElementById('kidPcContentLanguage')?.value || 'all';
-      const attentionTrackingEnabled = document.getElementById('kidPcAttentionEnabled').checked;
-      const attentionPauseSeconds = Math.max(5, Math.min(300, parseInt(document.getElementById('kidPcAttentionPause').value || '30', 10) || 30));
-      const attentionMinWatchPercent = Math.max(10, Math.min(100, parseInt(document.getElementById('kidPcAttentionPercent').value || '60', 10) || 60));
       const newPin = String(document.getElementById('kidPcNewPin').value || '').trim();
 
       if (!/^\d{4}$/.test(newPin)) {
@@ -8300,9 +8197,6 @@
             dailyLimitMinutes,
             ageRating,
             contentLanguage,
-            attentionTrackingEnabled,
-            attentionPauseSeconds,
-            attentionMinWatchPercent,
             toddlerLoopMinutes: Math.max(5, Math.min(60, parseInt(document.getElementById('kidPcToddlerLoop')?.value || '15', 10) || 15)),
             toddlerCooldownMinutes: Math.max(5, Math.min(240, parseInt(document.getElementById('kidPcToddlerCooldown')?.value || '30', 10) || 30))
           })
@@ -9279,15 +9173,15 @@
         guest_visitor: 'Guest Visitor',
         guest_sub: 'Sign in as Parent or Kid',
         guest_child_title: 'Discover, Learn & Explore Amazing Worlds!',
-        guest_child_desc: 'Ready for awesome cartoons, mind-blowing science experiments, music, and cool websites? Log in to your FamiTube account and start your adventure!',
+        guest_child_desc: 'Ready for calm cartoons, science, music, and parent-approved YouTube channels—without algorithmic rabbit holes? Log in to your FamiTube account and start watching!',
         guest_child_login_cta: 'Child Login & Start Exploring',
         guest_child_note: "Ask your parent for your username and passcode if you don't have one yet.",
-        guest_pill_yt_title: 'Awesome Channels',
-        guest_pill_yt_desc: 'Explore hand-picked cartoons, science, music, and fun stories.',
-        guest_pill_web_title: 'Cool Websites',
-        guest_pill_web_desc: 'Visit fun learning games, space, nature, and encyclopedia sites.',
-        guest_pill_stars_title: 'Famibux & Badges',
-        guest_pill_stars_desc: 'Earn Famibux, unlock badges, and save your favorite videos in lists.',
+        guest_pill_yt_title: 'Curated Safe Channels',
+        guest_pill_yt_desc: 'Hand-picked cartoons, science, music, and 24H Live TV.',
+        guest_pill_web_title: 'Calm Toddler TV',
+        guest_pill_web_desc: 'Slow-paced linear channels with gentle loops and Nap Cooldown.',
+        guest_pill_stars_title: 'Calm by Design',
+        guest_pill_stars_desc: 'Zero streaks, zero dopamine traps—just parent-approved videos & lists.',
         guest_parent_title: 'Learn more how FamiTube protects your children on the internet',
         guest_parent_desc: "Discover FamiTube's unique value proposition—100% parent-curated channels, age-rated child accounts, Calm Mode, and zero self-registration for kids.",
         guest_parent_learn_cta: 'Learn More',
@@ -9317,7 +9211,7 @@
         hero_s2_cta: 'See Safety Controls',
         hero_s3_badge: 'Age Tiers & Calm Viewing',
         hero_s3_title: 'Turn Screen Time into Curiosity & Learning',
-        hero_s3_desc: 'Tailor feeds from Toddlers (2–4) all the way to Teens (13–17) with Calm Mode, Study Mode, and tag filters parents control.',
+        hero_s3_desc: 'Tailor feeds across Toddlers (1.5–3), Young Kids (4–6), and Older Kids (7+) with Calm Mode, Study Mode, and tag filters parents control.',
         hero_s3_cta: 'Open Curator Studio',
         hero_s4_badge: 'Videos Free Forever',
         hero_s4_title: 'Every Video Is Free. Pay Only for Family Scale.',
@@ -9339,15 +9233,15 @@
         guest_visitor: 'Tamu',
         guest_sub: 'Masuk sebagai Orang Tua atau Anak',
         guest_child_title: 'Temukan, Pelajari & Jelajahi Dunia yang Seru!',
-        guest_child_desc: 'Siap menonton kartun seru, eksperimen sains menakjubkan, musik, dan situs-situs keren? Masuk ke akun FamiTube kamu dan mulai petualanganmu!',
+        guest_child_desc: 'Siap menonton kartun tenang, sains, musik, dan saluran YouTube pilihan orang tua—tanpa jebakan algoritma? Masuk ke akun FamiTube kamu dan mulai menonton!',
         guest_child_login_cta: 'Masuk Anak & Mulai Jelajahi',
         guest_child_note: 'Minta username dan kode sandi ke orang tuamu jika kamu belum memilikinya.',
-        guest_pill_yt_title: 'Saluran Seru',
-        guest_pill_yt_desc: 'Jelajahi kartun pilihan, sains, musik, dan cerita menarik.',
-        guest_pill_web_title: 'Situs Keren',
-        guest_pill_web_desc: 'Kunjungi situs belajar, luar angkasa, alam, dan ensiklopedia seru.',
-        guest_pill_stars_title: 'Famibux & Lencana',
-        guest_pill_stars_desc: 'Kumpulkan Famibux, buka lencana, dan simpan video favoritmu dalam daftar.',
+        guest_pill_yt_title: 'Saluran Aman Terkurasi',
+        guest_pill_yt_desc: 'Kartun pilihan, sains, musik, dan TV Langsung 24 Jam.',
+        guest_pill_web_title: 'TV Balita Tenang',
+        guest_pill_web_desc: 'Saluran linear bertempo lambat dengan loop lembut dan Nap Cooldown.',
+        guest_pill_stars_title: 'Tenang Sejak Awal',
+        guest_pill_stars_desc: 'Tanpa streak atau jebakan dopamin—hanya video & daftar pilihan orang tua.',
         guest_parent_title: 'Pelajari bagaimana FamiTube melindungi anak Anda di internet',
         guest_parent_desc: 'Temukan keunggulan unik FamiTube—100% saluran terkurasi orang tua, akun anak berdasarkan usia, Mode Tenang, dan tanpa pendaftaran mandiri untuk anak.',
         guest_parent_learn_cta: 'Pelajari Lebih Lanjut',
@@ -9377,7 +9271,7 @@
         hero_s2_cta: 'Lihat Kontrol Keamanan',
         hero_s3_badge: 'Tingkatan Usia & Tontonan Tenang',
         hero_s3_title: 'Ubah Waktu Layar Menjadi Belajar & Eksplorasi',
-        hero_s3_desc: 'Sesuaikan feed dari Balita (2–4) hingga Remaja (13–17) dengan Mode Tenang, Mode Belajar, dan filter tag yang dikontrol orang tua.',
+        hero_s3_desc: 'Sesuaikan feed untuk Balita (1,5–3), Anak Kecil (4–6), dan Anak Lebih Besar (7+) dengan Mode Tenang, Mode Belajar, dan filter tag yang dikontrol orang tua.',
         hero_s3_cta: 'Buka Studio Kurator',
         hero_s4_badge: 'Video Gratis Selamanya',
         hero_s4_title: 'Semua Video Gratis. Bayar Hanya untuk Skala Keluarga.',
@@ -33064,27 +32958,16 @@
       if (!activeStoryBook || !isActiveStoryPageUnlocked()) return;
       stopStoryAudioAndMic();
       playStoryChime();
-      const expectedReward = activeStoryMode === 'READ_ALONG'
-        ? activeStoryBook.rewardFamibux
-        : Math.max(5, Math.ceil(activeStoryBook.rewardFamibux * 0.5));
-      let awarded = expectedReward;
-      let alreadyToday = false;
       if (authToken) {
         try {
-          const res = await authFetch(`/api/kids/stories/${encodeURIComponent(activeStoryBook.id)}/complete`, {
+          await authFetch(`/api/kids/stories/${encodeURIComponent(activeStoryBook.id)}/complete`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ mode: activeStoryMode })
           });
-          const json = await res.json();
-          if (json.success && json.data) {
-            awarded = json.data.awardedFamibux ?? awarded;
-            alreadyToday = Boolean(json.data.alreadyRewardedToday);
-            if (typeof loadKidAchievements === 'function') loadKidAchievements();
-          }
         } catch {}
       }
-      activeStoryCompletionResult = { awarded, alreadyToday };
+      activeStoryCompletionResult = { completed: true };
       renderKidStoriesPanel();
     }
 
@@ -33094,7 +32977,6 @@
 
       if (activeStoryBook) {
         if (activeStoryCompletionResult) {
-          const { awarded, alreadyToday } = activeStoryCompletionResult;
           panel.innerHTML = `
             <div id="storyImmersiveOverlay" class="story-immersive-container" style="justify-content:center; align-items:center; padding:1.5rem;">
               <div class="story-backdrop-blur" style="background-image:url('${activeStoryBook.coverUrl}');"></div>
@@ -33102,10 +32984,7 @@
               <div class="card story-completion-card">
                 <div style="font-size:3.8rem; margin-bottom:0.6rem;">🎉📖</div>
                 <h2 style="font-family:'Fredoka',cursive; font-size:2rem; margin-bottom:0.4rem; color:inherit;">Story Complete!</h2>
-                <p style="color:var(--text-muted); margin-bottom:1.1rem;">You finished <strong>${activeStoryBook.title}</strong> in ${activeStoryMode === 'READ_ALONG' ? 'Read Aloud' : 'Read to Me'} mode!</p>
-                <div style="display:inline-flex; align-items:center; gap:0.5rem; padding:0.65rem 1.4rem; border-radius:99px; background:rgba(255,209,102,0.2); border:1.5px solid #ffd166; font-weight:800; color:#ffd166; margin-bottom:1.6rem; font-size:1.05rem;">
-                  ${alreadyToday ? '⭐ Already earned today — great extra reading!' : `+${awarded} Famibux Earned!`}
-                </div>
+                <p style="color:var(--text-muted); margin-bottom:1.5rem;">Awesome job finishing <strong>${activeStoryBook.title}</strong> in ${activeStoryMode === 'READ_ALONG' ? 'Read Aloud' : 'Read to Me'} mode!</p>
                 <div style="display:flex; justify-content:center; gap:0.85rem; flex-wrap:wrap;">
                   <button type="button" class="btn btn-secondary" onclick="openStoryBook('${activeStoryBook.id}')">Read Again</button>
                   <button type="button" class="btn btn-primary" onclick="closeStoryBook()">Back to Story Shelf</button>
@@ -33219,7 +33098,7 @@
                     <div style="display:flex; gap:0.6rem;">
                       <button type="button" class="btn btn-secondary btn-sm" ${activeStoryPageIdx === 0 ? 'disabled' : ''} onclick="flipStoryPage(-1)">← Prev</button>
                       ${isLastPage
-                        ? `<button id="storyNextPageBtn" type="button" class="btn btn-sm ${unlocked ? 'btn-primary' : 'btn-secondary'}" onclick="${unlocked ? 'finishActiveStoryBook()' : 'flipStoryPage(1)'}">${unlocked ? '🎉 Finish Story (+Famibux)' : '🔒 Read Aloud to Finish'}</button>`
+                        ? `<button id="storyNextPageBtn" type="button" class="btn btn-sm ${unlocked ? 'btn-primary' : 'btn-secondary'}" onclick="${unlocked ? 'finishActiveStoryBook()' : 'flipStoryPage(1)'}">${unlocked ? '🎉 Finish Story' : '🔒 Read Aloud to Finish'}</button>`
                         : `<button id="storyNextPageBtn" type="button" class="btn btn-sm ${unlocked ? 'btn-primary' : 'btn-secondary'}" onclick="flipStoryPage(1)">${unlocked ? '✨ Flip Next Page →' : '🔒 Read Aloud to Unlock Next Page'}</button>`}
                     </div>
                   </div>
@@ -33245,8 +33124,8 @@
               <h2 style="font-family:'Fredoka',cursive; font-size:1.55rem; margin:0 0 0.25rem 0;">📖 Storybooks &amp; Read-Along</h2>
               <p style="color:var(--text-muted); font-size:0.9rem; margin:0;">
                 ${ageRating === 'TODDLER'
-                  ? 'Flip through illustrated pages with gentle audio, or try Read-Along!'
-                  : 'Read each page aloud into your mic to unlock the next page and earn Famibux!'}
+                  ? 'Flip through illustrated pages with gentle narration.'
+                  : 'Read each page aloud into your mic to turn the page automatically!'}
               </p>
             </div>
             <div style="display:flex; gap:0.45rem; flex-wrap:wrap; align-items:center;">
@@ -33273,7 +33152,7 @@
             <div style="font-size:2.4rem; margin-bottom:0.5rem;">📚</div>
             <h3 style="margin-bottom:0.35rem;">${isOlder && !kidStoryBrowseAll ? 'Toddler & Younger Stories Hidden for Your Age Tier' : 'No Storybooks Found'}</h3>
             <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1rem;">
-              ${isOlder && !kidStoryBrowseAll ? 'Stories are tailored for Toddlers (2–4) and Young Kids (5–8). Want to read them anyway?' : 'Try adjusting your search or switching language filters above.'}
+              ${isOlder && !kidStoryBrowseAll ? 'Stories are tailored for Toddlers (1.5–3) and Young Kids (4–6). Want to read them anyway?' : 'Try adjusting your search or switching language filters above.'}
             </p>
             ${isOlder && !kidStoryBrowseAll ? `<button type="button" class="btn btn-primary" onclick="kidStoryBrowseAll=true; loadAndRenderKidStories(true);">Browse All Stories</button>` : ''}
           </div>
@@ -33288,7 +33167,6 @@
                 <div class="video-info">
                   <div style="display:flex; align-items:center; justify-content:space-between; gap:0.4rem; margin-bottom:0.35rem;">
                     <span class="age-badge">${b.ageRating === 'TODDLER' ? '🎧 Read to Me' : '🎙️ Read Aloud'}</span>
-                    <span style="font-size:0.76rem; font-weight:800; color:#d97706;">+${b.rewardFamibux} Famibux</span>
                   </div>
                   <div class="video-title">${b.title}</div>
                   <div class="video-meta" style="margin-top:0.25rem;">${b.description}</div>
@@ -33347,7 +33225,6 @@
       document.getElementById('studioStoryEditId').value = '';
       document.getElementById('studioStoryForm')?.reset();
       document.getElementById('studioStoryAuthor').value = 'FamiTube Storybooks';
-      document.getElementById('studioStoryReward').value = '25';
       document.getElementById('btnCancelStudioStoryEdit').style.display = 'none';
       const list = document.getElementById('studioStoryPagesList');
       if (list) {
@@ -33383,7 +33260,6 @@
           <div class="video-info">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
               <span class="age-badge">${s.ageRating}</span>
-              <span style="font-size:0.76rem; font-weight:700; color:#d97706;">+${s.rewardFamibux} Famibux</span>
             </div>
             <div class="video-title">${s.title}</div>
             <div class="video-meta" style="margin-bottom:0.75rem;">${s.description || ''}</div>
@@ -33405,7 +33281,6 @@
       document.getElementById('studioStoryCover').value = s.coverUrl;
       document.getElementById('studioStoryAge').value = s.ageRating;
       document.getElementById('studioStoryLang').value = s.language;
-      document.getElementById('studioStoryReward').value = String(s.rewardFamibux || 25);
       document.getElementById('studioStoryDesc').value = s.description || '';
       document.getElementById('btnCancelStudioStoryEdit').style.display = 'inline-flex';
       const list = document.getElementById('studioStoryPagesList');
@@ -33432,7 +33307,6 @@
         coverUrl,
         ageRating: document.getElementById('studioStoryAge').value,
         language: document.getElementById('studioStoryLang').value,
-        rewardFamibux: Number(document.getElementById('studioStoryReward').value || 25),
         description: document.getElementById('studioStoryDesc').value.trim(),
         pages
       };
