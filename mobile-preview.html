@@ -1128,6 +1128,12 @@
       pairCodeInput: '',
       activeChildId: 'c-2',
       savedSection: 'favorites',
+      quietHoursEnabled: false,
+      quietHoursStart: '20:00',
+      quietHoursEnd: '07:00',
+      episodeLimitPerSession: 0,
+      sessionEpisodesWatched: 0,
+      quickShareInput: '',
       loginEmail: '',
       savedChannelIds: ['ch-1'],
       selectedChannelId: 'ch-1',
@@ -1159,18 +1165,16 @@
         '@NatGeoKids': [
           { id: 'yt-ngk-1', title: 'Cheetahs: Speed Champions of the Wild', duration: 420, thumbnailUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&h=225&fit=crop', channelTitle: 'National Geographic Kids', handle: '@NatGeoKids' }
         ],
-        '@Coffeezilla': [
-          { id: 'W4PIkmjwGsQ', title: 'Investigating The President', duration: 1045, thumbnailUrl: 'https://img.youtube.com/vi/W4PIkmjwGsQ/hqdefault.jpg', channelTitle: 'Coffeezilla', handle: '@Coffeezilla' },
-          { id: '9eWJISlh0fw', title: 'I Investigated $100 Billion in Healthcare Fraud', duration: 1240, thumbnailUrl: 'https://img.youtube.com/vi/9eWJISlh0fw/hqdefault.jpg', channelTitle: 'Coffeezilla', handle: '@Coffeezilla' },
-          { id: 'OBJZw3bF0dg', title: 'UFC Fighter Accidentally Exposes a Huge Scam', duration: 875, thumbnailUrl: 'https://img.youtube.com/vi/OBJZw3bF0dg/hqdefault.jpg', channelTitle: 'Coffeezilla', handle: '@Coffeezilla' },
-          { id: 'VKfQkRbd15k', title: 'I Found The $200,000 Missing Lego', duration: 920, thumbnailUrl: 'https://img.youtube.com/vi/VKfQkRbd15k/hqdefault.jpg', channelTitle: 'Coffeezilla', handle: '@Coffeezilla' },
-          { id: '04FRAsU0za0', title: 'Exposing a $300,000,000 Scam', duration: 1350, thumbnailUrl: 'https://img.youtube.com/vi/04FRAsU0za0/hqdefault.jpg', channelTitle: 'Coffeezilla', handle: '@Coffeezilla' }
+        '@MarkRober': [
+          { id: 'mr-1', title: 'Backyard Squirrel Maze 2.0 — Walnut Heist', duration: 1045, thumbnailUrl: 'https://images.unsplash.com/photo-1507668077129-56e32842fceb?w=400&h=225&fit=crop', channelTitle: 'Mark Rober', handle: '@MarkRober' },
+          { id: 'mr-2', title: 'World’s Largest Elephant Toothpaste Experiment!', duration: 840, thumbnailUrl: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=400&h=225&fit=crop', channelTitle: 'Mark Rober', handle: '@MarkRober' },
+          { id: 'mr-3', title: 'Building a Domino Robot with CrunchLabs Engineering', duration: 760, thumbnailUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=225&fit=crop', channelTitle: 'Mark Rober', handle: '@MarkRober' }
         ]
       },
       ytSamplePlaylists: {
-        '@Coffeezilla': [
-          { id: 'pl-cz-investigations', title: 'Major Fraud Investigations', videoCount: 15, thumbnailUrl: 'https://img.youtube.com/vi/W4PIkmjwGsQ/hqdefault.jpg' },
-          { id: 'pl-cz-crypto', title: 'Scams & Fake Guru Busts', videoCount: 22, thumbnailUrl: 'https://img.youtube.com/vi/04FRAsU0za0/hqdefault.jpg' }
+        '@MarkRober': [
+          { id: 'pl-mr-crunchlabs', title: 'CrunchLabs Science & Engineering Builds', videoCount: 18, thumbnailUrl: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=400&h=225&fit=crop' },
+          { id: 'pl-mr-nature', title: 'Backyard Science Experiments', videoCount: 12, thumbnailUrl: 'https://images.unsplash.com/photo-1507668077129-56e32842fceb?w=400&h=225&fit=crop' }
         ],
         '@SciShowKids': [
           { id: 'pl-ssk-space', title: 'Awesome Space Adventures', videoCount: 8, thumbnailUrl: 'https://img.youtube.com/vi/BYVZh5kqaFg/hqdefault.jpg' },
@@ -3114,6 +3118,13 @@
             <button class="chip ${state.parentTab==='controls'?'active':''}" onclick="state.parentTab='controls'; render();">Global Controls</button>
           </div>
           ${state.parentTab === 'requests' ? `
+            <div class="card-box" style="border-color:rgba(255,46,147,0.35); margin-bottom:10px;">
+              <div style="font-weight:800; font-size:0.84rem; margin-bottom:4px;">📤 Approve from YouTube (Share / Link)</div>
+              <div style="display:flex; gap:6px;">
+                <input type="text" placeholder="Paste YouTube URL or @handle..." value="${state.quickShareInput || ''}" oninput="state.quickShareInput=this.value;" style="flex:1; min-width:0; padding:6px 9px; border-radius:8px; border:1px solid var(--border); background:var(--surface-var); color:var(--text); font-size:0.74rem;">
+                <button class="btn-primary" style="padding:6px 10px; font-size:0.72rem;" onclick="const txt=(state.quickShareInput||'').trim()||'@MarkRober'; if(txt.startsWith('@')){ if(!state.ytSubscribedChannels.some(c=>c.handle.toLowerCase()===txt.toLowerCase())){ state.ytSubscribedChannels.unshift({id:'yt-'+Date.now(), handle:txt, title:txt.slice(1), avatarUrl:'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=200&h=200&fit=crop', trustLevel:'TRUSTED', videoCount:12, playlistCount:2}); } } else { state.parentRequests.unshift({id:'req-'+Date.now(), title:'Parent-Approved YouTube Video', channelTitle:'YouTube', kidName:'Maya', youtubeVideoId:'BYVZh5kqaFg', thumbnailUrl:'https://img.youtube.com/vi/BYVZh5kqaFg/hqdefault.jpg', status:'APPROVED'}); } state.quickShareInput=''; render(); showDeviceToast('parentDeviceScreen','Approved for kids!');">Approve</button>
+              </div>
+            </div>
             ${state.parentRequests.length === 0 ? `
               <div class="card-box" style="text-align:center; padding:30px 16px;">
                 <div style="font-size:2rem; margin-bottom:8px;">✅</div>
@@ -3278,6 +3289,16 @@
                 `;
               }
               return `
+                <div class="card-box" style="background:rgba(67,97,238,0.08); border-color:rgba(67,97,238,0.28); margin-bottom:10px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                    <span style="font-weight:800; font-size:0.84rem;">📊 Weekly Family Insights</span>
+                    <span style="font-size:0.68rem; font-weight:800; color:var(--blue);">Past 7 days</span>
+                  </div>
+                  <div style="font-size:0.72rem; color:var(--text-muted); line-height:1.4;">
+                    <strong>Leo</strong>: Animals &amp; Nature (52%) • Science (38%)<br>
+                    <strong>Maya</strong>: Music &amp; Rhymes (60%) • Learning &amp; ABCs (40%)
+                  </div>
+                </div>
                 ${state.parentChildren.map(c => {
                   const effectiveLimit = c.dailyLimitMinutes !== null && c.dailyLimitMinutes !== undefined ? c.dailyLimitMinutes : state.dailyLimit;
                   const isToddlerC = c.ageRating === 'TODDLER';
@@ -3469,6 +3490,14 @@
               <div style="font-weight:800; font-size:0.9rem; margin-bottom:4px;">Global Parental Controls (All Kids)</div>
               <div style="font-size:0.74rem; color:var(--text-muted); margin-bottom:10px;">Default for all kids unless overridden per child.</div>
               <div style="font-size:0.76rem; margin-bottom:8px;">Global Daily Limit: <strong>${state.dailyLimit}m</strong> • Age: <strong>${state.ageMode}</strong></div>
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                <span style="font-size:0.76rem; font-weight:700;">🌙 Quiet Hours (${state.quietHoursStart}–${state.quietHoursEnd})</span>
+                <button class="chip ${state.quietHoursEnabled?'active':''}" onclick="state.quietHoursEnabled=!state.quietHoursEnabled; render();">${state.quietHoursEnabled?'ON':'OFF'}</button>
+              </div>
+              <div style="font-size:0.74rem; font-weight:700; margin-bottom:5px;">🎬 Stop After N Videos (Per Session)</div>
+              <div class="chips-row" style="margin-bottom:10px;">
+                ${[0, 1, 2, 3, 5].map(n => `<button class="chip ${state.episodeLimitPerSession===n?'active':''}" onclick="state.episodeLimitPerSession=${n}; state.sessionEpisodesWatched=0; render();">${n===0?'Off':n+' vid'}</button>`).join('')}
+              </div>
               <button class="btn-primary" style="width:100%; margin-bottom:8px;" onclick="${isSideBySide ? "state.parentScreen='parental_settings'; render();" : "navigate('parental_settings')"}">Edit Global Controls</button>
               ${isSideBySide
                 ? `<div style="font-size:0.72rem; color:#06D6A0; font-weight:700; text-align:center; padding:4px 0;">● Changes sync live to Child Mode on the left</div>`
@@ -3575,6 +3604,17 @@
               </div>
             </div>
           `}
+          <div class="card-box">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+              <div style="font-weight:800; font-size:0.92rem;">🌙 Quiet Hours (${state.quietHoursStart}–${state.quietHoursEnd})</div>
+              <button class="chip ${state.quietHoursEnabled?'active':''}" onclick="state.quietHoursEnabled=!state.quietHoursEnabled; render();">${state.quietHoursEnabled?'ON':'OFF'}</button>
+            </div>
+            <div style="font-size:0.74rem; font-weight:700; margin:6px 0 5px;">🎬 Stop After N Videos</div>
+            <div class="chips-row" style="margin-bottom:8px;">
+              ${[0, 1, 2, 3, 5].map(n => `<button class="chip ${state.episodeLimitPerSession===n?'active':''}" onclick="state.episodeLimitPerSession=${n}; state.sessionEpisodesWatched=0; render();">${n===0?'Off':n+' vid'}</button>`).join('')}
+            </div>
+            ${state.episodeLimitPerSession > 0 ? `<button class="btn-outline" style="width:100%; font-size:0.72rem;" onclick="state.sessionEpisodesWatched=0; render();">Reset Episode Counter (${state.sessionEpisodesWatched}/${state.episodeLimitPerSession})</button>` : ''}
+          </div>
           <div class="card-box">
             <div style="font-weight:800; font-size:0.95rem; margin-bottom:6px;">🎨 App Theme &amp; Family</div>
             <div class="theme-grid" style="margin-bottom:10px;">
@@ -4371,11 +4411,11 @@
                     { handle: handle, title: handle.replace('@', ''), trustLevel: 'SUPERVISED', avatarUrl: 'https://images.unsplash.com/photo-1507668077129-56e32842fceb?w=200&h=200&fit=crop' };
         const isSubscribed = state.ytSubscribedChannels.some(c => c.handle.toLowerCase() === handle.toLowerCase());
         const rawVideos = state.ytSampleVideos[handle] || 
-                       (handle.toLowerCase().includes('coffee') ? state.ytSampleVideos['@Coffeezilla'] : 
+                       (handle.toLowerCase().includes('mark') ? state.ytSampleVideos['@MarkRober'] : 
                        (state.ytSampleVideos['@SciShowKids'] || []));
         const videos = rawVideos.filter(v => isContentAllowedForChildReligion(v, state.childReligion));
         const playlists = state.ytSamplePlaylists[handle] || 
-                         (handle.toLowerCase().includes('coffee') ? state.ytSamplePlaylists['@Coffeezilla'] : 
+                         (handle.toLowerCase().includes('mark') ? state.ytSamplePlaylists['@MarkRober'] : 
                          (state.ytSamplePlaylists['@SciShowKids'] || []));
         const trust = sub.trustLevel || 'SUPERVISED';
 
@@ -4651,6 +4691,28 @@
       } else if (state.screen === 'player') {
         const v = state.activeVideo || state.videos[0];
         const isToddler = state.ageMode === 'TODDLER';
+        if (state.quietHoursEnabled) {
+          body.innerHTML = `
+            <div class="card-box" style="text-align:center; padding:34px 16px; background:linear-gradient(135deg, rgba(67,97,238,0.22), rgba(15,23,42,0.9)); border-color:rgba(76,201,240,0.4);">
+              <div style="font-size:2.6rem; margin-bottom:8px;">🌙</div>
+              <div style="font-weight:800; font-size:1.08rem; color:#fff; margin-bottom:6px;">Shhh... FamiTube is Sleeping</div>
+              <div style="font-size:0.78rem; color:#CBD5E1; margin-bottom:14px;">Quiet Hours active (${state.quietHoursStart} – ${state.quietHoursEnd}). Time to rest!</div>
+              <button class="btn-primary" style="width:100%;" onclick="navigate('home')">Back Home</button>
+            </div>
+          `;
+          return;
+        }
+        if (state.episodeLimitPerSession > 0 && state.sessionEpisodesWatched >= state.episodeLimitPerSession) {
+          body.innerHTML = `
+            <div class="card-box" style="text-align:center; padding:34px 16px;">
+              <div style="font-size:2.6rem; margin-bottom:8px;">🌟</div>
+              <div style="font-weight:800; font-size:1.08rem; margin-bottom:6px;">All Done for This Session!</div>
+              <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:14px;">Finished ${state.episodeLimitPerSession} episode${state.episodeLimitPerSession===1?'':'s'}. Ask a grown-up via 🔒 for another session.</div>
+              <button class="btn-primary" style="width:100%;" onclick="navigate('home')">Back Home</button>
+            </div>
+          `;
+          return;
+        }
         const isFs = isToddler && Boolean(state.toddlerFullscreen);
         if (isFs) {
           body.innerHTML = `
@@ -4706,7 +4768,7 @@
                 <div style="position:absolute; inset:0; z-index:4; background:transparent;"></div>
                 <span style="position:absolute; top:8px; left:8px; z-index:5; background:rgba(0,0,0,0.72); color:#fff; font-size:0.62rem; font-weight:800; padding:3px 7px; border-radius:99px;">🔒 TODDLER • NO SKIPPING</span>
               ` : ''}
-              <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">
+              <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="if(state.episodeLimitPerSession>0){ state.sessionEpisodesWatched+=1; render(); }">
                 <span class="material-symbols-rounded" style="font-size:3.2rem; color:#fff;">play_circle</span>
               </div>
             </div>

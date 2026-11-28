@@ -10,7 +10,7 @@ const WEB_DIR = path.resolve(__dirname, '..');
 const FAQ_PATH = path.join(WEB_DIR, 'faq.html');
 
 const USER_FACING_PATTERNS = {
-  web: /^(index|learn-more|mobile-preview)\.html$/,
+  web: /^((index|learn-more|mobile-preview)\.html|js\/.*\.js|css\/.*\.css)$/,
   backend: /^src\/(routes|types|entitlements|tags|auth)\.ts$/,
   android: /^app\/src\/main\/java\/.*\/(ui\/screens|ui\/navigation|data\/model|data\/local)\/.*\.kt$/
 };
